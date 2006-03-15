@@ -1,0 +1,19 @@
+Features:
+
+- Designed so that usage of GSL is as if GSL were written in CL:
+  information flow correctly through functions, full condition
+  handling, all information returned is available.
+
+- Conditions are handled in a Lisp-friendly way; full use of the CL
+  condition system with full explanations.
+
+- Uses CFFI.  Should work with any Common Lisp that supports CFFI with
+  callbacks and foreign-funcall.
+
+- This library is pure common lisp.  No C is used; the only requirement
+is that the GSL library must be loaded and accessible.
+
+- ??? No actual functions are defined, just the macros for gaining
+access to the functions.  Defining the functions you need yourself is
+very easy.
+
