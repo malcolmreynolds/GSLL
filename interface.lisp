@@ -3,16 +3,16 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 11 2006 - 22:15
+; modified:    Fri Mar 17 2006 - 21:34
 ;********************************************************
 
 (in-package :gsl)
 
-;;; http://common-lisp.net/project/cffi/
-
-
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (export '()))
+
+;;; Need CFFI
+;;; http://common-lisp.net/project/cffi/
 
 (cffi:defcstruct sf-result
   "Results from special functions with value and error estimate."
@@ -36,11 +36,19 @@ and a scaling exponent e10, such that the value is val*10^e10."
   :approx-prec)
 
 (defun pick-result (decl)
-  (case (second decl)
-    (sf-result
-     `((cffi:foreign-slot-value ,(first decl) 'sf-result 'val)
-       (cffi:foreign-slot-value ,(first decl) 'sf-result 'err)))
-    (:double `((cffi:mem-ref ,(first decl) :double)))))
+  (if (listp (second decl))
+      `((loop for i from 0 to ,(second (second decl))
+	  collect (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
+      (case (second decl)
+	(sf-result
+	 `((cffi:foreign-slot-value ,(first decl) 'sf-result 'val)
+	   (cffi:foreign-slot-value ,(first decl) 'sf-result 'err)))
+	(:double `((cffi:mem-ref ,(first decl) :double))))))
+
+(defun first-or-self (x)
+  (if (listp x)
+      (first x)
+      x))
 
 ;;; Warning isn't quite right for lambdas.
 ;;; New name?
@@ -50,7 +58,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
    GSL function definition.  If cl-name is :lambda, make a lambda."
   (let ((args (mapcar #'first arguments))
 	(return-symb-type
-	 (mapcar (lambda (typ) (list (gensym "RET") typ)) return)))
+	 (mapcar (lambda (typ)
+		   (list (gensym "RET")
+			 typ))
+		 return)))
     `(,@(if (eq cl-name :lambda)
 	    '(lambda)
 	    `(defun ,cl-name))
@@ -59,7 +70,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	     `(,@args))
 	,@(when documentation (list documentation))
 	(cffi:with-foreign-objects
-	    (,@(mapcar (lambda (d) `(,(first d) ',(second d)))
+	    (,@(mapcar (lambda (d) `(,(first d) ',(first-or-self (second d))))
 		       return-symb-type))
 	  (let ((status
 		 (cffi:foreign-funcall
@@ -78,4 +89,5 @@ and a scaling exponent e10, such that the value is val*10^e10."
 
 ;;; arguments: list like ((x :double) (y :double))
 ;;; mode: t or nil
+
 

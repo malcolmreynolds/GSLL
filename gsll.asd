@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Thu Mar  9 2006 - 23:14
+; modified:    Fri Mar 17 2006 - 18:52
 ;********************************************************
 ;;; $Id: $
 
@@ -16,9 +16,16 @@
   :depends-on (cffi)
   :components
   ((:file "init")
-   (:file "conditions" :depends-on (init))
    (:file "interface" :depends-on (init))
-   (:file "mathematical" :depends-on (init))
+   (:module general
+	    :depends-on (init interface)
+	    :components
+	    ((:file "conditions")
+	     (:file "mathematical")))
    ;; complex numbers not necessary?  Just make a struct.
-   (:file "special-functions" :depends-on ("interface"))
-   ))
+   (:module special-functions
+	    :depends-on (init interface)
+	    :components
+	    ((:file "airy")
+	     (:file "bessel")
+	     (:file "dilogarithm")))))
