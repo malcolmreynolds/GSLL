@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Fri Mar 17 2006 - 21:34
+; modified:    Sat Mar 18 2006 - 00:16
 ;********************************************************
 
 (in-package :gsl)
@@ -35,6 +35,12 @@ and a scaling exponent e10, such that the value is val*10^e10."
   :single-prec
   :approx-prec)
 
+(defmacro defunx (name &rest args)
+  "defun and export"
+  `(progn
+    (export '(,name))
+    (defun ,name ,@args)))
+
 (defun pick-result (decl)
   (if (listp (second decl))
       `((loop for i from 0 to ,(second (second decl))
@@ -64,7 +70,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		 return)))
     `(,@(if (eq cl-name :lambda)
 	    '(lambda)
-	    `(defun ,cl-name))
+	    `(defunx ,cl-name))
 	,(if mode 
 	     `(,@args &optional (mode :double-prec))
 	     `(,@args))

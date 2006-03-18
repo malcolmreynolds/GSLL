@@ -3,14 +3,10 @@
 ; description: Dilogarithm                               
 ; date:        Fri Mar 17 2006 - 18:44                   
 ; author:      Liam M. Healy
-; modified:    Fri Mar 17 2006 - 18:44
+; modified:    Sat Mar 18 2006 - 00:22
 ;********************************************************
 
 (in-package :gsl)
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (export
-   '(dilogarithm)))
 
 ;;; dilog merge complex and real
 (defun dilogarithm (x)

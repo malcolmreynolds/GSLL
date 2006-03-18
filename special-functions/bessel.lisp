@@ -3,15 +3,13 @@
 ; description: Bessel functions                          
 ; date:        Fri Mar 17 2006 - 18:42                   
 ; author:      Liam M. Healy
-; modified:    Fri Mar 17 2006 - 21:32
+; modified:    Sat Mar 18 2006 - 00:15
 ;********************************************************
 
 (in-package :gsl)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (export
-   '(cylindrical-bessel-J0 cylindrical-bessel-J1 cylindrical-bessel-Jn
-     cylindrical-bessel-Jn-array)))
+  (export '()))
 
 ;;;;****************************************************************************
 ;;;; Regular Cylindrical Bessel Functions
@@ -179,11 +177,231 @@
 ;;;; Regular Spherical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-sf regular-spherical-bessel ((order :int) (x :double))
-  "gsl_sf_bessel_jl_e"
-  :documentation "The regular spherical Bessel function j_l."
+(defun-sf spherical-bessel-j0 ((x :double))
+  "gsl_sf_bessel_j0_e"
+  :documentation
+  "The regular spherical Bessel function of zeroth order, @math{j_0(x) = \sin(x)/x}."
   :return (sf-result))
 
-;;; (regular-spherical-bessel 3 12.4d0)
-;;; 0.07813007015855176d0
-;;; 1.9083196617232666d-16
+(defun-sf spherical-bessel-j1 ((x :double))
+  "gsl_sf_bessel_j1_e"
+  :documentation
+  "The regular spherical Bessel function of first order, @math{j_1(x) = (\sin(x)/x - \cos(x))/x}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-j2 ((x :double))
+  "gsl_sf_bessel_j2_e"
+  :documentation
+  "The regular spherical Bessel function of second order, @math{j_2(x) = ((3/x^2 - 1)\sin(x) - 3\cos(x)/x)/x}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-jl ((l :int) (x :double))
+  "gsl_sf_bessel_jl_e"
+  :documentation "The regular spherical Bessel function of order @var{l}, @math{j_l(x)}, for @c{$l \geq 0$} @math{l >= 0} and @c{$x \geq 0$} @math{x >= 0}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-jl-array ((lmax :int) (x :double))
+  "gsl_sf_bessel_jl_array"
+  :documentation
+  "The regular spherical Bessel functions @math{j_l(x)} for @math{l} from 0 to @var{lmax} inclusive  for @c{$lmax \geq 0$} @math{lmax >= 0} and @c{$x \geq 0$} @math{x >= 0}, storing the results in the array @var{result_array}. The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
+  :return ((:double lmax)))
+
+(defun-sf spherical-bessel-jl-steed-array ((lmax :int) (x :double))
+  "gsl_sf_bessel_jl_array"
+  :documentation
+  "Uses Steed's method to compute the values of the regular spherical Bessel functions @math{j_l(x)} for @math{l} from 0 to @var{lmax} inclusive for @c{$lmax \geq 0$} @math{lmax >= 0} and @c{$x \geq 0$} @math{x >= 0}, storing the results in the array @var{result_array}. The Steed/Barnett algorithm is described in @cite{Comp. Phys. Comm.} 21, 297 (1981).  Steed's method is more stable than the recurrence used in the other functions but is also slower."
+  :return ((:double lmax)))
+
+;;;;****************************************************************************
+;;;; Irregular Spherical Bessel Functions
+;;;;****************************************************************************
+
+(defun-sf spherical-bessel-y0 ((x :double))
+  "gsl_sf_bessel_y0_e"
+  :documentation
+  "The irregular spherical Bessel function of zeroth order, @math{y_0(x) = -\cos(x)/x}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-y1 ((x :double))
+  "gsl_sf_bessel_y1_e"
+  :documentation
+  "The irregular spherical Bessel function of first order, @math{y_1(x) = -(\cos(x)/x + \sin(x))/x}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-y2 ((x :double))
+  "gsl_sf_bessel_y2_e"
+  :documentation
+  "The irregular spherical Bessel function of second order, @math{y_2(x) = (-3/x^3 + 1/x)\cos(x) - (3/x^2)\sin(x)}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-yl ((l :int) (x :double))
+  "gsl_sf_bessel_yl_e"
+  :documentation
+  "The irregular spherical Bessel function of order @var{l}, @math{y_l(x)}, for @c{$l \geq 0$} @math{l >= 0}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-yl-array ((lmax :int) (x :double))
+  "gsl_sf_bessel_yl_array"
+  :documentation
+  "The irregular spherical Bessel functions @math{y_l(x)} for @math{l} from 0 to @var{lmax} inclusive  for @c{$lmax \geq 0$} @math{lmax >= 0}, storing the results in the array @var{result_array}. The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
+  :return ((:double lmax)))
+
+;;;;****************************************************************************
+;;;; Regular Modified Spherical Bessel Functions
+;;;;****************************************************************************
+
+(defun-sf spherical-bessel-i0-scaled ((x :double))
+  "gsl_sf_bessel_i0_scaled_e"
+  :documentation
+  "The scaled regular modified spherical Bessel function of zeroth order, @math{\exp(-|x|) i_0(x)}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-i1-scaled ((x :double))
+  "gsl_sf_bessel_i1_scaled_e"
+  :documentation
+  "The scaled regular modified spherical Bessel function of first order, @math{\exp(-|x|) i_1(x)}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-i2-scaled ((x :double))
+  "gsl_sf_bessel_i2_scaled_e"
+  :documentation
+  "The scaled regular modified spherical Bessel function of second order, @math{ \exp(-|x|) i_2(x) }."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-il-scaled ((n :int) (x :double))
+  "gsl_sf_bessel_il_scaled_e"
+  :documentation
+  "The scaled regular modified spherical Bessel function of order @var{l}, @math{ \exp(-|x|) i_l(x) }."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-il-scaled-array ((lmax :int) (x :double))
+  "gsl_sf_bessel_il_scaled_array"
+  :documentation
+  "The values of the scaled regular modified cylindrical Bessel functions @math{\exp(-|x|) i_l(x)} for @math{l} from 0 to @var{lmax} inclusive for @c{$lmax \geq 0$} @math{lmax >= 0}, storing the results in the array @var{result_array}.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
+  :return ((:double lmax)))
+
+;;;;****************************************************************************
+;;;; Irregular Modified Spherical Bessel Functions
+;;;;****************************************************************************
+
+(defun-sf spherical-bessel-k0-scaled ((x :double))
+  "gsl_sf_bessel_k0_scaled_e"
+  :documentation
+  "The scaled irregular modified spherical Bessel function of zeroth order, @math{\exp(x) k_0(x)}, for @math{x>0}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-k1-scaled ((x :double))
+  "gsl_sf_bessel_k1_scaled_e"
+  :documentation
+  "The scaled irregular modified spherical Bessel function of first order, @math{\exp(x) k_1(x)}, for @math{x>0}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-k2-scaled ((x :double))
+  "gsl_sf_bessel_k2_scaled_e"
+  :documentation
+  "The scaled irregular modified spherical Bessel function of second order, @math{\exp(x) k_2(x)}, for @math{x>0}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-kl-scaled ((n :int) (x :double))
+  "gsl_sf_bessel_il_scaled_e"
+  :documentation
+  "The scaled irregular modified spherical Bessel function of order @var{l}, @math{\exp(x) k_l(x)}, for @math{x>0}."
+  :return (sf-result))
+
+(defun-sf spherical-bessel-kl-scaled-array ((lmax :int) (x :double))
+  "gsl_sf_bessel_kl_scaled_array"
+  :documentation
+  "The values of the scaled irregular modified spherical Bessel functions @math{\exp(x) k_l(x)} for @math{l} from 0 to @var{lmax} inclusive for @c{$lmax \geq 0$} @math{lmax >= 0} and @math{x>0}, storing the results in the array @var{result_array}.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
+  :return ((:double lmax)))
+
+;;;;****************************************************************************
+;;;; Regular Bessel Function - Fractional Order
+;;;;****************************************************************************
+
+(defun-sf bessel-Jnu ((nu :double) (x :double))
+  "gsl_sf_bessel_Jnu_e"
+  :documentation
+  "The regular cylindrical Bessel function of fractional order @math{\nu}, @math{J_\nu(x)}."
+  :return (sf-result))
+
+;;; Needs work:
+;;; has mode, same array for input and output
+;;; (double @var{nu}, gsl_mode_t @var{mode}, size_t @var{size}, double @var{v}[])
+;;; "gsl_sf_bessel_sequence_Jnu_e"
+"The regular cylindrical Bessel function of
+fractional order @math{\nu}, @math{J_\nu(x)}, evaluated at a series of
+@math{x} values.  The array @var{v} of length @var{size} contains the
+@math{x} values.  They are assumed to be strictly ordered and positive.
+The array is over-written with the values of @math{J_\nu(x_i)}."
+
+;;;;****************************************************************************
+;;;; Irregular Bessel Function - Fractional Order
+;;;;****************************************************************************
+
+(defun-sf bessel-Ynu ((nu :double) (x :double))
+  "gsl_sf_bessel_Ynu_e"
+  :documentation
+  "The irregular cylindrical Bessel function of fractional order @math{\nu}, @math{Y_\nu(x)}."
+  :return (sf-result))
+
+;;;;****************************************************************************
+;;;; Regular Modified Bessel Functions - Fractional Order
+;;;;****************************************************************************
+
+(defun-sf bessel-Inu ((nu :double) (x :double))
+  "gsl_sf_bessel_Inu_e"
+  :documentation
+  "The regular modified Bessel function of fractional order @math{\nu}, @math{I_\nu(x)} for @math{x>0}, @math{\nu>0}."
+  :return (sf-result))
+
+(defun-sf bessel-Inu-scaled ((nu :double) (x :double))
+  "gsl_sf_bessel_Inu_scaled_e"
+  :documentation
+  "The scaled regular modified Bessel function of fractional order @math{\nu}, @math{\exp(-|x|)I_\nu(x)} for @math{x>0}, @math{\nu>0}."
+  :return (sf-result))
+
+;;;;****************************************************************************
+;;;; Irregular Modified Bessel Functions - Fractional Order
+;;;;****************************************************************************
+
+(defun-sf bessel-Knu ((nu :double) (x :double))
+  "gsl_sf_bessel_Knu_e"
+  :documentation
+  "The irregular modified Bessel function of fractional order @math{\nu}, @math{K_\nu(x)} for @math{x>0}, @math{\nu>0}."
+  :return (sf-result))
+
+(defun-sf bessel-lnKnu ((nu :double) (x :double))
+  "gsl_sf_bessel_lnKnu_e"
+  :documentation
+  "The logarithm of the irregular modified Bessel function of fractional order @math{\nu}, @math{\ln(K_\nu(x))} for @math{x>0}, @math{\nu>0}."
+  :return (sf-result))
+
+(defun-sf bessel-Knu-scaled ((nu :double) (x :double))
+  "gsl_sf_bessel_Knu_scaled_e"
+  :documentation
+  "The scaled irregular modified Bessel function of fractional order @math{\nu}, @math{\exp(+|x|) K_\nu(x)} for @math{x>0}, @math{\nu>0}."
+  :return (sf-result))
+
+;;;;****************************************************************************
+;;;; Zeros of Regular Bessel Functions
+;;;;****************************************************************************
+
+(defun-sf bessel-zero-J0 ((s :int))
+  "gsl_sf_bessel_zero_J0_e"
+  :documentation
+  "The location of the @var{s}-th positive zero of the Bessel function @math{J_0(x)}."
+  :return (sf-result))
+
+(defun-sf bessel-zero-J1 ((s :int))
+  "gsl_sf_bessel_zero_J1_e"
+  :documentation
+  "The location of the @var{s}-th positive zero of the Bessel function @math{J_1(x)}."
+  :return (sf-result))
+
+(defun-sf bessel-zero-Jnu ((s :int))
+  "gsl_sf_bessel_zero_Jnu_e"
+  :documentation
+  "These routines compute the location of the @var{s}-th positive zero of
+the Bessel function @math{J_\nu(x)}.  The current implementation does not
+support negative values of @var{nu}."
+  :return (sf-result))

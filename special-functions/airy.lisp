@@ -3,16 +3,14 @@
 ; description: Airy functions                            
 ; date:        Fri Mar 17 2006 - 18:41                   
 ; author:      Liam M. Healy
-; modified:    Fri Mar 17 2006 - 18:41
+; modified:    Sat Mar 18 2006 - 00:21
 ;********************************************************
 
 (in-package :gsl)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (export
-   '(airy-ai airy-bi airy-ai-scaled airy-bi-scaled
-     airy-ai-deriv airy-ai-deriv-scaled airy-bi-deriv airy-bi-deriv-scaled
-     airy-zero-ai airy-zero-bi airy-zero-ai-deriv airy-zero-bi-deriv)))
+   '()))
 
 ;;;;****************************************************************************
 ;;;; Airy functions
