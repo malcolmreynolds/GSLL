@@ -17,3 +17,7 @@ is that the GSL library must be loaded and accessible.
 access to the functions.  Defining the functions you need yourself is
 very easy.
 
+======================
+Needs work
+bessel-sequence-Jnu in bessel.lisp.
+Why do sequence-returns crash on declination?

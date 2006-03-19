@@ -3,13 +3,12 @@
 ; description: Mathematical functions                    
 ; date:        Wed Mar  8 2006 - 22:09                   
 ; author:      Liam M. Healy
-; modified:    Thu Mar  9 2006 - 23:10
+; modified:    Sat Mar 18 2006 - 15:13
 ;********************************************************
 
 (in-package :gsl)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '(nanp infinityp finitep log+1 exp-1 hypotenuse approximately=)))
+(export '(nanp infinityp finitep log+1 exp-1 hypotenuse approximately=))
 
 ;;;;****************************************************************************
 ;;; Infinities and Not-a-number
