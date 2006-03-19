@@ -3,7 +3,7 @@
 ; description: Bessel functions                          
 ; date:        Fri Mar 17 2006 - 18:42                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 18 2006 - 22:57
+; modified:    Sun Mar 19 2006 - 16:53
 ;********************************************************
 
 (in-package :gsl)
@@ -37,7 +37,7 @@
   "gsl_sf_bessel_Jn_array"
   :documentation
   "The values of the regular cylindrical Bessel functions @math{J_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double (- nmax nmin))))
+  :return ((:double (1+ (- nmax nmin)))))
 
 ;;;;****************************************************************************
 ;;;; Irregular Cylindrical Bessel Functions
@@ -65,7 +65,7 @@
   "gsl_sf_bessel_Yn_array"
   :documentation
   "The values of the irregular cylindrical Bessel functions @math{Y_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double (- nmax nmin))))
+  :return ((:double (1+ (- nmax nmin)))))
 
 ;;;;****************************************************************************
 ;;;; Regular Modified Cylindrical Bessel Functions
@@ -93,7 +93,7 @@
   "gsl_sf_bessel_In_array"
   :documentation
   "The values of the regular modified cylindrical Bessel functions @math{I_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double (- nmax nmin))))
+  :return ((:double (1+ (- nmax nmin)))))
 
 (defun-sf cylindrical-bessel-I0-scaled ((x :double))
   "gsl_sf_bessel_I0_scaled_e"
@@ -118,7 +118,7 @@
   :documentation
   ;; Bug in original documentation?  doesn't say "modified"
   "The values of the scaled regular modified cylindrical Bessel functions @math{I_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double (- nmax nmin))))
+  :return ((:double (1+ (- nmax nmin)))))
 
 ;;;;****************************************************************************
 ;;;; Irregular Modified Cylindrical Bessel Functions
@@ -146,7 +146,7 @@
   "gsl_sf_bessel_Kn_array"
   :documentation
   "The values of the irregular modified cylindrical Bessel functions @math{K_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double (- nmax nmin))))
+  :return ((:double (1+ (- nmax nmin)))))
 
 (defun-sf cylindrical-bessel-K0-scaled ((x :double))
   "gsl_sf_bessel_K0_scaled_e"
@@ -171,7 +171,7 @@
   :documentation
   ;; Bug in original documentation?  doesn't say "modified"
   "The values of the scaled irregular modified cylindrical Bessel functions @math{K_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double (- nmax nmin))))
+  :return ((:double (1+ (- nmax nmin)))))
 
 ;;;;****************************************************************************
 ;;;; Regular Spherical Bessel Functions
@@ -204,13 +204,13 @@
   "gsl_sf_bessel_jl_array"
   :documentation
   "The regular spherical Bessel functions @math{j_l(x)} for @math{l} from 0 to @var{lmax} inclusive  for @c{$lmax \geq 0$} @math{lmax >= 0} and @c{$x \geq 0$} @math{x >= 0}, storing the results in the array @var{result_array}. The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double lmax)))
+  :return ((:double (1+ lmax))))
 
 (defun-sf spherical-bessel-jl-steed-array ((lmax :int) (x :double))
   "gsl_sf_bessel_jl_array"
   :documentation
   "Uses Steed's method to compute the values of the regular spherical Bessel functions @math{j_l(x)} for @math{l} from 0 to @var{lmax} inclusive for @c{$lmax \geq 0$} @math{lmax >= 0} and @c{$x \geq 0$} @math{x >= 0}, storing the results in the array @var{result_array}. The Steed/Barnett algorithm is described in @cite{Comp. Phys. Comm.} 21, 297 (1981).  Steed's method is more stable than the recurrence used in the other functions but is also slower."
-  :return ((:double lmax)))
+  :return ((:double (1+ lmax))))
 
 ;;;;****************************************************************************
 ;;;; Irregular Spherical Bessel Functions
@@ -244,7 +244,7 @@
   "gsl_sf_bessel_yl_array"
   :documentation
   "The irregular spherical Bessel functions @math{y_l(x)} for @math{l} from 0 to @var{lmax} inclusive  for @c{$lmax \geq 0$} @math{lmax >= 0}, storing the results in the array @var{result_array}. The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double lmax)))
+  :return ((:double (1+ lmax))))
 
 ;;;;****************************************************************************
 ;;;; Regular Modified Spherical Bessel Functions
@@ -278,7 +278,7 @@
   "gsl_sf_bessel_il_scaled_array"
   :documentation
   "The values of the scaled regular modified cylindrical Bessel functions @math{\exp(-|x|) i_l(x)} for @math{l} from 0 to @var{lmax} inclusive for @c{$lmax \geq 0$} @math{lmax >= 0}, storing the results in the array @var{result_array}.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double lmax)))
+  :return ((:double (1+ lmax))))
 
 ;;;;****************************************************************************
 ;;;; Irregular Modified Spherical Bessel Functions
@@ -312,7 +312,7 @@
   "gsl_sf_bessel_kl_scaled_array"
   :documentation
   "The values of the scaled irregular modified spherical Bessel functions @math{\exp(x) k_l(x)} for @math{l} from 0 to @var{lmax} inclusive for @c{$lmax \geq 0$} @math{lmax >= 0} and @math{x>0}, storing the results in the array @var{result_array}.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double lmax)))
+  :return ((:double (1+ lmax))))
 
 ;;;;****************************************************************************
 ;;;; Regular Bessel Function - Fractional Order
