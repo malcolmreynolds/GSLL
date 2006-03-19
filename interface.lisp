@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 18 2006 - 00:16
+; modified:    Sun Mar 19 2006 - 16:36
 ;********************************************************
 
 (in-package :gsl)
@@ -51,10 +51,11 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	   (cffi:foreign-slot-value ,(first decl) 'sf-result 'err)))
 	(:double `((cffi:mem-ref ,(first decl) :double))))))
 
-(defun first-or-self (x)
-  (if (listp x)
-      (first x)
-      x))
+(defun wfo-declare (d)
+  `(,(first d)
+     ,@(if (symbolp (second d))
+	   `(',(second d))
+	   `(',(first (second d)) ,(second (second d))))))
 
 ;;; Warning isn't quite right for lambdas.
 ;;; New name?
@@ -68,6 +69,12 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		   (list (gensym "RET")
 			 typ))
 		 return)))
+    ;; return-symb-type like
+    ;; ((#:RET3500 SF-RESULT))
+    ;; ((#:RET3501 (:DOUBLE (- NMAX NMIN)))) 
+    ;; ((#:RET3502 (:DOUBLE (1+ KMAX))) (#:RET3503 (:DOUBLE (1+ KMAX)))
+    ;;  (#:RET3504 (:DOUBLE (1+ KMAX))) (#:RET3505 (:DOUBLE (1+ KMAX)))
+    ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE)) 
     `(,@(if (eq cl-name :lambda)
 	    '(lambda)
 	    `(defunx ,cl-name))
@@ -76,8 +83,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	     `(,@args))
 	,@(when documentation (list documentation))
 	(cffi:with-foreign-objects
-	    (,@(mapcar (lambda (d) `(,(first d) ',(first-or-self (second d))))
-		       return-symb-type))
+	    ,(mapcar #'wfo-declare return-symb-type)
 	  (let ((status
 		 (cffi:foreign-funcall
 		  ,gsl-name
