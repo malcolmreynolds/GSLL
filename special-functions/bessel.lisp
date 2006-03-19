@@ -3,7 +3,7 @@
 ; description: Bessel functions                          
 ; date:        Fri Mar 17 2006 - 18:42                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 18 2006 - 00:15
+; modified:    Sat Mar 18 2006 - 22:57
 ;********************************************************
 
 (in-package :gsl)
@@ -324,15 +324,46 @@
   "The regular cylindrical Bessel function of fractional order @math{\nu}, @math{J_\nu(x)}."
   :return (sf-result))
 
-;;; Needs work:
-;;; has mode, same array for input and output
 ;;; (double @var{nu}, gsl_mode_t @var{mode}, size_t @var{size}, double @var{v}[])
-;;; "gsl_sf_bessel_sequence_Jnu_e"
-"The regular cylindrical Bessel function of
+#+development
+(defun-sf bessel-sequence-Jnu ((nu :double) (v :pointer))
+  "gsl_sf_bessel_sequence_Jnu_e"
+  :documentation
+  "The regular cylindrical Bessel function of
 fractional order @math{\nu}, @math{J_\nu(x)}, evaluated at a series of
 @math{x} values.  The array @var{v} of length @var{size} contains the
 @math{x} values.  They are assumed to be strictly ordered and positive.
 The array is over-written with the values of @math{J_\nu(x_i)}."
+  :mode t
+  :return (v :pointer))
+
+#+development
+(DEFUNX BESSEL-SEQUENCE-JNU
+    (NU V &OPTIONAL (MODE :DOUBLE-PREC))
+  "The regular cylindrical Bessel function of
+fractional order @math{nu}, @math{J_nu(x)}, evaluated at a series of
+@math{x} values.  The array @var{v} of length @var{size} contains the
+@math{x} values.  They are assumed to be strictly ordered and positive.
+The array is over-written with the values of @math{J_nu(x_i)}."
+  (LET ((STATUS
+	 (FOREIGN-FUNCALL
+	  "gsl_sf_bessel_sequence_Jnu_e"
+	  :DOUBLE NU
+	  SF-MODE MODE
+	  :POINTER V
+	  :INT)))
+    (UNLESS
+	(EQL :SUCCESS
+	     (FOREIGN-ENUM-KEYWORD 'GSL-ERRORNO
+				   STATUS))
+      (WARN 'GSL-WARNING
+	    :GSL-ERRNO
+	    STATUS
+	    :GSL-CONTEXT
+	    `(BESSEL-SEQUENCE-JNU ,NU ,V)))
+    (VALUES
+     (pick-result '((v (double (length v))))))))
+
 
 ;;;;****************************************************************************
 ;;;; Irregular Bessel Function - Fractional Order
