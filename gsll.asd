@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Mar 19 2006 - 00:41
+; modified:    Sun Mar 19 2006 - 14:37
 ;********************************************************
 ;;; $Id: $
 
@@ -30,5 +30,8 @@
 	     (:file "bessel")		; one left 
 	     (:file "clausen")
 	     (:file "coulomb")
+	     (:file "coupling")		; always zero?
+	     (:file "dawson")
+	     (:file "debye")
 	     (:file "dilogarithm")
 	     ))))
