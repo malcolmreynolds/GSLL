@@ -3,13 +3,10 @@
 ; description: Bessel functions                          
 ; date:        Fri Mar 17 2006 - 18:42                   
 ; author:      Liam M. Healy
-; modified:    Tue Mar 21 2006 - 10:06
+; modified:    Tue Mar 21 2006 - 13:50
 ;********************************************************
 
 (in-package :gsl)
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '()))
 
 ;;;;****************************************************************************
 ;;;; Regular Cylindrical Bessel Functions

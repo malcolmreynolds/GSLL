@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Tue Mar 21 2006 - 11:39
+; modified:    Tue Mar 21 2006 - 17:11
 ;********************************************************
 
 (in-package :gsl)
@@ -79,6 +79,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	(sf-result
 	 `((cffi:foreign-slot-value ,(first decl) 'sf-result 'val)
 	   (cffi:foreign-slot-value ,(first decl) 'sf-result 'err)))
+	(sf-result-e10
+	 `((cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'val)
+	   (cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'e10)
+	   (cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'err)))
 	(:double `((cffi:mem-ref ,(first decl) :double))))))
 
 (defun wfo-declare (d)

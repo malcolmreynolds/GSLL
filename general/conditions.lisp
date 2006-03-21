@@ -3,7 +3,7 @@
 ; description: GSL errors                                
 ; date:        Sat Mar  4 2006 - 18:33                   
 ; author:      Liam M. Healy
-; modified:    Wed Mar  8 2006 - 23:13
+; modified:    Tue Mar 21 2006 - 17:13
 ;********************************************************
 
 (in-package :gsl)
@@ -53,6 +53,10 @@
     (30 . "Cannot reach the specified tolerance in X")
     (31 . "Cannot reach the specified tolerance in gradient")
     (32 . "End of file")))
+
+;;; It would be nice to be able to return, or give the option to return,
+;;; the portrable equivalent of #.SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY
+;;; for :EOVRFLW.
 
 (define-condition gsl-error (arithmetic-error)
   ((gsl-errno :initarg :gsl-errno :reader gsl-errno)

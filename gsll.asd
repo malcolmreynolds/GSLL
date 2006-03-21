@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Mar 20 2006 - 22:41
+; modified:    Tue Mar 21 2006 - 17:49
 ;********************************************************
 ;;; $Id: $
 
@@ -38,4 +38,6 @@
 	     (:file "elliptic-integrals")
 	     (:file "elliptic-functions")
 	     (:file "error-functions")
+	     (:file "exponential-functions")
+	     (:file "exponential-integrals")
 	     ))))
