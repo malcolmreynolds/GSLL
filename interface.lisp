@@ -3,16 +3,16 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Mar 19 2006 - 16:47
+; modified:    Tue Mar 21 2006 - 11:39
 ;********************************************************
 
 (in-package :gsl)
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (export '()))
+(export '(sf-lookup))
 
-;;; Need CFFI
-;;; http://common-lisp.net/project/cffi/
+;;;;****************************************************************************
+;;;; GSL C structures
+;;;;****************************************************************************
 
 (cffi:defcstruct sf-result
   "Results from special functions with value and error estimate."
@@ -35,11 +35,41 @@ and a scaling exponent e10, such that the value is val*10^e10."
   :single-prec
   :approx-prec)
 
+;;;;****************************************************************************
+;;;; Defining CL function names and mapping from C names
+;;;;****************************************************************************
+
 (defmacro defunx (name &rest args)
   "defun and export"
   `(progn
     (export '(,name))
     (defun ,name ,@args)))
+
+(defparameter *sf-name-mapping* nil
+  "An alist mapping the CL and GSL names of the special functions.
+   This will only be populated when macros are expanded.")
+
+(defun sf-lookup (string)
+  "Find the CL function name given the GSL C special function function name.
+   If cl-ppcre (http://www.weitz.de/cl-ppcre/) is installed, the string
+   can be a regular expression; otherwise, it must match the C name exactly
+   except for case."
+  (remove string *sf-name-mapping*
+	  :key #'rest
+	  :test-not
+	  (if (find-package :ppcre)
+	      (symbol-function (intern "ALL-MATCHES" :ppcre))
+	      #'string-equal)))
+
+(defmacro defunx-map (cl-name gsl-name &rest args)
+  "defun, export, and name-map."
+  `(progn
+    (setf *sf-name-mapping* (acons ',cl-name ',gsl-name *sf-name-mapping*))
+    (defunx ,cl-name ,@args)))
+
+;;;;****************************************************************************
+;;;; Macro defun-sf 
+;;;;****************************************************************************
 
 (defun pick-result (decl)
   (if (listp (second decl))
@@ -74,10 +104,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
     ;; ((#:RET3501 (:DOUBLE (- NMAX NMIN)))) 
     ;; ((#:RET3502 (:DOUBLE (1+ KMAX))) (#:RET3503 (:DOUBLE (1+ KMAX)))
     ;;  (#:RET3504 (:DOUBLE (1+ KMAX))) (#:RET3505 (:DOUBLE (1+ KMAX)))
-    ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE)) 
+    ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE))
     `(,@(if (eq cl-name :lambda)
 	    '(lambda)
-	    `(defunx ,cl-name))
+	    `(defunx-map ,cl-name ,gsl-name))
 	,(if mode 
 	     `(,@args &optional (mode :double-prec))
 	     `(,@args))
@@ -101,5 +131,3 @@ and a scaling exponent e10, such that the value is val*10^e10."
 
 ;;; arguments: list like ((x :double) (y :double))
 ;;; mode: t or nil
-
-
