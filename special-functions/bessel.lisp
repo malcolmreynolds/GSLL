@@ -3,7 +3,7 @@
 ; description: Bessel functions                          
 ; date:        Fri Mar 17 2006 - 18:42                   
 ; author:      Liam M. Healy
-; modified:    Sun Mar 19 2006 - 16:53
+; modified:    Tue Mar 21 2006 - 10:06
 ;********************************************************
 
 (in-package :gsl)
@@ -207,7 +207,7 @@
   :return ((:double (1+ lmax))))
 
 (defun-sf spherical-bessel-jl-steed-array ((lmax :int) (x :double))
-  "gsl_sf_bessel_jl_array"
+  "gsl_sf_bessel_jl_steed_array"
   :documentation
   "Uses Steed's method to compute the values of the regular spherical Bessel functions @math{j_l(x)} for @math{l} from 0 to @var{lmax} inclusive for @c{$lmax \geq 0$} @math{lmax >= 0} and @c{$x \geq 0$} @math{x >= 0}, storing the results in the array @var{result_array}. The Steed/Barnett algorithm is described in @cite{Comp. Phys. Comm.} 21, 297 (1981).  Steed's method is more stable than the recurrence used in the other functions but is also slower."
   :return ((:double (1+ lmax))))
