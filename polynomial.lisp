@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Mar 22 2006 - 10:23
+; modified:    Wed Mar 22 2006 - 12:10
 ;********************************************************
 ;;; $Id: $
 
@@ -118,7 +118,7 @@
    Two values are always returned; if the roots are not real, these
    values are NIL."
   :return (:double :double)
-  :return-code :number-of-answers)
+  :c-return-value :number-of-answers)
 
 (defun-sf solve-quadratic-complex ((a :double) (b :double) (c :double))
   "gsl_poly_complex_solve_quadratic"
@@ -127,7 +127,7 @@
    Two values are always returned; if a root does not exist, the
    value returned will be NIL."
   :return (gsl-complex gsl-complex)
-  :return-code :number-of-answers) 
+  :c-return-value :number-of-answers) 
 
 ;;;;****************************************************************************
 ;;;; Cubic Equations
@@ -151,7 +151,7 @@
    in ascending order.  Three values are always returned;
    if a root is not real, the value returned for it will be NIL."
   :return (:double :double :double)
-  :return-code :number-of-answers)
+  :c-return-value :number-of-answers)
 
 (defun-sf solve-cubic-complex ((a :double) (b :double) (c :double))
   "gsl_poly_complex_solve_cubic"
@@ -160,4 +160,4 @@
    with a leading coefficient of unity.  Three values are always returned;
    if a root does not exist, the value returned for it will be NIL."
   :return (gsl-complex gsl-complex gsl-complex)
-  :return-code :number-of-answers)
+  :c-return-value :number-of-answers)

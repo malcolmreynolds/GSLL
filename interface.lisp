@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed Mar 22 2006 - 10:08
+; modified:    Wed Mar 22 2006 - 12:20
 ;********************************************************
 
 (in-package :gsl)
@@ -112,9 +112,15 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;; New name?
 (defmacro defun-sf
     (cl-name arguments gsl-name
-	     &key documentation return mode (return-code :check-status))
-  "Define a mathematical special function from GSL using the _e form
-   GSL function definition.  If cl-name is :lambda, make a lambda."
+	     &key documentation return mode (c-return-value :error-code))
+  "Define a CL function that provides an interface to a GSL function.
+   If cl-name is :lambda, make a lambda.  Arguments:
+     arguments:       a list of input arguments (symbol type) to the GSL function
+     gsl-name:        the C function name, as a string
+     documentation:   a string
+     return:          a list of return types
+     mode:            T or NIL, depending on whether gsl_mode is an argument
+     c-return-value:  The C function returns an :error-code or :number-of-answers."
   (let ((args (mapcar #'first arguments))
 	(return-symb-type
 	 (mapcar (lambda (typ)
@@ -144,10 +150,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		,@(when mode '(sf-mode mode))
 		,@(mapcan (lambda (r) `(:pointer ,(first r))) return-symb-type)
 		:int)))
-	  ,@(if (eq return-code :check-status)
+	  ,@(if (eq c-return-value :error-code)
 		`((check-gsl-status status `(,',cl-name ,,@args))))
 	  (values
-	   ,@(if (eq return-code :number-of-answers)
+	   ,@(if (eq c-return-value :number-of-answers)
 		 (mapcan
 		  (lambda (decl seq)
 		    `((when (> status ,seq) ,@(pick-result decl))))
