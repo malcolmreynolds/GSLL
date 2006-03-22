@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Mar 21 2006 - 23:07
+; modified:    Wed Mar 22 2006 - 10:06
 ;********************************************************
 ;;; $Id: $
 
@@ -12,9 +12,6 @@
 ;;; To do:
 ;;; Awaits incorporation of arrays into CFFI.
 ;;; Divided difference needs to be checked.
-;;; Quadratic solver always gives output range warning, except when it needs to.
-;;; Cubic solver always gives output range warning.
-
 ;;; finish
 
 ;;;;****************************************************************************
@@ -39,7 +36,7 @@
 
 ;;; Use with-divided-difference to compute the divided difference, an
 ;;; opaque object that is then passed to 
-;;; get-divided-difference, eval-divided-difference
+;;; get-divided-difference, eval-divided-difference or taylor-divided-difference
 ;;; in the body.
 
 (export
@@ -116,20 +113,14 @@
 ;;;; Quadratic Equations
 ;;;;****************************************************************************
 
-;;; GSL seems to always give a output range error warning:
-;;; WARNING:
-;;;   GSL condition ERANGE (2), Output range error in
-;;; (SOLVE-QUADRATIC 1.0d0 2.0d0 1.0d0)
-;;; Oddly, there is NO warning if a complex answer is generated
-;;; from the real root solver.
-
 (defun-sf solve-quadratic ((a :double) (b :double) (c :double))
   "gsl_poly_solve_quadratic"
   :documentation
   "The real roots of the quadratic equation a x^2 + b x + c = 0.
-   Warning: if roots are not real, nonsense is produced and
-   no warning is given."
-  :return (:double :double))
+   Two values are always returned; if the roots are not real, these
+   values are NIL."
+  :return (:double :double)
+  :return-code :number-of-answers)
 
 (defun-sf solve-quadratic-complex ((a :double) (b :double) (c :double))
   "gsl_poly_complex_solve_quadratic"
@@ -141,14 +132,6 @@
 ;;;; Cubic Equations
 ;;;;****************************************************************************
 
-;;; GSL seems to always give warning:
-;;; WARNING:
-;;;   GSL condition EFAULT (3), Invalid pointer in
-;;; (SOLVE-CUBIC -3.0d0 3.0d0 -1.0d0)
-
-;;; GSL appears to give a different return code (EDOM) if there is
-;;; only one real root.
-
 ;;; (solve-cubic -6.0d0 -13.0d0 42.0d0)
 ;;; -3.0d0
 ;;; 1.9999999999999996d0
@@ -156,16 +139,18 @@
 
 ;;; (solve-cubic -1.0d0 1.0d0 -1.0d0)
 ;;; 1.0d0
-;;; 1.9999999999999996d0
-;;; 7.0d0
+;;; NIL
+;;; NIL
 
 (defun-sf solve-cubic ((a :double) (b :double) (c :double))
   "gsl_poly_solve_cubic"
   :documentation
   "Find the real roots of the cubic equation, x^3 + a x^2 + b x + c = 0
-   with a leading coefficient of unity.  The real roots are returned.
-   No special indication is given if there is only one real root."
-  :return (:double :double :double))
+   with a leading coefficient of unity.  The roots are given
+   in ascending order.  Three values are always returned;
+   if a roots is not real, the value returned for it will be NIL."
+  :return (:double :double :double)
+  :return-code :number-of-answers)
 
 (defun-sf solve-cubic-complex ((a :double) (b :double) (c :double))
   "gsl_poly_complex_solve_cubic"

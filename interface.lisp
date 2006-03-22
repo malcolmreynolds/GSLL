@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Tue Mar 21 2006 - 23:10
+; modified:    Wed Mar 22 2006 - 10:08
 ;********************************************************
 
 (in-package :gsl)
@@ -78,7 +78,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun pick-result (decl)
   (if (listp (second decl))
       `((loop for i from 0 below ,(second (second decl))
-	 collect (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
+	      collect (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
       (case (second decl)
 	(sf-result
 	 `((cffi:foreign-slot-value ,(first decl) 'sf-result 'val)
@@ -101,10 +101,18 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	   `(',(second d))
 	   `(',(first (second d)) ,(second (second d))))))
 
+(defun check-gsl-status (status-code context)
+  "Check the return status code from a GSL function and signal a warning
+   if it is not :SUCCESS."
+  (unless (eql :success (cffi:foreign-enum-keyword 'gsl-errorno status-code))
+    (warn 'gsl-warning
+	  :gsl-errno status :gsl-context context)))
+
 ;;; Warning isn't quite right for lambdas.
 ;;; New name?
 (defmacro defun-sf
-    (cl-name arguments gsl-name &key documentation return mode)
+    (cl-name arguments gsl-name
+	     &key documentation return mode (return-code :check-status))
   "Define a mathematical special function from GSL using the _e form
    GSL function definition.  If cl-name is :lambda, make a lambda."
   (let ((args (mapcar #'first arguments))
@@ -122,26 +130,30 @@ and a scaling exponent e10, such that the value is val*10^e10."
     `(,@(if (eq cl-name :lambda)
 	    '(lambda)
 	    `(defunx-map ,cl-name ,gsl-name))
-	,(if mode 
-	     `(,@args &optional (mode :double-prec))
-	     `(,@args))
-	,@(when documentation (list documentation))
-	(cffi:with-foreign-objects
-	    ,(mapcar #'wfo-declare return-symb-type)
-	  (let ((status
-		 (cffi:foreign-funcall
-		  ,gsl-name
-		  ,@(mapcan (lambda (ar) (list (second ar) (first ar)))
-			    arguments)
-		  ,@(when mode '(sf-mode mode))
-		  ,@(mapcan (lambda (r) `(:pointer ,(first r))) return-symb-type)
-		  :int)))
-	    (unless (eql :success (cffi:foreign-enum-keyword 'gsl-errorno status))
-	      (warn 'gsl-warning
-		    :gsl-errno status :gsl-context `(,',cl-name ,,@args)))
-	    (values
-	     ,@(mapcan #'pick-result return-symb-type)))))))
-
+      ,(if mode 
+	   `(,@args &optional (mode :double-prec))
+	   `(,@args))
+      ,@(when documentation (list documentation))
+      (cffi:with-foreign-objects
+	  ,(mapcar #'wfo-declare return-symb-type)
+	(let ((status
+	       (cffi:foreign-funcall
+		,gsl-name
+		,@(mapcan (lambda (ar) (list (second ar) (first ar)))
+			  arguments)
+		,@(when mode '(sf-mode mode))
+		,@(mapcan (lambda (r) `(:pointer ,(first r))) return-symb-type)
+		:int)))
+	  ,@(if (eq return-code :check-status)
+		`((check-gsl-status status `(,',cl-name ,,@args))))
+	  (values
+	   ,@(if (eq return-code :number-of-answers)
+		 (mapcan
+		  (lambda (decl seq)
+		    `((when (> status ,seq) ,@(pick-result decl))))
+		  return-symb-type
+		  (loop for i below (length return) collect i))
+		 (mapcan #'pick-result return-symb-type))))))))
 
 ;;; arguments: list like ((x :double) (y :double))
 ;;; mode: t or nil
