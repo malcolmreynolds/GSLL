@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Tue Mar 21 2006 - 17:11
+; modified:    Tue Mar 21 2006 - 23:10
 ;********************************************************
 
 (in-package :gsl)
@@ -27,6 +27,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
   (val :double)
   (err :double)
   (e10 :int))
+
+(cffi:defcstruct gsl-complex
+  "A complex number in GSL."
+  (dat :double :count 2))
 
 (cffi:defcenum sf-mode
   "Numerical precision modes with which to calculate special functions."
@@ -74,7 +78,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun pick-result (decl)
   (if (listp (second decl))
       `((loop for i from 0 below ,(second (second decl))
-	  collect (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
+	 collect (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
       (case (second decl)
 	(sf-result
 	 `((cffi:foreign-slot-value ,(first decl) 'sf-result 'val)
@@ -83,6 +87,12 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	 `((cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'val)
 	   (cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'e10)
 	   (cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'err)))
+	(gsl-complex
+	 `((let ((carr
+		  (cffi:foreign-slot-value ,(first decl) 'gsl-complex 'dat)))
+	     (complex
+	      (cffi:mem-aref carr :double 0)
+	      (cffi:mem-aref carr :double 1)))))
 	(:double `((cffi:mem-ref ,(first decl) :double))))))
 
 (defun wfo-declare (d)
