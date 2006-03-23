@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Mar 22 2006 - 23:23
+; modified:    Thu Mar 23 2006 - 10:47
 ;********************************************************
 ;;; $Id: $
 
@@ -171,7 +171,7 @@
   (nc :uint)
   (matrix :pointer))
 
-(export 'with-poly-complex-workspace)
+(export '(with-poly-complex-workspace))
 (defmacro with-poly-complex-workspace (workspace &body body)
   "Macro to create and cleanup workspace for polynomial root solver." 
   `(let ((,workspace
@@ -188,7 +188,6 @@
 	 "gsl_poly_complex_workspace_free"
 	 :c-return-value :void)))))
 
-#+development
 (defun-sf polynomial-solve
     ((a :pointer) (n :uint) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"

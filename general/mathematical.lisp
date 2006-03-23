@@ -3,12 +3,13 @@
 ; description: Mathematical functions                    
 ; date:        Wed Mar  8 2006 - 22:09                   
 ; author:      Liam M. Healy
-; modified:    Wed Mar 22 2006 - 20:28
+; modified:    Thu Mar 23 2006 - 14:33
 ;********************************************************
 
 (in-package :gsl)
 
-(export '(nanp infinityp finitep log+1 exp-1 hypotenuse approximately=))
+(export '(+nan+ +positive-infinity+ +negative-infinity+
+	  nanp infinityp finitep log+1 exp-1 hypotenuse approximately=))
 
 ;;;; Mathematical Constants
 ;;; Is all macros
@@ -24,17 +25,22 @@
      (when (or (= 1 v) (= -1 v))
        v)))
 
-#+sbcl (sb-int:set-floating-point-modes :traps nil)
+#+sbcl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (sb-int:set-floating-point-modes :traps nil)
+  (import
+   '(sb-ext:double-float-negative-infinity
+     sb-ext:double-float-positive-infinity)))
 
-(defparameter *nan*
+(defconstant +nan+
   (ignore-errors
     (cffi:foreign-funcall "gsl_nan" :double)))
 
-(defparameter *positive-infinity*
+(defconstant +positive-infinity+
   (ignore-errors
     (cffi:foreign-funcall "gsl_posinf" :double)))
 
-(defparameter *negative-infinity*
+(defconstant +negative-infinity+
   (ignore-errors
     (cffi:foreign-funcall "gsl_neginf" :double)))
 

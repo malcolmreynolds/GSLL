@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed Mar 22 2006 - 23:12
+; modified:    Thu Mar 23 2006 - 17:48
 ;********************************************************
 
 (in-package :gsl)
@@ -28,16 +28,34 @@ and a scaling exponent e10, such that the value is val*10^e10."
   (err :double)
   (e10 :int))
 
-(cffi:defcstruct gsl-complex
-  "A complex number in GSL."
-  (dat :double :count 2))
-
 (cffi:defcenum sf-mode
   "Numerical precision modes with which to calculate special functions."
   ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC62
   :double-prec
   :single-prec
   :approx-prec)
+
+;;;;****************************************************************************
+;;;;  Numbers
+;;;;****************************************************************************
+
+(cffi:defcstruct gsl-complex
+  "A complex number in GSL."
+  (dat :double :count 2))
+
+(defun complex-to-cl (gsl-complex &optional (index 0))
+  "Make a CL complex number from the GSL pointer to a complex struct or
+   an array of complex structs and an index into the array." 
+  (let ((carr (cffi:foreign-slot-value
+	       (cffi:inc-pointer
+		gsl-complex
+		(* index (cffi:foreign-type-size 'gsl-complex)))
+	       'gsl-complex 'dat)))
+    (complex (mem-aref carr :double 0)
+	     (mem-aref carr :double 1))))
+
+(defun double-to-cl (double &optional (index 0))
+  (cffi:mem-aref double :double index))
 
 ;;;;****************************************************************************
 ;;;; Defining CL function names and mapping from C names
@@ -75,32 +93,55 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;;; Macro defun-sf 
 ;;;;****************************************************************************
 
+;;; An "rst" or return-symb-type as a list (symbol type) where
+;;; type could be (element-type array-dim).  These are examples of lists
+;;; of rsts: 
+ ;; ((#:RET3500 SF-RESULT))
+ ;; ((#:RET3501 (:DOUBLE (- NMAX NMIN)))) 
+ ;; ((#:RET3502 (:DOUBLE (1+ KMAX))) (#:RET3503 (:DOUBLE (1+ KMAX)))
+ ;;  (#:RET3504 (:DOUBLE (1+ KMAX))) (#:RET3505 (:DOUBLE (1+ KMAX)))
+ ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE))
+
+(defun rst-symbol (decl)
+  (first decl))
+
+(defun rst-type (decl)
+  (second decl))
+
+(defun rst-arrayp (decl)
+  (listp (rst-type decl)))
+
+(defun rst-eltype (decl)
+  (first (rst-type decl)))
+
+(defun rst-dim (decl)
+  (second (rst-type decl)))
+
 (defun pick-result (decl)
-  (if (listp (second decl))
-      `((loop for i from 0 below ,(second (second decl))
-	 collect
-	 (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
-      (case (second decl)
+  (if (rst-arrayp decl)			; a vector of values
+      `((loop for i from 0 below ,(rst-dim decl)
+	      collect
+	      ,(case (rst-eltype decl)
+		     (gsl-complex
+		      `(complex-to-cl ,(rst-symbol decl) i))
+		     (double
+		      `(double-to-cl ,(rst-symbol decl) i)))))
+      (case (rst-type decl)
 	(sf-result
-	 `((cffi:foreign-slot-value ,(first decl) 'sf-result 'val)
-	   (cffi:foreign-slot-value ,(first decl) 'sf-result 'err)))
+	 `((cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result 'val)
+	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result 'err)))
 	(sf-result-e10
-	 `((cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'val)
-	   (cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'e10)
-	   (cffi:foreign-slot-value ,(first decl) 'sf-result-e10 'err)))
-	(gsl-complex
-	 `((let ((carr
-		  (cffi:foreign-slot-value ,(first decl) 'gsl-complex 'dat)))
-	     (complex
-	      (cffi:mem-aref carr :double 0)
-	      (cffi:mem-aref carr :double 1)))))
-	(:double `((cffi:mem-ref ,(first decl) :double))))))
+	 `((cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'val)
+	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'e10)
+	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'err)))
+	(gsl-complex `((complex-to-cl ,(rst-symbol decl))))
+	(:double `((double-to-cl ,(rst-symbol decl)))))))
 
 (defun wfo-declare (d)
-  `(,(first d)
-     ,@(if (symbolp (second d))
-	   `(',(second d))
-	   `(',(first (second d)) ,(second (second d))))))
+  `(,(rst-symbol d)
+    ,@(if (rst-arrayp d)
+	  `(',(rst-eltype d) ,(rst-dim d))
+	  `(',(rst-type d)))))
 
 (defun check-gsl-status (status-code context)
   "Check the return status code from a GSL function and signal a warning
@@ -128,12 +169,6 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		   (list (gensym "RET")
 			 typ))
 		 return)))
-    ;; return-symb-type like
-    ;; ((#:RET3500 SF-RESULT))
-    ;; ((#:RET3501 (:DOUBLE (- NMAX NMIN)))) 
-    ;; ((#:RET3502 (:DOUBLE (1+ KMAX))) (#:RET3503 (:DOUBLE (1+ KMAX)))
-    ;;  (#:RET3504 (:DOUBLE (1+ KMAX))) (#:RET3505 (:DOUBLE (1+ KMAX)))
-    ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE))
     `(,@(if (eq cl-name :lambda)
 	    '(lambda)
 	    `(defunx-map ,cl-name ,gsl-name))
@@ -149,7 +184,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		,@(mapcan (lambda (ar) (list (second ar) (first ar)))
 			  arguments)
 		,@(when mode '(sf-mode mode))
-		,@(mapcan (lambda (r) `(:pointer ,(first r))) return-symb-type)
+		,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r))) return-symb-type)
 		:int)))
 	  ,@(if (eq c-return-value :error-code)
 		`((check-gsl-status status `(,',cl-name ,,@args))))
