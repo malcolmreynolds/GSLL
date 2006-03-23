@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Mar 22 2006 - 23:17
+; modified:    Wed Mar 22 2006 - 23:23
 ;********************************************************
 ;;; $Id: $
 
@@ -188,6 +188,7 @@
 	 "gsl_poly_complex_workspace_free"
 	 :c-return-value :void)))))
 
+#+development
 (defun-sf polynomial-solve
     ((a :pointer) (n :uint) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
