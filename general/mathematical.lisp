@@ -3,12 +3,16 @@
 ; description: Mathematical functions                    
 ; date:        Wed Mar  8 2006 - 22:09                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 18 2006 - 15:13
+; modified:    Wed Mar 22 2006 - 20:28
 ;********************************************************
 
 (in-package :gsl)
 
 (export '(nanp infinityp finitep log+1 exp-1 hypotenuse approximately=))
+
+;;;; Mathematical Constants
+;;; Is all macros
+
 
 ;;;;****************************************************************************
 ;;; Infinities and Not-a-number
@@ -20,7 +24,21 @@
      (when (or (= 1 v) (= -1 v))
        v)))
 
-(defun nanp (x)
+#+sbcl (sb-int:set-floating-point-modes :traps nil)
+
+(defparameter *nan*
+  (ignore-errors
+    (cffi:foreign-funcall "gsl_nan" :double)))
+
+(defparameter *positive-infinity*
+  (ignore-errors
+    (cffi:foreign-funcall "gsl_posinf" :double)))
+
+(defparameter *negative-infinity*
+  (ignore-errors
+    (cffi:foreign-funcall "gsl_neginf" :double)))
+
+(defunx-map nanp "gsl_isnan" (x)
   "Return T if x is a double-float NaN."
   (= 1
      (cffi:foreign-funcall
@@ -28,7 +46,7 @@
       :double x
       :int)))
 
-(defun infinityp (x)
+(defunx-map infinityp "gsl_isinf" (x)
   "Return +1 if x is positive infinity, -1 if negative infinity
    nil if finite."
   (pmnil
@@ -37,7 +55,7 @@
     :double x
     :int)))
 
-(defun finitep (x)
+(defunx-map finitep "gsl_finite" (x)
   "Return T if finite."
   (= 1
      (cffi:foreign-funcall
@@ -49,21 +67,21 @@
 ;;; Elementary functions
 ;;;;****************************************************************************
 
-(defun log+1 (x)
+(defunx-map log+1 "gsl_log1p" (x)
   "log(1+x), computed in a way that is accurate for small x."
   (cffi:foreign-funcall
    "gsl_log1p"
    :double x
    :double))
 
-(defun exp-1 (x)
+(defunx-map exp-1 "gsl_expm1" (x)
   "exp(x)-1, computed in a way that is accurate for small x."
   (cffi:foreign-funcall
    "gsl_expm1"
    :double x
    :double))
 
-(defun hypotenuse (x y)
+(defunx-map hypotenuse "gsl_hypot" (x y)
   "sqrt{x^2 + y^2} computed in a way that avoids overflow."
   (cffi:foreign-funcall
    "gsl_hypot"
@@ -72,7 +90,7 @@
    :double))
 
 ;; Not clear why this function exists
-(defun gsl-asinh (x)
+(defunx-map gsl-asinh "gsl_asinh" (x)
   "arcsinh"
   (cffi:foreign-funcall
    "gsl_asinh"
@@ -80,8 +98,8 @@
    :double))
 
 ;;; Not clear why this function exists
-(defun gsl-atanh (x)
-  "arcsinh"
+(defunx-map gsl-atanh "gsl_atanh" (x)
+  "arctanh"
   (cffi:foreign-funcall
    "gsl_atanh"
    :double x
@@ -119,6 +137,15 @@ Function: double gsl_pow_9 (const double x)
 
 |#
 
+;;;; Testing the Sign of Numbers
+;;; is all macros
+
+;;;; Testing for Odd and Even Numbers
+;;; is all macros
+
+;;;; Maximum and Minimum functions
+;;; is all macros and inline functions that have CL equivalents
+
 ;;;;****************************************************************************
 ;;; Approximate Comparison of Floating Point Numbers
 ;;;;****************************************************************************
@@ -129,7 +156,7 @@ Function: double gsl_pow_9 (const double x)
 ;;; floating-point comparison algorithm proposed by D.E. Knuth in
 ;;; Section 4.2.2 of Seminumerical Algorithms (3rd edition).
 
-(defun approximately= (x y epsilon)
+(defunx-map double-float-equal "gsl_fcmp" (x y epsilon)
   "This function determines whether x and y are approximately equal
     to a relative accuracy epsilon.
 
@@ -152,4 +179,3 @@ Function: double gsl_pow_9 (const double x)
     :double y
     :double epsilon
     :double)))
-

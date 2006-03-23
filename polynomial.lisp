@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Mar 22 2006 - 12:10
+; modified:    Wed Mar 22 2006 - 23:17
 ;********************************************************
 ;;; $Id: $
 
@@ -161,3 +161,44 @@
    if a root does not exist, the value returned for it will be NIL."
   :return (gsl-complex gsl-complex gsl-complex)
   :c-return-value :number-of-answers)
+
+;;;;****************************************************************************
+;;;; General Polynomial Equations
+;;;;****************************************************************************
+
+;;; See /usr/include/gsl/gsl_poly.h
+(cffi:defcstruct poly-complex-workspace
+  (nc :uint)
+  (matrix :pointer))
+
+(export 'with-poly-complex-workspace)
+(defmacro with-poly-complex-workspace (workspace &body body)
+  "Macro to create and cleanup workspace for polynomial root solver." 
+  `(let ((,workspace
+	  (funcall
+	   (defun-sf :lambda ((n :uint))
+	     "gsl_poly_complex_workspace_alloc"
+	     :return
+	     (poly-complex-workspace)
+	     :c-return-value :return))))
+    (unwind-protect 
+	 (progn ,@body)
+      (funcall
+       (defun-sf :lambda ((,workspace poly-complex-workspace))
+	 "gsl_poly_complex_workspace_free"
+	 :c-return-value :void)))))
+
+(defun-sf polynomial-solve
+    ((a :pointer) (n :uint) (workspace poly-complex-workspace))
+  "gsl_poly_complex_solve"
+  :documentation
+  "The roots of the general polynomial 
+@c{$P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1}$} 
+@math{P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_@{n-1@} x^@{n-1@}} using 
+balanced-QR reduction of the companion matrix.  The parameter @var{n}
+specifies the length of the coefficient array.  The coefficient of the
+highest order term must be non-zero.  The function requires a workspace
+@var{w} of the appropriate size.  The @math{n-1} roots are returned in
+the packed complex array @var{z} of length @math{2(n-1)}, alternating
+real and imaginary parts."
+  :return ((gsl-complex n)))

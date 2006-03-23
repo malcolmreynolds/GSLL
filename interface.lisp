@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed Mar 22 2006 - 12:20
+; modified:    Wed Mar 22 2006 - 23:12
 ;********************************************************
 
 (in-package :gsl)
@@ -78,7 +78,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun pick-result (decl)
   (if (listp (second decl))
       `((loop for i from 0 below ,(second (second decl))
-	      collect (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
+	 collect
+	 (cffi:mem-aref ,(first decl) ,(first (second decl)) i)))
       (case (second decl)
 	(sf-result
 	 `((cffi:foreign-slot-value ,(first decl) 'sf-result 'val)
@@ -112,7 +113,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;; New name?
 (defmacro defun-sf
     (cl-name arguments gsl-name
-	     &key documentation return mode (c-return-value :error-code))
+     &key documentation return mode (c-return-value :error-code))
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -153,13 +154,16 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	  ,@(if (eq c-return-value :error-code)
 		`((check-gsl-status status `(,',cl-name ,,@args))))
 	  (values
-	   ,@(if (eq c-return-value :number-of-answers)
-		 (mapcan
-		  (lambda (decl seq)
-		    `((when (> status ,seq) ,@(pick-result decl))))
-		  return-symb-type
-		  (loop for i below (length return) collect i))
-		 (mapcan #'pick-result return-symb-type))))))))
+	   ,@(case c-return-value
+		   (:number-of-answers
+		    (mapcan
+		     (lambda (decl seq)
+		       `((when (> status ,seq) ,@(pick-result decl))))
+		     return-symb-type
+		     (loop for i below (length return) collect i)))
+		   (:return '(status))
+		   (:error-code
+		    (mapcan #'pick-result return-symb-type)))))))))
 
 ;;; arguments: list like ((x :double) (y :double))
 ;;; mode: t or nil
