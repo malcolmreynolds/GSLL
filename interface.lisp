@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Thu Mar 23 2006 - 17:48
+; modified:    Fri Mar 24 2006 - 17:43
 ;********************************************************
 
 (in-package :gsl)
@@ -90,7 +90,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
     (defunx ,cl-name ,@args)))
 
 ;;;;****************************************************************************
-;;;; Macro defun-sf 
+;;;; Inputs and outputs
 ;;;;****************************************************************************
 
 ;;; An "rst" or return-symb-type as a list (symbol type) where
@@ -137,6 +137,17 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	(gsl-complex `((complex-to-cl ,(rst-symbol decl))))
 	(:double `((double-to-cl ,(rst-symbol decl)))))))
 
+(defun input-argument (spec)
+  "Create a CFFI input argument specification."
+  (if (rst-arrayp spec)
+      ;; currently only works for vectors (1dim array)
+      (list :pointer (rst-symbol spec) :size (rst-dim spec))
+      (list (rst-type spec) (rst-symbol spec))))
+
+;;;;****************************************************************************
+;;;; Macro defun-sf 
+;;;;****************************************************************************
+
 (defun wfo-declare (d)
   `(,(rst-symbol d)
     ,@(if (rst-arrayp d)
@@ -149,6 +160,13 @@ and a scaling exponent e10, such that the value is val*10^e10."
   (unless (eql :success (cffi:foreign-enum-keyword 'gsl-errorno status-code))
     (warn 'gsl-warning
 	  :gsl-errno status :gsl-context context)))
+
+#+development
+(defun array-input-with-dim (cl-array)
+  cffi:foreign-array-alloc
+  cffi:lisp-array-to-foreign
+  cffi:foreign-array-free
+)
 
 ;;; Warning isn't quite right for lambdas.
 ;;; New name?
@@ -181,8 +199,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	(let ((status
 	       (cffi:foreign-funcall
 		,gsl-name
-		,@(mapcan (lambda (ar) (list (second ar) (first ar)))
-			  arguments)
+		,@(mapcan #'input-argument arguments)
 		,@(when mode '(sf-mode mode))
 		,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r))) return-symb-type)
 		:int)))
