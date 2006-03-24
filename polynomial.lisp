@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Mar 23 2006 - 10:47
+; modified:    Fri Mar 24 2006 - 15:09
 ;********************************************************
 ;;; $Id: $
 
@@ -63,7 +63,7 @@
        :pointer dd
        :pointer xac
        :pointer yac
-       :uint size	   ; "size_t is almost always an unsigned int"
+       :size size
        :int))
     (list dd xac size)))
 
@@ -80,7 +80,7 @@
    "gsl_poly_dd_eval"
    :pointer (first dd)
    :pointer (second dd)
-   :uint (third dd)	   ; "size_t is almost always an unsigned int"
+   :size (third dd)
    :double x
    :double))
 
@@ -99,7 +99,7 @@
 	    :double xp
 	    :pointer (first dd)
 	    :pointer (second dd)
-	    :uint (third dd) ; "size_t is almost always an unsigned int"
+	    :size (third dd)
 	    :pointer workspace
 	    :int)
 	   (cffi::foreign-array-to-lisp
@@ -168,7 +168,7 @@
 
 ;;; See /usr/include/gsl/gsl_poly.h
 (cffi:defcstruct poly-complex-workspace
-  (nc :uint)
+  (nc :size)
   (matrix :pointer))
 
 (export '(with-poly-complex-workspace))
@@ -176,7 +176,7 @@
   "Macro to create and cleanup workspace for polynomial root solver." 
   `(let ((,workspace
 	  (funcall
-	   (defun-sf :lambda ((n :uint))
+	   (defun-sf :lambda ((n :size))
 	     "gsl_poly_complex_workspace_alloc"
 	     :return
 	     (poly-complex-workspace)
@@ -189,7 +189,7 @@
 	 :c-return-value :void)))))
 
 (defun-sf polynomial-solve
-    ((a :pointer) (n :uint) (workspace poly-complex-workspace))
+    ((a :pointer) (n :size) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
   :documentation
   "The roots of the general polynomial 

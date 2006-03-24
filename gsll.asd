@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Tue Mar 21 2006 - 23:10
+; modified:    Fri Mar 24 2006 - 15:33
 ;********************************************************
 ;;; $Id: $
 
@@ -13,7 +13,7 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "GPL"
-  :depends-on (cffi)
+  :depends-on (cffi cffi-unix)		; http://www.cliki.net/cffi-unix
   :components
   ((:file "init")
    (:file "interface" :depends-on (init))
