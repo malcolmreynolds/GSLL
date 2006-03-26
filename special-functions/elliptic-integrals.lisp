@@ -3,7 +3,7 @@
 ; description: Elliptic integrals                        
 ; date:        Mon Mar 20 2006 - 21:50                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 20 2006 - 22:15
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 ;;; $Id: $
 
@@ -13,14 +13,14 @@
 ;;;; Legendre form of complete elliptic integrals
 ;;;;****************************************************************************
 
-(defun-sf elliptic-integral-K-complete ((k :double))
+(defun-gsl elliptic-integral-K-complete ((k :double))
   "gsl_sf_ellint_Kcomp_e"
   :documentation
   "The complete elliptic integral @math{K(k)}."
   :mode t
   :return (sf-result))
 
-(defun-sf elliptic-integral-E-complete ((k :double))
+(defun-gsl elliptic-integral-E-complete ((k :double))
   "gsl_sf_ellint_Ecomp_e"
   :documentation
   "The complete elliptic integral @math{E(k)}."
@@ -31,28 +31,28 @@
 ;;;; Legendre form of incomplete elliptic integrals
 ;;;;****************************************************************************
 
-(defun-sf elliptic-integral-F ((phi :double) (k :double))
+(defun-gsl elliptic-integral-F ((phi :double) (k :double))
   "gsl_sf_ellint_F_e"
   :documentation
   "The incomplete elliptic integral @math{F(\phi,k)}."
   :mode t
   :return (sf-result))
 
-(defun-sf elliptic-integral-E ((phi :double) (k :double))
+(defun-gsl elliptic-integral-E ((phi :double) (k :double))
   "gsl_sf_ellint_E_e"
   :documentation
   "The incomplete elliptic integral @math{E(\phi,k)}."
   :mode t
   :return (sf-result))
 
-(defun-sf elliptic-integral-P ((phi :double) (k :double) (n :double))
+(defun-gsl elliptic-integral-P ((phi :double) (k :double) (n :double))
   "gsl_sf_ellint_P_e"
   :documentation
   "The incomplete elliptic integral @math{P(\phi,k,n)}."
   :mode t
   :return (sf-result))
 
-(defun-sf elliptic-integral-D ((phi :double) (k :double) (n :double))
+(defun-gsl elliptic-integral-D ((phi :double) (k :double) (n :double))
   "gsl_sf_ellint_D_e"
   :documentation
   "The incomplete elliptic integral
@@ -72,28 +72,28 @@ $$
 ;;;; Carlson forms
 ;;;;****************************************************************************
 
-(defun-sf elliptic-integral-RC ((x :double) (y :double))
+(defun-gsl elliptic-integral-RC ((x :double) (y :double))
   "gsl_sf_ellint_RC_e"
   :documentation
   "The incomplete elliptic integral @math{RC(x,y)}."
   :mode t
   :return (sf-result))
 
-(defun-sf elliptic-integral-RD ((x :double) (y :double) (z :double))
+(defun-gsl elliptic-integral-RD ((x :double) (y :double) (z :double))
   "gsl_sf_ellint_RD_e"
   :documentation
   "The incomplete elliptic integral @math{RD(x,y,z)}."
   :mode t
   :return (sf-result))
 
-(defun-sf elliptic-integral-RF ((x :double) (y :double) (z :double))
+(defun-gsl elliptic-integral-RF ((x :double) (y :double) (z :double))
   "gsl_sf_ellint_RF_e"
   :documentation
   "The incomplete elliptic integral @math{RF(x,y,z)}."
   :mode t
   :return (sf-result))
 
-(defun-sf elliptic-integral-RJ ((x :double) (y :double) (z :double) (p :double))
+(defun-gsl elliptic-integral-RJ ((x :double) (y :double) (z :double) (p :double))
   "gsl_sf_ellint_RJ_e"
   :documentation
   "The incomplete elliptic integral @math{RJ(x,y,z,p)}."

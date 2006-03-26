@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 21:55
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 ;;; $Id: $
 
@@ -19,7 +19,7 @@
 ;;;;****************************************************************************
 
 ;;; (polynomial-eval #(1.0d0 2.0d0 3.0d0) -1.0d0)
-(defun-sf polynomial-eval 
+(defun-gsl polynomial-eval 
     ((coefficients (:double *)) (x :double))
   "gsl_poly_eval"
   :documentation
@@ -109,7 +109,7 @@
 ;;;; Quadratic Equations
 ;;;;****************************************************************************
 
-(defun-sf solve-quadratic ((a :double) (b :double) (c :double))
+(defun-gsl solve-quadratic ((a :double) (b :double) (c :double))
   "gsl_poly_solve_quadratic"
   :documentation
   "The real roots of the quadratic equation a x^2 + b x + c = 0.
@@ -118,7 +118,7 @@
   :return (:double :double)
   :c-return-value :number-of-answers)
 
-(defun-sf solve-quadratic-complex ((a :double) (b :double) (c :double))
+(defun-gsl solve-quadratic-complex ((a :double) (b :double) (c :double))
   "gsl_poly_complex_solve_quadratic"
   :documentation
   "The complex roots of the quadratic equation a x^2 + b x + c = 0.
@@ -141,7 +141,7 @@
 ;;; NIL
 ;;; NIL
 
-(defun-sf solve-cubic ((a :double) (b :double) (c :double))
+(defun-gsl solve-cubic ((a :double) (b :double) (c :double))
   "gsl_poly_solve_cubic"
   :documentation
   "Find the real roots of the cubic equation, x^3 + a x^2 + b x + c = 0
@@ -151,7 +151,7 @@
   :return (:double :double :double)
   :c-return-value :number-of-answers)
 
-(defun-sf solve-cubic-complex ((a :double) (b :double) (c :double))
+(defun-gsl solve-cubic-complex ((a :double) (b :double) (c :double))
   "gsl_poly_complex_solve_cubic"
   :documentation
   "Find the complex roots of the cubic equation, x^3 + a x^2 + b x + c = 0
@@ -174,7 +174,7 @@
   "Macro to create and cleanup workspace for polynomial root solver." 
   `(let ((,workspace
 	  (funcall
-	   (defun-sf :lambda ((n :size))
+	   (defun-gsl :lambda ((n :size))
 	     "gsl_poly_complex_workspace_alloc"
 	     :return
 	     (poly-complex-workspace)
@@ -183,12 +183,12 @@
     (unwind-protect 
 	 (progn ,@body)
       (funcall
-       (defun-sf :lambda ((,workspace poly-complex-workspace))
+       (defun-gsl :lambda ((,workspace poly-complex-workspace))
 	 "gsl_poly_complex_workspace_free"
 	 :c-return-value :void)
        ,workspace))))
 
-(defun-sf polynomial-solve
+(defun-gsl polynomial-solve
     ((coefficients (:double n)) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
   :documentation

@@ -3,20 +3,20 @@
 ; description: Elementary functions                      
 ; date:        Mon Mar 20 2006 - 21:43                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 20 2006 - 21:47
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-(defun-sf multiply ((x :double) (y :double))
+(defun-gsl multiply ((x :double) (y :double))
   "gsl_sf_multiply_e"
   :documentation
   "Multiplies @var{x} and @var{y} returning the product and
 associated error."
   :return (sf-result))
 
-(defun-sf multiply-err ((x :double) (dx :double) (y :double)  (dy :double))
+(defun-gsl multiply-err ((x :double) (dx :double) (y :double)  (dy :double))
   "gsl_sf_multiply_err_e"
   :documentation
   "Multiplies @var{x} and @var{y} with associated absolute

@@ -3,7 +3,7 @@
 ; description: Coulumb functions                         
 ; date:        Sat Mar 18 2006 - 23:23                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Mar 19 2006 - 00:41
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 ;;; $Id:$
 
@@ -13,13 +13,13 @@
 ;;;; Normalized Hydrogenic Bound States
 ;;;;****************************************************************************
 
-(defun-sf hydrogenicR-1 ((x :double) (r :double))
+(defun-gsl hydrogenicR-1 ((x :double) (r :double))
   "gsl_sf_hydrogenicR_1_e"
   :documentation
   "The lowest-order normalized hydrogenic bound state radial wavefunction @c{$R_1 := 2Z \sqrt{Z} \exp(-Z r)$} @math{R_1 := 2Z \sqrt@{Z@} \exp(-Z r)}."
   :return (sf-result))
 
-(defun-sf hydrogenicR ((n :int) (l :int) (x :double) (r :double))
+(defun-gsl hydrogenicR ((n :int) (l :int) (x :double) (r :double))
   "gsl_sf_hydrogenicR_e"
   :documentation
   "The @var{n}-th normalized hydrogenic bound state radial wavefunction,
@@ -37,7 +37,7 @@ The normalization is chosen such that the wavefunction @math{\psi} is given by
 ;;; Comments are direct from GSL and aren't lispized yet.
 
 ;;; Returns should be reorganized sensibly.
-(defun-sf coulomb-wave-FG ((eta :double) (x :double) (L-F :double) (k :int))
+(defun-gsl coulomb-wave-FG ((eta :double) (x :double) (L-F :double) (k :int))
   "gsl_sf_coulomb_wave_FG_e"
   :documentation
   "The Coulomb wave functions @math{F_L(\eta,x)},
@@ -56,7 +56,7 @@ the modifiable parameters @var{exp_F}, @var{exp_G}."
   :return
   (sf-result sf-result sf-result sf-result :double :double))
 
-(defun-sf coulomb-wave-F-array
+(defun-gsl coulomb-wave-F-array
     ((L-min :double) (kmax :int) (eta :double) (x :double))
   "gsl_sf_coulomb_wave_F_array"
   :documentation
@@ -65,7 +65,7 @@ the modifiable parameters @var{exp_F}, @var{exp_G}."
 In the case of overflow the exponent is stored in @var{F_exponent}."
   :return ((:double (1+ kmax)) :double))
 
-(defun-sf coulomb-wave-FG-array
+(defun-gsl coulomb-wave-FG-array
     ((L-min :double) (kmax :int) (eta :double) (x :double))
   "gsl_sf_coulomb_wave_F_array"
   :documentation
@@ -75,7 +75,7 @@ results in @var{fc_array} and @var{gc_array}.  In the case of overflow the
 exponents are stored in @var{F_exponent} and @var{G_exponent}."
   :return ((:double (1+ kmax)) (:double (1+ kmax)) :double :double))
 
-(defun-sf coulomb-wave-FGp-array 
+(defun-gsl coulomb-wave-FGp-array 
     ((L-min :double) (kmax :int) (eta :double) (x :double))
   "gsl_sf_coulomb_wave_FGp_array"
   :documentation
@@ -89,7 +89,7 @@ and @var{G_exponent}."
 	   (:double (1+ kmax)) (:double (1+ kmax))
 	   :double :double))
 
-(defun-sf coulomb-wave-sphF-array
+(defun-gsl coulomb-wave-sphF-array
     ((L-min :double) (kmax :int) (eta :double) (x :double))
   "gsl_sf_coulomb_wave_sphF_array"
   :documentation
@@ -104,13 +104,13 @@ functions in the limit @math{\eta \to 0}."
 ;;;; Coulomb Wave Function Normalization Constant
 ;;;;****************************************************************************
 
-(defun-sf coulomb-CL ((L :double) (eta :double))
+(defun-gsl coulomb-CL ((L :double) (eta :double))
   "gsl_sf_coulomb_CL_e"
   :documentation
   "The Coulomb wave function normalization constant @math{C_L(\eta)} for @math{L > -1}."
   :return (sf-result))
 
-(defun-sf coulomb-CL-array ((Lmin :double) (kmax :int) (eta :double))
+(defun-gsl coulomb-CL-array ((Lmin :double) (kmax :int) (eta :double))
   "gsl_sf_coulomb_CL_array"
   :documentation
   "The Coulomb wave function normalization constant @math{C_L(\eta)} for @math{L = Lmin \dots Lmin + kmax}, @math{Lmin > -1}."

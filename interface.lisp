@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 25 2006 - 21:50
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 
 (in-package :gsl)
@@ -198,7 +198,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		  #:LEN4183)))))
 
 ;;;;****************************************************************************
-;;;; Macro defun-sf 
+;;;; Macro defun-gsl 
 ;;;;****************************************************************************
 
 (defun wfo-declare (d)
@@ -216,7 +216,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 
 ;;; Warning isn't quite right for lambdas.
 ;;; New name?
-(defmacro defun-sf
+(defmacro defun-gsl
     (cl-name arguments gsl-name
      &key documentation return mode (c-return-value :error-code))
   "Define a CL function that provides an interface to a GSL function.

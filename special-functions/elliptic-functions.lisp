@@ -3,13 +3,13 @@
 ; description: Jacobian elliptic functions                        
 ; date:        Mon Mar 20 2006 - 22:21                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 20 2006 - 23:11
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-(defun-sf jacobian-elliptic-functions ((u :double) (m :double))
+(defun-gsl jacobian-elliptic-functions ((u :double) (m :double))
   "gsl_sf_elljac_e"
   :documentation
   "The Jacobian elliptic functions @math{sn(u|m)},

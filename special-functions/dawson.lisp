@@ -3,7 +3,7 @@
 ; description: Dawson function                           
 ; date:        Sun Mar 19 2006 - 14:31                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Mar 19 2006 - 14:33
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 ;;; $Id: $
 
@@ -16,7 +16,7 @@ Stegun, Table 7.5.  The Dawson functions are declared in the header file
 
 (in-package :gsl)
 
-(defun-sf dawson ((x :double))
+(defun-gsl dawson ((x :double))
   "gsl_sf_dawson_e"
   :documentation
   "Dawson's integral for @var{x}."

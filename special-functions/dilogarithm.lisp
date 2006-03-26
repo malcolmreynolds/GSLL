@@ -3,7 +3,7 @@
 ; description: Dilogarithm                               
 ; date:        Fri Mar 17 2006 - 18:44                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 18 2006 - 00:22
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 
 (in-package :gsl)
@@ -14,7 +14,7 @@
   (etypecase x
     (double-float
      (funcall
-      (defun-sf :lambda ((x :double)) 
+      (defun-gsl :lambda ((x :double)) 
 	"gsl_sf_dilog_e"
 	:return (sf-result))
       x))
@@ -22,7 +22,7 @@
      (multiple-value-bind (re re-err im im-err)
 	 (funcall
 	  ;; returns two gsl_sf_result
-	  (defun-sf :lambda
+	  (defun-gsl :lambda
 	      ((radius :double) (angle :double))
 	    "gsl_sf_complex_dilog_e"
 	    :return (sf-result sf-result))

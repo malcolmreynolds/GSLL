@@ -3,7 +3,7 @@
 ; description: Coupling coefficients                     
 ; date:        Sun Mar 19 2006 - 13:30                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Mar 19 2006 - 14:25
+; modified:    Sat Mar 25 2006 - 22:11
 ;********************************************************
 ;;; $Id: $
 
@@ -19,7 +19,7 @@ section are declared in the header file @file{gsl_sf_coupling.h}.
 
 (in-package :gsl)
 
-(defun-sf coupling-3j ((two-ja :int) (two-jb :int) (two-jc :int)
+(defun-gsl coupling-3j ((two-ja :int) (two-jb :int) (two-jc :int)
 		       (two-ma :int) (two-mb :int) (two-mc :int)) 
   "gsl_sf_coupling_3j_e"
   :documentation
@@ -36,7 +36,7 @@ where the arguments are given in half-integer units, @math{ja} =
 @var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
   :return (sf-result))
 
-(defun-sf coupling-6j ((two-ja :int) (two-jb :int) (two-jc :int)
+(defun-gsl coupling-6j ((two-ja :int) (two-jb :int) (two-jc :int)
 		       (two-jd :int) (two-je :int) (two-jf :int)) 
   "gsl_sf_coupling_6j_e"
   :documentation
@@ -53,7 +53,7 @@ where the arguments are given in half-integer units, @math{ja} =
 @var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
   :return (sf-result))
 
-(defun-sf coupling-9j ((two-ja :int) (two-jb :int) (two-jc :int)
+(defun-gsl coupling-9j ((two-ja :int) (two-jb :int) (two-jc :int)
 		       (two-jd :int) (two-je :int) (two-jf :int)
 		       (two-jg :int) (two-jh :int) (two-ji :int)) 
   "gsl_sf_coupling_9j_e"
