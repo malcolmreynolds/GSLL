@@ -3,7 +3,7 @@
 ; description: Load GSL                                  
 ; date:        Sat Mar  4 2006 - 18:53                   
 ; author:      Liam M. Healy
-; modified:    Fri Mar 24 2006 - 15:30
+; modified:    Fri Mar 24 2006 - 20:04
 ;********************************************************
 
 (defpackage gsll
@@ -22,6 +22,5 @@
    
 (cffi:use-foreign-library libgsl)
 
-;;; If cffi-unix is unavailable, uncomment the appropriate line:
-;;; (cffi:defctype :size :unsigned-long) ; for 64 bit computers
-;;; (cffi:defctype :size :uint) ; for 32 bit computers
+;;; If cffi-unix is unavailable, uncomment the following line:
+;;; (cffi:defctype :size :unsigned-long)

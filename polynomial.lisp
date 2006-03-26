@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Mar 24 2006 - 15:09
+; modified:    Sat Mar 25 2006 - 21:55
 ;********************************************************
 ;;; $Id: $
 
@@ -18,16 +18,14 @@
 ;;;; Polynomial Evaluation
 ;;;;****************************************************************************
 
-(defunx-map polynomial-eval "gsl_poly_eval" (coefficients x)
+;;; (polynomial-eval #(1.0d0 2.0d0 3.0d0) -1.0d0)
+(defun-sf polynomial-eval 
+    ((coefficients (:double *)) (x :double))
+  "gsl_poly_eval"
+  :documentation
   "Evaluate the polyonomial with coefficients at the point x."
-  (let ((len (length coefficients)))
-    (cffi::with-foreign-array (coef coefficients :double (list len))
-      (cffi:foreign-funcall
-       "gsl_poly_eval"
-       :pointer coef
-       :int len
-       :double x
-       :double))))
+  :return (:double)
+  :c-return-value :return)
 
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials
@@ -172,7 +170,7 @@
   (matrix :pointer))
 
 (export '(with-poly-complex-workspace))
-(defmacro with-poly-complex-workspace (workspace &body body)
+(defmacro with-poly-complex-workspace ((workspace size) &body body)
   "Macro to create and cleanup workspace for polynomial root solver." 
   `(let ((,workspace
 	  (funcall
@@ -180,16 +178,18 @@
 	     "gsl_poly_complex_workspace_alloc"
 	     :return
 	     (poly-complex-workspace)
-	     :c-return-value :return))))
+	     :c-return-value :return)
+	   ,size)))
     (unwind-protect 
 	 (progn ,@body)
       (funcall
        (defun-sf :lambda ((,workspace poly-complex-workspace))
 	 "gsl_poly_complex_workspace_free"
-	 :c-return-value :void)))))
+	 :c-return-value :void)
+       ,workspace))))
 
 (defun-sf polynomial-solve
-    ((a :pointer) (n :size) (workspace poly-complex-workspace))
+    ((coefficients (:double n)) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
   :documentation
   "The roots of the general polynomial 
@@ -201,4 +201,10 @@ highest order term must be non-zero.  The function requires a workspace
 @var{w} of the appropriate size.  The @math{n-1} roots are returned in
 the packed complex array @var{z} of length @math{2(n-1)}, alternating
 real and imaginary parts."
-  :return ((gsl-complex n)))
+  :return ((gsl-complex (1- n))))
+
+#|
+;;; Example from GSL manual
+(with-poly-complex-workspace (ws 6)
+  (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0) ws))
+|#
