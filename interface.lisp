@@ -3,12 +3,12 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun Mar 26 2006 - 01:24
 ;********************************************************
 
 (in-package :gsl)
 
-(export '(sf-lookup))
+(export '(gsl-lookup *make-sequence-type*))
 
 ;;;;****************************************************************************
 ;;;; GSL C structures
@@ -57,6 +57,11 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun double-to-cl (double &optional (index 0))
   (cffi:mem-aref double :double index))
 
+(defun cl-convert-function (type)
+  (case type
+    (:double 'double-to-cl)
+    (gsl-complex 'complex-to-cl)))
+
 ;;;;****************************************************************************
 ;;;; Defining CL function names and mapping from C names
 ;;;;****************************************************************************
@@ -71,7 +76,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
   "An alist mapping the CL and GSL names of the special functions.
    This will only be populated when macros are expanded.")
 
-(defun sf-lookup (string)
+(defun gsl-lookup (string)
   "Find the CL function name given the GSL C special function function name.
    If cl-ppcre (http://www.weitz.de/cl-ppcre/) is installed, the string
    can be a regular expression; otherwise, it must match the C name exactly
@@ -117,15 +122,26 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun rst-dim (decl)
   (second (rst-type decl)))
 
+(defparameter *make-sequence-type* 'list
+  "Whether sequences should be returned as list or vector.")
+
+(defun items-in-sequence (element-function length)
+  "Make a CL sequence of the type specified by *make-sequence-type*,
+   computing each element with the function element-function."
+  (let ((ans (make-sequence *make-sequence-type* length)))
+    (dotimes (i length ans)
+      (setf (elt ans i)
+	    (funcall element-function i)))))
+
 (defun pick-result (decl)
-  (if (rst-arrayp decl)			; a vector of values
-      `((loop for i from 0 below ,(rst-dim decl)
-	      collect
-	      ,(case (rst-eltype decl)
-		     (gsl-complex
-		      `(complex-to-cl ,(rst-symbol decl) i))
-		     (double
-		      `(double-to-cl ,(rst-symbol decl) i)))))
+  (if (rst-arrayp decl)		; eventually, check that it's a vector
+      `((map *make-sequence-type*
+	 (function
+	  ,(cl-convert-function (rst-eltype decl)))
+	 (cffi::foreign-array-to-lisp
+	  ,(rst-symbol decl)
+	  ',(rst-eltype decl)
+	  (list ,(rst-dim decl)))))
       (case (rst-type decl)
 	(sf-result
 	 `((cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result 'val)
@@ -134,8 +150,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	 `((cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'val)
 	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'e10)
 	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'err)))
-	(gsl-complex `((complex-to-cl ,(rst-symbol decl))))
-	(:double `((double-to-cl ,(rst-symbol decl)))))))
+	(t `((,(cl-convert-function (rst-type decl)) ,(rst-symbol decl)))))))
 
 ;;;;****************************************************************************
 ;;;; Wrapping for arrays
@@ -215,7 +230,6 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	  :gsl-errno status-code :gsl-context context)))
 
 ;;; Warning isn't quite right for lambdas.
-;;; New name?
 (defmacro defun-gsl
     (cl-name arguments gsl-name
      &key documentation return mode (c-return-value :error-code))
