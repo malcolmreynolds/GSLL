@@ -3,16 +3,14 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sat Mar 25 2006 - 22:36
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
 ;;; To do:
-;;; Awaits incorporation of arrays into CFFI.
 ;;; Divided difference needs to be checked.
-;;; finish
 
 ;;;;****************************************************************************
 ;;;; Polynomial Evaluation
@@ -164,6 +162,27 @@
 ;;;; General Polynomial Equations
 ;;;;****************************************************************************
 
+;;; Note:
+;;; If one polynomial needs to be solved #'polynomial-solve 
+;;; without the second argument is appropriate.  If multiple polynomials
+;;; of the same degree need to be solved, then use with-poly-complex-workspace
+;;; once, wrapping the multiple calls to polynomial-solve with an
+;;; explicit workspace argument.  This insures that the workspace, which
+;;; GSL needs for scratch space, is allocated and deallocated only once.
+
+#|
+;;; Example from GSL manual:
+(with-poly-complex-workspace (ws 6)
+  (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0) ws))
+
+(polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0))
+(#C(-0.8090169943749475d0 0.5877852522924731d0)
+ #C(-0.8090169943749475d0 -0.5877852522924731d0)
+ #C(0.30901699437494745d0 0.9510565162951536d0)
+ #C(0.30901699437494745d0 -0.9510565162951536d0)
+ #C(1.0000000000000002d0 0.0d0))
+|#
+
 ;;; See /usr/include/gsl/gsl_poly.h
 (cffi:defcstruct poly-complex-workspace
   (nc :size)
@@ -188,10 +207,13 @@
 	 :c-return-value :void)
        ,workspace))))
 
-(defun-gsl polynomial-solve
+(defun-gsl polynomial-solve-ws
     ((coefficients (:double n)) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
-  :documentation
+  :return ((gsl-complex (1- n))))
+
+(export '(polynomial-solve))
+(defmacro polynomial-solve (coefficients &optional workspace)
   "The roots of the general polynomial 
 @c{$P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1}$} 
 @math{P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_@{n-1@} x^@{n-1@}} using 
@@ -201,10 +223,10 @@ highest order term must be non-zero.  The function requires a workspace
 @var{w} of the appropriate size.  The @math{n-1} roots are returned in
 the packed complex array @var{z} of length @math{2(n-1)}, alternating
 real and imaginary parts."
-  :return ((gsl-complex (1- n))))
-
-#|
-;;; Example from GSL manual
-(with-poly-complex-workspace (ws 6)
-  (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0) ws))
-|#
+  (if workspace
+      `(polynomial-solve-ws ,coefficients ,workspace)
+      (let ((ws (gensym "WS"))
+	    (coef (gensym "COEF")))
+	`(let ((,coef ,coefficients))
+	   (with-poly-complex-workspace (,ws (length ,coef))
+	     (polynomial-solve-ws ,coef ,ws))))))
