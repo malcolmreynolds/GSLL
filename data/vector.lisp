@@ -3,7 +3,7 @@
 ; description: Vectors and matrices                      
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 27 2006 - 00:29
+; modified:    Mon Mar 27 2006 - 12:45
 ;********************************************************
 ;;; $Id: $
 
@@ -13,29 +13,14 @@
 ;;; Generalize check-gsl-status to optionally signal errors, use here?
 ;;; Functions like write-binary etc. as a single function, selecting the C fn with typecase?
 
-;;; Prospective syntax
+;;; Syntax:
 ;;; (setf (gsl-aref vec 0) -3.21d0)
 ;;; (gsl-aref vec 0)
 ;;; (gsl+ vec1 vec2)
 ;;; (with-data ((vec1 vector 3) (vec2 vector 3)) ...)
 
 ;;;;****************************************************************************
-;;;; Blocks
-;;;;****************************************************************************
-
-(defclass gsl-block (data)
-  ()
-  (:documentation "GSL block."))
-
-;;; Block definition
-(cffi:defcstruct block
-  (size :size)
-  (data :pointer))
-
-(gsl-data-functions "block")
-
-;;;;****************************************************************************
-;;;; Vectors
+;;;; Vector object definition, allocation, reading & writing
 ;;;;****************************************************************************
 
 #|
@@ -64,9 +49,13 @@ deallocated with the vector.
   ()
   (:documentation "GSL vector."))
 
+;;; Allocation, freeing, reading and writing
 (gsl-data-functions "vector")
 
-;;; Accessing elements
+;;;;****************************************************************************
+;;;; Accessing elements
+;;;;****************************************************************************
+
 (defun-gsl gsl-vector-get ((vector :pointer) (i :size))
   "gsl_vector_get"
   :return (:double)
@@ -90,7 +79,10 @@ deallocated with the vector.
   :c-return-value :return
   :documentation "The ith element of the vector as a pointer.")
 
-;;; Initializing elements
+;;;;****************************************************************************
+;;;; Initializing elements
+;;;;****************************************************************************
+
 (defmethod set-all ((object gsl-vector) value)
   (funcall
    (defun-gsl :lambda ((pointer :pointer) (value :double))
@@ -117,6 +109,66 @@ deallocated with the vector.
    (pointer object)
    index))
 
+;;;;****************************************************************************
+;;;; Views
+;;;;****************************************************************************
+
+(cffi:defcstruct gsl-vector-view
+  (vector gsl-vector))
+
+(defun-gsl subvector ((vector gsl-vector) (offset :size) (size :size))
+  "gsl_vector_subvector"
+  :c-return-value :return
+  :return (gsl-vector-view)
+  :documentation
+  "Return a vector view of a subvector of another vector
+@var{v}.  The start of the new vector is offset by @var{offset} elements
+from the start of the original vector.  The new vector has @var{size}
+elements.  Mathematically, the @var{i}-th element of the new vector
+@var{v'} is given by,
+
+@example
+v'(i) = v->data[(offset + i)*v->stride]
+@end example
+@noindent
+where the index @var{i} runs from 0 to @code{n-1}.
+
+The @code{data} pointer of the returned vector struct is set to null if
+the combined parameters (@var{offset},@var{n}) overrun the end of the
+original vector.????????????
+
+The new vector is only a view of the block underlying the original
+vector, @var{v}.  The block containing the elements of @var{v} is not
+owned by the new vector.  When the view goes out of scope the original
+vector @var{v} and its block will continue to exist.  The original
+memory can only be deallocated by freeing the original vector.  Of
+course, the original vector should not be deallocated while the view is
+still in use.")
+
+;;;;****************************************************************************
+;;;; Copying
+;;;;****************************************************************************
+
+;;;;****************************************************************************
+;;;; Exchanging elements
+;;;;****************************************************************************
+
+;;;;****************************************************************************
+;;;; Arithmetic operations
+;;;;****************************************************************************
+
+;;;;****************************************************************************
+;;;; Maximum and minimum elements
+;;;;****************************************************************************
+
+;;;;****************************************************************************
+;;;; Properties
+;;;;****************************************************************************
+
+;;;;****************************************************************************
+;;;; Examples
+;;;;****************************************************************************
+
 #|
 (with-data (vector vec 3)
   (setf (gsl-aref vec 0) -3.21d0
@@ -141,3 +193,4 @@ deallocated with the vector.
 		   (gsl-aref vec 0) (gsl-aref vec 1) (gsl-aref vec 2)))
 
 |#
+
