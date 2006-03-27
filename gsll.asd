@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Mar 26 2006 - 17:02
+; modified:    Mon Mar 27 2006 - 00:28
 ;********************************************************
 ;;; $Id: $
 
@@ -13,7 +13,7 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "GPL"
-  :depends-on (cffi cffi-unix)		; http://www.cliki.net/cffi-unix
+  :depends-on (cffi cffi-unix)	      ; http://www.cliki.net/cffi-unix
   :components
   ((:file "init")
    (:file "interface" :depends-on (init))
@@ -24,8 +24,12 @@
 	     (:file "mathematical")))
    ;; complex numbers not necessary?  Just make a struct.
    (:file "cffi-array")
-   (:file "polynomial" :depends-on (init interface cffi-array)) ; see file
-   (:file "data" :depends-on (init))
+   (:file "polynomial" :depends-on (init interface cffi-array))	; see file
+   (:module data
+	    :depends-on (init interface)
+	    :components
+	    ((:file "data")
+	     (:file "vector" :depends-on (data))))
    (:module special-functions
 	    :depends-on (init interface)
 	    :components

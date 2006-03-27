@@ -3,7 +3,7 @@
 ; description: Vectors and matrices                      
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 27 2006 - 00:16
+; modified:    Mon Mar 27 2006 - 00:29
 ;********************************************************
 ;;; $Id: $
 
@@ -141,11 +141,3 @@ deallocated with the vector.
 		   (gsl-aref vec 0) (gsl-aref vec 1) (gsl-aref vec 2)))
 
 |#
-
-;;; Initializing vector elements
-
-
-;;;;****************************************************************************
-;;;; Matrices
-;;;;****************************************************************************
-
