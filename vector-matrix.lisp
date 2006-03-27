@@ -3,7 +3,7 @@
 ; description: Vectors and matrices                      
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Mar 26 2006 - 18:18
+; modified:    Mon Mar 27 2006 - 00:16
 ;********************************************************
 ;;; $Id: $
 
@@ -60,22 +60,29 @@ deallocated with the vector.
   (block :pointer)
   (owner :int))
 
-(defclass gsl-vector (data)
+(defclass gsl-vector (gsl-data)
   ()
   (:documentation "GSL vector."))
 
 (gsl-data-functions "vector")
 
+;;; Accessing elements
 (defun-gsl gsl-vector-get ((vector :pointer) (i :size))
   "gsl_vector_get"
   :return (:double)
   :c-return-value :return
   :documentation "The ith element of the vector.")
 
+(defmethod gsl-aref ((object gsl-vector) &rest indices)
+  (gsl-vector-get (pointer object) (first indices)))
+
 (defun-gsl gsl-vector-set ((vector :pointer) (i :size) (value :double))
   "gsl_vector_set"
   :c-return-value :void
   :documentation "Set the ith element of the vector.")
+
+(defmethod (setf gsl-aref) (value (object gsl-vector) &rest indices)
+  (gsl-vector-set (pointer object) (first indices) value))
 
 (defun-gsl gsl-vector-ptr ((vector :pointer) (i :size))
   "gsl_vector_ptr"
@@ -83,29 +90,62 @@ deallocated with the vector.
   :c-return-value :return
   :documentation "The ith element of the vector as a pointer.")
 
-#+example
+;;; Initializing elements
+(defmethod set-all ((object gsl-vector) value)
+  (funcall
+   (defun-gsl :lambda ((pointer :pointer) (value :double))
+     "gsl_vector_set_all"
+     :return ()
+     :c-return-value :void)
+   (pointer object)
+   value))
+
+(defmethod set-zero ((object gsl-vector))
+  (funcall
+   (defun-gsl :lambda ((pointer :pointer))
+     "gsl_vector_set_zero"
+     :return ()
+     :c-return-value :void)
+   (pointer object)))
+
+;;; maybe map inputs in defun-gsl?
+(defunx set-basis (object index)
+  (funcall
+   (defun-gsl :lambda ((pointer :pointer) (index :size))
+     "gsl_vector_set_basis"
+     :return ())
+   (pointer object)
+   index))
+
+#|
 (with-data (vector vec 3)
-  (gsl-vector-set vec 0 -3.21d0)
-  (gsl-vector-set vec 1  1.0d0)
-  (gsl-vector-set vec 2  12.8d0)
-  (print (gsl-vector-get vec 2))
-  (print (gsl-vector-get vec 1))
-  (print (gsl-vector-get vec 0)))
+  (setf (gsl-aref vec 0) -3.21d0
+	(gsl-aref vec 1) 1.0d0
+	(gsl-aref vec 2) 12.8d0)
+  (print (gsl-aref vec 2))
+  (print (gsl-aref vec 1))
+  (print (gsl-aref vec 0)))
 
-;;; Is it possible to do
-;;; (setf (gsl-aref vec 0) -3.21d0 (gsl-aref vec 1) 1.0d0)
-;;; without defining objects?
-;;; Inside with-data macro:
-;;; (gsl-set vec 0 -3.21d0)
-;;; Outside:
-;;; (gsl-set vec 'vector 0 -3.21d0)
+(with-data (vector vec 3)
+  (set-all vec 77.8d0)
+  (print (gsl-aref vec 2))
+  (print (gsl-aref vec 1))
+  (print (gsl-aref vec 0))
+  (set-zero vec)
+  (print (gsl-aref vec 2))
+  (print (gsl-aref vec 1))
+  (print (gsl-aref vec 0)))
 
-#+prototype
-(defclass gsl-vector ()
-  (pointer :initarg pointer :reader pointer)
-  )
+(with-data (vector vec 3) (set-basis vec 1)
+	   (format t "~&~a ~a ~a"
+		   (gsl-aref vec 0) (gsl-aref vec 1) (gsl-aref vec 2)))
 
-#+prototype
-(defmethod gsl-aref ((ptr gsl-vector))
-  (gsl-vector-get ptr))
+|#
+
+;;; Initializing vector elements
+
+
+;;;;****************************************************************************
+;;;; Matrices
+;;;;****************************************************************************
 

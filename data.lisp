@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Mar 26 2006 - 18:17
+; modified:    Mon Mar 27 2006 - 00:03
 ;********************************************************
 ;;; $Id: $
 
@@ -60,6 +60,27 @@
 	   :int)
 	  ',(cl-name 'read 'formatted))))))
 
+(defclass gsl-data ()
+  ((pointer :initarg :pointer :reader pointer)))
+
+;;; Accessing elements
+(export 'gsl-aref)
+(defgeneric gsl-aref (object &rest indices)
+  (:documentation "An element of the data."))
+
+(defgeneric (setf gsl-aref) (value object &rest indices)
+  (:documentation "Set an element of the data."))
+
+;;; Initializing elements
+(export 'set-all)
+(defgeneric set-all (object value)
+  (:documentation "Set all elements to the value."))
+
+(export 'set-zero)
+(defgeneric set-zero (object)
+  (:documentation "Set all elements to 0."))
+
+
 (export 'with-data)
 (defmacro with-data ((type symbol size &optional zero) &body body)
   "Allocate GSL data, bind to pointer,
@@ -67,34 +88,18 @@
    contents when allocating."
   (flet ((cl-name (action)
 	   (intern (format nil "GSL-~a-~a" type action))))
-    `(let ((,symbol
-	    (,(if zero (cl-name 'alloc) (cl-name 'alloc))
-	      ,size)))
-       (when (cffi:null-pointer-p ,symbol)
-	 (error 'gsl-error
-		:gsl-errno (cffi:foreign-enum-value 'gsl-errorno :ENOMEM)
-		:gsl-reason
-		(format nil "For '~a of GSL type ~a." ',symbol ',type)))
-       (unwind-protect 
-	    (progn ,@body)
-	 (,(cl-name 'free) ,symbol)))))
-
-#+prototype
-(defmacro with-data ((type symbol size &optional zero) &body body)
-  "Allocate GSL data, bind to pointer,
-   and then deallocated it when done.  If zero is T, zero the
-   contents when allocating."
-  (flet ((cl-name (action)
-	   (intern (format nil "GSL-~a-~a" type action))))
     (let ((ptr (gensym "PTR")))
-      `(let ((,ptr
-	      (,(if zero (cl-name 'alloc) (cl-name 'alloc))
-		,size)))
-	 (when (cffi:null-pointer-p ,ptr)
-	   (error 'gsl-error
-		  :gsl-errno (cffi:foreign-enum-value 'gsl-errorno :ENOMEM)
-		  :gsl-reason
-		  (format nil "For '~a of GSL type ~a." ',symbol ',type)))
-	 (unwind-protect 
-	      (progn ,@body)
-	   (,(cl-name 'free) ,ptr))))))
+      `(let* ((,ptr
+	       (,(if zero (cl-name 'alloc) (cl-name 'alloc))
+		 ,size))
+	      (,symbol
+	       (make-instance ',(intern (format nil "GSL-~a" type))
+			      :pointer ,ptr)))
+	(when (cffi:null-pointer-p ,ptr)
+	  (error 'gsl-error
+		 :gsl-errno (cffi:foreign-enum-value 'gsl-errorno :ENOMEM)
+		 :gsl-reason
+		 (format nil "For '~a of GSL type ~a." ',symbol ',type)))
+	(unwind-protect 
+	     (progn ,@body)
+	  (,(cl-name 'free) ,ptr))))))
