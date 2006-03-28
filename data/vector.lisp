@@ -3,7 +3,7 @@
 ; description: Vectors and matrices                      
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 27 2006 - 12:45
+; modified:    Mon Mar 27 2006 - 22:57
 ;********************************************************
 ;;; $Id: $
 
@@ -51,6 +51,8 @@ deallocated with the vector.
 
 ;;; Allocation, freeing, reading and writing
 (gsl-data-functions "vector")
+
+(setf *wrap-args* (acons 'gsl-vector (lambda (x) `(pointer ,x)) *wrap-args*))
 
 ;;;;****************************************************************************
 ;;;; Accessing elements
@@ -116,6 +118,7 @@ deallocated with the vector.
 (cffi:defcstruct gsl-vector-view
   (vector gsl-vector))
 
+;;; improve documentation
 (defun-gsl subvector ((vector gsl-vector) (offset :size) (size :size))
   "gsl_vector_subvector"
   :c-return-value :return
@@ -124,26 +127,7 @@ deallocated with the vector.
   "Return a vector view of a subvector of another vector
 @var{v}.  The start of the new vector is offset by @var{offset} elements
 from the start of the original vector.  The new vector has @var{size}
-elements.  Mathematically, the @var{i}-th element of the new vector
-@var{v'} is given by,
-
-@example
-v'(i) = v->data[(offset + i)*v->stride]
-@end example
-@noindent
-where the index @var{i} runs from 0 to @code{n-1}.
-
-The @code{data} pointer of the returned vector struct is set to null if
-the combined parameters (@var{offset},@var{n}) overrun the end of the
-original vector.????????????
-
-The new vector is only a view of the block underlying the original
-vector, @var{v}.  The block containing the elements of @var{v} is not
-owned by the new vector.  When the view goes out of scope the original
-vector @var{v} and its block will continue to exist.  The original
-memory can only be deallocated by freeing the original vector.  Of
-course, the original vector should not be deallocated while the view is
-still in use.")
+elements.")
 
 ;;;;****************************************************************************
 ;;;; Copying

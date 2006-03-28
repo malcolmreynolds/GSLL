@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Mar 26 2006 - 01:24
+; modified:    Mon Mar 27 2006 - 22:57
 ;********************************************************
 
 (in-package :gsl)
@@ -153,8 +153,19 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	(t `((,(cl-convert-function (rst-type decl)) ,(rst-symbol decl)))))))
 
 ;;;;****************************************************************************
-;;;; Wrapping for arrays
+;;;; Wrapping of input arguments
 ;;;;****************************************************************************
+
+(defparameter *wrap-args* nil
+  "An alist of type and wrap function for input arguments.")
+
+(defun wrap-arg (spec)
+  "Wrap the symbol with a form that has been specified for
+   the type of argument."
+  (let ((wrapform (rest (assoc (rst-type spec) *wrap-args*))))
+    (if wrapform
+	(funcall wrapform (rst-symbol spec))
+	(rst-symbol spec))))
 
 (defun wrap-form (form wrappers)
   (if wrappers
@@ -176,7 +187,9 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	 `((cffi::with-foreign-array
 	       (,arr ,(rst-symbol spec) ,(rst-eltype spec) (list ,len)))
 	   (let ((,len (length ,(rst-symbol spec))))))))
-      (values `(,(rst-type spec) ,(rst-symbol spec)) nil)))
+      (values
+       `(,(rst-type spec)
+	 ,(wrap-arg spec)) nil)))
 
 (defun wfa-wrappers (specs)
   (if specs

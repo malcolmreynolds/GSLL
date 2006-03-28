@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Mar 27 2006 - 12:34
+; modified:    Mon Mar 27 2006 - 22:26
 ;********************************************************
 ;;; $Id: $
 
@@ -29,7 +29,7 @@
 	    :depends-on (init interface)
 	    :components
 	    ((:file "data")
-	     (:file "block")
+	     (:file "block" :depends-on (data))
 	     (:file "vector" :depends-on (data))))
    (:module special-functions
 	    :depends-on (init interface)
