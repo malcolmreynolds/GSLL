@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Mon Mar 27 2006 - 22:57
+; modified:    Wed Mar 29 2006 - 16:03
 ;********************************************************
 
 (in-package :gsl)
@@ -156,13 +156,13 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;;; Wrapping of input arguments
 ;;;;****************************************************************************
 
-(defparameter *wrap-args* nil
-  "An alist of type and wrap function for input arguments.")
+(defparameter *wrap-types* nil
+  "An alist of type and wrap function for values to and from C.")
 
 (defun wrap-arg (spec)
   "Wrap the symbol with a form that has been specified for
    the type of argument."
-  (let ((wrapform (rest (assoc (rst-type spec) *wrap-args*))))
+  (let ((wrapform (rest (assoc (rst-type spec) *wrap-types*))))
     (if wrapform
 	(funcall wrapform (rst-symbol spec))
 	(rst-symbol spec))))
@@ -245,7 +245,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;; Warning isn't quite right for lambdas.
 (defmacro defun-gsl
     (cl-name arguments gsl-name
-     &key documentation return mode (c-return-value :error-code))
+	     &key documentation return mode (c-return-value :error-code))
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -267,41 +267,41 @@ and a scaling exponent e10, such that the value is val*10^e10."
       `(,@(if (eq cl-name :lambda)
 	      '(lambda)
 	      `(defunx-map ,cl-name ,gsl-name))
-	  ,(if mode 
-	       `(,@clargs &optional (mode :double-prec))
-	       `(,@clargs))
-	  ,@(when documentation (list documentation))
-	  ,(wrap-form			; with-foreign-array
-	    (wrap-form 			; with-foreign-object
-	     `(let ((creturn
-		     (cffi:foreign-funcall
-		      ,gsl-name
-		      ,@input-declarations
-		      ,@(when mode '(sf-mode mode))
-		      ,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r)))
-				return-symb-type)
-		      ,(if (eq c-return-value :return)
-			   (first return)
-			   :int))))
-		,@(case c-return-value
-			(:void '((declare (ignore creturn))))
-			(:error-code
-			 `((check-gsl-status creturn `(,',cl-name ,,@clargs)))))
-		(values
-		 ,@(case c-return-value
-			 (:number-of-answers
-			  (mapcan
-			   (lambda (decl seq)
-			     `((when (> creturn ,seq) ,@(pick-result decl))))
-			   return-symb-type
-			   (loop for i below (length return) collect i)))
-			 (:return '(creturn))
-			 (:error-code
-			  (mapcan #'pick-result return-symb-type)))))
-	     (when return-symb-type
-	       `((cffi:with-foreign-objects
-		     ,(mapcar #'wfo-declare return-symb-type)))))
-	    wrap-arrays)))))
+	,(if mode 
+	     `(,@clargs &optional (mode :double-prec))
+	     `(,@clargs))
+	,@(when documentation (list documentation))
+	,(wrap-form			; with-foreign-array
+	  (wrap-form 			; with-foreign-object
+	   `(let ((creturn
+		   (cffi:foreign-funcall
+		    ,gsl-name
+		    ,@input-declarations
+		    ,@(when mode '(sf-mode mode))
+		    ,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r)))
+			      return-symb-type)
+		    ,(if (eq c-return-value :return)
+			 (first return)
+			 :int))))
+	     ,@(case c-return-value
+		     (:void '((declare (ignore creturn))))
+		     (:error-code
+		      `((check-gsl-status creturn `(,',cl-name ,,@clargs)))))
+	     (values
+	      ,@(case c-return-value
+		      (:number-of-answers
+		       (mapcan
+			(lambda (decl seq)
+			  `((when (> creturn ,seq) ,@(pick-result decl))))
+			return-symb-type
+			(loop for i below (length return) collect i)))
+		      (:return (list (wrap-arg `(creturn ,@return))))
+		      (:error-code
+		       (mapcan #'pick-result return-symb-type)))))
+	   (when return-symb-type
+	     `((cffi:with-foreign-objects
+		   ,(mapcar #'wfo-declare return-symb-type)))))
+	  wrap-arrays)))))
 
 ;;; arguments: list like ((x :double) (y :double))
 ;;; mode: t or nil

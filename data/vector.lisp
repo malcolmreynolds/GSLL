@@ -3,7 +3,7 @@
 ; description: Vectors and matrices                      
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 27 2006 - 22:57
+; modified:    Wed Mar 29 2006 - 17:39
 ;********************************************************
 ;;; $Id: $
 
@@ -38,7 +38,7 @@ deallocated with the vector.
 |#
 
 ;;; GSL-vector definition
-(cffi:defcstruct gsl-vector
+(cffi:defcstruct gsl-vector-c
   (size :size)
   (stride :size)
   (data :pointer)
@@ -52,7 +52,7 @@ deallocated with the vector.
 ;;; Allocation, freeing, reading and writing
 (gsl-data-functions "vector")
 
-(setf *wrap-args* (acons 'gsl-vector (lambda (x) `(pointer ,x)) *wrap-args*))
+(setf *wrap-types* (acons 'gsl-vector (lambda (x) `(pointer ,x)) *wrap-types*))
 
 ;;;;****************************************************************************
 ;;;; Accessing elements
@@ -118,6 +118,18 @@ deallocated with the vector.
 (cffi:defcstruct gsl-vector-view
   (vector gsl-vector))
 
+(setf *wrap-types*
+      (acons 'gsl-vector-view
+	     (lambda (x)
+	       x
+	       #+no
+	       `(cffi:foreign-slot-value ,x 'gsl-vector-view 'vector)
+	       #+no
+	       `(make-instance 'gsl-vector
+		 :pointer
+		 (cffi:foreign-slot-value ,x 'gsl-vector-view 'vector)))
+	     *wrap-types*))
+
 ;;; improve documentation
 (defun-gsl subvector ((vector gsl-vector) (offset :size) (size :size))
   "gsl_vector_subvector"
@@ -175,6 +187,23 @@ elements.")
 (with-data (vector vec 3) (set-basis vec 1)
 	   (format t "~&~a ~a ~a"
 		   (gsl-aref vec 0) (gsl-aref vec 1) (gsl-aref vec 2)))
+
+;;; broken
+(with-data (vector vec 3)
+  (setf (gsl-aref vec 0) -3.21d0
+	(gsl-aref vec 1) 1.0d0
+	(gsl-aref vec 2) 12.8d0)
+  (subvector vec 1 2))
+
+(DEFUN SUBVECTOR (VECTOR OFFSET SIZE)
+  (FOREIGN-FUNCALL "gsl_vector_subvector"
+		   GSL-VECTOR-c
+		   (POINTER VECTOR)
+		   :SIZE
+		   OFFSET
+		   :SIZE
+		   SIZE
+		   GSL-VECTOR-VIEW))
 
 |#
 
