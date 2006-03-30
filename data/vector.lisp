@@ -3,7 +3,7 @@
 ; description: Vectors and matrices                      
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Mar 29 2006 - 17:39
+; modified:    Wed Mar 29 2006 - 23:35
 ;********************************************************
 ;;; $Id: $
 
@@ -52,7 +52,7 @@ deallocated with the vector.
 ;;; Allocation, freeing, reading and writing
 (gsl-data-functions "vector")
 
-(setf *wrap-types* (acons 'gsl-vector (lambda (x) `(pointer ,x)) *wrap-types*))
+(setf *wrap-types* (acons 'gsl-vector-c (lambda (x) `(pointer ,x)) *wrap-types*))
 
 ;;;;****************************************************************************
 ;;;; Accessing elements
@@ -116,22 +116,21 @@ deallocated with the vector.
 ;;;;****************************************************************************
 
 (cffi:defcstruct gsl-vector-view
-  (vector gsl-vector))
+  (vector gsl-vector-c))
 
 (setf *wrap-types*
       (acons 'gsl-vector-view
 	     (lambda (x)
-	       x
+	       ;;x
 	       #+no
 	       `(cffi:foreign-slot-value ,x 'gsl-vector-view 'vector)
-	       #+no
 	       `(make-instance 'gsl-vector
 		 :pointer
 		 (cffi:foreign-slot-value ,x 'gsl-vector-view 'vector)))
 	     *wrap-types*))
 
 ;;; improve documentation
-(defun-gsl subvector ((vector gsl-vector) (offset :size) (size :size))
+(defun-gsl subvector ((vector gsl-vector-c) (offset :size) (size :size))
   "gsl_vector_subvector"
   :c-return-value :return
   :return (gsl-vector-view)
@@ -166,7 +165,7 @@ elements.")
 ;;;;****************************************************************************
 
 #|
-(with-data (vector vec 3)
+(with-data (vec vector 3)
   (setf (gsl-aref vec 0) -3.21d0
 	(gsl-aref vec 1) 1.0d0
 	(gsl-aref vec 2) 12.8d0)
@@ -174,7 +173,7 @@ elements.")
   (print (gsl-aref vec 1))
   (print (gsl-aref vec 0)))
 
-(with-data (vector vec 3)
+(with-data (vec vector 3)
   (set-all vec 77.8d0)
   (print (gsl-aref vec 2))
   (print (gsl-aref vec 1))
@@ -184,12 +183,12 @@ elements.")
   (print (gsl-aref vec 1))
   (print (gsl-aref vec 0)))
 
-(with-data (vector vec 3) (set-basis vec 1)
+(with-data (vec vector 3) (set-basis vec 1)
 	   (format t "~&~a ~a ~a"
 		   (gsl-aref vec 0) (gsl-aref vec 1) (gsl-aref vec 2)))
 
 ;;; broken
-(with-data (vector vec 3)
+(with-data (vec vector 3)
   (setf (gsl-aref vec 0) -3.21d0
 	(gsl-aref vec 1) 1.0d0
 	(gsl-aref vec 2) 12.8d0)
@@ -197,13 +196,26 @@ elements.")
 
 (DEFUN SUBVECTOR (VECTOR OFFSET SIZE)
   (FOREIGN-FUNCALL "gsl_vector_subvector"
-		   GSL-VECTOR-c
-		   (POINTER VECTOR)
-		   :SIZE
-		   OFFSET
-		   :SIZE
-		   SIZE
-		   GSL-VECTOR-VIEW))
+			  :pointer
+			  (POINTER VECTOR)
+			  :SIZE
+			  OFFSET
+			  :SIZE
+			  SIZE
+			  GSL-VECTOR-VIEW))
+
+(with-data (vec vector 3)
+  (setf (gsl-aref vec 0) -3.21d0
+	(gsl-aref vec 1) 1.0d0
+	(gsl-aref vec 2) 12.8d0)
+  (FOREIGN-FUNCALL "gsl_vector_subvector"
+			  :pointer
+			  (POINTER VEC)
+			  :SIZE
+			  1
+			  :SIZE
+			  2
+			  GSL-VECTOR-VIEW))
 
 |#
 

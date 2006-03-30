@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 27 2006 - 00:03
+; modified:    Wed Mar 29 2006 - 23:35
 ;********************************************************
 ;;; $Id: $
 
@@ -82,7 +82,7 @@
 
 
 (export 'with-data)
-(defmacro with-data ((type symbol size &optional zero) &body body)
+(defmacro with-data ((symbol type size &optional zero) &body body)
   "Allocate GSL data, bind to pointer,
    and then deallocated it when done.  If zero is T, zero the
    contents when allocating."
