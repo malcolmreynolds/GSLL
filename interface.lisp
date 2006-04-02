@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed Mar 29 2006 - 16:03
+; modified:    Sun Apr  2 2006 - 15:46
 ;********************************************************
 
 (in-package :gsl)
@@ -57,9 +57,13 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun double-to-cl (double &optional (index 0))
   (cffi:mem-aref double :double index))
 
+(defun size-to-cl (size &optional (index 0))
+  (cffi:mem-aref size :size index))
+
 (defun cl-convert-function (type)
   (case type
     (:double 'double-to-cl)
+    (:size 'size-to-cl)
     (gsl-complex 'complex-to-cl)))
 
 ;;;;****************************************************************************
@@ -245,7 +249,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;; Warning isn't quite right for lambdas.
 (defmacro defun-gsl
     (cl-name arguments gsl-name
-	     &key documentation return mode (c-return-value :error-code))
+     &key documentation return mode (c-return-value :error-code))
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -280,9 +284,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		    ,@(when mode '(sf-mode mode))
 		    ,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r)))
 			      return-symb-type)
-		    ,(if (eq c-return-value :return)
-			 (first return)
-			 :int))))
+		    ,(case c-return-value
+			   (:return (first return))
+			   (:void :void)
+			   (t :int)))))
 	     ,@(case c-return-value
 		     (:void '((declare (ignore creturn))))
 		     (:error-code
@@ -296,7 +301,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 			return-symb-type
 			(loop for i below (length return) collect i)))
 		      (:return (list (wrap-arg `(creturn ,@return))))
-		      (:error-code
+		      (t
 		       (mapcan #'pick-result return-symb-type)))))
 	   (when return-symb-type
 	     `((cffi:with-foreign-objects

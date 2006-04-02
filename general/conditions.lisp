@@ -3,7 +3,7 @@
 ; description: GSL errors                                
 ; date:        Sat Mar  4 2006 - 18:33                   
 ; author:      Liam M. Healy
-; modified:    Tue Mar 21 2006 - 17:13
+; modified:    Sun Apr  2 2006 - 15:56
 ;********************************************************
 
 (in-package :gsl)
@@ -24,7 +24,7 @@
     (1 . "Input domain error")
     (2 . "Output range error")
     (3 . "Invalid pointer")
-    (4 . "Invalid argument supplied by user")
+    (4 . "Invalid argument")
     (5 . "Generic failure")
     (6 . "Factorization failed")
     (7 . "Sanity check failed - shouldn't happen")

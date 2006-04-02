@@ -1,9 +1,9 @@
 ;********************************************************
-; file:        vector-matrix.lisp                        
-; description: Vectors and matrices                      
+; file:        vector.lisp                        
+; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Apr  1 2006 - 23:57
+; modified:    Sun Apr  2 2006 - 15:51
 ;********************************************************
 ;;; $Id: $
 
@@ -205,7 +205,7 @@ vector is given by @var{base}.")
 ;;;; Exchanging elements
 ;;;;****************************************************************************
 
-(defun-gsl vector-swap ((vec gsl-vector-c) (i :size) (j :size))
+(defun-gsl vector-swap-elements ((vec gsl-vector-c) (i :size) (j :size))
   "gsl_vector_swap_elements"
   :documentation
   "Exchange the @var{i}-th and @var{j}-th elements of the
@@ -270,9 +270,59 @@ vector @var{a}, @math{a'_i = a_i + x}.")
 ;;;; Maximum and minimum elements
 ;;;;****************************************************************************
 
+(defun-gsl vector-max ((v gsl-vector-c)) "gsl_vector_max"
+  :documentation
+  "The maximum value in the vector @var{v}."
+  :c-return-value :return
+  :return (:double))
+
+(defun-gsl vector-min ((v gsl-vector-c)) "gsl_vector_min"
+  :documentation
+  "The minimum value in the vector @var{v}."
+  :c-return-value :return
+  :return (:double))
+
+(defun-gsl vector-minmax ((v gsl-vector-c))
+  "gsl_vector_minmax"
+  :documentation
+  "The minimum and maximum values in the vector @var{v}."
+  :c-return-value :void
+  :return (:double :double))
+
+(defun-gsl vector-max-index ((v gsl-vector-c)) "gsl_vector_max_index"
+  :documentation
+  "The index of the maximum value in the vector @var{v}.
+   When there are several equal minimum elements then the lowest index is
+   returned."
+  :c-return-value :return
+  :return (:size))
+
+(defun-gsl vector-min-index ((v gsl-vector-c)) "gsl_vector_min_index"
+  :documentation
+  "The index of the minimum value in the vector @var{v}.  When there are several
+  equal minimum elements then the lowest index is returned."
+  :c-return-value :return
+  :return (:size))
+
+(defun-gsl vector-minmax-index ((v gsl-vector-c))
+  "gsl_vector_minmax_index"
+  :documentation
+  "The indices of the minimum and maximum values in the vector @var{v}.
+  When there are several equal minimum elements then the lowest index is
+  returned."
+  :c-return-value :void
+  :return (:size :size))
+
 ;;;;****************************************************************************
 ;;;; Properties
 ;;;;****************************************************************************
+
+(defun-gsl vector-zerop ((v gsl-vector-c))
+  "gsl_vector_isnull"
+  :documentation
+  "All elements of vector @var{v} are zero."
+  :c-return-value :return
+  :return (:boolean))
 
 ;;;;****************************************************************************
 ;;;; Examples
@@ -357,5 +407,19 @@ vector @var{a}, @math{a'_i = a_i + x}.")
     (print-vector vec1)
     (vector* vec1 vec2)
     (print-vector vec1)))
+
+(with-data (vec1 vector 3)
+  (set-vector vec1 -3.21d0 1.0d0 12.8d0)
+  (print-vector vec1)
+  (print (vector-min vec1))
+  (print (vector-max vec1))
+  (vector-minmax vec1))
+
+(with-data (vec1 vector 3)
+  (set-vector vec1 -3.21d0 1.0d0 12.8d0)
+  (print-vector vec1)
+  (print (vector-min-index vec1))
+  (print (vector-max-index vec1))
+  (vector-minmax-index vec1))
 
 |#
