@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr  2 2006 - 15:51
+; modified:    Mon Apr  3 2006 - 00:24
 ;********************************************************
 ;;; $Id: $
 
@@ -100,18 +100,12 @@ deallocated with the vector.
   (funcall
    (defun-gsl :lambda ((pointer :pointer))
      "gsl_vector_set_zero"
-     :return ()
      :c-return-value :void)
    (pointer object)))
 
-;;; maybe map inputs in defun-gsl?
-(defunx set-basis (object index)
-  (funcall
-   (defun-gsl :lambda ((pointer :pointer) (index :size))
-     "gsl_vector_set_basis"
-     :return ())
-   (pointer object)
-   index))
+(defun-gsl set-basis ((vector gsl-vector-c) (index :size))
+  "gsl_vector_set_basis"
+  :c-return-value :void)
 
 ;;;;****************************************************************************
 ;;;; Views
@@ -120,16 +114,12 @@ deallocated with the vector.
 (cffi:defcstruct gsl-vector-view
   (vector gsl-vector-c))
 
-(setf *wrap-types*
-      (acons 'gsl-vector-view
-	     (lambda (x)
-	       ;;x
-	       #+no
-	       `(cffi:foreign-slot-value ,x 'gsl-vector-view 'vector)
-	       `(make-instance 'gsl-vector
-		 :pointer
-		 (cffi:foreign-slot-value ,x 'gsl-vector-view 'vector)))
-	     *wrap-types*))
+(add-wrap-type
+ gsl-vector-view
+ (lambda (x)
+   `(make-instance 'gsl-vector
+     :pointer
+     (cffi:foreign-slot-value ,x 'gsl-vector-view 'vector))))
 
 ;;; improve documentation
 (defun-gsl subvector ((vector gsl-vector-c) (offset :size) (size :size))
@@ -167,7 +157,7 @@ elements.")
   "A vector view of the imaginary parts of the complex vector @var{v}.")
 |#
 
-(defun-gsl view-array ((base :pointer) (size :size))
+(defun-gsl vector-array ((base :pointer) (size :size))
   "gsl_vector_view_array"
   :c-return-value :return
   :return (gsl-vector-view)
@@ -175,7 +165,7 @@ elements.")
   "A vector view of an array.  The start of the new
 vector is given by @var{base} and has @var{n} elements.")
 
-(defun-gsl view-array-stride ((base :pointer) (stride :size) (size :size))
+(defun-gsl vector-array-stride ((base :pointer) (stride :size) (size :size))
   "gsl_vector_view_array_with_stride"
   :c-return-value :return
   :return (gsl-vector-view)
