@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Mar 29 2006 - 23:35
+; modified:    Mon Apr  3 2006 - 13:38
 ;********************************************************
 ;;; $Id: $
 
@@ -91,10 +91,14 @@
     (let ((ptr (gensym "PTR")))
       `(let* ((,ptr
 	       (,(if zero (cl-name 'alloc) (cl-name 'alloc))
-		 ,size))
+		 ,@(if (listp size) size (list size))))
 	      (,symbol
 	       (make-instance ',(intern (format nil "GSL-~a" type))
 			      :pointer ,ptr)))
+	(check-null-pointer ,ptr
+	 :ENOMEM
+	 (format nil "For '~a of GSL type ~a." ',symbol ',type))
+	#+old
 	(when (cffi:null-pointer-p ,ptr)
 	  (error 'gsl-error
 		 :gsl-errno (cffi:foreign-enum-value 'gsl-errorno :ENOMEM)

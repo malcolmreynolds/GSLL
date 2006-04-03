@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Apr  3 2006 - 00:24
+; modified:    Mon Apr  3 2006 - 12:25
 ;********************************************************
 ;;; $Id: $
 
@@ -181,14 +181,14 @@ vector is given by @var{base}.")
     ((destination gsl-vector-c) (source gsl-vector-c) )
   "gsl_vector_memcpy"
   :documentation
-  "Copy the elements of the vector @var{src} into the
-   vector @var{dest}.  The two vectors must have the same length.")
+  "Copy the elements of the vector @var{source} into the
+   vector @var{destination}.  The two vectors must have the same length.")
 
 (defun-gsl vector-swap
     ((v gsl-vector-c) (w gsl-vector-c) )
   "gsl_vector_swap"
   :documentation
-  "Exchanges the elements of the vectors @var{v} and @var{w}
+  "Exchange the elements of the vectors @var{v} and @var{w}
    by copying.  The two vectors must have the same length.")
 
 ;;;;****************************************************************************

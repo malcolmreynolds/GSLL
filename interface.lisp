@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Apr  2 2006 - 23:53
+; modified:    Mon Apr  3 2006 - 09:58
 ;********************************************************
 
 (in-package :gsl)
@@ -233,6 +233,28 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		  #:LEN4183)))))
 
 ;;;;****************************************************************************
+;;;; Checking results
+;;;;****************************************************************************
+
+(defun check-gsl-status (status-code context)
+  "Check the return status code from a GSL function and signal a warning
+   if it is not :SUCCESS."
+  (unless (eql :success (cffi:foreign-enum-keyword 'gsl-errorno status-code))
+    (warn 'gsl-warning
+	  :gsl-errno status-code :gsl-context context)))
+
+(defun check-null-pointer (pointer error-code reason)
+  (when (cffi:null-pointer-p pointer)
+    (error 'gsl-error
+	   :gsl-errno (cffi:foreign-enum-value 'gsl-errorno error-code)
+	   :gsl-reason reason)))
+
+(defun check-null-pointers (check-null-pointers)
+  (let ((cret (find :creturn check-null-pointers :key #'first)))
+    (when cret
+	`((check-null-pointer creturn ,@(rest cret))))))))
+
+;;;;****************************************************************************
 ;;;; Macro defun-gsl 
 ;;;;****************************************************************************
 
@@ -242,17 +264,11 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	  `(',(rst-eltype d) ,(rst-dim d))
 	  `(',(rst-type d)))))
 
-(defun check-gsl-status (status-code context)
-  "Check the return status code from a GSL function and signal a warning
-   if it is not :SUCCESS."
-  (unless (eql :success (cffi:foreign-enum-keyword 'gsl-errorno status-code))
-    (warn 'gsl-warning
-	  :gsl-errno status-code :gsl-context context)))
-
 ;;; Warning isn't quite right for lambdas.
 (defmacro defun-gsl
     (cl-name arguments gsl-name
-     &key documentation return mode (c-return-value :error-code))
+	     &key documentation return mode (c-return-value :error-code)
+	     check-null-pointers)
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -295,6 +311,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		     (:void '((declare (ignore creturn))))
 		     (:error-code
 		      `((check-gsl-status creturn `(,',cl-name ,,@clargs)))))
+	     ,@(check-null-pointers check-null-pointers)
 	     (values
 	      ,@(case c-return-value
 		      (:number-of-answers
