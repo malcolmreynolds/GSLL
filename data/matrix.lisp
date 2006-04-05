@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Apr  4 2006 - 23:56
+; modified:    Wed Apr  5 2006 - 09:33
 ;********************************************************
 ;;; $Id: $
 
@@ -29,7 +29,7 @@
 ;;; Allocation, freeing, reading and writing
 (gsl-data-functions "matrix" 2)
 
-(add-wrap-type gsl-matrix-c (lambda (x) `(pointer ,x)) *wrap-types*)
+(add-wrap-type gsl-matrix-c (lambda (x) `(pointer ,x)))
 
 ;;;;****************************************************************************
 ;;;; Accessing elements
