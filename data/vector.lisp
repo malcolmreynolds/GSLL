@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Apr  3 2006 - 12:25
+; modified:    Wed Apr  5 2006 - 00:09
 ;********************************************************
 ;;; $Id: $
 
@@ -54,7 +54,7 @@ deallocated with the vector.
 ;;; Allocation, freeing, reading and writing
 (gsl-data-functions "vector")
 
-(setf *wrap-types* (acons 'gsl-vector-c (lambda (x) `(pointer ,x)) *wrap-types*))
+(add-wrap-type gsl-vector-c (lambda (x) `(pointer ,x)))
 
 ;;;;****************************************************************************
 ;;;; Accessing elements
@@ -199,12 +199,12 @@ vector is given by @var{base}.")
   "gsl_vector_swap_elements"
   :documentation
   "Exchange the @var{i}-th and @var{j}-th elements of the
-   vector @var{v} in-place.")
+   vector @var{vec} in-place.")
 
 (defun-gsl vector-reverse ((vec gsl-vector-c))
   "gsl_vector_reverse"
   :documentation
-  "Reverse the order of the elements of the vector @var{v}.")
+  "Reverse the order of the elements of the vector @var{vec}.")
 
 ;;;;****************************************************************************
 ;;;; Arithmetic operations

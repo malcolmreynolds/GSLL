@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Apr  4 2006 - 23:26
+; modified:    Tue Apr  4 2006 - 23:56
 ;********************************************************
 ;;; $Id: $
 
@@ -29,7 +29,7 @@
 ;;; Allocation, freeing, reading and writing
 (gsl-data-functions "matrix" 2)
 
-(setf *wrap-types* (acons 'gsl-matrix-c (lambda (x) `(pointer ,x)) *wrap-types*))
+(add-wrap-type gsl-matrix-c (lambda (x) `(pointer ,x)) *wrap-types*)
 
 ;;;;****************************************************************************
 ;;;; Accessing elements
@@ -80,14 +80,17 @@
      :c-return-value :void)
    (pointer object)))
 
-(defun-gsl set-identity ((marix gsl-matrix-c))
-  "gsl_matrix_set_identity"
-  :c-return-value :void
-  :documentation
-  "Set the elements of the matrix @var{m} to the
-corresponding elements of the identity matrix, @math{m(i,j) =
-\delta(i,j)}, i.e. a unit diagonal with all off-diagonal elements zero.
-This applies to both square and rectangular matrices.")
+(defmethod set-identity ((matrix gsl-matrix))
+  (funcall 
+   (defun-gsl :lambda ((martix gsl-matrix-c))
+     "gsl_matrix_set_identity"
+     :c-return-value :void
+     :documentation
+     "Set the elements of the matrix @var{m} to the
+  corresponding elements of the identity matrix, @math{m(i,j) =
+  \delta(i,j)}, i.e. a unit diagonal with all off-diagonal elements zero.
+  This applies to both square and rectangular matrices.")
+   (pointer matrix)))
 
 ;;;;****************************************************************************
 ;;;; Matrix Views
