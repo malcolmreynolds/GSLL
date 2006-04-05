@@ -3,7 +3,7 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr  5 2006 - 00:20
+; modified:    Wed Apr  5 2006 - 17:35
 ;********************************************************
 ;;; $Id: $
 
@@ -27,6 +27,7 @@
 
 (add-wrap-type gsl-permutation-c (lambda (x) `(pointer ,x)))
 
+#+old
 (defmethod set-identity ((permutation gsl-permutation))
   (funcall 
    (defun-gsl :lambda ((permutation gsl-permutation-c))
@@ -35,6 +36,13 @@
      "Initialize the permutation @var{p} to the identity, i.e.
    @math{(0,1,2,@dots{},n-1)}.")
    (pointer permutation)))
+
+(defun-gsl set-identity (((pointer permutation) gsl-permutation-c))
+     "gsl_permutation_init"
+     :method ((permutation gsl-permutation))
+     :documentation
+     "Initialize the permutation @var{p} to the identity, i.e.
+   @math{(0,1,2,@dots{},n-1)}.")
 
 (defun-gsl permutation-copy
     ((destination gsl-permutation-c) (source gsl-permutation-c) )
@@ -47,6 +55,7 @@ permutation @var{dest}.  The two permutations must have the same size.")
 ;;;; Accessing elements
 ;;;;****************************************************************************
 
+#+old
 (defmethod gsl-aref ((object gsl-permutation) &rest indices)
   (funcall
    (defun-gsl :lambda ((permutation :pointer) (i :size))
@@ -55,6 +64,14 @@ permutation @var{dest}.  The two permutations must have the same size.")
      :c-return-value :return
      :documentation "The ith element of the permutation.")
    (pointer object) (first indices)))
+
+(defun-gsl gsl-aref
+    (((pointer permutation) :pointer) ((first indices) :size))
+  "gsl_permutation_get"
+  :method ((permutation gsl-permutation) &rest indices)
+  :return (:double)
+  :c-return-value :return
+  :documentation "The ith element of the permutation.")
 
 (defun-gsl permutation-swap ((p gsl-permutation-c) (i :size) (j :size))
   "gsl_permutation_swap"

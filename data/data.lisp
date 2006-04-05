@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Apr  4 2006 - 22:58
+; modified:    Wed Apr  5 2006 - 17:20
 ;********************************************************
 ;;; $Id: $
 
@@ -83,6 +83,10 @@
 (defgeneric set-zero (object)
   (:documentation "Set all elements to 0."))
 
+(export 'set-identity)
+(defgeneric set-identity (object)
+  (:documentation "Set elements to represent the identity."))
+
 
 (export 'with-data)
 (defmacro with-data ((symbol type size &optional zero) &body body)
@@ -110,3 +114,4 @@
 	(unwind-protect 
 	     (progn ,@body)
 	  (,(cl-name 'free) ,ptr))))))
+

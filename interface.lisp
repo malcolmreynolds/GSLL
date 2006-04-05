@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Tue Apr  4 2006 - 23:00
+; modified:    Wed Apr  5 2006 - 17:39
 ;********************************************************
 
 (in-package :gsl)
@@ -97,6 +97,12 @@ and a scaling exponent e10, such that the value is val*10^e10."
   `(progn
     (setf *sf-name-mapping* (acons ',cl-name ',gsl-name *sf-name-mapping*))
     (defunx ,cl-name ,@args)))
+
+(defmacro defmethod-map (cl-name gsl-name &rest args)
+  "defmethod and name-map."
+  `(progn
+    (setf *sf-name-mapping* (acons ',cl-name ',gsl-name *sf-name-mapping*))
+    (defmethod ,cl-name ,@args)))
 
 ;;;;****************************************************************************
 ;;;; Inputs and outputs
@@ -268,7 +274,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defmacro defun-gsl
     (cl-name arguments gsl-name
 	     &key documentation return mode (c-return-value :error-code)
-	     check-null-pointers)
+	     check-null-pointers method)
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -277,8 +283,14 @@ and a scaling exponent e10, such that the value is val*10^e10."
      return:          a list of return types
      mode:            T or NIL, depending on whether gsl_mode is an argument
      c-return-value:  The C function returns an :error-code, :number-of-answers,
-                      a value to :return from the CL function, or :void."
-  (let ((clargs (mapcar #'rst-symbol arguments))
+                      a value to :return from the CL function, or :void.
+     check-null-pointers:
+                      a list of return variables that should be checked,
+                      if a null pointer, signal an error.
+     method           Make output a defmethod with the value as the arglist;
+                      'arguments should then include explicit mapping of all arguments
+                      to GSL form."
+  (let ((clargs (or method (mapcar #'rst-symbol arguments)))
 	(return-symb-type
 	 (unless (eq c-return-value :return)
 	   (mapcar (lambda (typ)
@@ -289,7 +301,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	(wfa-wrappers arguments)
       `(,@(if (eq cl-name :lambda)
 	      '(lambda)
-	      `(defunx-map ,cl-name ,gsl-name))
+	      `(,(if method 'defmethod-map 'defunx-map) ,cl-name ,gsl-name))
 	,(if mode 
 	     `(,@clargs &optional (mode :double-prec))
 	     `(,@clargs))
@@ -310,7 +322,9 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	     ,@(case c-return-value
 		     (:void '((declare (ignore creturn))))
 		     (:error-code
-		      `((check-gsl-status creturn `(,',cl-name ,,@clargs)))))
+		      (if method
+			  `((check-gsl-status creturn `(,',cl-name))) ; need args
+			  `((check-gsl-status creturn `(,',cl-name ,,@clargs))))))
 	     ,@(check-null-pointers check-null-pointers)
 	     (values
 	      ,@(case c-return-value
