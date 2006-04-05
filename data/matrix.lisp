@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Apr  3 2006 - 13:40
+; modified:    Tue Apr  4 2006 - 23:26
 ;********************************************************
 ;;; $Id: $
 
@@ -27,7 +27,7 @@
   (:documentation "GSL matrix."))
 
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "matrix")
+(gsl-data-functions "matrix" 2)
 
 (setf *wrap-types* (acons 'gsl-matrix-c (lambda (x) `(pointer ,x)) *wrap-types*))
 
@@ -403,10 +403,12 @@ columns, and the physical number of columns in memory is given by
 #|
 
 (with-data (mat matrix (10 3))
-  (setf (gsl-aref vec 0) -3.21d0
-	(gsl-aref vec 1) 1.0d0
-	(gsl-aref vec 2) 12.8d0)
-  (print-vector vec))
-
+  (loop for i from 0 below 10
+	do
+	(loop for j from 0 below 3
+	      do (setf (gsl-aref mat i j) (+ 0.23d0 j (* 100 i)))))
+  (loop for i from 0 below 10
+	do
+	(loop for j from 0 below 3 do (print (gsl-aref mat i j)))))
 
 |#

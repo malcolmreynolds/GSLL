@@ -3,13 +3,13 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Apr  3 2006 - 13:38
+; modified:    Tue Apr  4 2006 - 22:58
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-(defmacro gsl-data-functions (string)
+(defmacro gsl-data-functions (string &optional (dimensions 1))
   "For the type named in the string,
    define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
    freeing (gsl-*-free), binary writing (binary-*-write) and
@@ -19,9 +19,12 @@
 	   (format nil "gsl_~a_~a" string function-name))
 	 (cl-name (action kind)
 	   (intern (format nil "~a-~:@(~a~)-~a" action string kind))))
+    (let ((indlist
+	   (loop for i from 1 to dimensions
+		 collect `(,(intern (format nil "N~d" i)) :size))))
     `(progn
-       (cffi:defcfun ,(gsl-name "alloc") :pointer (size :size))
-       (cffi:defcfun ,(gsl-name "calloc") :pointer (size :size))
+       (cffi:defcfun ,(gsl-name "alloc") :pointer ,@indlist)
+       (cffi:defcfun ,(gsl-name "calloc") :pointer ,@indlist)
        (cffi:defcfun ,(gsl-name "free") :void (pointer :pointer))
        (defun ,(cl-name 'write 'binary) (object stream)
 	 (check-gsl-status
@@ -58,7 +61,7 @@
 	   :pointer stream
 	   :pointer object
 	   :int)
-	  ',(cl-name 'read 'formatted))))))
+	  ',(cl-name 'read 'formatted)))))))
 
 (defclass gsl-data ()
   ((pointer :initarg :pointer :reader pointer)))

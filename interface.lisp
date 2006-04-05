@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Mon Apr  3 2006 - 09:58
+; modified:    Tue Apr  4 2006 - 23:00
 ;********************************************************
 
 (in-package :gsl)
@@ -252,7 +252,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun check-null-pointers (check-null-pointers)
   (let ((cret (find :creturn check-null-pointers :key #'first)))
     (when cret
-	`((check-null-pointer creturn ,@(rest cret))))))))
+	`((check-null-pointer creturn ,@(rest cret))))))
 
 ;;;;****************************************************************************
 ;;;; Macro defun-gsl 
