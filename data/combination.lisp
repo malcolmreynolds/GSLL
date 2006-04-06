@@ -1,0 +1,161 @@
+;********************************************************
+; file:        combination.lisp                        
+; description: Combinations
+; date:        Sun Mar 26 2006 - 11:51                   
+; author:      Liam M. Healy                             
+; modified:    Thu Apr  6 2006 - 18:21
+;********************************************************
+;;; $Id: $
+
+(in-package :gsl)
+
+;;;;****************************************************************************
+;;;; Combination object definition, allocation, reading & writing
+;;;;****************************************************************************
+
+;;; GSL-combination definition
+(cffi:defcstruct gsl-combination-c
+  (n :size)
+  (k :size)
+  (data :pointer))
+
+(defclass gsl-combination (gsl-data)
+  ()
+  (:documentation "GSL combination."))
+
+;;; Allocation, freeing, reading and writing
+(gsl-data-functions "combination" 2)
+
+(add-wrap-type gsl-combination-c (lambda (x) `(pointer ,x)))
+
+(defun-gsl init-first ((combination gsl-combination-c))
+  "gsl_combination_init_first"
+  :c-return-value :void
+  :documentation
+  "Initialize the combination @var{c} to the lexicographically
+      first combination, i.e.  @math{(0,1,2,@dots{},k-1)}.")
+
+(defun-gsl init-last ((combination gsl-combination-c))
+  "gsl_combination_init_last"
+  :c-return-value :void
+  :documentation
+  "Initialize the combination @var{c} to the lexicographically
+   last combination, i.e.  @math{(n-k,n-k+1,@dots{},n-1)}.")
+
+(defun-gsl combination-copy
+    ((destination gsl-combination-c) (source gsl-combination-c) )
+  "gsl_combination_memcpy"
+  :documentation
+  "Copy the elements of the combination @var{src} into the
+  combination @var{dest}.  The two combinations must have the same size.")
+
+;;;;****************************************************************************
+;;;; Accessing combination elements
+;;;;****************************************************************************
+
+(defun-gsl gsl-aref
+    (((pointer combination) :pointer) ((first indices) :size))
+  "gsl_combination_get"
+  :method ((combination gsl-combination) &rest indices)
+  :return (:size)
+  :c-return-value :return
+  :documentation "The ith element of the combination.")
+
+;;;;****************************************************************************
+;;;; Combination properties
+;;;;****************************************************************************
+
+(defun-gsl combination-range ((c gsl-combination-c))
+  "gsl_combination_n"
+  :c-return-value :return
+  :return (:size) 
+  :documentation
+  "The range (@math{n}) of the combination @var{c}.")
+
+(defun-gsl combination-size ((c gsl-combination-c))
+  "gsl_combination_k"
+  :c-return-value :return
+  :return (:size) 
+  :documentation
+  "The number of elements (@math{k}) in the combination @var{c}.")
+
+(defun-gsl combination-data ((c gsl-combination-c))
+  "gsl_combination_data"
+  :c-return-value :return
+  :return (:pointer) 
+  :documentation
+  "A pointer to the array of elements in the combination @var{p}.")
+
+(defun-gsl combination-valid ((c gsl-combination-c))
+  "gsl_combination_valid"
+  :c-return-value :return
+  :return (:boolean) 
+  :documentation
+  "Check that the combination @var{c} is valid.  The @var{k}
+   elements should lie in the range 0 to @math{@var{n}-1}, with each
+   value occurring once at most and in increasing order.")
+
+;;;;****************************************************************************
+;;;; Combination functions
+;;;;****************************************************************************
+
+(defun-gsl combination-next ((c gsl-combination-c))
+  "gsl_combination_next"
+  :c-return-value :success-failure
+  :documentation
+  "Advance the combination @var{c} to the next combination
+   in lexicographic order and return T.  If no further
+   combinations are available it return NIL and leave
+   @var{c} unmodified.  Starting with the first combination and
+   repeatedly applying this function will iterate through all possible
+   combinations of a given order.")
+
+(defun-gsl combination-prev ((c gsl-combination-c))
+  "gsl_combination_prev"
+  :c-return-value :success-failure
+  :documentation
+  "Step backwards from the combination @var{c} to the
+   previous combination in lexicographic order, returning
+   T.  If no previous combination is available it returns
+   NIL and leaves @var{c} unmodified.")
+
+;;;;****************************************************************************
+;;;; Examples
+;;;;****************************************************************************
+
+#|
+(loop for i from 0 below 4
+      do
+      (with-data (comb combination (4 i))
+	(loop repeat 20
+	  while (combination-next comb) 
+	  do
+	  (format t "~&{")
+	  (loop for j below (combination-size comb) do
+		(princ (gsl-aref comb j)))
+	  (princ "}"))))
+
+int 
+main (void) 
+{
+  gsl_combination * c;
+  size_t i;
+
+  printf ("All subsets of {0,1,2,3} by size:\n") ;
+  for (i = 0; i <= 4; i++)
+    {
+      c = gsl_combination_calloc (4, i);
+      do
+        {
+          printf ("{");
+          gsl_combination_fprintf (stdout, c, " %u");
+          printf (" }\n");
+        }
+      while (gsl_combination_next (c) == GSL_SUCCESS);
+      gsl_combination_free (c);
+    }
+
+  return 0;
+}
+
+|#
