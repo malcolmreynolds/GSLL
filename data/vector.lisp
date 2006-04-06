@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr  5 2006 - 00:09
+; modified:    Wed Apr  5 2006 - 23:34
 ;********************************************************
 ;;; $Id: $
 
@@ -60,22 +60,20 @@ deallocated with the vector.
 ;;;; Accessing elements
 ;;;;****************************************************************************
 
-(defun-gsl gsl-vector-get ((vector :pointer) (i :size))
+(defun-gsl gsl-aref
+    (((pointer vector) :pointer) ((first indices) :size))
   "gsl_vector_get"
+  :method ((vector gsl-vector) &rest indices)
   :return (:double)
   :c-return-value :return
   :documentation "The ith element of the vector.")
 
-(defmethod gsl-aref ((object gsl-vector) &rest indices)
-  (gsl-vector-get (pointer object) (first indices)))
-
-(defun-gsl gsl-vector-set ((vector :pointer) (i :size) (value :double))
+(defun-gsl (setf gsl-aref)
+    (((pointer vector) :pointer) ((first indices) :size) (value :double))
   "gsl_vector_set"
+  :method (value (vector gsl-vector) &rest indices)
   :c-return-value :void
   :documentation "Set the ith element of the vector.")
-
-(defmethod (setf gsl-aref) (value (object gsl-vector) &rest indices)
-  (gsl-vector-set (pointer object) (first indices) value))
 
 (defun-gsl gsl-vector-ptr ((vector :pointer) (i :size))
   "gsl_vector_ptr"
@@ -87,21 +85,16 @@ deallocated with the vector.
 ;;;; Initializing elements
 ;;;;****************************************************************************
 
-(defmethod set-all ((object gsl-vector) value)
-  (funcall
-   (defun-gsl :lambda ((pointer :pointer) (value :double))
-     "gsl_vector_set_all"
-     :return ()
-     :c-return-value :void)
-   (pointer object)
-   value))
+(defun-gsl set-all (((pointer object) :pointer) (value :double))
+  "gsl_vector_set_all"
+  :method ((object gsl-vector) value)
+  :return ()
+  :c-return-value :void)
 
-(defmethod set-zero ((object gsl-vector))
-  (funcall
-   (defun-gsl :lambda ((pointer :pointer))
-     "gsl_vector_set_zero"
-     :c-return-value :void)
-   (pointer object)))
+(defun-gsl set-zero (((pointer object) :pointer))
+  "gsl_vector_set_zero"
+  :method ((object gsl-vector))
+  :c-return-value :void)
 
 (defun-gsl set-basis ((vector gsl-vector-c) (index :size))
   "gsl_vector_set_basis"
@@ -210,32 +203,28 @@ vector is given by @var{base}.")
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(defun-gsl vector+
-    ((a gsl-vector-c) (b gsl-vector-c) )
+(defun-gsl vector+ ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_add"
   :documentation
   "Add the elements of vector @var{b} to the elements of
 vector @var{a}, @math{a'_i = a_i + b_i}. The two vectors must have the
 same length.")
 
-(defun-gsl vector-
-    ((a gsl-vector-c) (b gsl-vector-c) )
+(defun-gsl vector- ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_sub"
   :documentation
   "Subtract the elements of vector @var{b} from the elements of
 vector @var{a}, @math{a'_i = a_i - b_i}. The two vectors must have the
 same length.")
 
-(defun-gsl vector*
-    ((a gsl-vector-c) (b gsl-vector-c) )
+(defun-gsl vector* ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_mul"
   :documentation
   "Multiply the elements of vector @var{a} by the elements of
 vector @var{b}, @math{a'_i = a_i * b_i}. The two vectors must have the
 same length.")
 
-(defun-gsl vector/
-    ((a gsl-vector-c) (b gsl-vector-c) )
+(defun-gsl vector/ ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_div"
   :documentation
   "Divide the elements of vector @var{a} by the elements of

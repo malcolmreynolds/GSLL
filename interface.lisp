@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed Apr  5 2006 - 17:39
+; modified:    Wed Apr  5 2006 - 22:52
 ;********************************************************
 
 (in-package :gsl)
@@ -260,6 +260,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
     (when cret
 	`((check-null-pointer creturn ,@(rest cret))))))
 
+(defun success-failure (value)
+  "If status indicates failure, return NIL, othewise return T."
+  (not (eql value (cffi:foreign-enum-value 'gsl-errorno :FAILURE))))
+
 ;;;;****************************************************************************
 ;;;; Macro defun-gsl 
 ;;;;****************************************************************************
@@ -273,8 +277,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;; Warning isn't quite right for lambdas.
 (defmacro defun-gsl
     (cl-name arguments gsl-name
-	     &key documentation return mode (c-return-value :error-code)
-	     check-null-pointers method)
+     &key documentation return mode (c-return-value :error-code)
+     check-null-pointers method)
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -283,7 +287,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
      return:          a list of return types
      mode:            T or NIL, depending on whether gsl_mode is an argument
      c-return-value:  The C function returns an :error-code, :number-of-answers,
-                      a value to :return from the CL function, or :void.
+                      a value to :return from the CL function, :success-failure 
+                      as T or NIL, or :void.
      check-null-pointers:
                       a list of return variables that should be checked,
                       if a null pointer, signal an error.
@@ -334,6 +339,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
 			  `((when (> creturn ,seq) ,@(pick-result decl))))
 			return-symb-type
 			(loop for i below (length return) collect i)))
+		      (:success-failure
+		       '((success-failure creturn)))
 		      (:return (list (wrap-arg `(creturn ,@return))))
 		      (t
 		       (mapcan #'pick-result return-symb-type)))))

@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr  5 2006 - 09:33
+; modified:    Wed Apr  5 2006 - 22:33
 ;********************************************************
 ;;; $Id: $
 
@@ -35,23 +35,25 @@
 ;;;; Accessing elements
 ;;;;****************************************************************************
 
-(defun-gsl gsl-matrix-get ((matrix :pointer) (i :size) (j :size))
+(defun-gsl gsl-aref
+    (((pointer matrix) :pointer)
+     ((first indices) :size)
+     ((second indices) :size))
   "gsl_matrix_get"
+  :method ((matrix gsl-matrix) &rest indices)
   :return (:double)
   :c-return-value :return
-  :documEntation "The @math{(i,j)}-th element of a matrix @var{m}.")
+  :documentation "The (i,j)-th element of the matrix.")
 
-(defmethod gsl-aref ((object gsl-matrix) &rest indices)
-  (gsl-matrix-get (pointer object) (first indices) (second indices)))
-
-(defun-gsl gsl-matrix-set ((matrix :pointer) (i :size) (j :size) (value :double))
+(defun-gsl (setf gsl-aref)
+    (((pointer matrix) :pointer)
+     ((first indices) :size)
+     ((second indices) :size)
+     (value :double))
   "gsl_matrix_set"
+  :method (value (matrix gsl-matrix) &rest indices)
   :c-return-value :void
-  :documentation "Set the value of the @math{(i,j)}-th element of a
-    matrix @var{m} to @var{x}.")
-
-(defmethod (setf gsl-aref) (value (object gsl-matrix) &rest indices)
-  (gsl-matrix-set (pointer object) (first indices) (second indices) value))
+  :documentation "Set the (i,j)-th element of the matrix.")
 
 (defun-gsl gsl-matrix-ptr ((matrix :pointer) (i :size) (j :size))
   "gsl_matrix_ptr"
@@ -64,33 +66,26 @@
 ;;;; Initializing elements
 ;;;;****************************************************************************
 
-(defmethod set-all ((object gsl-matrix) value)
-  (funcall
-   (defun-gsl :lambda ((pointer :pointer) (value :double))
-     "gsl_matrix_set_all"
-     :c-return-value :void)
-   (pointer object)
-   value))
+(defun-gsl set-all (((pointer object) :pointer) (value :double))
+  "gsl_matrix_set_all"
+  :method ((object gsl-matrix) value)
+  :return ()
+  :c-return-value :void)
 
-(defmethod set-zero ((object gsl-matrix))
-  (funcall
-   (defun-gsl :lambda ((pointer :pointer))
-     "gsl_matrix_set_zero"
-     :return ()
-     :c-return-value :void)
-   (pointer object)))
+(defun-gsl set-zero (((pointer object) :pointer))
+  "gsl_matrix_set_zero"
+  :method ((object gsl-matrix))
+  :c-return-value :void)
 
-(defmethod set-identity ((matrix gsl-matrix))
-  (funcall 
-   (defun-gsl :lambda ((martix gsl-matrix-c))
-     "gsl_matrix_set_identity"
-     :c-return-value :void
-     :documentation
-     "Set the elements of the matrix @var{m} to the
+(defun-gsl set-identity (((pointer matrix) gsl-matrix-c))
+  "gsl_matrix_set_identity"
+  :c-return-value :void
+  :method ((matrix gsl-matrix))
+  :documentation
+  "Set the elements of the matrix @var{m} to the
   corresponding elements of the identity matrix, @math{m(i,j) =
   \delta(i,j)}, i.e. a unit diagonal with all off-diagonal elements zero.
   This applies to both square and rectangular matrices.")
-   (pointer matrix)))
 
 ;;;;****************************************************************************
 ;;;; Matrix Views
