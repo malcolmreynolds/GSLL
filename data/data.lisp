@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Apr  6 2006 - 22:45
+; modified:    Fri Apr  7 2006 - 18:00
 ;********************************************************
 ;;; $Id: $
 
@@ -87,17 +87,28 @@
 (defgeneric set-identity (object)
   (:documentation "Set elements to represent the identity."))
 
+(export 'data-import)
+(defgeneric data-import (object from)
+  (:documentation "Import the values from the CL object."))
+
+(export 'data-export)
+(defgeneric data-export (object)
+  (:documentation "Create a CL object with the values."))
+
+(export 'data-validate)
+(defgeneric data-valid (object)
+  (:documentation "Validate the values in the object."))
 
 (export 'with-data)
-(defmacro with-data ((symbol type size &optional zero) &body body)
+(defmacro with-data ((symbol type size &optional init validate) &body body)
   "Allocate GSL data, bind to pointer,
-   and then deallocated it when done.  If zero is T, zero the
+   and then deallocated it when done.  If init is T, init the
    contents when allocating."
   (flet ((cl-name (action)
 	   (intern (format nil "GSL-~a-~a" type action))))
     (let ((ptr (gensym "PTR")))
       `(let* ((,ptr
-	       (,(if zero (cl-name 'calloc) (cl-name 'alloc))
+	       (,(if (eq init t) (cl-name 'calloc) (cl-name 'alloc))
 		 ,@(if (listp size) size (list size))))
 	      (,symbol
 	       (make-instance ',(intern (format nil "GSL-~a" type))
@@ -105,13 +116,18 @@
 	(check-null-pointer ,ptr
 	 :ENOMEM
 	 (format nil "For '~a of GSL type ~a." ',symbol ',type))
-	#+old
-	(when (cffi:null-pointer-p ,ptr)
-	  (error 'gsl-error
-		 :gsl-errno (cffi:foreign-enum-value 'gsl-errorno :ENOMEM)
-		 :gsl-reason
-		 (format nil "For '~a of GSL type ~a." ',symbol ',type)))
 	(unwind-protect 
-	     (progn ,@body)
+	     (progn
+	       ,@(case init
+		       (:identity `((set-identity ,symbol)))
+		       ((t) nil)
+		       (t `((data-import ,symbol ,init))))
+	       ,@(when
+		  validate
+		  `((unless (data-valid ,symbol)
+		      (error "Invalid ~a, ~a" type init))))
+	       ,@body)
 	  (,(cl-name 'free) ,ptr))))))
+
+;;;(with-data (p permutation 5 #(2 3 4 0) t)  foo)
 

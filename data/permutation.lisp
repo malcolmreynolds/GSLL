@@ -3,7 +3,7 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr  5 2006 - 23:39
+; modified:    Fri Apr  7 2006 - 18:00
 ;********************************************************
 ;;; $Id: $
 
@@ -78,8 +78,9 @@ permutation @var{dest}.  The two permutations must have the same size.")
   "A pointer to the array of elements in the
    permutation @var{p}.")
 
-(defun-gsl permutation-valid ((p gsl-permutation-c))
+(defun-gsl data-valid (((pointer permutation) :pointer))
   "gsl_permutation_valid"
+  :method ((permutation gsl-permutation))
   :c-return-value :return
   :return (:boolean) 
   :documentation

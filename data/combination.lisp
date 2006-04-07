@@ -3,7 +3,7 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Apr  6 2006 - 23:17
+; modified:    Fri Apr  7 2006 - 18:04
 ;********************************************************
 ;;; $Id: $
 
@@ -61,7 +61,7 @@
   :c-return-value :return
   :documentation "The ith element of the combination.")
 
-(defunx combination-list (combination)
+(defmethod data-export ((combination gsl-combination))
   "The combination as a list."
   (loop for j below (combination-size combination)
 	collect	(gsl-aref combination j)))
@@ -91,8 +91,9 @@
   :documentation
   "A pointer to the array of elements in the combination @var{p}.")
 
-(defun-gsl combination-valid ((c gsl-combination-c))
+(defun-gsl data-valid (((pointer combination) :pointer))
   "gsl_combination_valid"
+  :method ((combination gsl-combination))
   :c-return-value :return
   :return (:boolean) 
   :documentation
