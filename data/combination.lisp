@@ -3,7 +3,7 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Apr  6 2006 - 22:44
+; modified:    Thu Apr  6 2006 - 23:17
 ;********************************************************
 ;;; $Id: $
 
@@ -60,6 +60,11 @@
   :return (:size)
   :c-return-value :return
   :documentation "The ith element of the combination.")
+
+(defunx combination-list (combination)
+  "The combination as a list."
+  (loop for j below (combination-size combination)
+	collect	(gsl-aref combination j)))
 
 ;;;;****************************************************************************
 ;;;; Combination properties
@@ -130,13 +135,21 @@
 (loop for i from 0 to 4
       do
       (with-data (comb combination (4 i) t)
-	(loop repeat 20
-	      do
+	(loop do
 	      (princ "{")
 	      (loop for j below (combination-size comb) do
 		    (princ (gsl-aref comb j)))
 	      (princ "}")
 	      while (combination-next comb))))
 {}{0}{1}{2}{3}{01}{02}{03}{12}{13}{23}{012}{013}{023}{123}{0123}
+
+(loop for i from 0 to 4
+      append
+      (with-data (comb combination (4 i) t)
+	(loop collect (combination-list comb)
+	      while (combination-next comb))))
+
+(NIL (0) (1) (2) (3) (0 1) (0 2) (0 3) (1 2) (1 3) (2 3)
+     (0 1 2) (0 1 3) (0 2 3) (1 2 3) (0 1 2 3))
 
 |#
