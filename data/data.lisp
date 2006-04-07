@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr  5 2006 - 17:20
+; modified:    Thu Apr  6 2006 - 22:45
 ;********************************************************
 ;;; $Id: $
 
@@ -97,7 +97,7 @@
 	   (intern (format nil "GSL-~a-~a" type action))))
     (let ((ptr (gensym "PTR")))
       `(let* ((,ptr
-	       (,(if zero (cl-name 'alloc) (cl-name 'alloc))
+	       (,(if zero (cl-name 'calloc) (cl-name 'alloc))
 		 ,@(if (listp size) size (list size))))
 	      (,symbol
 	       (make-instance ',(intern (format nil "GSL-~a" type))

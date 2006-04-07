@@ -3,7 +3,7 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Apr  6 2006 - 18:21
+; modified:    Thu Apr  6 2006 - 22:44
 ;********************************************************
 ;;; $Id: $
 
@@ -124,38 +124,19 @@
 ;;;;****************************************************************************
 
 #|
-(loop for i from 0 below 4
+;;; This is the example in the GSL manual, but we do not use
+;;; the C streams for output, rather we use gsl-aref.
+
+(loop for i from 0 to 4
       do
-      (with-data (comb combination (4 i))
+      (with-data (comb combination (4 i) t)
 	(loop repeat 20
-	  while (combination-next comb) 
-	  do
-	  (format t "~&{")
-	  (loop for j below (combination-size comb) do
-		(princ (gsl-aref comb j)))
-	  (princ "}"))))
-
-int 
-main (void) 
-{
-  gsl_combination * c;
-  size_t i;
-
-  printf ("All subsets of {0,1,2,3} by size:\n") ;
-  for (i = 0; i <= 4; i++)
-    {
-      c = gsl_combination_calloc (4, i);
-      do
-        {
-          printf ("{");
-          gsl_combination_fprintf (stdout, c, " %u");
-          printf (" }\n");
-        }
-      while (gsl_combination_next (c) == GSL_SUCCESS);
-      gsl_combination_free (c);
-    }
-
-  return 0;
-}
+	      do
+	      (princ "{")
+	      (loop for j below (combination-size comb) do
+		    (princ (gsl-aref comb j)))
+	      (princ "}")
+	      while (combination-next comb))))
+{}{0}{1}{2}{3}{01}{02}{03}{12}{13}{23}{012}{013}{023}{123}{0123}
 
 |#

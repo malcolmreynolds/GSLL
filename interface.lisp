@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed Apr  5 2006 - 22:52
+; modified:    Thu Apr  6 2006 - 22:08
 ;********************************************************
 
 (in-package :gsl)
@@ -170,7 +170,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
   "An alist of type and wrap function for values to and from C.")
 
 (defmacro add-wrap-type (type function)
-  `(setf *wrap-types* (acons ',type ,function *wrap-types*)))
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+    (setf *wrap-types* (acons ',type ,function *wrap-types*))))
 
 (defun wrap-arg (spec)
   "Wrap the symbol with a form that has been specified for
