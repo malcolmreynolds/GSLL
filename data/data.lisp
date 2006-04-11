@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr  7 2006 - 18:00
+; modified:    Mon Apr 10 2006 - 23:10
 ;********************************************************
 ;;; $Id: $
 
@@ -131,3 +131,45 @@
 
 ;;;(with-data (p permutation 5 #(2 3 4 0) t)  foo)
 
+#|
+;;; Another version, that takes a passed-in array
+(defmacro with-data*
+    ((symbol type size &optional init validate) &body body)
+  (let ((ptr (gensym "PTR")))
+    `(cffi::with-foreign-array (,ptr ,type ,size)
+      (let* ((,symbol
+	      (make-instance ',(intern (format nil "GSL-~a" type))
+			     :pointer ,ptr)))
+	(progn
+	  ,@(case init
+		  (:identity `((set-identity ,symbol)))
+		  ((t) nil)
+		  (t `((data-import ,symbol ,init))))
+	  ,@(when
+	     validate
+	     `((unless (data-valid ,symbol)
+		 (error "Invalid ~a, ~a" type init))))
+	  ,@body)))))
+
+;;; test
+#+test
+(with-data* (comb combination (4 i) t)
+  (loop collect (combination-list comb)
+	while (combination-next comb)))
+
+
+#+expansion
+(CFFI::WITH-FOREIGN-ARRAY
+    ;;;(#:PTR3308 COMBINATION (4 I))	; wrong
+    (#:PTR3308 :size ????)	; want
+  ;;; need to C-structure here.
+  (LET* ((COMB
+	  (MAKE-INSTANCE 'GSL-COMBINATION
+			 :POINTER
+			 #:PTR3308)))
+    (PROGN
+      (LOOP COLLECT
+	    (COMBINATION-LIST COMB)
+	    WHILE
+	    (COMBINATION-NEXT COMB)))))
+|#
