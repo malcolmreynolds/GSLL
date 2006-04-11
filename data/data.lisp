@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Apr 10 2006 - 23:10
+; modified:    Tue Apr 11 2006 - 18:06
 ;********************************************************
 ;;; $Id: $
 
@@ -64,7 +64,8 @@
 	  ',(cl-name 'read 'formatted)))))))
 
 (defclass gsl-data ()
-  ((pointer :initarg :pointer :reader pointer)))
+  ((pointer :initarg :pointer :reader pointer)
+   (storage-size :initarg :storage-size :reader storage-size )))
 
 ;;; Accessing elements
 (export 'gsl-aref)
@@ -128,6 +129,24 @@
 		      (error "Invalid ~a, ~a" type init))))
 	       ,@body)
 	  (,(cl-name 'free) ,ptr))))))
+
+#+new
+(defun make-data (type size &optional init validate)
+  "Make the GSL data, i.e. vector, matrix, combination, etc."
+  (make-instance
+   (intern (format nil "GSL-~a" type))
+   :pointer pointer)
+  (case init
+    ((:fast :identity) (cl-name 'alloc))
+    ((t) nil)
+    (t `((data-import ,symbol ,init))))
+  (case init
+    (:identity `((set-identity ,symbol)))))
+
+#+new
+(defun free-data (data)
+  )
+
 
 ;;;(with-data (p permutation 5 #(2 3 4 0) t)  foo)
 
