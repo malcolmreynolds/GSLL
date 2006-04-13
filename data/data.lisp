@@ -3,11 +3,23 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 12 2006 - 23:35
+; modified:    Thu Apr 13 2006 - 18:32
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
+
+(defgeneric alloc (object)
+  (:documentation "Allocate GSL data; used internally."))
+
+(defgeneric calloc (object)
+  (:documentation "Allocate GSL data and clear; used internally."))
+
+(defgeneric free (object)
+  (:documentation "Free GSL data; used internally."))
+
+(defun data-object-name (string)
+  (intern (format nil "GSL-~:@(~a~)" string)))
 
 (defmacro gsl-data-functions (string base-type &optional (dimensions 1))
   "For the type named in the string,
@@ -21,9 +33,10 @@
 	   (intern (format nil "~a-~:@(~a~)-~a" action string kind))))
     (let ((indlist
 	   (loop for i from 1 to dimensions
-		 collect `(,(intern (format nil "N~d" i)) :size))))
+		 collect `(,(intern (format nil "N~d" i)) :size)))
+	  (object-name (data-object-name string)))
       `(progn
-	(defclass ,(intern (format nil "GSL-~:@(~a~)" string)) (gsl-data)
+	(defclass ,object-name (gsl-data)
 	  ((base-type :initform ,base-type :reader base-type :allocation :class)
 	   (allocator :initform ,(gsl-name "alloc")
 		      :reader allocator :allocation :class)
@@ -31,9 +44,25 @@
 		       :reader callocator :allocation :class)
 	   (freer :initform ,(gsl-name "free")
 		  :reader freer :allocation :class)))
-	(cffi:defcfun ,(gsl-name "alloc") :pointer ,@indlist)
-	(cffi:defcfun ,(gsl-name "calloc") :pointer ,@indlist)
-	(cffi:defcfun ,(gsl-name "free") :void (pointer :pointer))
+	(defmethod alloc ((object ,object-name))
+	  (assign-pointer
+	   object
+	   (apply
+	    (defun-gsl :lambda ,indlist ,(gsl-name "alloc")
+		       :c-return-value :return :return (:pointer))
+	    (storage-size object))))
+	(defmethod calloc ((object ,object-name))
+	  (assign-pointer
+	   object
+	   (apply
+	    (defun-gsl :lambda ,indlist ,(gsl-name "calloc")
+		       :c-return-value :return :return (:pointer))
+	    (storage-size object))))
+	(defmethod free ((object ,object-name))
+	  (funcall
+	   (defun-gsl :lambda ((pointer :pointer)) ,(gsl-name "free")
+		      :c-return-value :void)
+	   (pointer object)))
 	(defun ,(cl-name 'write 'binary) (object stream)
 	  (check-gsl-status
 	   (cffi:foreign-funcall
@@ -70,6 +99,15 @@
 	    :pointer object
 	    :int)
 	   ',(cl-name 'read 'formatted)))))))
+
+(defun assign-pointer (object pointer)
+  "Check that a GSL data pointer is not null, then assign it to the object."
+  (check-null-pointer
+   pointer
+   :ENOMEM
+   (format nil "for ~a." object))
+  (setf (slot-value object 'pointer)
+	pointer))
 
 (defclass gsl-data ()
   ((pointer :initarg :pointer :reader pointer)
@@ -109,33 +147,23 @@
   (:documentation "Validate the values in the object."))
 
 (export 'with-data)
+
 (defmacro with-data ((symbol type size &optional zero) &body body)
   "Allocate GSL data, bind to pointer,
    and then deallocated it when done.  If zero is T, zero the
    contents when allocating."
-  (flet ((cl-name (action)
-	   (intern (format nil "GSL-~a-~a" type action))))
-    (let ((ptr (gensym "PTR")))
-      `(let* ((,ptr
-	       (,(if zero (cl-name 'calloc) (cl-name 'alloc))
-		 ,@(if (listp size) size (list size))))
-	      (,symbol
-	       (make-instance ',(intern (format nil "GSL-~a" type))
-			      :pointer ,ptr)))
-	(check-null-pointer ,ptr
-	 :ENOMEM
-	 (format nil "For '~a of GSL type ~a." ',symbol ',type))
-	#+old
-	(when (cffi:null-pointer-p ,ptr)
-	  (error 'gsl-error
-		 :gsl-errno (cffi:foreign-enum-value 'gsl-errorno :ENOMEM)
-		 :gsl-reason
-		 (format nil "For '~a of GSL type ~a." ',symbol ',type)))
-	(unwind-protect 
-	     (progn ,@body)
-	  (,(cl-name 'free) ,ptr))))))
+  (let ((sz (if (listp size) size (list size))))
+    `(let ((,symbol
+	    (make-instance
+	     ',(data-object-name type)
+	     :storage-size ,(cons 'list sz))))
+      (,(if zero 'calloc 'alloc)
+       ,symbol)
+      (unwind-protect 
+	   (progn ,@body)
+	(free ,symbol)))))
 
-#+new
+#+new-broken
 (defmacro with-data ((symbol type size &optional init validate) &body body)
   "Allocate GSL data, bind to pointer,
    and then deallocated it when done.  If init is T, init the
