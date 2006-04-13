@@ -3,7 +3,7 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Apr 11 2006 - 13:15
+; modified:    Wed Apr 12 2006 - 23:51
 ;********************************************************
 ;;; $Id: $
 
@@ -19,12 +19,8 @@
   (k :size)
   (data :pointer))
 
-(defclass gsl-combination (gsl-data)
-  ((base-type :initform :size :reader base-type :allocation :class))
-  (:documentation "GSL combination."))
-
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "combination" 2)
+(gsl-data-functions "combination" :size 2)
 
 (add-wrap-type gsl-combination-c (lambda (x) `(pointer ,x)))
 

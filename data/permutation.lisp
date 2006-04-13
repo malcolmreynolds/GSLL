@@ -3,7 +3,7 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr  7 2006 - 18:00
+; modified:    Wed Apr 12 2006 - 23:51
 ;********************************************************
 ;;; $Id: $
 
@@ -18,12 +18,8 @@
   (size :size)
   (data :pointer))
 
-(defclass gsl-permutation (gsl-data)
-  ()
-  (:documentation "GSL permutation."))
-
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "permutation")
+(gsl-data-functions "permutation" :size)
 
 (add-wrap-type gsl-permutation-c (lambda (x) `(pointer ,x)))
 

@@ -3,20 +3,16 @@
 ; description: Blocks of data                            
 ; date:        Mon Mar 27 2006 - 12:28                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Mar 27 2006 - 12:34
+; modified:    Thu Apr 13 2006 - 00:00
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
-
-(defclass gsl-block (data)
-  ()
-  (:documentation "GSL block."))
 
 ;;; Block definition
 (cffi:defcstruct block
   (size :size)
   (data :pointer))
 
-(gsl-data-functions "block")
+(gsl-data-functions "block" :double)
 

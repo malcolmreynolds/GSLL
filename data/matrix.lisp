@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr  5 2006 - 22:33
+; modified:    Wed Apr 12 2006 - 23:51
 ;********************************************************
 ;;; $Id: $
 
@@ -22,12 +22,8 @@
   (block :pointer)
   (owner :int))
 
-(defclass gsl-matrix (gsl-data)
-  ()
-  (:documentation "GSL matrix."))
-
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "matrix" 2)
+(gsl-data-functions "matrix" :double 2)
 
 (add-wrap-type gsl-matrix-c (lambda (x) `(pointer ,x)))
 

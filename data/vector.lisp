@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr  5 2006 - 23:34
+; modified:    Wed Apr 12 2006 - 23:51
 ;********************************************************
 ;;; $Id: $
 
@@ -47,12 +47,8 @@ deallocated with the vector.
   (block :pointer)
   (owner :int))
 
-(defclass gsl-vector (gsl-data)
-  ()
-  (:documentation "GSL vector."))
-
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "vector")
+(gsl-data-functions "vector" :double)
 
 (add-wrap-type gsl-vector-c (lambda (x) `(pointer ,x)))
 
@@ -373,7 +369,7 @@ vector @var{a}, @math{a'_i = a_i + x}.")
 
 (with-data (vec1 vector 3)
   (set-vector vec1 -3.21d0 1.0d0 12.8d0) (print-vector vec1)
-  (vector-swap vec1 0 1) (print-vector vec1)
+  (vector-swap-elements vec1 0 1) (print-vector vec1)
   (vector-reverse vec1) (print-vector vec1)
   (vector*c vec1 2.0d0) (print-vector vec1)
   (vector+c vec1 2.0d0) (print-vector vec1))
