@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Apr 13 2006 - 22:55
+; modified:    Fri Apr 14 2006 - 18:13
 ;********************************************************
 ;;; $Id: $
 
@@ -17,6 +17,10 @@
   ((pointer :initarg :pointer :reader pointer)
    (storage-size :initarg :storage-size :reader storage-size )))
 
+(defmethod print-object ((object gsl-data) stream)
+  (print-unreadable-object (object stream :type t :identity t)
+    (princ (data object) stream)))
+
 ;;; Accessing elements
 (export 'gsl-aref)
 (defgeneric gsl-aref (object &rest indices)
@@ -24,40 +28,6 @@
 
 (defgeneric (setf gsl-aref) (value object &rest indices)
   (:documentation "Set an element of the data."))
-
-;;; Initializing elements
-(export 'set-all)
-(defgeneric set-all (object value)
-  (:documentation "Set all elements to the value."))
-
-(export 'set-zero)
-(defgeneric set-zero (object)
-  (:documentation "Set all elements to 0."))
-
-(export 'set-identity)
-(defgeneric set-identity (object)
-  (:documentation "Set elements to represent the identity."))
-
-(export 'data-import)
-(defgeneric data-import (object from)
-  (:documentation "Import the values from the CL object."))
-
-(export 'data-export)
-(defgeneric data-export (object)
-  (:documentation "Create a CL object with the values."))
-
-(export 'data-validate)
-(defgeneric data-valid (object)
-  (:documentation "Validate the values in the object."))
-
-(defgeneric alloc (object)
-  (:documentation "Allocate GSL data; used internally."))
-
-(defgeneric calloc (object)
-  (:documentation "Allocate GSL data and clear; used internally."))
-
-(defgeneric free (object)
-  (:documentation "Free GSL data; used internally."))
 
 (export '(write-binary read-binary write-formatted read-formatted))
 (defgeneric write-binary (object stream)
@@ -73,7 +43,7 @@
   (:documentation "Read the formatted GSL data."))
 
 ;;;;****************************************************************************
-;;;; Macro gsl-data-functions
+;;;; Macro defdata to define class etc.
 ;;;;****************************************************************************
 
 (defun data-object-name (string)
@@ -88,7 +58,7 @@
   (setf (slot-value object 'pointer)
 	pointer))
 
-(defmacro gsl-data-functions (string base-type &optional (dimensions 1))
+(defmacro defdata (string c-base-type cl-base-type &optional (dimensions 1))
   "For the type named in the string,
    define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
    freeing (gsl-*-free), binary writing (binary-*-write) and
@@ -102,8 +72,10 @@
 	  (object-name (data-object-name string)))
       `(progn
 	(defclass ,object-name (gsl-data)
-	  ((base-type :initform ,base-type :reader base-type
-		      :allocation :class)))
+	  ((c-base-type :initform ,c-base-type :reader c-base-type
+			:allocation :class)
+	   (cl-base-type :initform ,cl-base-type :reader cl-base-type
+			 :allocation :class)))
 	(defmethod alloc ((object ,object-name))
 	  (assign-pointer
 	   object
@@ -139,23 +111,99 @@
 	  :method ((object ,object-name) stream format))))))
 
 ;;;;****************************************************************************
-;;;; Macro with-data
+;;;; Making data objects and initializing storage
 ;;;;****************************************************************************
 
-(export 'with-data)
+(export '(make-data with-data))
+
+(defgeneric alloc (object)
+  (:documentation "Allocate GSL data; used internally."))
+
+(defgeneric calloc (object)
+  (:documentation "Allocate GSL data and clear; used internally."))
+
+(defgeneric free (object)
+  (:documentation "Free GSL data; used internally."))
+
+(defun make-data (type zero &rest size)
+  "Make the GSL data object, including the allocation of space.
+   The user is responsible for calling #'free to free the foreign
+   memory when done."
+  (let ((obj
+	 (make-instance
+	  (data-object-name type)
+	  :storage-size size)))
+    (if zero (calloc obj) (alloc obj))
+    obj))
+
 (defmacro with-data ((symbol type size &optional zero) &body body)
   "Allocate GSL data, bind to pointer,
    and then deallocated it when done.  If zero is T, zero the
    contents when allocating."
-  (let ((sz (if (listp size) size (list size))))
-    `(let ((,symbol
-	    (make-instance
-	     ',(data-object-name type)
-	     :storage-size ,(cons 'list sz))))
-      (,(if zero 'calloc 'alloc) ,symbol)
-      (unwind-protect 
-	   (progn ,@body)
-	(free ,symbol)))))
+  `(let ((,symbol
+	  (make-data ',type  ,zero ,@(if (listp size) size (list size)))))
+    (unwind-protect 
+	 (progn ,@body)
+      (free ,symbol))))
+
+;;;;****************************************************************************
+;;;; Getting values
+;;;;****************************************************************************
+
+(export 'data)
+(defgeneric data (object &optional destination)
+  (:documentation "Extract the values in the object to a CL object.
+   The destination may be a sequence, 'vector, 'list.
+   If it is a sequence, that object is filled with the values.
+   If it is any other object, a new sequence is made of the type
+   specified.")
+  ;; Default method is to make a sequence
+  (:method ((object gsl-data) &optional (sequence 'vector))
+	   (let* ((total-size (apply #'* (storage-size object)))
+		  (seq
+		   (case sequence
+		     (list (make-list total-size))
+		     ((nil vector)
+		      (make-array (list total-size)
+				  :element-type (cl-base-type object)))
+		     (t sequence))))
+	     (loop for i from 0
+		   below (min (length seq) total-size)
+		   do (setf (elt seq i) (gsl-aref object i)))
+	     seq)))
+
+;;;;****************************************************************************
+;;;; Setting values
+;;;;****************************************************************************
+
+(defgeneric (setf data) (cl-array object)
+  (:documentation "Set the values in the object from a CL array.")
+  ;; Default method is to read from a sequence
+  (:method
+   (sequence (object gsl-data))
+   (loop for i from 0
+	 below (min (length sequence) (apply #'* (storage-size object)))
+	 do (setf (gsl-aref object i) (elt sequence i)))))
+
+(export 'set-all)
+(defgeneric set-all (object value)
+  (:documentation "Set all elements to the value."))
+
+(export 'set-zero)
+(defgeneric set-zero (object)
+  (:documentation "Set all elements to 0."))
+
+(export 'set-identity)
+(defgeneric set-identity (object)
+  (:documentation "Set elements to represent the identity."))
+
+(export 'data-valid)
+(defgeneric data-valid (object)
+  (:documentation "Validate the values in the object."))
+
+;;;;****************************************************************************
+;;;; To be deleted
+;;;;****************************************************************************
 
 #+new-broken
 (defmacro with-data ((symbol type size &optional init validate) &body body)
@@ -199,11 +247,6 @@
     (t `((data-import ,symbol ,init))))
   (case init
     (:identity `((set-identity ,symbol)))))
-
-#+new
-(defun free-data (data)
-  )
-
 
 ;;;(with-data (p permutation 5 #(2 3 4 0) t)  foo)
 

@@ -3,14 +3,14 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 12 2006 - 23:51
+; modified:    Fri Apr 14 2006 - 18:00
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
 ;;;;****************************************************************************
-;;;; Permutation object definition, allocation, reading & writing
+;;;; Permutation structure and CL object
 ;;;;****************************************************************************
 
 ;;; GSL-permutation definition
@@ -19,11 +19,27 @@
   (data :pointer))
 
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "permutation" :size)
+(defdata "permutation" :size 'fixnum)
 
 (add-wrap-type gsl-permutation-c (lambda (x) `(pointer ,x)))
 
-(defun-gsl set-identity (((pointer permutation) gsl-permutation-c))
+;;;;****************************************************************************
+;;;; Getting values
+;;;;****************************************************************************
+
+(defun-gsl gsl-aref
+    (((pointer permutation) :pointer) ((first indices) :size))
+  "gsl_permutation_get"
+  :method ((permutation gsl-permutation) &rest indices)
+  :return (:size)
+  :c-return-value :return
+  :documentation "The ith element of the permutation.")
+
+;;;;****************************************************************************
+;;;; Setting values
+;;;;****************************************************************************
+
+(defun-gsl set-identity (((pointer permutation) :pointer))
      "gsl_permutation_init"
      :method ((permutation gsl-permutation))
      :documentation
@@ -35,19 +51,7 @@
   "gsl_permutation_memcpy"
   :documentation
   "Copy the elements of the permutation @var{src} into the
-permutation @var{dest}.  The two permutations must have the same size.")
-
-;;;;****************************************************************************
-;;;; Accessing elements
-;;;;****************************************************************************
-
-(defun-gsl gsl-aref
-    (((pointer permutation) :pointer) ((first indices) :size))
-  "gsl_permutation_get"
-  :method ((permutation gsl-permutation) &rest indices)
-  :return (:double)
-  :c-return-value :return
-  :documentation "The ith element of the permutation.")
+   permutation @var{dest}.  The two permutations must have the same size.")
 
 (defun-gsl permutation-swap ((p gsl-permutation-c) (i :size) (j :size))
   "gsl_permutation_swap"
@@ -213,5 +217,12 @@ once.")
 ;;;;****************************************************************************
 
 #|
+(with-data (perm permutation 4 t)
+  (loop collect (data perm 'list)
+    while (permutation-next perm)))
 
+((0 1 2 3) (0 1 3 2) (0 2 1 3) (0 2 3 1) (0 3 1 2) (0 3 2 1) (1 0 2 3)
+ (1 0 3 2) (1 2 0 3) (1 2 3 0) (1 3 0 2) (1 3 2 0) (2 0 1 3) (2 0 3 1)
+ (2 1 0 3) (2 1 3 0) (2 3 0 1) (2 3 1 0) (3 0 1 2) (3 0 2 1) (3 1 0 2)
+ (3 1 2 0) (3 2 0 1) (3 2 1 0))
 |#

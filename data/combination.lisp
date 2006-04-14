@@ -3,14 +3,14 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 12 2006 - 23:51
+; modified:    Fri Apr 14 2006 - 17:50
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
 ;;;;****************************************************************************
-;;;; Combination object definition, allocation, reading & writing
+;;;; Combination structure and CL object
 ;;;;****************************************************************************
 
 ;;; GSL-combination definition
@@ -20,9 +20,33 @@
   (data :pointer))
 
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "combination" :size 2)
+(defdata "combination" :size 'fixnum 2)
 
 (add-wrap-type gsl-combination-c (lambda (x) `(pointer ,x)))
+
+;;;;****************************************************************************
+;;;; Getting values
+;;;;****************************************************************************
+
+(defun-gsl gsl-aref
+    (((pointer combination) :pointer) ((first indices) :size))
+  "gsl_combination_get"
+  :method ((combination gsl-combination) &rest indices)
+  :return (:size)
+  :c-return-value :return
+  :documentation "The ith element of the combination.")
+
+(defmethod data ((object gsl-combination) &optional sequence)
+  (let ((seq (or sequence
+		 (make-sequence 'list (combination-size object)))))
+    (loop for i from 0
+	  below (min (length seq) (combination-size object))
+	  do (setf (elt seq i) (gsl-aref object i)))
+    seq))
+
+;;;;****************************************************************************
+;;;; Setting values
+;;;;****************************************************************************
 
 (defun-gsl init-first ((combination gsl-combination-c))
   "gsl_combination_init_first"
@@ -44,23 +68,6 @@
   :documentation
   "Copy the elements of the combination @var{src} into the
   combination @var{dest}.  The two combinations must have the same size.")
-
-;;;;****************************************************************************
-;;;; Accessing combination elements
-;;;;****************************************************************************
-
-(defun-gsl gsl-aref
-    (((pointer combination) :pointer) ((first indices) :size))
-  "gsl_combination_get"
-  :method ((combination gsl-combination) &rest indices)
-  :return (:size)
-  :c-return-value :return
-  :documentation "The ith element of the combination.")
-
-(defmethod data-export ((combination gsl-combination))
-  "The combination as a list."
-  (loop for j below (combination-size combination)
-	collect	(gsl-aref combination j)))
 
 ;;;;****************************************************************************
 ;;;; Combination properties
@@ -112,7 +119,7 @@
    repeatedly applying this function will iterate through all possible
    combinations of a given order.")
 
-(defun-gsl combination-prev ((c gsl-combination-c))
+(defun-gsl combination-previous ((c gsl-combination-c))
   "gsl_combination_prev"
   :c-return-value :success-failure
   :documentation
@@ -126,24 +133,10 @@
 ;;;;****************************************************************************
 
 #|
-;;; This is the example in the GSL manual, but we do not use
-;;; the C streams for output, rather we use gsl-aref.
-
-(loop for i from 0 to 4
-      do
-      (with-data (comb combination (4 i) t)
-	(loop do
-	      (princ "{")
-	      (loop for j below (combination-size comb) do
-		    (princ (gsl-aref comb j)))
-	      (princ "}")
-	      while (combination-next comb))))
-{}{0}{1}{2}{3}{01}{02}{03}{12}{13}{23}{012}{013}{023}{123}{0123}
-
 (loop for i from 0 to 4
       append
       (with-data (comb combination (4 i) t)
-	(loop collect (combination-list comb)
+	(loop collect (data comb)
 	      while (combination-next comb))))
 
 (NIL (0) (1) (2) (3) (0 1) (0 2) (0 3) (1 2) (1 3) (2 3)

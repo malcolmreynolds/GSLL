@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 12 2006 - 23:51
+; modified:    Fri Apr 14 2006 - 17:49
 ;********************************************************
 ;;; $Id: $
 
@@ -23,12 +23,12 @@
   (owner :int))
 
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "matrix" :double 2)
+(defdata "matrix" :double 'double-float 2)
 
 (add-wrap-type gsl-matrix-c (lambda (x) `(pointer ,x)))
 
 ;;;;****************************************************************************
-;;;; Accessing elements
+;;;; Getting values
 ;;;;****************************************************************************
 
 (defun-gsl gsl-aref
@@ -41,6 +41,30 @@
   :c-return-value :return
   :documentation "The (i,j)-th element of the matrix.")
 
+(defun-gsl gsl-matrix-ptr ((matrix :pointer) (i :size) (j :size))
+  "gsl_matrix_ptr"
+  :return (:pointer)
+  :c-return-value :return
+  :documentation "A pointer to the @math{(i,j)}-th element of a
+  matrix @var{m}.")
+
+(defmethod data ((object gsl-matrix) &optional array)
+  (let ((arr (or array
+		 (make-array (storage-size object)
+			     :element-type 'double-float))))
+    (loop for i from 0
+	  below (min (array-dimension arr 0) (first (storage-size object)))
+	  do
+	  (loop for j from 0
+		below (min (array-dimension arr 1) (second (storage-size object)))
+		do
+		(setf (aref arr i j) (gsl-aref object i j))))
+    arr))
+
+;;;;****************************************************************************
+;;;; Setting values
+;;;;****************************************************************************
+
 (defun-gsl (setf gsl-aref)
     (((pointer matrix) :pointer)
      ((first indices) :size)
@@ -51,16 +75,16 @@
   :c-return-value :void
   :documentation "Set the (i,j)-th element of the matrix.")
 
-(defun-gsl gsl-matrix-ptr ((matrix :pointer) (i :size) (j :size))
-  "gsl_matrix_ptr"
-  :return (:pointer)
-  :c-return-value :return
-  :documentation "A pointer to the @math{(i,j)}-th element of a
-  matrix @var{m}.")
-
-;;;;****************************************************************************
-;;;; Initializing elements
-;;;;****************************************************************************
+(defmethod (setf data) (array (object gsl-matrix))
+  (loop for i from 0
+	below
+	(min (array-dimension array 0) (first (storage-size object)))
+	do
+	(loop for j from 0
+	      below
+	      (min (array-dimension array 1) (second (storage-size object)))
+	      do
+	      (setf (gsl-aref object i j) (aref array i j)))))
 
 (defun-gsl set-all (((pointer object) :pointer) (value :double))
   "gsl_matrix_set_all"
@@ -404,5 +428,36 @@ columns, and the physical number of columns in memory is given by
   (loop for i from 0 below 10
 	do
 	(loop for j from 0 below 3 do (print (gsl-aref mat i j)))))
+
+(with-data (mat matrix (10 3))
+  (loop for i from 0 below 10
+	do
+	(loop for j from 0 below 3
+	      do (setf (gsl-aref mat i j) (+ 0.23d0 j (* 100 i)))))
+  (data mat))
+
+#2A((0.23d0 1.23d0 2.23d0)
+    (100.23d0 101.23d0 102.23d0)
+    (200.23d0 201.23d0 202.23d0)
+    (300.23d0 301.23d0 302.23d0)
+    (400.23d0 401.23d0 402.23d0)
+    (500.23d0 501.23d0 502.23d0)
+    (600.23d0 601.23d0 602.23d0)
+    (700.23d0 701.23d0 702.23d0)
+    (800.23d0 801.23d0 802.23d0)
+    (900.23d0 901.23d0 902.23d0))
+
+(with-data (mat matrix (2 2))
+  (setf (data mat) #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))
+  (with-data (ans matrix (2 2))
+    (matrix-copy ans mat)
+    (data ans)))
+;;; #2A((1.0d0 2.0d0) (3.0d0 4.0d0))
+
+(with-data (mat matrix (2 2))
+  (setf (data mat) #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))
+  (matrix* mat mat)
+  (data mat)))
+;;; #2A((1.0d0 4.0d0) (9.0d0 16.0d0))
 
 |#

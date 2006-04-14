@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 12 2006 - 23:51
+; modified:    Fri Apr 14 2006 - 17:49
 ;********************************************************
 ;;; $Id: $
 
@@ -22,7 +22,7 @@
 ;;; (with-data ((vec1 vector 3) (vec2 vector 3)) ...)
 
 ;;;;****************************************************************************
-;;;; Vector object definition, allocation, reading & writing
+;;;; Vector structure and CL object
 ;;;;****************************************************************************
 
 #|
@@ -48,12 +48,12 @@ deallocated with the vector.
   (owner :int))
 
 ;;; Allocation, freeing, reading and writing
-(gsl-data-functions "vector" :double)
+(defdata "vector" :double 'double-float)
 
 (add-wrap-type gsl-vector-c (lambda (x) `(pointer ,x)))
 
 ;;;;****************************************************************************
-;;;; Accessing elements
+;;;; Getting values
 ;;;;****************************************************************************
 
 (defun-gsl gsl-aref
@@ -64,13 +64,6 @@ deallocated with the vector.
   :c-return-value :return
   :documentation "The ith element of the vector.")
 
-(defun-gsl (setf gsl-aref)
-    (((pointer vector) :pointer) ((first indices) :size) (value :double))
-  "gsl_vector_set"
-  :method (value (vector gsl-vector) &rest indices)
-  :c-return-value :void
-  :documentation "Set the ith element of the vector.")
-
 (defun-gsl gsl-vector-ptr ((vector :pointer) (i :size))
   "gsl_vector_ptr"
   :return (:pointer)
@@ -78,8 +71,15 @@ deallocated with the vector.
   :documentation "The ith element of the vector as a pointer.")
 
 ;;;;****************************************************************************
-;;;; Initializing elements
+;;;; Setting values
 ;;;;****************************************************************************
+
+(defun-gsl (setf gsl-aref)
+    (((pointer vector) :pointer) ((first indices) :size) (value :double))
+  "gsl_vector_set"
+  :method (value (vector gsl-vector) &rest indices)
+  :c-return-value :void
+  :documentation "Set the ith element of the vector.")
 
 (defun-gsl set-all (((pointer object) :pointer) (value :double))
   "gsl_vector_set_all"
@@ -318,6 +318,14 @@ vector @var{a}, @math{a'_i = a_i + x}.")
 	(gsl-aref vec 1) 1.0d0
 	(gsl-aref vec 2) 12.8d0)
   (print-vector vec))
+
+(with-data (vec vector 3)
+  (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
+  (print-vector vec))
+
+(with-data (vec vector 3)
+  (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
+  (data vec))
 
 (with-data (vec vector 3)
   (set-all vec 77.8d0)
