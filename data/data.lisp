@@ -3,111 +3,15 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Apr 13 2006 - 18:32
+; modified:    Thu Apr 13 2006 - 22:55
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-(defgeneric alloc (object)
-  (:documentation "Allocate GSL data; used internally."))
-
-(defgeneric calloc (object)
-  (:documentation "Allocate GSL data and clear; used internally."))
-
-(defgeneric free (object)
-  (:documentation "Free GSL data; used internally."))
-
-(defun data-object-name (string)
-  (intern (format nil "GSL-~:@(~a~)" string)))
-
-(defmacro gsl-data-functions (string base-type &optional (dimensions 1))
-  "For the type named in the string,
-   define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
-   freeing (gsl-*-free), binary writing (binary-*-write) and
-   reading (binary-*-read), formatted writing (write-*-formatted)
-   and reading (read-*-formatted) functions."
-  (flet ((gsl-name (function-name)
-	   (format nil "gsl_~a_~a" string function-name))
-	 (cl-name (action kind)
-	   (intern (format nil "~a-~:@(~a~)-~a" action string kind))))
-    (let ((indlist
-	   (loop for i from 1 to dimensions
-		 collect `(,(intern (format nil "N~d" i)) :size)))
-	  (object-name (data-object-name string)))
-      `(progn
-	(defclass ,object-name (gsl-data)
-	  ((base-type :initform ,base-type :reader base-type :allocation :class)
-	   (allocator :initform ,(gsl-name "alloc")
-		      :reader allocator :allocation :class)
-	   (callocator :initform ,(gsl-name "calloc")
-		       :reader callocator :allocation :class)
-	   (freer :initform ,(gsl-name "free")
-		  :reader freer :allocation :class)))
-	(defmethod alloc ((object ,object-name))
-	  (assign-pointer
-	   object
-	   (apply
-	    (defun-gsl :lambda ,indlist ,(gsl-name "alloc")
-		       :c-return-value :return :return (:pointer))
-	    (storage-size object))))
-	(defmethod calloc ((object ,object-name))
-	  (assign-pointer
-	   object
-	   (apply
-	    (defun-gsl :lambda ,indlist ,(gsl-name "calloc")
-		       :c-return-value :return :return (:pointer))
-	    (storage-size object))))
-	(defmethod free ((object ,object-name))
-	  (funcall
-	   (defun-gsl :lambda ((pointer :pointer)) ,(gsl-name "free")
-		      :c-return-value :void)
-	   (pointer object)))
-	(defun ,(cl-name 'write 'binary) (object stream)
-	  (check-gsl-status
-	   (cffi:foreign-funcall
-	    ,(gsl-name "fwrite")
-	    :pointer stream
-	    :pointer object
-	    :int)
-	   ',(cl-name 'write 'binary)))
-	(defun ,(cl-name 'read 'binary) (object stream)
-	  (check-gsl-status
-	   (cffi:foreign-funcall
-	    ,(gsl-name "fread")
-	    :pointer stream
-	    :pointer object
-	    :int)
-	   ',(cl-name 'read 'binary)))
-	(defun ,(cl-name 'write 'formatted) (object stream format)
-	  "Format the block data to a stream; format is a string,
-   one of %g, %e, %f."
-	  (check-gsl-status
-	   (cffi:foreign-funcall
-	    "gsl_block_fprintf"
-	    :pointer stream
-	    :pointer object
-	    :string format
-	    :int)
-	   ',(cl-name 'write 'formatted)))
-	(defun ,(cl-name 'read 'formatted) (object stream)
-	  "Read the formatted block data from a stream."
-	  (check-gsl-status
-	   (cffi:foreign-funcall
-	    "gsl_block_fscanf"
-	    :pointer stream
-	    :pointer object
-	    :int)
-	   ',(cl-name 'read 'formatted)))))))
-
-(defun assign-pointer (object pointer)
-  "Check that a GSL data pointer is not null, then assign it to the object."
-  (check-null-pointer
-   pointer
-   :ENOMEM
-   (format nil "for ~a." object))
-  (setf (slot-value object 'pointer)
-	pointer))
+;;;;****************************************************************************
+;;;; Class gsl-data and generic functions
+;;;;****************************************************************************
 
 (defclass gsl-data ()
   ((pointer :initarg :pointer :reader pointer)
@@ -146,8 +50,99 @@
 (defgeneric data-valid (object)
   (:documentation "Validate the values in the object."))
 
-(export 'with-data)
+(defgeneric alloc (object)
+  (:documentation "Allocate GSL data; used internally."))
 
+(defgeneric calloc (object)
+  (:documentation "Allocate GSL data and clear; used internally."))
+
+(defgeneric free (object)
+  (:documentation "Free GSL data; used internally."))
+
+(export '(write-binary read-binary write-formatted read-formatted))
+(defgeneric write-binary (object stream)
+  (:documentation "Write the binary GSL data."))
+
+(defgeneric read-binary (object stream)
+  (:documentation "Read the binary GSL data."))
+
+(defgeneric write-formatted (object stream format)
+  (:documentation "Write the formatted GSL data."))
+
+(defgeneric read-formatted (object stream format)
+  (:documentation "Read the formatted GSL data."))
+
+;;;;****************************************************************************
+;;;; Macro gsl-data-functions
+;;;;****************************************************************************
+
+(defun data-object-name (string)
+  (intern (format nil "GSL-~:@(~a~)" string)))
+
+(defun assign-pointer (object pointer)
+  "Check that a GSL data pointer is not null, then assign it to the object."
+  (check-null-pointer
+   pointer
+   :ENOMEM
+   (format nil "for ~a." object))
+  (setf (slot-value object 'pointer)
+	pointer))
+
+(defmacro gsl-data-functions (string base-type &optional (dimensions 1))
+  "For the type named in the string,
+   define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
+   freeing (gsl-*-free), binary writing (binary-*-write) and
+   reading (binary-*-read), formatted writing (write-*-formatted)
+   and reading (read-*-formatted) functions."
+  (flet ((gsl-name (function-name)
+	   (format nil "gsl_~a_~a" string function-name)))
+    (let ((indlist
+	   (loop for i from 1 to dimensions
+		 collect `(,(intern (format nil "N~d" i)) :size)))
+	  (object-name (data-object-name string)))
+      `(progn
+	(defclass ,object-name (gsl-data)
+	  ((base-type :initform ,base-type :reader base-type
+		      :allocation :class)))
+	(defmethod alloc ((object ,object-name))
+	  (assign-pointer
+	   object
+	   (apply
+	    (defun-gsl :lambda ,indlist ,(gsl-name "alloc")
+		       :c-return-value :return :return (:pointer))
+	    (storage-size object))))
+	(defmethod calloc ((object ,object-name))
+	  (assign-pointer
+	   object
+	   (apply
+	    (defun-gsl :lambda ,indlist ,(gsl-name "calloc")
+		       :c-return-value :return :return (:pointer))
+	    (storage-size object))))
+	(defmethod free ((object ,object-name))
+	  (funcall
+	   (defun-gsl :lambda ((pointer :pointer)) ,(gsl-name "free")
+		      :c-return-value :void)
+	   (pointer object)))
+	(defun-gsl write-binary ((stream :pointer) ((pointer object) :pointer))
+	  ,(gsl-name "fwrite")
+	  :method ((object ,object-name) stream))
+	(defun-gsl read-binary ((stream :pointer) ((pointer object) :pointer))
+	  ,(gsl-name "fread")
+	  :method ((object ,object-name) stream))
+	(defun-gsl write-formatted
+	    ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  ,(gsl-name "fprintf")
+	  :method ((object ,object-name) stream format))
+	(defun-gsl read-formatted
+	    ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  ,(gsl-name "fscanf")
+	  :method ((object ,object-name) stream format))))))
+
+;;;;****************************************************************************
+;;;; Macro with-data
+;;;;****************************************************************************
+
+(export 'with-data)
 (defmacro with-data ((symbol type size &optional zero) &body body)
   "Allocate GSL data, bind to pointer,
    and then deallocated it when done.  If zero is T, zero the
@@ -157,8 +152,7 @@
 	    (make-instance
 	     ',(data-object-name type)
 	     :storage-size ,(cons 'list sz))))
-      (,(if zero 'calloc 'alloc)
-       ,symbol)
+      (,(if zero 'calloc 'alloc) ,symbol)
       (unwind-protect 
 	   (progn ,@body)
 	(free ,symbol)))))
