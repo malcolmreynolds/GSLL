@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 18:13
+; modified:    Fri Apr 14 2006 - 20:14
 ;********************************************************
 ;;; $Id: $
 
@@ -17,9 +17,16 @@
   ((pointer :initarg :pointer :reader pointer)
    (storage-size :initarg :storage-size :reader storage-size )))
 
+(defparameter *print-contents* t)
+
 (defmethod print-object ((object gsl-data) stream)
+  (print-data-object object *print-contents* stream))
+
+(defun print-data-object (object contents stream)
+  "Print the data object to the stream, possibly showing contents."
   (print-unreadable-object (object stream :type t :identity t)
-    (princ (data object) stream)))
+    (when contents
+      (princ (data object) stream))))
 
 ;;; Accessing elements
 (export 'gsl-aref)
@@ -54,7 +61,9 @@
   (check-null-pointer
    pointer
    :ENOMEM
-   (format nil "for ~a." object))
+   (format nil "for ~a."
+	   (with-output-to-string (stream)
+	     (print-data-object object nil stream))))
   (setf (slot-value object 'pointer)
 	pointer))
 
@@ -200,95 +209,3 @@
 (export 'data-valid)
 (defgeneric data-valid (object)
   (:documentation "Validate the values in the object."))
-
-;;;;****************************************************************************
-;;;; To be deleted
-;;;;****************************************************************************
-
-#+new-broken
-(defmacro with-data ((symbol type size &optional init validate) &body body)
-  "Allocate GSL data, bind to pointer,
-   and then deallocated it when done.  If init is T, init the
-   contents when allocating."
-  (flet ((cl-name (action)
-	   (intern (format nil "GSL-~a-~a" type action))))
-    (let ((ptr (gensym "PTR")))
-      `(let* ((,ptr
-	       (,(if (eq init t) (cl-name 'calloc) (cl-name 'alloc))
-		 ,@(if (listp size) size (list size))))
-	      (,symbol
-	       (make-instance ',(intern (format nil "GSL-~a" type))
-			      :pointer ,ptr)))
-	(check-null-pointer ,ptr
-	 :ENOMEM
-	 (format nil "For '~a of GSL type ~a." ',symbol ',type))
-	(unwind-protect 
-	     (progn
-	       ,@(case init
-		       (:identity `((set-identity ,symbol)))
-		       ((t) nil)
-		       (t `((data-import ,symbol ,init))))
-	       ,@(when
-		  validate
-		  `((unless (data-valid ,symbol)
-		      (error "Invalid ~a, ~a" type init))))
-	       ,@body)
-	  (,(cl-name 'free) ,ptr))))))
-
-#+new
-(defun make-data (type size &optional init validate)
-  "Make the GSL data, i.e. vector, matrix, combination, etc."
-  (make-instance
-   (intern (format nil "GSL-~a" type))
-   :pointer pointer)
-  (case init
-    ((:fast :identity) (cl-name 'alloc))
-    ((t) nil)
-    (t `((data-import ,symbol ,init))))
-  (case init
-    (:identity `((set-identity ,symbol)))))
-
-;;;(with-data (p permutation 5 #(2 3 4 0) t)  foo)
-
-#|
-;;; Another version, that takes a passed-in array
-(defmacro with-data*
-    ((symbol type size &optional init validate) &body body)
-  (let ((ptr (gensym "PTR")))
-    `(cffi::with-foreign-array (,ptr ,type ,size)
-      (let* ((,symbol
-	      (make-instance ',(intern (format nil "GSL-~a" type))
-			     :pointer ,ptr)))
-	(progn
-	  ,@(case init
-		  (:identity `((set-identity ,symbol)))
-		  ((t) nil)
-		  (t `((data-import ,symbol ,init))))
-	  ,@(when
-	     validate
-	     `((unless (data-valid ,symbol)
-		 (error "Invalid ~a, ~a" type init))))
-	  ,@body)))))
-
-;;; test
-#+test
-(with-data* (comb combination (4 i) t)
-  (loop collect (combination-list comb)
-	while (combination-next comb)))
-
-
-#+expansion
-(CFFI::WITH-FOREIGN-ARRAY
-    ;;;(#:PTR3308 COMBINATION (4 I))	; wrong
-    (#:PTR3308 :size ????)	; want
-  ;;; need to C-structure here.
-  (LET* ((COMB
-	  (MAKE-INSTANCE 'GSL-COMBINATION
-			 :POINTER
-			 #:PTR3308)))
-    (PROGN
-      (LOOP COLLECT
-	    (COMBINATION-LIST COMB)
-	    WHILE
-	    (COMBINATION-NEXT COMB)))))
-|#

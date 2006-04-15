@@ -3,7 +3,7 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 18:00
+; modified:    Fri Apr 14 2006 - 20:06
 ;********************************************************
 ;;; $Id: $
 
@@ -114,7 +114,7 @@ once.")
    repeatedly applying this function will iterate through all possible
    permutations of a given order.")
 
-(defun-gsl permutation-prev ((p gsl-permutation-c))
+(defun-gsl permutation-previous ((p gsl-permutation-c))
   "gsl_permutation_prev"
   :c-return-value :success-failure
   :documentation
