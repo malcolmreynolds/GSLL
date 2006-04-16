@@ -3,7 +3,7 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 17:50
+; modified:    Sun Apr 16 2006 - 14:07
 ;********************************************************
 ;;; $Id: $
 
@@ -65,6 +65,7 @@
 (defun-gsl combination-copy
     ((destination gsl-combination-c) (source gsl-combination-c) )
   "gsl_combination_memcpy"
+  :after ((cl-invalidate destination))
   :documentation
   "Copy the elements of the combination @var{src} into the
   combination @var{dest}.  The two combinations must have the same size.")
@@ -111,6 +112,7 @@
 (defun-gsl combination-next ((c gsl-combination-c))
   "gsl_combination_next"
   :c-return-value :success-failure
+  :after ((cl-invalidate c))
   :documentation
   "Advance the combination @var{c} to the next combination
    in lexicographic order and return T.  If no further
@@ -122,6 +124,7 @@
 (defun-gsl combination-previous ((c gsl-combination-c))
   "gsl_combination_prev"
   :c-return-value :success-failure
+  :after ((cl-invalidate c))
   :documentation
   "Step backwards from the combination @var{c} to the
    previous combination in lexicographic order, returning

@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 17:49
+; modified:    Sun Apr 16 2006 - 13:59
 ;********************************************************
 ;;; $Id: $
 
@@ -94,7 +94,9 @@ deallocated with the vector.
 
 (defun-gsl set-basis ((vector gsl-vector-c) (index :size))
   "gsl_vector_set_basis"
-  :c-return-value :void)
+  :documentation "Set the index element to 1.0, and the rest to 0.0."
+  :c-return-value :void
+  :after ((cl-invalidate vector)))
 
 ;;;;****************************************************************************
 ;;;; Views
@@ -166,16 +168,16 @@ vector is given by @var{base}.")
 ;;;; Copying
 ;;;;****************************************************************************
 
-(defun-gsl vector-copy
-    ((destination gsl-vector-c) (source gsl-vector-c) )
+(defun-gsl vector-copy ((destination gsl-vector-c) (source gsl-vector-c))
   "gsl_vector_memcpy"
+  :after ((cl-invalidate destination))
   :documentation
   "Copy the elements of the vector @var{source} into the
    vector @var{destination}.  The two vectors must have the same length.")
 
-(defun-gsl vector-swap
-    ((v gsl-vector-c) (w gsl-vector-c) )
+(defun-gsl vector-swap ((v gsl-vector-c) (w gsl-vector-c))
   "gsl_vector_swap"
+  :after ((cl-invalidate v w))
   :documentation
   "Exchange the elements of the vectors @var{v} and @var{w}
    by copying.  The two vectors must have the same length.")
@@ -186,12 +188,15 @@ vector is given by @var{base}.")
 
 (defun-gsl vector-swap-elements ((vec gsl-vector-c) (i :size) (j :size))
   "gsl_vector_swap_elements"
+  :after ((push (list i) (cl-invalid vec))
+	  (push (list j) (cl-invalid vec)))
   :documentation
   "Exchange the @var{i}-th and @var{j}-th elements of the
    vector @var{vec} in-place.")
 
 (defun-gsl vector-reverse ((vec gsl-vector-c))
   "gsl_vector_reverse"
+  :after ((cl-invalidate vec))
   :documentation
   "Reverse the order of the elements of the vector @var{vec}.")
 
@@ -201,6 +206,7 @@ vector is given by @var{base}.")
 
 (defun-gsl vector+ ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_add"
+  :after ((cl-invalidate a))
   :documentation
   "Add the elements of vector @var{b} to the elements of
 vector @var{a}, @math{a'_i = a_i + b_i}. The two vectors must have the
@@ -208,6 +214,7 @@ same length.")
 
 (defun-gsl vector- ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_sub"
+  :after ((cl-invalidate a))
   :documentation
   "Subtract the elements of vector @var{b} from the elements of
 vector @var{a}, @math{a'_i = a_i - b_i}. The two vectors must have the
@@ -215,6 +222,7 @@ same length.")
 
 (defun-gsl vector* ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_mul"
+  :after ((cl-invalidate a))
   :documentation
   "Multiply the elements of vector @var{a} by the elements of
 vector @var{b}, @math{a'_i = a_i * b_i}. The two vectors must have the
@@ -222,21 +230,22 @@ same length.")
 
 (defun-gsl vector/ ((a gsl-vector-c) (b gsl-vector-c))
   "gsl_vector_div"
+  :after ((cl-invalidate a))
   :documentation
   "Divide the elements of vector @var{a} by the elements of
 vector @var{b}, @math{a'_i = a_i / b_i}. The two vectors must have the
 same length.")
 
-(defun-gsl vector*c
-    ((a gsl-vector-c) (x :double))
+(defun-gsl vector*c ((a gsl-vector-c) (x :double))
   "gsl_vector_scale"
+  :after ((cl-invalidate a))
   :documentation
   "Multiply the elements of vector @var{a} by the constant
 factor @var{x}, @math{a'_i = x a_i}.")
 
-(defun-gsl vector+c
-    ((a gsl-vector-c) (x :double))
+(defun-gsl vector+c ((a gsl-vector-c) (x :double))
   "gsl_vector_add_constant"
+  :after ((cl-invalidate a))
   :documentation
   "Add the constant value @var{x} to the elements of the
 vector @var{a}, @math{a'_i = a_i + x}.")

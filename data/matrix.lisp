@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 17:49
+; modified:    Sun Apr 16 2006 - 14:04
 ;********************************************************
 ;;; $Id: $
 
@@ -229,6 +229,7 @@ columns, and the physical number of columns in memory is given by
 (defun-gsl matrix-copy
     ((destination gsl-matrix-c) (source gsl-matrix-c))
   "gsl_matrix_memcpy"
+  :after ((cl-invalidate destination))
   :documentation
   "Copy the elements of the matrix @var{source} into the
    matrix @var{destination}.  The two matrices must have the same size.")
@@ -236,6 +237,7 @@ columns, and the physical number of columns in memory is given by
 (defun-gsl matrix-swap
     ((m1 gsl-matrix-c) (m2 gsl-matrix-c))
   "gsl_matrix_swap"
+  :after ((cl-invalidate m1 m2))
   :documentation
   "Exchange the elements of the matrices @var{m1} and
    @var{m2} by copying.  The two matrices must have the same size.")
@@ -260,6 +262,7 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl set-row ((matrix gsl-matrix-c) (i :size) (vector gsl-vector-c))
   "gsl_matrix_set_row"
+  :after ((cl-invalidate matrix))
   :documentation
   "Copy the elements of the vector into the
    @var{i}-th row of the matrix.  The length of the vector must be
@@ -267,6 +270,7 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl set-column ((matrix gsl-matrix-c) (j :size) (vector gsl-vector-c))
   "gsl_matrix_set_col"
+  :after ((cl-invalidate matrix))
   :documentation
   "Copy the elements of the vector into the @var{j}-th column of the matrix.
   The length of the vector must be the same as the length of the column.")
@@ -280,16 +284,19 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl swap-rows ((matrix gsl-matrix-c) (i :size) (j :size))
   "gsl_matrix_swap_rows"
+  :after ((cl-invalidate matrix))
   :documentation
   "Exchange the @var{i}-th and @var{j}-th rows of the matrix in-place.")
 
 (defun-gsl swap-columns ((matrix gsl-matrix-c) (i :size) (j :size))
   "gsl_matrix_swap_columns"
+  :after ((cl-invalidate matrix))
   :documentation
   "Exchange the @var{i}-th and @var{j}-th columns of the matrix in-place.")
 
 (defun-gsl swap-rowcol ((matrix gsl-matrix-c) (i :size) (j :size))
   "gsl_matrix_swap_rowcol"
+  :after ((cl-invalidate matrix))
   :documentation
   "Exchange the @var{i}-th row and @var{j}-th column of the
    matrix in-place.  The matrix must be square for this operation to
@@ -298,6 +305,7 @@ columns, and the physical number of columns in memory is given by
 (defun-gsl matrix-transpose-copy
     ((destination gsl-matrix-c) (source gsl-matrix-c))
   "gsl_matrix_transpose_memcpy"
+  :after ((cl-invalidate destination))
   :documentation
   "Make the destination matrix the transpose of the source matrix
    by copying the elements.  The dimensions of the destination
@@ -305,6 +313,7 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl matrix-transpose ((matrix gsl-matrix-c))
   "gsl_matrix_transpose"
+  :after ((cl-invalidate matrix))
   :documentation
   "Replace the matrix by its transpose by copying the elements
    of the matrix in-place.  The matrix must be square for this
@@ -316,6 +325,7 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl matrix+ ((a gsl-matrix-c) (b gsl-matrix-c))
   "gsl_matrix_add"
+  :after ((cl-invalidate a))
   :documentation
   "Add the elements of matrix @var{b} to the elements of matrix @var{a},
    @math{a'_i = a_i + b_i}. The two matrices must have the
@@ -323,6 +333,7 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl matrix- ((a gsl-matrix-c) (b gsl-matrix-c))
   "gsl_matrix_sub"
+  :after ((cl-invalidate a))
   :documentation
   "Subtract the elements of matrix @var{b} from the elements of matrix
    @var{a}, @math{a'_i = a_i - b_i}. The two matrices must have the
@@ -330,6 +341,7 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl matrix* ((a gsl-matrix-c) (b gsl-matrix-c))
   "gsl_matrix_mul_elements"
+  :after ((cl-invalidate a))
   :documentation
   "Multiply the elements of matrix @var{a} by the elements of
   matrix @var{b}, @math{a'(i,j) = a(i,j) * b(i,j)}. The two matrices must have the
@@ -337,6 +349,7 @@ columns, and the physical number of columns in memory is given by
 
 (defun-gsl matrix/ ((a gsl-matrix-c) (b gsl-matrix-c))
   "gsl_matrix_div_elements"
+  :after ((cl-invalidate a))
   :documentation
   "Divide the elements of matrix @var{a} by the elements of
    matrix @var{b}, @math{a'(i,j) = a(i,j) / b(i,j)}. The two matrices must have the
@@ -345,6 +358,7 @@ columns, and the physical number of columns in memory is given by
 (defun-gsl matrix*c
     ((a gsl-matrix-c) (x :double))
   "gsl_matrix_scale"
+  :after ((cl-invalidate a))
   :documentation
   "Multiply the elements of matrix @var{a} by the constant
   factor @var{x}, @math{a'(i,j) = x a(i,j)}.")
@@ -352,6 +366,7 @@ columns, and the physical number of columns in memory is given by
 (defun-gsl matrix+c
     ((a gsl-matrix-c) (x :double))
   "gsl_matrix_add_constant"
+  :after ((cl-invalidate a))
   :documentation
   "Add the constant value @var{x} to the elements of the
   matrix @var{a}, @math{a'(i,j) = a(i,j) + x}.")

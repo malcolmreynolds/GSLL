@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 20:14
+; modified:    Sun Apr 16 2006 - 14:00
 ;********************************************************
 ;;; $Id: $
 
@@ -14,8 +14,21 @@
 ;;;;****************************************************************************
 
 (defclass gsl-data ()
-  ((pointer :initarg :pointer :reader pointer)
-   (storage-size :initarg :storage-size :reader storage-size )))
+  ((pointer :initarg :pointer :reader pointer
+	    :documentation "A C pointer to the GSL representation of the data.")
+   (storage-size :initarg :storage-size :reader storage-size)
+   (data :accessor data-cache
+	 :documentation "The Lisp object corresponding to the GSL data.")
+   (cl-invalid
+    :initform t :accessor cl-invalid
+    :documentation
+    "An indication of whether the Lisp object (slot 'data) agrees with the
+     GSL C data.  If NIL, they agree.  If T, they disagree in an unspecified
+     way.  If a list of index sets, those indices disagree and the remainded
+     are correct."))
+  (:documentation
+   "A superclass for all GSL data storage structures, such as vector, matrix,
+   etc."))
 
 (defparameter *print-contents* t)
 
@@ -34,6 +47,8 @@
   (:documentation "An element of the data."))
 
 (defgeneric (setf gsl-aref) (value object &rest indices)
+  (:method :after (value (object gsl-data) &rest indices)
+    (push indices (cl-invalid object)))
   (:documentation "Set an element of the data."))
 
 (export '(write-binary read-binary write-formatted read-formatted))
@@ -156,8 +171,12 @@
       (free ,symbol))))
 
 ;;;;****************************************************************************
-;;;; Getting values
+;;;; Getting values into CL
 ;;;;****************************************************************************
+
+(defun cl-invalidate (&rest objects)
+  (mapc (lambda (obj) (setf (cl-invalid obj) t))
+	objects))
 
 (export 'data)
 (defgeneric data (object &optional destination)
@@ -168,43 +187,66 @@
    specified.")
   ;; Default method is to make a sequence
   (:method ((object gsl-data) &optional (sequence 'vector))
-	   (let* ((total-size (apply #'* (storage-size object)))
-		  (seq
-		   (case sequence
-		     (list (make-list total-size))
-		     ((nil vector)
-		      (make-array (list total-size)
-				  :element-type (cl-base-type object)))
-		     (t sequence))))
-	     (loop for i from 0
-		   below (min (length seq) total-size)
-		   do (setf (elt seq i) (gsl-aref object i)))
-	     seq)))
+    (if (eq (cl-invalid object) t)
+	;; set everything
+	(let* ((total-size (apply #'* (storage-size object)))
+	       (seq
+		(case sequence
+		  (list (make-list total-size))
+		  ((nil vector)
+		   (make-array (list total-size)
+			       :element-type (cl-base-type object)))
+		  (t sequence))))
+	  (loop for i from 0
+	     below (min (length seq) total-size)
+	     do (setf (elt seq i) (gsl-aref object i)))
+	  seq)
+	;; set selected
+	(let ((seq (data-cache object)))
+	  (mapc (lambda (is)
+		  (let ((i (first is)))
+		    (setf (elt seq i) (gsl-aref object i))))
+		(cl-invalid object))
+	  seq)))
+  ;; Around method looks for cached value and returns it if valid;
+  ;; otherwise computes CL element(s).
+  (:method :around ((object gsl-data) &optional (sequence 'vector))
+	   (declare (ignore sequence))
+	   (when (cl-invalid object)
+	     (setf (data-cache object)
+		   (call-next-method)
+		   (cl-invalid object)
+		   nil))
+	   (data-cache object)))
 
 ;;;;****************************************************************************
-;;;; Setting values
+;;;; Setting values from CL
 ;;;;****************************************************************************
 
 (defgeneric (setf data) (cl-array object)
   (:documentation "Set the values in the object from a CL array.")
   ;; Default method is to read from a sequence
-  (:method
-   (sequence (object gsl-data))
-   (loop for i from 0
-	 below (min (length sequence) (apply #'* (storage-size object)))
-	 do (setf (gsl-aref object i) (elt sequence i)))))
+  (:method (sequence (object gsl-data))
+    (loop for i from 0
+       below (min (length sequence) (apply #'* (storage-size object)))
+       do (setf (gsl-aref object i) (elt sequence i))))
+  (:method :after (source (object gsl-data))
+	   (setf (cl-invalid object) t)))
 
 (export 'set-all)
 (defgeneric set-all (object value)
-  (:documentation "Set all elements to the value."))
+  (:documentation "Set all elements to the value.")
+  (:method :after ((object gsl-data) value) (cl-invalidate object)))
 
 (export 'set-zero)
 (defgeneric set-zero (object)
-  (:documentation "Set all elements to 0."))
+  (:documentation "Set all elements to 0.")
+  (:method :after ((object gsl-data)) (cl-invalidate object)))
 
 (export 'set-identity)
 (defgeneric set-identity (object)
-  (:documentation "Set elements to represent the identity."))
+  (:documentation "Set elements to represent the identity.")
+  (:method :after ((object gsl-data)) (cl-invalidate object)))
 
 (export 'data-valid)
 (defgeneric data-valid (object)

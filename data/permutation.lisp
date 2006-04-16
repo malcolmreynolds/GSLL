@@ -3,7 +3,7 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 20:06
+; modified:    Sun Apr 16 2006 - 14:10
 ;********************************************************
 ;;; $Id: $
 
@@ -49,12 +49,14 @@
 (defun-gsl permutation-copy
     ((destination gsl-permutation-c) (source gsl-permutation-c) )
   "gsl_permutation_memcpy"
+  :after ((cl-invalidate destination))
   :documentation
   "Copy the elements of the permutation @var{src} into the
    permutation @var{dest}.  The two permutations must have the same size.")
 
 (defun-gsl permutation-swap ((p gsl-permutation-c) (i :size) (j :size))
   "gsl_permutation_swap"
+  :after ((cl-invalidate p))
   :documentation
   "Exchanges the @var{i}-th and @var{j}-th elements of the
    permutation @var{p}.")
@@ -94,18 +96,21 @@ once.")
 
 (defun-gsl permutation-reverse ((p gsl-permutation-c))
   "gsl_permutation_reverse"
+  :after ((cl-invalidate p))
   :c-return-value :void
   :documentation
   "Reverse the order of the elements of the permutation @var{p}.")
 
 (defun-gsl permutation-inverse ((inv gsl-permutation-c) (p gsl-permutation-c))
   "gsl_permutation_inverse"
+  :after ((cl-invalidate inv))
   :documentation
   "Reverse the order of the elements of the permutation @var{p}.")
 
 (defun-gsl permutation-next ((p gsl-permutation-c))
   "gsl_permutation_next"
   :c-return-value :success-failure
+  :after ((cl-invalidate p))
   :documentation
   "Advance the permutation @var{p} to the next permutation
    in lexicographic order and return T.  If no further
@@ -117,6 +122,7 @@ once.")
 (defun-gsl permutation-previous ((p gsl-permutation-c))
   "gsl_permutation_prev"
   :c-return-value :success-failure
+  :after ((cl-invalidate p))
   :documentation
   "Step backwards from the permutation @var{p} to the
    previous permutation in lexicographic order, returning T.
@@ -143,6 +149,7 @@ once.")
 
 (defun-gsl permute-vector ((p gsl-permutation-c) (v gsl-vector-c))
   "gsl_permute_vector"
+  :after ((cl-invalidate v))
   :documentation
   "Apply the permutation @var{p} to the elements of the
    vector @var{v}, considered as a row-vector acted on by a permutation
@@ -153,6 +160,7 @@ once.")
 
 (defun-gsl permute-vector-inverse ((p gsl-permutation-c) (v gsl-vector-c))
   "gsl_permute_vector_inverse"
+  :after ((cl-invalidate v))
   :documentation
   "Apply the inverse of the permutation @var{p} to the
   elements of the vector @var{v}, considered as a row-vector acted on by
@@ -165,6 +173,7 @@ once.")
 (defun-gsl permutation*
     ((p gsl-permutation-c) (pa gsl-permutation-c) (pb gsl-permutation-c))
   "gsl_permutation_mul"
+  :after ((cl-invalidate p))
   :documentation
   "Combine the two permutations @var{pa} and @var{pb} into a
   single permutation @var{p}, where @math{p = pa . pb}. The permutation
@@ -176,12 +185,14 @@ once.")
 
 (defun-gsl linear-to-canonical ((q gsl-permutation-c) (p gsl-permutation-c))
   "gsl_permutation_linear_to_canonical"
+  :after ((cl-invalidate q))
   :documentation
   "Compute the canonical form of the permutation @var{p} and
    stores it in the output argument @var{q}.")
 
 (defun-gsl canonical-to-linear ((p gsl-permutation-c) (q gsl-permutation-c))
   "gsl_permutation_canonical_to_linear"
+  :after ((cl-invalidate p))
   :documentation
   "Convert a permutation @var{q} in canonical form back into
    linear form storing it in the output argument @var{p}.")
