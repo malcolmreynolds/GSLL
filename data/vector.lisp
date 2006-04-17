@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr 16 2006 - 13:59
+; modified:    Mon Apr 17 2006 - 09:11
 ;********************************************************
 ;;; $Id: $
 
@@ -331,6 +331,11 @@ vector @var{a}, @math{a'_i = a_i + x}.")
 (with-data (vec vector 3)
   (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
   (print-vector vec))
+
+(defparameter vec (make-data 'vector nil 3))
+(setf (data vec) #(-3.21d0 1.0d0 12.8d0))
+(free vec)
+
 
 (with-data (vec vector 3)
   (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
