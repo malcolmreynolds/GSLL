@@ -3,18 +3,25 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr 16 2006 - 14:00
+; modified:    Sun Apr 16 2006 - 21:32
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
+
+;;; To do:
+;;; - create a CL object of class gsl-data with the right GSL
+;;; pointer just from a raw CL object
+;;; - recreate GSL object should be possible to recreate the C object
+;;; (need this?)
+;;; - master list of objects, for manual memory management?
 
 ;;;;****************************************************************************
 ;;;; Class gsl-data and generic functions
 ;;;;****************************************************************************
 
 (defclass gsl-data ()
-  ((pointer :initarg :pointer :reader pointer
+  ((pointer :initarg :pointer :accessor pointer
 	    :documentation "A C pointer to the GSL representation of the data.")
    (storage-size :initarg :storage-size :reader storage-size)
    (data :accessor data-cache
@@ -24,16 +31,14 @@
     :documentation
     "An indication of whether the Lisp object (slot 'data) agrees with the
      GSL C data.  If NIL, they agree.  If T, they disagree in an unspecified
-     way.  If a list of index sets, those indices disagree and the remainded
+     way.  If a list of index sets, those indices disagree and the remainder
      are correct."))
   (:documentation
    "A superclass for all GSL data storage structures, such as vector, matrix,
    etc."))
 
-(defparameter *print-contents* t)
-
 (defmethod print-object ((object gsl-data) stream)
-  (print-data-object object *print-contents* stream))
+  (print-data-object object *print-array* stream))
 
 (defun print-data-object (object contents stream)
   "Print the data object to the stream, possibly showing contents."
@@ -79,8 +84,7 @@
    (format nil "for ~a."
 	   (with-output-to-string (stream)
 	     (print-data-object object nil stream))))
-  (setf (slot-value object 'pointer)
-	pointer))
+  (setf (pointer object) pointer))
 
 (defmacro defdata (string c-base-type cl-base-type &optional (dimensions 1))
   "For the type named in the string,
@@ -146,8 +150,10 @@
 (defgeneric calloc (object)
   (:documentation "Allocate GSL data and clear; used internally."))
 
+(export 'free)
 (defgeneric free (object)
-  (:documentation "Free GSL data; used internally."))
+  (:documentation "Free GSL data.")
+  (:method :after ((object gsl-data)) (setf (pointer object) nil)))
 
 (defun make-data (type zero &rest size)
   "Make the GSL data object, including the allocation of space.
