@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Apr 17 2006 - 09:11
+; modified:    Tue Apr 18 2006 - 23:27
 ;********************************************************
 ;;; $Id: $
 
@@ -49,6 +49,9 @@ deallocated with the vector.
 
 ;;; Allocation, freeing, reading and writing
 (defdata "vector" :double 'double-float)
+
+(defmethod gsl-array ((object gsl-vector))
+  (foreign-slot-value (pointer object) 'gsl-vector-c 'data))
 
 (add-wrap-type gsl-vector-c (lambda (x) `(pointer ,x)))
 

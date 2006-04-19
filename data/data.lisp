@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr 16 2006 - 21:32
+; modified:    Wed Apr 19 2006 - 00:46
 ;********************************************************
 ;;; $Id: $
 
@@ -45,6 +45,9 @@
   (print-unreadable-object (object stream :type t :identity t)
     (when contents
       (princ (data object) stream))))
+
+(defgeneric gsl-array (object)
+  (:documentation "A pointer to the GSL array with the data contents."))
 
 ;;; Accessing elements
 (export 'gsl-aref)

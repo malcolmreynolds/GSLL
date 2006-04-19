@@ -3,7 +3,7 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr 16 2006 - 14:10
+; modified:    Tue Apr 18 2006 - 23:27
 ;********************************************************
 ;;; $Id: $
 
@@ -20,6 +20,9 @@
 
 ;;; Allocation, freeing, reading and writing
 (defdata "permutation" :size 'fixnum)
+
+(defmethod gsl-array ((object gsl-permutation))
+  (foreign-slot-value (pointer object) 'gsl-permutation-c 'data))
 
 (add-wrap-type gsl-permutation-c (lambda (x) `(pointer ,x)))
 

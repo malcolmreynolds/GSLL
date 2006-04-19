@@ -3,7 +3,7 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr 16 2006 - 14:07
+; modified:    Tue Apr 18 2006 - 23:28
 ;********************************************************
 ;;; $Id: $
 
@@ -21,6 +21,9 @@
 
 ;;; Allocation, freeing, reading and writing
 (defdata "combination" :size 'fixnum 2)
+
+(defmethod gsl-array ((object gsl-combination))
+  (foreign-slot-value (pointer object) 'gsl-combination-c 'data))
 
 (add-wrap-type gsl-combination-c (lambda (x) `(pointer ,x)))
 
