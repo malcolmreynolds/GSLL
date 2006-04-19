@@ -3,15 +3,15 @@
 ; description: Sorting                                   
 ; date:        Fri Apr 14 2006 - 20:20                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 14 2006 - 21:58
+; modified:    Wed Apr 19 2006 - 17:43
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
 ;;; #'heapsort has just a cursory port, use CL's #'sort.
-;;; Raw C array functions not ported.
-;;; gsl_sort_vector_smallest, gsl_sort_vector_largest
+;;; Raw C array functions not ported, there is no point.
+;;; Need vectors over integers for
 ;;; gsl_sort_smallest_index, gsl_sort_largest_index
 ;;; need to return converted raw C arrays.
 
@@ -74,17 +74,21 @@ place.  The first element of @var{p} gives the index of the least element
 in @var{v}, and the last element of @var{p} gives the index of the
 greatest element in @var{v}.  The vector @var{v} is not changed.")
 
-;;; Need to allocate the C vector of doubles with the desired length
-;;; and convert back to CL and return that.
-#+development
-(defun-gsl sort-vector-smallest (k (vector gsl-vector-c))
+(defun-gsl sort-vector-smallest ((dest (:double *)) (v gsl-vector-c))
   "gsl_sort_vector_smallest"
   :documentation
-  "Find the @var{k} smallest elements of the
-  vector @var{v}. @var{k} must be less than or equal
-  to the length of the vector @var{v}."
+  "Find the smallest elements of the vector @var{v} and put them into dest,
+   which must be shorter than v."
   :c-return-value :void
-  :return ((dest (:double k))))
+  :return-input (dest))
+
+(defun-gsl sort-vector-largest ((dest (:double *)) (v gsl-vector-c))
+  "gsl_sort_vector_largest"
+  :documentation
+  "Find the largest elements of the vector @var{v} and put them into dest,
+   which must be shorter than v."
+  :c-return-value :void
+  :return-input (dest))
 
 ;;;;****************************************************************************
 ;;;; Examples
@@ -103,5 +107,12 @@ greatest element in @var{v}.  The vector @var{v} is not changed.")
     (sort-vector-index perm vec)
     (data perm)))
 #(3 1 4 0 2)
+
+(defparameter vec (make-data 'vector nil 5))
+(setf (data vec) #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))
+(defparameter smallest (make-data 'vector nil 3))
+(sort-vector-smallest smallest vec)
+(free vec)
+(free smallest)
 
 |#

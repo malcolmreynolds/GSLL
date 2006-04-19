@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Apr 16 2006 - 13:03
+; modified:    Wed Apr 19 2006 - 17:06
 ;********************************************************
 
 (in-package :gsl)
@@ -126,11 +126,24 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun rst-arrayp (decl)
   (listp (rst-type decl)))
 
+(defun rst-array-pointer-last-p (decl)
+  (listp (rst-type decl)))
+
 (defun rst-eltype (decl)
   (first (rst-type decl)))
 
 (defun rst-dim (decl)
   (second (rst-type decl)))
+
+(defun rst-pointer-last-p (decl)
+  (third (rst-type decl)))
+
+(defun return-symbol-type (return)
+  "Make a full declaration from the list of return values."
+  (mapcar (lambda (typ)
+	    (list (gensym "RET")
+		  typ))
+	  return))
 
 (defparameter *make-sequence-type* 'list
   "Whether sequences should be returned as list or vector.")
@@ -188,56 +201,40 @@ and a scaling exponent e10, such that the value is val*10^e10."
        (rest wrappers))
       form))
 
-(defun wfa-wrapper (spec)
-  "Returns two values: the foreign-funcall argument declaration
-   and what to wrap around the form, if anything."
-  (if (rst-arrayp spec)
-      (let ((arr (gensym "ARR"))
-	    (len (if (eq (rst-dim spec) '*)
-		     (gensym "LEN")
-		     (rst-dim spec))))
-	(values
-	 `(:pointer ,arr :size ,len)
-	 `((cffi::with-foreign-array
-	       (,arr ,(rst-symbol spec) ,(rst-eltype spec) (list ,len)))
-	   (let ((,len (length ,(rst-symbol spec))))))))
-      (values
-       `(,(rst-type spec)
-	 ,(wrap-arg spec)) nil)))
+;;; All arrays and vectors are pass with a gsl-data object that is made
+;;; outside the function, and pieces are spliced in the function call.
+;;; Both raw arrays and GSL structures are be passed as gsl-data objects,
+;;; but their declarations are be different:
+;;;   Raw array (xyz (:double *))
+;;;   GSL struct: (xyz gsl-vector-c)
+;;; They are expanded in the foreign-funcall argument list differently:
+;;;   Raw array to two arguments (:POINTER (gsl-array xyz) :SIZE (storage-size xyz))
+;;;   GSL struct to one: (:pointer (pointer xyz))
 
-(defun wfa-wrappers (specs)
-  (if specs
-      (multiple-value-bind (decl wrap)
-	  (wfa-wrapper (first specs))
-	(multiple-value-bind (decls wraps)
-	    (wfa-wrappers (rest specs))
-	  (values (append decl decls) (append wrap wraps))))
-      (values nil nil)))
-
-#+example
-(multiple-value-bind (decl wrap)
-    (wfa-wrappers
-     '((foo :double) (coefficients (:double *)) (n :int) (boo (:double *))))
-  (apply #'wrap-form `(the-body ,@decl) wrap))
-
-#+example
-(LET ((#:LEN4183 (LENGTH BOO)))
-  (CFFI::WITH-FOREIGN-ARRAY (#:ARR4182 BOO :DOUBLE (LIST #:LEN4183))
-    (LET ((#:LEN4181 (LENGTH COEFFICIENTS)))
-      (CFFI::WITH-FOREIGN-ARRAY
-	  (#:ARR4180 COEFFICIENTS :DOUBLE (LIST #:LEN4181))
-	(THE-BODY :DOUBLE
-		  FOO
-		  :POINTER
-		  #:ARR4180
-		  :SIZE
-		  #:LEN4181
-		  :INT
-		  N
-		  :POINTER
-		  #:ARR4182
-		  :SIZE
-		  #:LEN4183)))))
+;;; (splice-arguments '((argraw (:double *)) (argstruct gsl-vector-c) (x :double)))
+(defun splice-arguments (arguments &optional mode)
+  "Convert the argument declarations to a list of declarations appropriate
+   for foreign-funcall.  If mode is T, a mode argument will be added to the end,
+   if it is an integer, it will be put at that position."
+  (flet ((splicearg (spec)
+	   ;; No accomodation for matrices (two indices) yet
+	   (if (rst-arrayp spec)
+	       (values
+		(if (rst-pointer-last-p spec)
+		    `(:size (first (storage-size ,(rst-symbol spec)))
+		      :pointer (gsl-array ,(rst-symbol spec)))
+		    `(:pointer (gsl-array ,(rst-symbol spec))
+		      :size (first (storage-size ,(rst-symbol spec))))))
+	       (values
+		`(,(rst-type spec)
+		  ,(wrap-arg spec))))))
+    (mapcan #'splicearg
+	    (if mode
+		(let ((mode (if (integerp mode) mode (length arguments))))
+		  (append (subseq arguments 0 mode)
+			  '((mode sf-mode))
+			  (subseq arguments mode)))
+		arguments))))
 
 ;;;;****************************************************************************
 ;;;; Checking results
@@ -278,14 +275,15 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;; Warning isn't quite right for lambdas.
 (defmacro defun-gsl
     (cl-name arguments gsl-name
-     &key documentation return mode (c-return-value :error-code)
-     check-null-pointers method after)
+	     &key documentation return mode (c-return-value :error-code)
+	     return-input check-null-pointers method after)
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
      gsl-name:        the C function name, as a string
      documentation:   a string
      return:          a list of return types
+     return-input:    input variables to return
      mode:            T or NIL, depending on whether gsl_mode is an argument
      c-return-value:  The C function returns an :error-code, :number-of-answers,
                       a value to :return from the CL function, :success-failure 
@@ -299,59 +297,49 @@ and a scaling exponent e10, such that the value is val*10^e10."
      after            Functions to call after the GSL function has been called;
                       result is discarded."
   (let ((clargs (or method (mapcar #'rst-symbol arguments)))
-	(return-symb-type
-	 (unless (eq c-return-value :return)
-	   (mapcar (lambda (typ)
-		     (list (gensym "RET")
-			   typ))
-		   return))))
-    (multiple-value-bind (input-declarations wrap-arrays)
-	(wfa-wrappers arguments)
-      `(,@(if (eq cl-name :lambda)
-	      '(lambda)
-	      `(,(if method 'defmethod-map 'defunx-map) ,cl-name ,gsl-name))
-	,(if mode 
-	     `(,@clargs &optional (mode :double-prec))
-	     `(,@clargs))
-	,@(when documentation (list documentation))
-	,(wrap-form			; with-foreign-array
-	  (wrap-form 			; with-foreign-object
-	   `(let ((creturn
-		   (cffi:foreign-funcall
-		    ,gsl-name
-		    ,@input-declarations
-		    ,@(when mode '(sf-mode mode))
-		    ,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r)))
-			      return-symb-type)
-		    ,(case c-return-value
-			   (:return (first return))
-			   (:void :void)
-			   (t :int)))))
-	     ,@(case c-return-value
-		     (:void '((declare (ignore creturn))))
-		     (:error-code
-		      (if method
-			  `((check-gsl-status creturn `(,',cl-name))) ; need args
-			  `((check-gsl-status creturn `(,',cl-name ,,@clargs))))))
-	     ,@(check-null-pointers check-null-pointers)
-	     ,@after
-	     (values
-	      ,@(case c-return-value
-		      (:number-of-answers
-		       (mapcan
-			(lambda (decl seq)
-			  `((when (> creturn ,seq) ,@(pick-result decl))))
-			return-symb-type
-			(loop for i below (length return) collect i)))
-		      (:success-failure
-		       '((success-failure creturn)))
-		      (:return (list (wrap-arg `(creturn ,@return))))
-		      (t
-		       (mapcan #'pick-result return-symb-type)))))
-	   (when return-symb-type
-	     `((cffi:with-foreign-objects
-		   ,(mapcar #'wfo-declare return-symb-type)))))
-	  wrap-arrays)))))
-
-;;; arguments: list like ((x :double) (y :double))
-;;; mode: t or nil
+	(return-symb-type 
+	 (unless (or (eq c-return-value :return) return-input)
+	   (return-symbol-type return))))
+    `(,@(if (eq cl-name :lambda)
+	    '(lambda)
+	    `(,(if method 'defmethod-map 'defunx-map) ,cl-name ,gsl-name))
+      ,(if mode 
+	   `(,@clargs &optional (mode :double-prec))
+	   `(,@clargs))
+      ,@(when documentation (list documentation))
+      ,(wrap-form 			; with-foreign-object
+	`(let ((creturn
+		(cffi:foreign-funcall
+		 ,gsl-name
+		 ,@(splice-arguments arguments mode)
+		 ,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r)))
+			   return-symb-type)
+		 ,(case c-return-value
+			(:return (first return))
+			(:void :void)
+			(t :int)))))
+	  ,@(case c-return-value
+		  (:void '((declare (ignore creturn))))
+		  (:error-code
+		   (if method
+		       `((check-gsl-status creturn `(,',cl-name))) ; need args
+		       `((check-gsl-status creturn `(,',cl-name ,,@clargs))))))
+	  ,@(check-null-pointers check-null-pointers)
+	  ,@after
+	  (values
+	   ,@return-input
+	   ,@(case c-return-value
+		   (:number-of-answers
+		    (mapcan
+		     (lambda (decl seq)
+		       `((when (> creturn ,seq) ,@(pick-result decl))))
+		     return-symb-type
+		     (loop for i below (length return) collect i)))
+		   (:success-failure
+		    '((success-failure creturn)))
+		   (:return (list (wrap-arg `(creturn ,@return))))
+		   (t
+		    (mapcan #'pick-result return-symb-type)))))
+	(when return-symb-type
+	  `((cffi:with-foreign-objects
+		,(mapcar #'wfo-declare return-symb-type))))))))

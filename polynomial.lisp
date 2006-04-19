@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:36
+; modified:    Wed Apr 19 2006 - 09:41
 ;********************************************************
 ;;; $Id: $
 
@@ -16,9 +16,11 @@
 ;;;; Polynomial Evaluation
 ;;;;****************************************************************************
 
-;;; (polynomial-eval #(1.0d0 2.0d0 3.0d0) -1.0d0)
-(defun-gsl polynomial-eval 
-    ((coefficients (:double *)) (x :double))
+;;; (defparameter vec (make-data 'vector nil 3))
+;;; (setf (data vec) #(1.0d0 2.0d0 3.0d0))
+;;; (polynomial-eval vec -1.0d0)
+;;; 2.0d0
+(defun-gsl polynomial-eval ((coefficients (:double *)) (x :double))
   "gsl_poly_eval"
   :documentation
   "Evaluate the polyonomial with coefficients at the point x."
