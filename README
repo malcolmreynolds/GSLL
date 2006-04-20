@@ -13,11 +13,35 @@ Features:
 - This library is pure common lisp.  No C is used; the only requirement
 is that the GSL library must be loaded and accessible.
 
-- ??? No actual functions are defined, just the macros for gaining
-access to the functions.  Defining the functions you need yourself is
-very easy.
-
 ======================
-Needs work
-bessel-sequence-Jnu in bessel.lisp.
-Why do sequence-returns crash on declination?
+Needs work:
+See Thu Apr 20 2006 
+
+There are 14 kinds of element types for vectors and matrices:
+
+gsl_vector_complex_long_double.h
+gsl_vector_complex_double.h
+gsl_vector_complex_float.h
+
+gsl_vector_long_double.h
+gsl_vector_double.h
+gsl_vector_float.h
+
+gsl_vector_ulong.h
+gsl_vector_long.h
+
+gsl_vector_uint.h
+gsl_vector_int.h
+
+gsl_vector_ushort.h
+gsl_vector_short.h
+
+gsl_vector_uchar.h
+gsl_vector_char.h
+
+I have implemented only one, double.
+
+This means that the following functions have been put aside:
+- #'polynomial-solve (requires vector_complex)
+- The index functions in sorting that are not returning permutations,
+because the need a vector_int.

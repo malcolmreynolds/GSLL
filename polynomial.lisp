@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 19 2006 - 09:41
+; modified:    Thu Apr 20 2006 - 18:16
 ;********************************************************
 ;;; $Id: $
 
@@ -209,12 +209,15 @@
 	 :c-return-value :void)
        ,workspace))))
 
+#+future
 (defun-gsl polynomial-solve-ws
     ((coefficients (:double n)) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
   :return ((gsl-complex (1- n))))
 
+#+future
 (export '(polynomial-solve))
+#+future
 (defmacro polynomial-solve (coefficients &optional workspace)
   "The roots of the general polynomial 
 @c{$P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1}$} 
