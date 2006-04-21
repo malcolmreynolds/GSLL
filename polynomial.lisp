@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Apr 20 2006 - 18:16
+; modified:    Fri Apr 21 2006 - 09:20
 ;********************************************************
 ;;; $Id: $
 
@@ -11,6 +11,7 @@
 
 ;;; To do:
 ;;; Divided difference needs to be checked.
+;;; polynomial-solve-ws awaits complex vectors 
 
 ;;;;****************************************************************************
 ;;;; Polynomial Evaluation
