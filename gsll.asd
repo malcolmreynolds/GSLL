@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Thu Apr  6 2006 - 18:22
+; modified:    Sat Apr 22 2006 - 17:32
 ;********************************************************
 ;;; $Id: $
 
@@ -13,12 +13,17 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "GPL"
-  :depends-on (cffi cffi-unix)		; http://www.cliki.net/cffi-unix
+  :depends-on (cffi cffi-unix)	      ; http://www.cliki.net/cffi-unix
   :components
-  ((:file "init")
-   (:file "interface" :depends-on (init))
-   (:module general
+  ((:module init
 	    :depends-on (init interface)
+	    :components
+	    ((:file "init")
+	     (:file "interface" :depends-on (init))
+	     (:file "lisp-unit")
+	     (:file "tests")))
+   (:module general
+	    :depends-on (init)
 	    :components
 	    ((:file "conditions")
 	     (:file "mathematical")))
@@ -26,7 +31,7 @@
    (:file "cffi-array")
    (:file "polynomial" :depends-on (init interface cffi-array))	; see file
    (:module data
-	    :depends-on (init interface)
+	    :depends-on (init)
 	    :components
 	    ((:file "data")
 	     (:file "block" :depends-on (data))
@@ -35,7 +40,7 @@
 	     (:file "permutation" :depends-on (data))
 	     (:file "combination" :depends-on (data))))
    (:module special-functions
-	    :depends-on (init interface)
+	    :depends-on (init)
 	    :components
 	    ((:file "airy")
 	     (:file "bessel")		; one left 
@@ -51,4 +56,5 @@
 	     (:file "error-functions")
 	     (:file "exponential-functions")
 	     (:file "exponential-integrals")
+	     (:file "fermi-dirac")
 	     ))))

@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 21 2006 - 09:20
+; modified:    Sat Apr 22 2006 - 15:29
 ;********************************************************
 ;;; $Id: $
 
@@ -210,7 +210,6 @@
 	 :c-return-value :void)
        ,workspace))))
 
-#+future
 (defun-gsl polynomial-solve-ws
     ((coefficients (:double n)) (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
