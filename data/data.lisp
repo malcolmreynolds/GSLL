@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 19 2006 - 00:46
+; modified:    Wed Apr 26 2006 - 17:37
 ;********************************************************
 ;;; $Id: $
 
@@ -184,6 +184,7 @@
 ;;;;****************************************************************************
 
 (defun cl-invalidate (&rest objects)
+  "Mark the CL image of the GSL array as invalid."
   (mapc (lambda (obj) (setf (cl-invalid obj) t))
 	objects))
 

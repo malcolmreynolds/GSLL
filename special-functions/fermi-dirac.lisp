@@ -3,7 +3,7 @@
 ; description: Fermi-Dirac function.                     
 ; date:        Sat Apr 22 2006 - 16:12                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Apr 22 2006 - 17:41
+; modified:    Wed Apr 26 2006 - 09:51
 ;********************************************************
 ;;; $Id: $
 
@@ -103,4 +103,4 @@
    (fermi-dirac-1/2 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.170141327798d+01"
-   (fp-string (fermi-dirac-inc-0 2.0d0 0.5d0))))
+   (fermi-dirac-inc-0 2.0d0 0.5d0)))

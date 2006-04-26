@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Tue Apr 25 2006 - 14:56
+; modified:    Wed Apr 26 2006 - 16:20
 ;********************************************************
 ;;; $Id: $
 
@@ -19,6 +19,7 @@
 	    :components
 	    ((:file "init")
 	     (:file "interface" :depends-on (init))
+	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
 	     (:file "tests")))
    (:module general
@@ -37,7 +38,8 @@
 	     (:file "vector" :depends-on (data))
 	     (:file "matrix" :depends-on (data))
 	     (:file "permutation" :depends-on (data))
-	     (:file "combination" :depends-on (data))))
+	     (:file "combination" :depends-on (data))
+	     (:file "blas1")))
    (:module special-functions
 	    :depends-on (init)
 	    :components

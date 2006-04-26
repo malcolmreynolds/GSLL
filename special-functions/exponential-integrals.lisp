@@ -3,7 +3,7 @@
 ; description: Exponential integrals                     
 ; date:        Tue Mar 21 2006 - 17:37                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Wed Apr 26 2006 - 10:13
 ;********************************************************
 ;;; $Id: $
 
@@ -86,3 +86,34 @@
   :documentation
   "The Arctangent integral, which is defined as @math{AtanInt(x) = \int_0^x dt \arctan(t)/t}."
   :return (sf-result))
+
+;;;;****************************************************************************
+;;;; Examples and unit test
+;;;;****************************************************************************
+
+(lisp-unit:define-test exponential-integrals
+  (lisp-unit:assert-error 'gsl-error (expint-E1 0.0d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.219383934396d+00"
+   (expint-E1 1.0d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.495423435600d+01"
+   (expint-Ei 2.0d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.136373067344d+01"
+   (Shi 1.25d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.121731730091d+01"
+   (Chi 1.25d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.868892654126d+00"
+   (expint-3 1.25d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.114644641567d+01"
+   (si 1.25d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.434300724034d+00"
+   (ci 1.25d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.110361916168d+01"
+   (atanint 1.25d0)))
