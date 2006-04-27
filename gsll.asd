@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Wed Apr 26 2006 - 16:20
+; modified:    Wed Apr 26 2006 - 22:31
 ;********************************************************
 ;;; $Id: $
 
@@ -13,7 +13,7 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "GPL"
-  :depends-on (cffi cffi-unix)		; http://www.cliki.net/cffi-unix
+  :depends-on (cffi cffi-unix)	      ; http://www.cliki.net/cffi-unix
   :components
   ((:module init
 	    :components
@@ -21,7 +21,7 @@
 	     (:file "interface" :depends-on (init))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
-	     (:file "tests")))
+	     (:file "tests" :depends-on (lisp-unit))))
    (:module general
 	    :depends-on (init)
 	    :components
@@ -29,7 +29,7 @@
 	     (:file "mathematical")))
    ;; complex numbers not necessary?  Just make a struct.
    (:file "cffi-array")
-   (:file "polynomial" :depends-on (init cffi-array))	; see file
+   (:file "polynomial" :depends-on (init cffi-array)) ; see file
    (:module data
 	    :depends-on (init)
 	    :components
@@ -39,7 +39,9 @@
 	     (:file "matrix" :depends-on (data))
 	     (:file "permutation" :depends-on (data))
 	     (:file "combination" :depends-on (data))
-	     (:file "blas1")))
+	     (:file "blas1" :depends-on (vector))
+	     (:file "blas2" :depends-on (vector matrix))
+	     (:file "blas3" :depends-on (blas2 matrix))))
    (:module special-functions
 	    :depends-on (init)
 	    :components

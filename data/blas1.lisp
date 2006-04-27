@@ -1,9 +1,9 @@
 ;********************************************************
 ; file:        blas1.lisp                                
-; description: BLAS level 1                              
+; description: BLAS level 1, Vector operations
 ; date:        Wed Apr 26 2006 - 15:23                   
 ; author:      Liam Healy                                
-; modified:    Wed Apr 26 2006 - 17:36
+; modified:    Wed Apr 26 2006 - 21:54
 ;********************************************************
 ;;; $Id: $
 
@@ -52,7 +52,7 @@
    "Apply a Givens rotation (x', y') = (c x + s y, -s x + c y) to the vectors x, y."))
 
 ;;;;****************************************************************************
-;;;; Double vectors
+;;;; Double
 ;;;;****************************************************************************
 
 (defun-gsl dot (((pointer vec1) :pointer) ((pointer vec2) :pointer))
