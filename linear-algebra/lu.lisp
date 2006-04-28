@@ -3,7 +3,7 @@
 ; description: LU decomposition                          
 ; date:        Thu Apr 27 2006 - 12:42                   
 ; author:      Liam Healy                                
-; modified:    Thu Apr 27 2006 - 18:16
+; modified:    Fri Apr 28 2006 - 17:01
 ;********************************************************
 ;;; $Id: $
 
@@ -36,7 +36,7 @@
   "gsl_linalg_LU_solve"
   :documentation "Solve the square system @math{A x = b} using the @math{LU}
   decomposition of @math{A} into (@var{LU}, @var{p}) given by
-  @code{gsl_linalg_LU_decomp} or @code{gsl_linalg_complex_LU_decomp}.")
+  LU-decomp.")
 
 (defun-gsl LU-svx ((LU gsl-matrix-c) (p gsl-permutation-c) (x gsl-vector-c))
   "gsl_linalg_LU_svx"
