@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Thu Apr 27 2006 - 18:21
+; modified:    Fri Apr 28 2006 - 00:07
 ;********************************************************
 ;;; $Id: $
 
@@ -13,7 +13,7 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "GPL"
-  :depends-on (cffi cffi-unix)		; http://www.cliki.net/cffi-unix
+  :depends-on (cffi cffi-unix)	      ; http://www.cliki.net/cffi-unix
   :components
   ((:module init
 	    :components
@@ -64,4 +64,5 @@
 	     (:file "exponential-functions")
 	     (:file "exponential-integrals")
 	     (:file "fermi-dirac")
+	     (:file "gamma")
 	     ))))
