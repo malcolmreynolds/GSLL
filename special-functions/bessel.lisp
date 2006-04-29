@@ -3,7 +3,7 @@
 ; description: Bessel functions                          
 ; date:        Fri Mar 17 2006 - 18:42                   
 ; author:      Liam M. Healy
-; modified:    Wed Apr 19 2006 - 17:06
+; modified:    Fri Apr 28 2006 - 22:16
 ;********************************************************
 
 (in-package :gsl)
@@ -321,19 +321,23 @@
   "The regular cylindrical Bessel function of fractional order @math{\nu}, @math{J_\nu(x)}."
   :return (sf-result))
 
-;;; (double @var{nu}, gsl_mode_t @var{mode}, size_t @var{size}, double @var{v}[])
-;;; The mode argument comes before v, need to make that an option on
-;;; the :mode argument to defun-gsl.  Need to return v as well.
-(defun-gsl bessel-sequence-Jnu ((nu :double) (v (:double * t)))
+(defun-gsl bessel-sequence-Jnu
+    ((nu :double) ((dim0 v) :size) ((gsl-array v) :pointer))
   "gsl_sf_bessel_sequence_Jnu_e"
+  :function (nu v)
   :documentation
   "The regular cylindrical Bessel function of
 fractional order @math{\nu}, @math{J_\nu(x)}, evaluated at a series of
 @math{x} values.  The array @var{v} of length @var{size} contains the
 @math{x} values.  They are assumed to be strictly ordered and positive.
 The array is over-written with the values of @math{J_\nu(x_i)}."
+  :after ((cl-invalidate v))
   :return-input (v)
   :mode 1)
+
+;;; (defparameter vec (make-data 'vector nil 3))
+;;; (setf (data vec) #(1.0d0 2.0d0 3.0d0))
+;;; (bessel-sequence-Jnu 0.5d0 vec)
 
 ;;;;****************************************************************************
 ;;;; Irregular Bessel Function - Fractional Order

@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Fri Apr 21 2006 - 09:26
+; modified:    Fri Apr 28 2006 - 22:31
 ;********************************************************
 
 (in-package :gsl)
@@ -203,46 +203,23 @@ and a scaling exponent e10, such that the value is val*10^e10."
 
 ;;; All arrays and vectors are pass with a gsl-data object that is made
 ;;; outside the function, and pieces are spliced in the function call.
-;;; Both raw arrays and GSL structures are be passed as gsl-data objects,
-;;; but their declarations are be different:
-;;;   Raw array (xyz (:double *))
-;;;   GSL struct: (xyz gsl-vector-c)
-;;; They are expanded in the foreign-funcall argument list differently:
-;;;   Raw array to two arguments (:POINTER (gsl-array xyz) :SIZE (storage-size xyz))
-;;;   GSL struct to one: (:pointer (pointer xyz))
-
-;;; (splice-arguments '((argraw (:double *)) (argstruct gsl-vector-c) (x :double)))
+;;; If a raw array is needed, use the :function argument to defun-gsl,
+;;; then use the appropriate function(s) e.g. gsl-array, dim0
+;;; on that array to map to the GSL arguments.
 (defun splice-arguments (arguments &optional mode)
   "Convert the argument declarations to a list of declarations appropriate
    for foreign-funcall.  If mode is T, a mode argument will be added to the end,
    if it is an integer, it will be put at that position."
-  (let (sizes)				; save the dimension arg if not '*
-    (flet ((splicearg (spec)
-	     ;; No accomodation for matrices (two indices) yet
-	     (if (rst-arrayp spec)
-		 (let* ((value `(first (storage-size ,(rst-symbol spec))))
-			(use-form
-			 (if (eq (rst-dim spec) '*)
-			     value
-			     (progn
-			       (push `(,(rst-dim spec) ,value) sizes)
-			       (rst-dim spec)))))
-		   (if (rst-pointer-last-p spec)
-		       `(:size ,use-form
-			 :pointer (gsl-array ,(rst-symbol spec)))
-		       `(:pointer (gsl-array ,(rst-symbol spec))
-			 :size ,use-form)))
-		 `(,(rst-type spec)
-		   ,(wrap-arg spec)))))
-      (values
-       (mapcan #'splicearg
-	       (if mode
-		   (let ((mode (if (integerp mode) mode (length arguments))))
-		     (append (subseq arguments 0 mode)
-			     '((mode sf-mode))
-			     (subseq arguments mode)))
-		   arguments))
-       sizes))))
+  (flet ((splicearg (spec)
+	   `(,(rst-type spec)
+	     ,(wrap-arg spec))))
+    (mapcan #'splicearg
+	    (if mode
+		(let ((mode (if (integerp mode) mode (length arguments))))
+		  (append (subseq arguments 0 mode)
+			  '((mode sf-mode))
+			  (subseq arguments mode)))
+		arguments))))
 
 ;;;;****************************************************************************
 ;;;; Checking results
@@ -283,8 +260,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;; Warning isn't quite right for lambdas.
 (defmacro defun-gsl
     (cl-name arguments gsl-name
-	     &key documentation return mode (c-return-value :error-code)
-	     return-input check-null-pointers method after)
+     &key documentation return mode (c-return-value :error-code)
+     return-input check-null-pointers function method after)
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -302,9 +279,10 @@ and a scaling exponent e10, such that the value is val*10^e10."
      method           Make output a defmethod with the value as the arglist;
                       'arguments should then include explicit mapping of all arguments
                       to GSL form.
+     function         Arguments for CL function (like :method, but make a function)
      after            Functions to call after the GSL function has been called;
                       result is discarded."
-  (let ((clargs (or method (mapcar #'rst-symbol arguments)))
+  (let ((clargs (or function method (mapcar #'rst-symbol arguments)))
 	(return-symb-type 
 	 (unless (or (eq c-return-value :return) return-input)
 	   (return-symbol-type return))))

@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Fri Apr 28 2006 - 17:24
+; modified:    Fri Apr 28 2006 - 22:35
 ;********************************************************
 ;;; $Id: $
 
@@ -66,4 +66,5 @@
 	     (:file "exponential-integrals")
 	     (:file "fermi-dirac")
 	     (:file "gamma")
+	     (:file "gegenbauer")
 	     ))))

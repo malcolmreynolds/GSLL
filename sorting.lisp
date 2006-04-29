@@ -3,7 +3,7 @@
 ; description: Sorting                                   
 ; date:        Fri Apr 14 2006 - 20:20                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 19 2006 - 17:43
+; modified:    Fri Apr 28 2006 - 22:21
 ;********************************************************
 ;;; $Id: $
 
@@ -74,20 +74,26 @@ place.  The first element of @var{p} gives the index of the least element
 in @var{v}, and the last element of @var{p} gives the index of the
 greatest element in @var{v}.  The vector @var{v} is not changed.")
 
-(defun-gsl sort-vector-smallest ((dest (:double *)) (v gsl-vector-c))
+(defun-gsl sort-vector-smallest
+    (((gsl-array dest) :pointer) ((dim0 dest) :size) (v gsl-vector-c))
   "gsl_sort_vector_smallest"
+  :function (dest v)
   :documentation
   "Find the smallest elements of the vector @var{v} and put them into dest,
    which must be shorter than v."
   :c-return-value :void
+  :after ((cl-invalidate dest))
   :return-input (dest))
 
-(defun-gsl sort-vector-largest ((dest (:double *)) (v gsl-vector-c))
+(defun-gsl sort-vector-largest
+    (((gsl-array dest) :pointer) ((dim0 dest) :size) (v gsl-vector-c))
   "gsl_sort_vector_largest"
+  :function (dest v)
   :documentation
   "Find the largest elements of the vector @var{v} and put them into dest,
    which must be shorter than v."
   :c-return-value :void
+  :after ((cl-invalidate dest))
   :return-input (dest))
 
 ;;;;****************************************************************************

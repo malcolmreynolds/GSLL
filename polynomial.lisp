@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Apr 22 2006 - 15:29
+; modified:    Fri Apr 28 2006 - 22:27
 ;********************************************************
 ;;; $Id: $
 
@@ -21,8 +21,10 @@
 ;;; (setf (data vec) #(1.0d0 2.0d0 3.0d0))
 ;;; (polynomial-eval vec -1.0d0)
 ;;; 2.0d0
-(defun-gsl polynomial-eval ((coefficients (:double *)) (x :double))
+(defun-gsl polynomial-eval
+    (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size) (x :double))
   "gsl_poly_eval"
+  :function (coefficients x)
   :documentation
   "Evaluate the polyonomial with coefficients at the point x."
   :return (:double)
@@ -211,9 +213,11 @@
        ,workspace))))
 
 (defun-gsl polynomial-solve-ws
-    ((coefficients (:double n)) (workspace poly-complex-workspace))
+    (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size)
+     (workspace poly-complex-workspace))
   "gsl_poly_complex_solve"
-  :return ((gsl-complex (1- n))))
+  :function (coefficients workspace)
+  :return ((gsl-complex (1- (dim0 coefficients)))))
 
 #+future
 (export '(polynomial-solve))
