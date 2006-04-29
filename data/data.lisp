@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 26 2006 - 17:37
+; modified:    Fri Apr 28 2006 - 22:08
 ;********************************************************
 ;;; $Id: $
 
@@ -48,6 +48,10 @@
 
 (defgeneric gsl-array (object)
   (:documentation "A pointer to the GSL array with the data contents."))
+
+(defun dim0 (object)
+  "The first dimension of the object."
+  (first (storage-size object)))
 
 ;;; Accessing elements
 (export 'gsl-aref)
