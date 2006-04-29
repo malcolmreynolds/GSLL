@@ -3,7 +3,7 @@
 ; description: Hypergeometric function                   
 ; date:        Fri Apr 28 2006 - 23:00                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 28 2006 - 23:52
+; modified:    Sat Apr 29 2006 - 17:58
 ;********************************************************
 ;;; $Id: $
 
@@ -62,10 +62,10 @@
   approximation converges too slowly.  This occurs in the region of
   @math{x=1}, @math{c - a - b = m} for integer m.")
 
-(defun-gsl hypergeometric-2F1
+(defun-gsl hypergeometric-2F1-conj
     (((realpart a) :double) ((imagpart a) :double) (c :double) (x :double))
   "gsl_sf_hyperg_2F1_conj_e"
-  :function (a b c x)
+  :function (a c x)
   :return (sf-result)
   :documentation "The Gauss hypergeometric function
   @math{2F1(a, a*, c, x)} with complex parameters 

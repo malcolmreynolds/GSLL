@@ -3,7 +3,7 @@
 ; description: QR decomposition                          
 ; date:        Fri Apr 28 2006 - 16:53                   
 ; author:      Liam Healy                                
-; modified:    Fri Apr 28 2006 - 21:03
+; modified:    Sat Apr 29 2006 - 18:00
 ;********************************************************
 ;;; $Id: $
 
@@ -39,7 +39,7 @@
 
    The algorithm used to perform the decomposition is Householder QR (Golub
    & Van Loan, @cite{Matrix Computations}, Algorithm 5.2.1)."
-  :after ((cl-invalidate A))
+  :invalidate (A)
   :return-input (A tau))
 
 (defun-gsl QR-solve
@@ -49,7 +49,7 @@
    decomposition of @math{A} into (@var{QR}, @var{tau}) given by
    QR-decomp. The least-squares solution for rectangular systems can
    be found using QR-lssolve."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))
 
 (defun-gsl QR-svx ((QR gsl-matrix-c) (tau gsl-vector-c) (x gsl-vector-c))
@@ -58,7 +58,7 @@
   @math{QR} decomposition of @math{A} into (@var{QR},@var{tau}) given by
   QR-decomp.  On input @var{x} should contain the
   right-hand side @math{b}, which is replaced by the solution on output."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))
 
 (defun-gsl QR-lssolve
@@ -72,7 +72,7 @@
    of @math{A} into (@var{QR}, @var{tau}) given by
    @code{gsl_linalg_QR_decomp}.  The solution is returned in @var{x}.  The
    residual is computed as a by-product and stored in @var{residual}."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))
 
 (defun-gsl QR-QTvec ((QR gsl-matrix-c) (tau gsl-vector-c) (v gsl-vector-c))
@@ -82,7 +82,7 @@
   v} in @var{v}.  The matrix multiplication is carried out directly using
   the encoding of the Householder vectors without needing to form the full
   matrix @math{Q^T}."
-  :after ((cl-invalidate v))
+  :invalidate (v)
   :return-input (v))
 
 (defun-gsl QR-Qvec ((QR gsl-matrix-c) (tau gsl-vector-c) (v gsl-vector-c))
@@ -92,7 +92,7 @@
    v} in @var{v}.  The matrix multiplication is carried out directly using
    the encoding of the Householder vectors without needing to form the full
    matrix @math{Q}."
-  :after ((cl-invalidate v))
+  :invalidate (v)
   :return-input (v))
 
 (defun-gsl QR-Rsolve ((QR gsl-matrix-c) (b gsl-vector-c) (x gsl-vector-c))
@@ -100,7 +100,7 @@
   :documentation "Solve the triangular system @math{R x = b} for
    @var{x}. It may be useful if the product @math{b' = Q^T b} has already
    been computed using QR-QTvec}."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))
 
 (defun-gsl QR-Rsvx ((QR gsl-matrix-c) (x gsl-vector-c))
@@ -110,7 +110,7 @@
   and is replaced by the solution on output. This function may be useful if
   the product @math{b' = Q^T b} has already been computed using
   QR-QTvec}."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))
 
 (defun-gsl QR-unpack
@@ -119,7 +119,7 @@
   :documentation "Unpack the encoded @math{QR} decomposition
   (@var{QR},@var{tau}) into the matrices @var{Q} and @var{R}, where
   @var{Q} is @math{M}-by-@math{M} and @var{R} is @math{M}-by-@math{N}."
-  :after ((cl-invalidate Q R))
+  :invalidate (Q R)
   :return-input (Q R))
 
 (defun-gsl QR-QRsolve
@@ -128,7 +128,7 @@
   :documentation "Solves the system @math{R x = Q^T b} for @var{x}. It can
   be used when the @math{QR} decomposition of a matrix is available in
   unpacked form as (@var{Q}, @var{R})."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))
 
 (defun-gsl QR-update
@@ -139,14 +139,14 @@
   R + w v^T} where the output matrices @math{Q'} and @math{R'} are also
   orthogonal and right triangular. Note that @var{w} is destroyed by the
   update."
-  :after ((cl-invalidate w Q R))
+  :invalidate (w Q R)
   :return-input (Q R))
 
 (defun-gsl R-solve ((R gsl-matrix-c) (b gsl-vector-c) (x gsl-vector-c))
   "gsl_linalg_R_solve"
   :documentation "Solves the triangular system @math{R x = b} for the
    @math{N}-by-@math{N} matrix @var{R}."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))
 
 (defun-gsl R-svx ((R gsl-matrix-c) (x gsl-vector-c))
@@ -154,5 +154,5 @@
   :documentation "Solve the triangular system @math{R x = b} in-place. On
   input @var{x} should contain the right-hand side @math{b}, which is
   replaced by the solution on output."
-  :after ((cl-invalidate x))
+  :invalidate (x)
   :return-input (x))

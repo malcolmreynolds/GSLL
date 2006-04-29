@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Fri Apr 28 2006 - 22:31
+; modified:    Sat Apr 29 2006 - 10:06
 ;********************************************************
 
 (in-package :gsl)
@@ -201,7 +201,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
        (rest wrappers))
       form))
 
-;;; All arrays and vectors are pass with a gsl-data object that is made
+;;; All arrays and vectors are passed with a gsl-data object that is made
 ;;; outside the function, and pieces are spliced in the function call.
 ;;; If a raw array is needed, use the :function argument to defun-gsl,
 ;;; then use the appropriate function(s) e.g. gsl-array, dim0
@@ -261,7 +261,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defmacro defun-gsl
     (cl-name arguments gsl-name
      &key documentation return mode (c-return-value :error-code)
-     return-input check-null-pointers function method after)
+     return-input check-null-pointers function method invalidate after)
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -269,17 +269,20 @@ and a scaling exponent e10, such that the value is val*10^e10."
      documentation:   a string
      return:          a list of return types
      return-input:    input variables to return
-     mode:            T or NIL, depending on whether gsl_mode is an argument
+     mode:            T, NIL or position, depending on whether
+                      gsl_mode is an argument
      c-return-value:  The C function returns an :error-code, :number-of-answers,
-                      a value to :return from the CL function, :success-failure 
-                      as T or NIL, or :void.
+                      a value to :return from the CL function, a
+                      :success-failure code to be returned from CL as T or NIL,
+                      or :void.
      check-null-pointers:
                       a list of return variables that should be checked,
                       if a null pointer, signal an error.
      method           Make output a defmethod with the value as the arglist;
                       'arguments should then include explicit mapping of all arguments
                       to GSL form.
-     function         Arguments for CL function (like :method, but make a function)
+     function         Arguments for CL function (like :method, but make a function).
+     invalidate       CL copies of data to invalidate before return.
      after            Functions to call after the GSL function has been called;
                       result is discarded."
   (let ((clargs (or function method (mapcar #'rst-symbol arguments)))
@@ -313,6 +316,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 			 `((check-gsl-status creturn `(,',cl-name))) ; need args
 			 `((check-gsl-status creturn `(,',cl-name ,,@clargs))))))
 	    ,@(check-null-pointers check-null-pointers)
+	    ,@(when invalidate `((cl-invalidate ,@invalidate)))
 	    ,@after
 	    (values
 	     ,@return-input

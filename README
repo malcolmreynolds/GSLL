@@ -44,4 +44,4 @@ I have implemented only one, double.
 This means that the following functions have been put aside:
 - #'polynomial-solve (requires vector_complex)
 - The index functions in sorting that are not returning permutations,
-because the need a vector_int.
+because they need a vector_int.
