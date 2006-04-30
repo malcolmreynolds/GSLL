@@ -3,7 +3,7 @@
 ; description: Hypergeometric function                   
 ; date:        Fri Apr 28 2006 - 23:00                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Apr 29 2006 - 17:58
+; modified:    Sat Apr 29 2006 - 18:35
 ;********************************************************
 ;;; $Id: $
 
@@ -114,7 +114,7 @@
    (hypergeometric-U 2.0d0 1.0d0 1.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.662959493455d+01"
-   (hypergeometric-2F1 #c(1.0d0 0.5d0) 1.0d0 0.5d0 0.6d0))
+   (hypergeometric-2F1-conj #c(1.0d0 0.5d0) 0.5d0 0.6d0))
   (lisp-unit:assert-first-fp-equal
    "0.435139241256d-01"
    (hypergeometric-2F0 1.0d0 2.0d0 -20.0d0)))

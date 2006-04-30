@@ -3,7 +3,7 @@
 ; description: Exponential functions                     
 ; date:        Tue Mar 21 2006 - 17:05                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sat Apr 29 2006 - 19:07
 ;********************************************************
 ;;; $Id: $
 
@@ -60,7 +60,7 @@ of @math{\exp(x)} would overflow the  numeric range of @code{double}."
   "@math{2(\exp(x)-1-x)/x^2} using an algorithm that is accurate for small @math{x}.  For small @math{x} the algorithm is based on the expansion @math{2(\exp(x)-1-x)/x^2 = 1 + x/3 + x^2/(3*4) + x^3/(3*4*5) + \dots}."
   :return (sf-result))
 
-(defun-gsl exprel-n ((x :double))
+(defun-gsl exprel-n ((n :int) (x :double))
   "gsl_sf_exprel_n_e"
   :documentation
   "@math{N}-relative exponential, which is the @var{n}-th generalization of the functions @code{gsl_sf_exprel} and @code{gsl_sf_exprel2}."
@@ -93,3 +93,18 @@ of @math{\exp(x)} would overflow the  numeric range of @code{double}."
   :documentation
   "The product @math{y \exp(x)} for the quantities @var{x}, @var{y} with associated absolute errors @var{dx}, @var{dy} and with extended numeric range."
   :return (sf-result-e10))
+
+;;;;****************************************************************************
+;;;; Examples and unit test
+;;;;****************************************************************************
+
+(lisp-unit:define-test exponential-functions
+  (lisp-unit:assert-first-fp-equal
+   "0.200855369232d+02"
+   (gsl-exp 3.0d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.100005000167d-03"
+   (expm1 0.0001d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.100005000167d+01"
+   (exprel 0.0001d0)))

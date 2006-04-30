@@ -3,7 +3,7 @@
 ; description: Test functions.                           
 ; date:        Sat Apr 22 2006 - 16:52                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Apr 22 2006 - 17:31
+; modified:    Sun Apr 30 2006 - 11:53
 ;********************************************************
 ;;; $Id: $
 
@@ -26,3 +26,10 @@
   (lisp-unit::expand-assert
    :equal form `(fp-string (nth-value 0 ,form)) expected extras
    :test #'string-equal))
+
+;;; (make-fp-test '(legendre-conicalP-half 3.5d0 10.0d0))
+(defun gsl::make-fp-test (form)
+  "Make a test."
+  `(lisp-unit:assert-first-fp-equal
+    ,(lisp-unit::fp-string (eval form))
+    ,form))

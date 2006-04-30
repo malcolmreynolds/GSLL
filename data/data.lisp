@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 28 2006 - 22:08
+; modified:    Sun Apr 30 2006 - 11:55
 ;********************************************************
 ;;; $Id: $
 
@@ -52,6 +52,10 @@
 (defun dim0 (object)
   "The first dimension of the object."
   (first (storage-size object)))
+
+(defun dim1 (object)
+  "The second dimension of the object."
+  (second (storage-size object)))
 
 ;;; Accessing elements
 (export 'gsl-aref)

@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Fri Apr 28 2006 - 23:58
+; modified:    Sun Apr 30 2006 - 10:25
 ;********************************************************
 ;;; $Id: $
 
@@ -68,4 +68,7 @@
 	     (:file "gamma")
 	     (:file "gegenbauer")
 	     (:file "hypergeometric")
+	     (:file "laguerre")
+	     (:file "lambert")
+	     (:file "legendre")
 	     ))))
