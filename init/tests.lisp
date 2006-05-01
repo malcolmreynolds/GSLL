@@ -3,7 +3,7 @@
 ; description: Test functions.                           
 ; date:        Sat Apr 22 2006 - 16:52                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr 30 2006 - 11:53
+; modified:    Sun Apr 30 2006 - 21:52
 ;********************************************************
 ;;; $Id: $
 
@@ -21,7 +21,8 @@
     (fp string &optional (decimal-digits *test-fp-decimal-digits*))
   (string-equal (fp-string fp decimal-digits) string))
 
-(export 'assert-first-fp-equal)
+(eval-when (:compile-toplevel :load-toplevel)
+(export 'assert-first-fp-equal))
 (defmacro assert-first-fp-equal (expected form &rest extras)
   (lisp-unit::expand-assert
    :equal form `(fp-string (nth-value 0 ,form)) expected extras
@@ -30,6 +31,6 @@
 ;;; (make-fp-test '(legendre-conicalP-half 3.5d0 10.0d0))
 (defun gsl::make-fp-test (form)
   "Make a test."
-  `(lisp-unit:assert-first-fp-equal
+  `(lisp-unit::assert-first-fp-equal
     ,(lisp-unit::fp-string (eval form))
     ,form))

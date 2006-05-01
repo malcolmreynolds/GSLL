@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat Apr 29 2006 - 10:06
+; modified:    Sun Apr 30 2006 - 22:35
 ;********************************************************
 
 (in-package :gsl)
@@ -175,6 +175,16 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'err)))
 	(t `((,(cl-convert-function (rst-type decl)) ,(rst-symbol decl)))))))
 
+(defun rearrange-sf-result-err (return-list)
+  "Put the 'err values from the sf-results at the end of the return values."
+  (flet ((sf-err (x)
+	   (and (eq (first x) 'cffi:foreign-slot-value)
+		(member (third x) '('sf-result 'sf-result-e10) :test #'equal)
+		(equal (fourth x) ''err))))
+    (append
+     (remove-if #'sf-err return-list)
+     (remove-if-not #'sf-err return-list))))
+
 ;;;;****************************************************************************
 ;;;; Wrapping of input arguments
 ;;;;****************************************************************************
@@ -331,7 +341,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
 		      '((success-failure creturn)))
 		     (:return (list (wrap-arg `(creturn ,@return))))
 		     (t
-		      (mapcan #'pick-result return-symb-type)))))
+		      (rearrange-sf-result-err
+		       (mapcan #'pick-result return-symb-type))))))
 	  (list
 	   (when return-symb-type
 	     `(cffi:with-foreign-objects

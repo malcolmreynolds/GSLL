@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Apr 30 2006 - 10:25
+; modified:    Sun Apr 30 2006 - 22:48
 ;********************************************************
 ;;; $Id: $
 
@@ -71,4 +71,6 @@
 	     (:file "laguerre")
 	     (:file "lambert")
 	     (:file "legendre")
+	     (:file "logarithm")
+	     (:file "power")
 	     ))))
