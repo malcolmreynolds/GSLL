@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Apr 30 2006 - 22:35
+; modified:    Mon May  1 2006 - 22:55
 ;********************************************************
 
 (in-package :gsl)
@@ -322,7 +322,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	    ,@(case c-return-value
 		    (:void '((declare (ignore creturn))))
 		    (:error-code
-		     (if method
+		     (if (or function method)
 			 `((check-gsl-status creturn `(,',cl-name))) ; need args
 			 `((check-gsl-status creturn `(,',cl-name ,,@clargs))))))
 	    ,@(check-null-pointers check-null-pointers)

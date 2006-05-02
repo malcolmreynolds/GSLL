@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon May  1 2006 - 15:29
+; modified:    Mon May  1 2006 - 22:33
 ;********************************************************
 ;;; $Id: $
 
@@ -56,6 +56,8 @@
 	     (:file "legendre")
 	     (:file "logarithm")
 	     (:file "power")
+	     (:file "psi")
+	     (:file "synchrotron")
 	     ))
    (:module data
 	    :depends-on (init)
