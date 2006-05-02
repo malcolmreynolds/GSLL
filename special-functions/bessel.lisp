@@ -3,7 +3,7 @@
 ; description: Bessel functions                          
 ; date:        Fri Mar 17 2006 - 18:42                   
 ; author:      Liam M. Healy
-; modified:    Mon May  1 2006 - 23:46
+; modified:    Tue May  2 2006 - 12:10
 ;********************************************************
 
 (in-package :gsl)
@@ -44,7 +44,7 @@
   :return-input (array))
 
 ;;; (defparameter besarr (make-data 'vector nil 4))
-;;; (cylindrical-bessel-Jn-array 2.0d0 2 besarr)
+;;; (cylindrical-bessel-Jn-array 2.0d0 besarr 2)
 ;;; #<GSL-VECTOR #(0.35283402861563773d0 0.12894324947440206d0
 ;;;               0.033995719807568436d0 0.007039629755871685d0) {C7D6B51}>
 
@@ -108,7 +108,10 @@
 (defun-gsl cylindrical-bessel-In-array ((nmin :int) (nmax :int) (x :double))
   "gsl_sf_bessel_In_array"
   :documentation
-  "The values of the regular modified cylindrical Bessel functions @math{I_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
+   "The values of the regular modified cylindrical Bessel functions
+   @math{I_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.
+   The values are computed using recurrence relations for efficiency, and
+   therefore may differ slightly from the exact values."
   :return ((:double (1+ (- nmax nmin)))))
 
 (defun-gsl cylindrical-bessel-I0-scaled ((x :double))
@@ -133,7 +136,10 @@
   "gsl_sf_bessel_In_scaled_array"
   :documentation
   ;; Bug in original documentation?  doesn't say "modified"
-  "The values of the scaled regular modified cylindrical Bessel functions @math{I_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
+  "The values of the scaled regular modified cylindrical Bessel
+  functions @math{I_n(x)} for @math{n} from @var{nmin} to @var{nmax}
+  inclusive.  The values are computed using recurrence relations for
+  efficiency, and therefore may differ slightly from the exact values."
   :return ((:double (1+ (- nmax nmin)))))
 
 ;;;;****************************************************************************
@@ -161,8 +167,11 @@
 (defun-gsl cylindrical-bessel-Kn-array ((nmin :int) (nmax :int) (x :double))
   "gsl_sf_bessel_Kn_array"
   :documentation
-  "The values of the irregular modified cylindrical Bessel functions @math{K_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.  The values are computed using recurrence relations for efficiency, and therefore may differ slightly from the exact values."
-  :return ((:double (1+ (- nmax nmin)))))
+   "The values of the irregular modified cylindrical Bessel functions
+   @math{K_n(x)} for @math{n} from @var{nmin} to @var{nmax} inclusive.
+   The values are computed using recurrence relations for efficiency, and
+   therefore may differ slightly from the exact values."  :return
+((:double (1+ (- nmax nmin)))))
 
 (defun-gsl cylindrical-bessel-K0-scaled ((x :double))
   "gsl_sf_bessel_K0_scaled_e"

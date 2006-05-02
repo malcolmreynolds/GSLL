@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon May  1 2006 - 22:33
+; modified:    Tue May  2 2006 - 16:03
 ;********************************************************
 ;;; $Id: $
 
@@ -76,4 +76,5 @@
 	    :components
 	    ((:file "lu")
 	     (:file "qr")
-	     (:file "qrpt")))))
+	     (:file "qrpt")
+	     (:file "svd")))))
