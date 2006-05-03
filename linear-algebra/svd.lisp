@@ -3,7 +3,7 @@
 ; description: Singular Value Decomposition              
 ; date:        Tue May  2 2006 - 12:15                   
 ; author:      Liam Healy                                
-; modified:    Tue May  2 2006 - 16:02
+; modified:    Wed May  3 2006 - 16:43
 ;********************************************************
 ;;; $Id: $
 
@@ -82,7 +82,7 @@
   :invalidate (A)
   :return-input (A))
 
-(defun-gsl SV-decomp
+(defun-gsl SV-solve
     ((U gsl-matrix-c) (V gsl-matrix-c) (S gsl-vector-c) (b gsl-vector-c) (x gsl-vector-c))
   "gsl_linalg_SV_solve"
   :documentation "Solve the system @math{A x = b} using the singular value
