@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Thu May  4 2006 - 17:44
+; modified:    Thu May  4 2006 - 23:43
 ;********************************************************
 ;;; $Id: $
 
@@ -58,6 +58,8 @@
 	     (:file "power")
 	     (:file "psi")
 	     (:file "synchrotron")
+	     (:file "transport")
+	     (:file "trigonometry")
 	     ))
    (:module data
 	    :depends-on (init)
