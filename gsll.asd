@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Thu May  4 2006 - 23:43
+; modified:    Thu May 11 2006 - 18:05
 ;********************************************************
 ;;; $Id: $
 
@@ -69,16 +69,18 @@
 	     (:file "vector" :depends-on (data))
 	     (:file "matrix" :depends-on (data))
 	     (:file "permutation" :depends-on (data))
-	     (:file "combination" :depends-on (data))
-	     (:file "blas1" :depends-on (vector))
-	     (:file "blas2" :depends-on (vector matrix))
-	     (:file "blas3" :depends-on (blas2 matrix))))
+	     (:file "combination" :depends-on (data))))
+   (:file "sorting" :depends-on (init))
    (:module linear-algebra
 	    :depends-on (init data)
 	    :components
-	    ((:file "lu")
+	    ((:file "blas1")
+	     (:file "blas2")
+	     (:file "blas3" :depends-on (blas2))
+	     (:file "lu")
 	     (:file "qr")
 	     (:file "qrpt")
 	     (:file "svd")
 	     (:file "cholesky")
-	     (:file "diagonal")))))
+	     (:file "diagonal")
+	     (:file "householder")))))

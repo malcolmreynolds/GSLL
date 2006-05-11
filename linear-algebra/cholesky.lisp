@@ -3,7 +3,7 @@
 ; description: Cholesky Decomposition
 ; date:        Wed May  3 2006 - 16:38                   
 ; author:      Liam Healy                                
-; modified:    Wed May  3 2006 - 16:48
+; modified:    Wed May 10 2006 - 10:05
 ;********************************************************
 ;;; $Id: $
 
@@ -12,20 +12,7 @@
 ;;; A symmetric, positive definite square matrix @math{A} has a Cholesky
 ;;; decomposition into a product of a lower triangular matrix @math{L} and
 ;;; its transpose @math{L^T},
-;;; @tex
-;;; \beforedisplay
-;;; $$
 ;;; A = L L^T
-;;; $$
-;;; \afterdisplay
-;;; @end tex
-;;; @ifinfo
-
-;;; @example
-;;; A = L L^T
-;;; @end example
-;;; @end ifinfo
-;;; @noindent
 ;;; This is sometimes referred to as taking the square-root of a matrix. The
 ;;; Cholesky decomposition can only be carried out when all the eigenvalues
 ;;; of the matrix are positive.  This decomposition can be used to convert
