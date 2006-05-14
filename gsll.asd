@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Thu May 11 2006 - 18:05
+; modified:    Sun May 14 2006 - 00:04
 ;********************************************************
 ;;; $Id: $
 
@@ -60,7 +60,7 @@
 	     (:file "synchrotron")
 	     (:file "transport")
 	     (:file "trigonometry")
-	     ))
+	     (:file "zeta")))
    (:module data
 	    :depends-on (init)
 	    :components
@@ -70,7 +70,7 @@
 	     (:file "matrix" :depends-on (data))
 	     (:file "permutation" :depends-on (data))
 	     (:file "combination" :depends-on (data))))
-   (:file "sorting" :depends-on (init))
+   (:file "sorting" :depends-on (init data))
    (:module linear-algebra
 	    :depends-on (init data)
 	    :components
