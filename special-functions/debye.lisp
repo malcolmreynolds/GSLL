@@ -3,7 +3,7 @@
 ; description: Deybe functions                           
 ; date:        Sun Mar 19 2006 - 14:34                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun May 21 2006 - 14:59
 ;********************************************************
 ;;; $Id: $
 
@@ -52,3 +52,9 @@ Stegun, Section 27.1.
   :documentation
   "The fourth-order Debye function @math{D_4(x) = (4/x^4) \int_0^x dt (t^4/(e^t - 1))}."
   :return (sf-result))
+
+(lisp-unit:define-test debye
+  (lisp-unit:assert-first-fp-equal "0.777504634112d+00" (debye-1 1.0d0))
+  (lisp-unit:assert-first-fp-equal "0.707878475628d+00" (debye-2 1.0d0))
+  (lisp-unit:assert-first-fp-equal "0.674415564078d+00" (debye-3 1.0d0))
+  (lisp-unit:assert-first-fp-equal "0.654874068887d+00" (debye-4 1.0d0)))

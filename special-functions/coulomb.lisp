@@ -3,7 +3,7 @@
 ; description: Coulumb functions                         
 ; date:        Sat Mar 18 2006 - 23:23                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun May 21 2006 - 14:50
 ;********************************************************
 ;;; $Id:$
 
@@ -115,3 +115,17 @@ functions in the limit @math{\eta \to 0}."
   :documentation
   "The Coulomb wave function normalization constant @math{C_L(\eta)} for @math{L = Lmin \dots Lmin + kmax}, @math{Lmin > -1}."
   :return ((:double (1+ kmax))))
+
+;;;;****************************************************************************
+;;;; Examples and unit test
+;;;;****************************************************************************
+
+(lisp-unit:define-test coulomb
+  (lisp-unit:assert-first-fp-equal "0.164169997248d+00"
+				   (hydrogenicr-1 1.0d0 2.5d0))
+  (lisp-unit:assert-first-fp-equal "0.766646808415d-01"
+				   (hydrogenicr 3 1 1.0d0 2.5d0))
+  (lisp-unit:assert-first-fp-equal "0.716177996747d-01"
+				   (coulomb-wave-fg 1.0d0 2.0d0 2.5d0 1))
+  (lisp-unit:assert-first-fp-equal "0.138091464419d-02"
+				   (coulomb-cl 1.0d0 2.5d0)))

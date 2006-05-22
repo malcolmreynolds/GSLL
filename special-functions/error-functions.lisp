@@ -3,7 +3,7 @@
 ; description: Error functions                           
 ; date:        Mon Mar 20 2006 - 22:31                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun May 21 2006 - 19:08
 ;********************************************************
 ;;; $Id: $
 
@@ -54,3 +54,11 @@ function
   :documentation
   "The hazard function for the normal distribution."
   :return (sf-result))
+
+(lisp-unit:define-test error-functions
+  (LISP-UNIT:ASSERT-FIRST-FP-EQUAL "0.842700792950d+00" (ERF 1.0d0))
+  (LISP-UNIT:ASSERT-FIRST-FP-EQUAL "0.157299207050d+00" (ERFC 1.0d0))
+  (LISP-UNIT:ASSERT-FIRST-FP-EQUAL "-0.184960550993d+01" (LOG-ERFC 1.0d0))
+  (LISP-UNIT:ASSERT-FIRST-FP-EQUAL "0.241970724519d+00" (ERF-Z 1.0d0))
+  (LISP-UNIT:ASSERT-FIRST-FP-EQUAL "0.158655253931d+00" (ERF-Q 1.0d0))
+  (LISP-UNIT:ASSERT-FIRST-FP-EQUAL "0.152513527616d+01" (HAZARD 1.0d0)))

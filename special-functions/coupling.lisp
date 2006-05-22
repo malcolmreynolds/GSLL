@@ -3,7 +3,7 @@
 ; description: Coupling coefficients                     
 ; date:        Sun Mar 19 2006 - 13:30                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun May 21 2006 - 14:53
 ;********************************************************
 ;;; $Id: $
 
@@ -24,16 +24,10 @@ section are declared in the header file @file{gsl_sf_coupling.h}.
   "gsl_sf_coupling_3j_e"
   :documentation
   "The Wigner 3-j coefficient, 
-@tex
-\beforedisplay
-$$
-\pmatrix{ja & jb & jc\cr
+  \pmatrix{ja & jb & jc\cr
          ma & mb & mc\cr}
-$$
-\afterdisplay
-@end tex
-where the arguments are given in half-integer units, @math{ja} =
-@var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
+  where the arguments are given in half-integer units, @math{ja} =
+  @var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
   :return (sf-result))
 
 (defun-gsl coupling-6j ((two-ja :int) (two-jb :int) (two-jc :int)
@@ -41,16 +35,10 @@ where the arguments are given in half-integer units, @math{ja} =
   "gsl_sf_coupling_6j_e"
   :documentation
   "The Wigner 6-j coefficient, 
-@tex
-\beforedisplay
-$$
-\left\{\matrix{ja & jb & jc\cr
+  \left\{\matrix{ja & jb & jc\cr
                jd & je & jf\cr}\right\}
-$$
-\afterdisplay
-@end tex
-where the arguments are given in half-integer units, @math{ja} =
-@var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
+  where the arguments are given in half-integer units, @math{ja} =
+  @var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
   :return (sf-result))
 
 (defun-gsl coupling-9j ((two-ja :int) (two-jb :int) (two-jc :int)
@@ -58,18 +46,10 @@ where the arguments are given in half-integer units, @math{ja} =
 		       (two-jg :int) (two-jh :int) (two-ji :int)) 
   "gsl_sf_coupling_9j_e"
   :documentation
-"The Wigner 9-j coefficient, 
-@tex
-\beforedisplay
-$$
-\left\{\matrix{ja & jb & jc\cr
+  "The Wigner 9-j coefficient, 
+  \left\{\matrix{ja & jb & jc\cr
                jd & je & jf\cr
                jg & jh & ji\cr}\right\}
-$$
-\afterdisplay
-@end tex
-where the arguments are given in half-integer units, @math{ja} =
-@var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
+  where the arguments are given in half-integer units, @math{ja} =
+  @var{two_ja}/2, @math{ma} = @var{two_ma}/2, etc."
   :return (sf-result))
-
-

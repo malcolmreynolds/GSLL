@@ -3,7 +3,7 @@
 ; description: Dawson function                           
 ; date:        Sun Mar 19 2006 - 14:31                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun May 21 2006 - 14:58
 ;********************************************************
 ;;; $Id: $
 
@@ -21,3 +21,6 @@ Stegun, Table 7.5.  The Dawson functions are declared in the header file
   :documentation
   "Dawson's integral for @var{x}."
   :return (sf-result))
+
+(lisp-unit:define-test dawson
+  (lisp-unit:assert-first-fp-equal "0.538079506913d+00" (dawson 1.0d0)))

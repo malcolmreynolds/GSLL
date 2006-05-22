@@ -3,7 +3,7 @@
 ; description: Elliptic integrals                        
 ; date:        Mon Mar 20 2006 - 21:50                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun May 21 2006 - 19:06
 ;********************************************************
 ;;; $Id: $
 
@@ -55,16 +55,10 @@
 (defun-gsl elliptic-integral-D ((phi :double) (k :double) (n :double))
   "gsl_sf_ellint_D_e"
   :documentation
-  "The incomplete elliptic integral
-@math{D(\phi,k,n)} which is defined through the Carlson form @math{RD(x,y,z)}
-by the following relation, 
-@tex
-\beforedisplay
-$$
-D(\phi,k,n) = RD (1-\sin^2(\phi), 1-k^2 \sin^2(\phi), 1).
-$$
-\afterdisplay
-@end tex"
+  "The incomplete elliptic integral @math{D(\phi,k,n)} which is
+   defined through the Carlson form @math{RD(x,y,z)}
+   by the following relation, 
+   D(\phi,k,n) = RD (1-\sin^2(\phi), 1-k^2 \sin^2(\phi), 1)."
   :mode t
   :return (sf-result))
 
@@ -99,3 +93,29 @@ $$
   "The incomplete elliptic integral @math{RJ(x,y,z,p)}."
   :mode t
   :return (sf-result))
+
+;;;;****************************************************************************
+;;;; Examples and unit test
+;;;;****************************************************************************
+
+(lisp-unit:define-test elliptic-integrals
+  (lisp-unit:assert-first-fp-equal "0.157079632679d+01"
+				   (elliptic-integral-K-complete 0.0d0))
+  (lisp-unit:assert-first-fp-equal "0.157079632679d+01"
+				   (elliptic-integral-E-complete 0.0d0))
+  (lisp-unit:assert-first-fp-equal "-0.677417538204d+00"
+				   (elliptic-integral-F -0.5d0 2.0d0))
+  (lisp-unit:assert-first-fp-equal "-0.401819480553d+00"
+				   (elliptic-integral-E -0.5d0 2.0d0))
+  (lisp-unit:assert-first-fp-equal "-0.617791316339d+00"
+				   (elliptic-integral-P -0.5d0 2.0d0 1.0d0))
+  (lisp-unit:assert-first-fp-equal "-0.688995144126d-01"
+				   (elliptic-integral-D -0.5d0 2.0d0 1.0d0))
+  (lisp-unit:assert-first-fp-equal "0.881373587020d+00"
+				   (elliptic-integral-RC 2.0d0 1.0d0))
+  (lisp-unit:assert-first-fp-equal "0.799259963030d+00"
+				   (elliptic-integral-RD 2.0d0 1.0d0 1.0d0))
+  (lisp-unit:assert-first-fp-equal "0.881373587020d+00"
+				   (elliptic-integral-RF 2.0d0 1.0d0 1.0d0))
+  (lisp-unit:assert-first-fp-equal "0.522800417499d+00"
+				   (elliptic-integral-RJ 2.0d0 1.0d0 1.0d0 2.0d0)))

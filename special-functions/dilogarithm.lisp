@@ -3,7 +3,7 @@
 ; description: Dilogarithm                               
 ; date:        Fri Mar 17 2006 - 18:44                   
 ; author:      Liam M. Healy
-; modified:    Sat Mar 25 2006 - 22:11
+; modified:    Sun May 21 2006 - 15:00
 ;********************************************************
 
 (in-package :gsl)
@@ -31,3 +31,6 @@
        (values 
 	(complex re im)
 	(complex re-err im-err))))))
+
+(lisp-unit:define-test dilogarithm
+  (lisp-unit:assert-first-fp-equal "0.164493406685d+01" (dilogarithm 1.0d0)))
