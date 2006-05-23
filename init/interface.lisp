@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Mon May  1 2006 - 22:55
+; modified:    Mon May 22 2006 - 23:59
 ;********************************************************
 
 (in-package :gsl)
@@ -80,6 +80,9 @@ and a scaling exponent e10, such that the value is val*10^e10."
   "An alist mapping the CL and GSL names of the special functions.
    This will only be populated when macros are expanded.")
 
+(defun map-name (cl-name gsl-name)
+  (setf *sf-name-mapping* (acons cl-name gsl-name *sf-name-mapping*)))
+
 (defun gsl-lookup (string)
   "Find the CL function name given the GSL C special function function name.
    If cl-ppcre (http://www.weitz.de/cl-ppcre/) is installed, the string
@@ -95,13 +98,13 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defmacro defunx-map (cl-name gsl-name &rest args)
   "defun, export, and name-map."
   `(progn
-    (setf *sf-name-mapping* (acons ',cl-name ',gsl-name *sf-name-mapping*))
+    (map-name ',cl-name ',gsl-name)
     (defunx ,cl-name ,@args)))
 
 (defmacro defmethod-map (cl-name gsl-name &rest args)
   "defmethod and name-map."
   `(progn
-    (setf *sf-name-mapping* (acons ',cl-name ',gsl-name *sf-name-mapping*))
+    (map-name ',cl-name ',gsl-name)
     (defmethod ,cl-name ,@args)))
 
 ;;;;****************************************************************************
