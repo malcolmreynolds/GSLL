@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Mon May 22 2006 - 23:59
+; modified:    Wed May 24 2006 - 23:35
 ;********************************************************
 
 (in-package :gsl)
@@ -274,7 +274,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defmacro defun-gsl
     (cl-name arguments gsl-name
      &key documentation return mode (c-return-value :error-code)
-     return-input check-null-pointers function method invalidate after)
+     return-input check-null-pointers function method invalidate after
+     (multiple-returns (lambda (&rest args) `(values ,@args))))
   "Define a CL function that provides an interface to a GSL function.
    If cl-name is :lambda, make a lambda.  Arguments:
      arguments:       a list of input arguments (symbol type) to the GSL function
@@ -297,7 +298,8 @@ and a scaling exponent e10, such that the value is val*10^e10."
      function         Arguments for CL function (like :method, but make a function).
      invalidate       CL copies of data to invalidate before return.
      after            Functions to call after the GSL function has been called;
-                      result is discarded."
+                      result is discarded.
+     multiple-returns      Function that wraps a form around return arguments."
   (let ((clargs (or function method (mapcar #'rst-symbol arguments)))
 	(return-symb-type 
 	 (unless (or (eq c-return-value :return) return-input)
@@ -331,21 +333,21 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	    ,@(check-null-pointers check-null-pointers)
 	    ,@(when invalidate `((cl-invalidate ,@invalidate)))
 	    ,@after
-	    (values
-	     ,@return-input
-	     ,@(case c-return-value
-		     (:number-of-answers
-		      (mapcan
-		       (lambda (decl seq)
-			 `((when (> creturn ,seq) ,@(pick-result decl))))
-		       return-symb-type
-		       (loop for i below (length return) collect i)))
-		     (:success-failure
-		      '((success-failure creturn)))
-		     (:return (list (wrap-arg `(creturn ,@return))))
-		     (t
-		      (rearrange-sf-result-err
-		       (mapcan #'pick-result return-symb-type))))))
+	    ,(apply (eval multiple-returns)
+		    (append return-input
+			    (case c-return-value
+			      (:number-of-answers
+ 			       (mapcan
+				(lambda (decl seq)
+				  `((when (> creturn ,seq) ,@(pick-result decl))))
+				return-symb-type
+				(loop for i below (length return) collect i)))
+			      (:success-failure
+			       '((success-failure creturn)))
+			      (:return (list (wrap-arg `(creturn ,@return))))
+			      (t
+			       (rearrange-sf-result-err
+				(mapcan #'pick-result return-symb-type)))))))
 	  (list
 	   (when return-symb-type
 	     `(cffi:with-foreign-objects
