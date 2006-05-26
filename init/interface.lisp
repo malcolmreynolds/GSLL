@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed May 24 2006 - 23:35
+; modified:    Fri May 26 2006 - 17:41
 ;********************************************************
 
 (in-package :gsl)
@@ -348,6 +348,71 @@ and a scaling exponent e10, such that the value is val*10^e10."
 			      (t
 			       (rearrange-sf-result-err
 				(mapcan #'pick-result return-symb-type)))))))
+	  (list
+	   (when return-symb-type
+	     `(cffi:with-foreign-objects
+	       ,(mapcar #'wfo-declare return-symb-type)))
+	   (when dimbind `(let ,dimbind))))))))
+
+
+;;; New hack, see notes Thu May 25 2006 
+;;; c-return,  a symbol naming a type, (e.g. :int, :double, :void),
+;;;            or :error-code, :number-of-answers, :success-failure. 
+;;; cl-return, a list of (symbol type) to return, or default to the c-return value.
+
+#+development
+(defmacro defun-gsl-new
+    (cl-name arglist gsl-name c-arguments
+	     &key (c-return :error-code)
+	     cl-return type index export
+	     documentation mode 
+	     check-null-pointers invalidate after)
+  (let ((clargs (or arglist (mapcar #'rst-symbol c-arguments))) ; arguments to CL function
+	(return-symb-type		; return from CL function
+	 (or cl-return (return-symbol-type (list c-return)))))
+    (multiple-value-bind (cargs dimbind)
+	(splice-arguments c-arguments mode)
+      `(,(if (eq type :function) 'defun 'defmethod)
+	,cl-name
+	,gsl-name
+	,(if mode 
+	     `(,@clargs &optional (mode :double-prec))
+	     `(,@clargs))
+	,@(when documentation (list documentation))
+	,(wrap-form 			; with-foreign-object
+	  `(let ((creturn
+		  (cffi:foreign-funcall
+		   ,gsl-name
+		   ,@cargs
+		   ,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r)))
+			     return-symb-type)
+		   ,(case c-return
+			  ((:error-code :number-of-answers :success-failure) :int)
+			  (t c-return)))))
+	    ,@(case c-return
+		    (:void '((declare (ignore creturn))))
+		    (:error-code
+		     (if (or function method)
+			 `((check-gsl-status creturn `(,',cl-name))) ; need args
+			 `((check-gsl-status creturn `(,',cl-name ,,@clargs))))))
+	    ,@(when invalidate `((cl-invalidate ,@invalidate)))
+	    ,@(check-null-pointers check-null-pointers)
+	    ,@after
+	    ,@(cl-return
+;;;;;;;;;;;;;;;;;;;;;;;;;;  CURTAIN ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	      (case c-return-value
+		   (:number-of-answers
+		    (mapcan
+		     (lambda (decl seq)
+		       `((when (> creturn ,seq) ,@(pick-result decl))))
+		     return-symb-type
+		     (loop for i below (length return) collect i)))
+		   (:success-failure
+		    '((success-failure creturn)))
+		   (:return (list (wrap-arg `(creturn ,@return))))
+		   (t
+		    (rearrange-sf-result-err
+		     (mapcan #'pick-result return-symb-type))))))
 	  (list
 	   (when return-symb-type
 	     `(cffi:with-foreign-objects
