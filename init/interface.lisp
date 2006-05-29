@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat May 27 2006 - 18:43
+; modified:    Sun May 28 2006 - 22:29
 ;********************************************************
 
 (in-package :gsl)
@@ -11,32 +11,70 @@
 (export '(gsl-lookup *make-sequence-type*))
 
 ;;;;****************************************************************************
-;;;; GSL C structures
+;;;; Lookup table to find CL functions from C function names
 ;;;;****************************************************************************
 
-(cffi:defcstruct sf-result
-  "Results from special functions with value and error estimate."
-  ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC61
-  (val :double)
-  (err :double))
+(defparameter *sf-name-mapping* nil
+  "An alist mapping the CL and GSL names of the special functions.
+   This will only be populated when macros are expanded.")
 
-(cffi:defcstruct sf-result-e10
-  "Results from special functions with value, error estimate
-and a scaling exponent e10, such that the value is val*10^e10."
-  ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC61
-  (val :double)
-  (err :double)
-  (e10 :int))
+(defun map-name (cl-name gsl-name)
+  (setf *sf-name-mapping* (acons cl-name gsl-name *sf-name-mapping*)))
 
-(cffi:defcenum sf-mode
-  "Numerical precision modes with which to calculate special functions."
-  ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC62
-  :double-prec
-  :single-prec
-  :approx-prec)
+(defun gsl-lookup (string)
+  "Find the CL function name given the GSL C special function function name.
+   If cl-ppcre (http://www.weitz.de/cl-ppcre/) is installed, the string
+   can be a regular expression; otherwise, it must match the C name exactly
+   except for case."
+  (remove string *sf-name-mapping*
+	  :key #'rest
+	  :test-not
+	  (if (find-package :ppcre)
+	      (symbol-function (intern "ALL-MATCHES" :ppcre))
+	      #'string-equal)))
 
 ;;;;****************************************************************************
-;;;;  Numbers
+;;;; Symbol-type declaration
+;;;;****************************************************************************
+
+;;; An "st" or symbol-type is a list (symbol type) where
+;;; type could be (element-type array-dim).  These are examples of lists
+;;; of sts: 
+ ;; ((#:RET3500 SF-RESULT))
+ ;; ((#:RET3501 (:DOUBLE (- NMAX NMIN)))) 
+ ;; ((#:RET3502 (:DOUBLE (1+ KMAX))) (#:RET3503 (:DOUBLE (1+ KMAX)))
+ ;;  (#:RET3504 (:DOUBLE (1+ KMAX))) (#:RET3505 (:DOUBLE (1+ KMAX)))
+ ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE))
+
+(defun st-symbol (decl)
+  (first decl))
+
+(defun st-type (decl)
+  (second decl))
+
+(defun st-arrayp (decl)
+  (listp (st-type decl)))
+
+(defun st-array-pointer-last-p (decl)
+  (listp (st-type decl)))
+
+(defun st-eltype (decl)
+  (first (st-type decl)))
+
+(defun st-dim (decl)
+  (second (st-type decl)))
+
+(defun st-pointer-last-p (decl)
+  (third (st-type decl)))
+
+(defun wfo-declare (d)
+  `(,(st-symbol d)
+    ,@(if (st-arrayp d)
+	  `(',(st-eltype d) ,(st-dim d))
+	  `(',(st-type d)))))
+
+;;;;****************************************************************************
+;;;;  Native types
 ;;;;****************************************************************************
 
 (cffi:defcstruct gsl-complex
@@ -66,88 +104,6 @@ and a scaling exponent e10, such that the value is val*10^e10."
     (:size 'size-to-cl)
     (gsl-complex 'complex-to-cl)))
 
-;;;;****************************************************************************
-;;;; Defining CL function names and mapping from C names
-;;;;****************************************************************************
-
-(defmacro defunx (name &rest args)
-  "defun and export"
-  `(progn
-    (export '(,name))
-    (defun ,name ,@args)))
-
-(defparameter *sf-name-mapping* nil
-  "An alist mapping the CL and GSL names of the special functions.
-   This will only be populated when macros are expanded.")
-
-(defun map-name (cl-name gsl-name)
-  (setf *sf-name-mapping* (acons cl-name gsl-name *sf-name-mapping*)))
-
-(defun gsl-lookup (string)
-  "Find the CL function name given the GSL C special function function name.
-   If cl-ppcre (http://www.weitz.de/cl-ppcre/) is installed, the string
-   can be a regular expression; otherwise, it must match the C name exactly
-   except for case."
-  (remove string *sf-name-mapping*
-	  :key #'rest
-	  :test-not
-	  (if (find-package :ppcre)
-	      (symbol-function (intern "ALL-MATCHES" :ppcre))
-	      #'string-equal)))
-
-(defmacro defunx-map (cl-name gsl-name &rest args)
-  "defun, export, and name-map."
-  `(progn
-    (map-name ',cl-name ',gsl-name)
-    (defunx ,cl-name ,@args)))
-
-(defmacro defmethod-map (cl-name gsl-name &rest args)
-  "defmethod and name-map."
-  `(progn
-    (map-name ',cl-name ',gsl-name)
-    (defmethod ,cl-name ,@args)))
-
-;;;;****************************************************************************
-;;;; Inputs and outputs
-;;;;****************************************************************************
-
-;;; An "rst" or return-symb-type as a list (symbol type) where
-;;; type could be (element-type array-dim).  These are examples of lists
-;;; of rsts: 
- ;; ((#:RET3500 SF-RESULT))
- ;; ((#:RET3501 (:DOUBLE (- NMAX NMIN)))) 
- ;; ((#:RET3502 (:DOUBLE (1+ KMAX))) (#:RET3503 (:DOUBLE (1+ KMAX)))
- ;;  (#:RET3504 (:DOUBLE (1+ KMAX))) (#:RET3505 (:DOUBLE (1+ KMAX)))
- ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE))
-
-(defun rst-symbol (decl)
-  (first decl))
-
-(defun rst-type (decl)
-  (second decl))
-
-(defun rst-arrayp (decl)
-  (listp (rst-type decl)))
-
-(defun rst-array-pointer-last-p (decl)
-  (listp (rst-type decl)))
-
-(defun rst-eltype (decl)
-  (first (rst-type decl)))
-
-(defun rst-dim (decl)
-  (second (rst-type decl)))
-
-(defun rst-pointer-last-p (decl)
-  (third (rst-type decl)))
-
-(defun return-symbol-type (return)
-  "Make a full declaration from the list of return values."
-  (mapcar (lambda (typ)
-	    (list (gensym "RET")
-		  typ))
-	  return))
-
 (defparameter *make-sequence-type* 'list
   "Whether sequences should be returned as list or vector.")
 
@@ -160,23 +116,23 @@ and a scaling exponent e10, such that the value is val*10^e10."
 	    (funcall element-function i)))))
 
 (defun pick-result (decl)
-  (if (rst-arrayp decl)		; eventually, check that it's a vector
+  (if (st-arrayp decl)		; eventually, check that it's a vector
       `((map *make-sequence-type*
-	 (function
-	  ,(cl-convert-function (rst-eltype decl)))
-	 (cffi::foreign-array-to-lisp
-	  ,(rst-symbol decl)
-	  ',(rst-eltype decl)
-	  (list ,(rst-dim decl)))))
-      (case (rst-type decl)
-	(sf-result
-	 `((cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result 'val)
-	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result 'err)))
+	     (function
+	      ,(cl-convert-function (st-eltype decl)))
+	     (cffi::foreign-array-to-lisp
+	      ,(st-symbol decl)
+	      ',(st-eltype decl)
+	      (list ,(st-dim decl)))))
+      (case (st-type decl)
+	(sf-result 
+	 `((val ,(st-symbol decl))
+	   (err ,(st-symbol decl))))
 	(sf-result-e10
-	 `((cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'val)
-	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'e10)
-	   (cffi:foreign-slot-value ,(rst-symbol decl) 'sf-result-e10 'err)))
-	(t `((,(cl-convert-function (rst-type decl)) ,(rst-symbol decl)))))))
+	 `((val ,(st-symbol decl) 'sf-result-e10)
+	   (e10 ,(st-symbol decl))
+	   (err ,(st-symbol decl) 'sf-result-e10)))
+	(t `((,(cl-convert-function (st-type decl)) ,(st-symbol decl)))))))
 
 (defun rearrange-sf-result-err (return-list)
   "Put the 'err values from the sf-results at the end of the return values."
@@ -189,53 +145,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
      (remove-if-not #'sf-err return-list))))
 
 ;;;;****************************************************************************
-;;;; Wrapping of input arguments
-;;;;****************************************************************************
-
-(defparameter *wrap-types* nil
-  "An alist of type and wrap function for values to and from C.")
-
-(defmacro add-wrap-type (type function)
-  `(eval-when (:compile-toplevel :load-toplevel :execute)
-    (setf *wrap-types* (acons ',type ,function *wrap-types*))))
-
-(defun wrap-arg (spec)
-  "Wrap the symbol with a form that has been specified for
-   the type of argument."
-  (let ((wrapform (rest (assoc (rst-type spec) *wrap-types*))))
-    (if wrapform
-	(funcall wrapform (rst-symbol spec))
-	(rst-symbol spec))))
-
-(defun wrap-form (form wrappers)
-  (if wrappers
-      (wrap-form
-       (if (first wrappers) `(,@(first wrappers) ,form) form)
-       (rest wrappers))
-      form))
-
-;;; All arrays and vectors are passed with a gsl-data object that is made
-;;; outside the function, and pieces are spliced in the function call.
-;;; If a raw array is needed, use the :function argument to defun-gsl,
-;;; then use the appropriate function(s) e.g. gsl-array, dim0
-;;; on that array to map to the GSL arguments.
-(defun splice-arguments (arguments &optional mode)
-  "Convert the argument declarations to a list of declarations appropriate
-   for foreign-funcall.  If mode is T, a mode argument will be added to the end,
-   if it is an integer, it will be put at that position."
-  (flet ((splicearg (spec)
-	   `(,(rst-type spec)
-	     ,(wrap-arg spec))))
-    (mapcan #'splicearg
-	    (if mode
-		(let ((mode (if (integerp mode) mode (length arguments))))
-		  (append (subseq arguments 0 mode)
-			  '((mode sf-mode))
-			  (subseq arguments mode)))
-		arguments))))
-
-;;;;****************************************************************************
-;;;; Checking results
+;;;; Checking results from GSL functions
 ;;;;****************************************************************************
 
 (defun check-gsl-status (status-code context)
@@ -264,92 +174,152 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;;; Macro defun-gsl 
 ;;;;****************************************************************************
 
-(defun wfo-declare (d)
-  `(,(rst-symbol d)
-    ,@(if (rst-arrayp d)
-	  `(',(rst-eltype d) ,(rst-dim d))
-	  `(',(rst-type d)))))
+(defvar *special-c-return* '(:error-code :number-of-answers :success-failure))
 
-;;; Warning isn't quite right for lambdas.
+;;; c-arguments List of (symbol c-type). Anything not in arglist will be allocated.
+;;; arglist    List of CL arguments.
+;;; c-return,  a symbol naming a type, (e.g. :int, :double, :void),
+;;;            or :error-code, :number-of-answers, :success-failure. 
+;;; cl-return, a list of quantities to return.
+;;;            May be or include :c-return to include the c-return value
+;;;            or its derivatives.
+;;;            Default are allocated quantities in c-arguments, or :c-return if none.
 (defmacro defun-gsl
-    (cl-name arguments gsl-name
-     &key documentation return mode (c-return-value :error-code)
-     return-input check-null-pointers function method invalidate after
-     (multiple-returns (lambda (&rest args) `(values ,@args))))
-  "Define a CL function that provides an interface to a GSL function.
-   If cl-name is :lambda, make a lambda.  Arguments:
-     arguments:       a list of input arguments (symbol type) to the GSL function
-     gsl-name:        the C function name, as a string
-     documentation:   a string
-     return:          a list of return types
-     return-input:    input variables to return
-     mode:            T, NIL or position, depending on whether
-                      gsl_mode is an argument
-     c-return-value:  The C function returns an :error-code, :number-of-answers,
-                      a value to :return from the CL function, a
-                      :success-failure code to be returned from CL as T or NIL,
-                      or :void.
-     check-null-pointers:
-                      a list of return variables that should be checked,
-                      if a null pointer, signal an error.
-     method           Make output a defmethod with the value as the arglist;
-                      'arguments should then include explicit mapping of all arguments
-                      to GSL form.
-     function         Arguments for CL function (like :method, but make a function).
-     invalidate       CL copies of data to invalidate before return.
-     after            Functions to call after the GSL function has been called;
-                      result is discarded.
-     multiple-returns      Function that wraps a form around return arguments."
-  (let ((clargs (or function method (mapcar #'rst-symbol arguments)))
-	(return-symb-type 
-	 (unless (or (eq c-return-value :return) return-input)
-	   (return-symbol-type return))))
-    (multiple-value-bind (cargs dimbind)
-	(splice-arguments arguments mode)
-      `(,@(if (eq cl-name :lambda)
-	      '(lambda)
-	      `(,(if method 'defmethod-map 'defunx-map) ,cl-name ,gsl-name))
-	,(if mode 
-	     `(,@clargs &optional (mode :double-prec))
-	     `(,@clargs))
-	,@(when documentation (list documentation))
-	,(wrap-form 			; with-foreign-object
-	  `(let ((creturn
-		  (cffi:foreign-funcall
-		   ,gsl-name
-		   ,@cargs
-		   ,@(mapcan (lambda (r) `(:pointer ,(rst-symbol r)))
-			     return-symb-type)
-		   ,(case c-return-value
-			  (:return (first return))
-			  (:void :void)
-			  (t :int)))))
-	    ,@(case c-return-value
-		    (:void '((declare (ignore creturn))))
-		    (:error-code
-		     (if (or function method)
-			 `((check-gsl-status creturn `(,',cl-name))) ; need args
-			 `((check-gsl-status creturn `(,',cl-name ,,@clargs))))))
-	    ,@(check-null-pointers check-null-pointers)
-	    ,@(when invalidate `((cl-invalidate ,@invalidate)))
-	    ,@after
-	    ,(apply (eval multiple-returns)
-		    (append return-input
-			    (case c-return-value
-			      (:number-of-answers
- 			       (mapcan
-				(lambda (decl seq)
-				  `((when (> creturn ,seq) ,@(pick-result decl))))
-				return-symb-type
-				(loop for i below (length return) collect i)))
-			      (:success-failure
-			       '((success-failure creturn)))
-			      (:return (list (wrap-arg `(creturn ,@return))))
-			      (t
-			       (rearrange-sf-result-err
-				(mapcan #'pick-result return-symb-type)))))))
-	  (list
-	   (when return-symb-type
-	     `(cffi:with-foreign-objects
-	       ,(mapcar #'wfo-declare return-symb-type)))
-	   (when dimbind `(let ,dimbind))))))))
+    (name arglist gsl-name c-arguments
+     &key (c-return :error-code)
+     (return nil return-supplied-p)
+     (type :function) index (export t)
+     documentation
+     check-null-pointers invalidate after)
+  (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
+	 (carg-symbs
+	  (remove-if-not #'symbolp
+			 (mapcar #'st-symbol (remove :mode c-arguments))))
+	 (clargs (or arglist carg-symbs))
+	 (allocated		     ; Foreign objects to be allocated
+	  (remove-if (lambda (s) (member s clargs)) carg-symbs))
+	 (allocated-decl
+	  (mapcar
+	   (lambda (s) (find s cargs :key #'st-symbol))
+	   allocated))
+	 (clret (or (substitute 'creturn :c-return return)
+		    (mapcan #'pick-result allocated-decl)
+		    c-return)))
+    `(progn
+       (,(if (eq type :function) 'defun 'defmethod)
+	 ,name
+	 ,(if (member :mode c-arguments)
+	      `(,@clargs &optional (mode :double-prec))
+	      `(,@clargs))
+	 ,@(when documentation (list documentation))
+	 (,@(if allocated
+		`(cffi:with-foreign-objects
+		     ,(mapcar #'wfo-declare allocated-decl))
+		'(let ()))
+	    (let ((creturn
+		   (cffi:foreign-funcall
+		    ,gsl-name
+		    ,@(mapcan
+		       (lambda (arg)
+			 (list (if (member (st-symbol arg) allocated)
+				   :pointer
+				   (st-type arg))
+			       (st-symbol arg)))
+		       cargs)
+		    ,(if (member c-return *special-c-return*)
+			 :int
+			 c-return))))
+	      ,@(case c-return
+		      (:void '((declare (ignore creturn))))
+		      (:error-code	; fill in arguments
+		       '((check-gsl-status creturn 'bah))))
+	      ,@(when invalidate `((cl-invalidate ,@invalidate)))
+	      ,@(check-null-pointers check-null-pointers)
+	      ,@after
+	      (values
+	       ,@(case c-return
+		       (:number-of-answers
+			(mapcan
+			 (lambda (vbl seq)
+			   `((when (> creturn ,seq) ,vbl)))
+			 clret
+			 (loop for i below (length clret) collect i)))
+		       (:success-failure
+			`(,@clret (success-failure creturn)))
+		       (t (unless (and (null return) return-supplied-p)
+			      clret)))))))
+       (map-name ',(or index name) ',gsl-name)
+       ,@(when export `((export ',name))))))
+
+
+;;;;****************************************************************************
+;;;; examples
+;;;;****************************************************************************
+
+#+development
+(t
+ (rearrange-sf-result-err
+  (mapcan #'pick-result return-symb-type)))
+;;(x &optional (mode :double-prec))
+
+;;;; Ports
+
+(defun-gsl coulomb-wave-F-array (array l-min kmax eta x)
+  "gsl_sf_coulomb_wave_F_array"
+  ((L-min :double) (kmax :int) (eta :double) (x :double)
+   ((pointer array) gsl-vector-c) (exponent :double))
+  :documentation
+  "The Coulomb wave function @math{F_L(\eta,x)} for
+@math{L = Lmin \dots Lmin + kmax}, storing the results in @var{array}.
+In the case of overflow the exponent is stored in @var{exponent}."
+  :return (array exponent))
+
+(defun-gsl vector-minmax-index-new (v)
+  "gsl_vector_minmax_index" (((pointer v) gsl-vector-c) (min :size) (max :size))
+  :documentation
+  "The indices of the minimum and maximum values in the vector @var{v}.
+  When there are several equal minimum elements then the lowest index is
+  returned."
+  :c-return :void)
+
+(defun-gsl set-all-new ((object gsl-vector) value)
+  "gsl_vector_set_all"
+  (((pointer object) :pointer) (value :double))
+  :type :method
+  :return ()
+  :c-return :void)
+
+(defun-gsl gsl-aref-new ((vector gsl-vector) &rest indices)
+    "gsl_vector_get"
+  (((pointer vector) :pointer) ((first indices) :size))
+  :type :method
+  :c-return :double
+  :return (:c-return)
+  :documentation "The ith element of the vector.")
+
+(defun-gsl airy-Ai-new (x)  
+  "gsl_sf_airy_Ai_e"			; gsl-name
+  ((x :double) :mode (result sf-result))	; c-arguments
+  :documentation "The Airy function Ai(x).")
+
+(defun-gsl solve-quadratic-new (a b c)
+  "gsl_poly_solve_quadratic"
+  ((a :double) (b :double) (c :double) (root1 :double) (root2 :double))
+  :documentation
+  "The real roots of the quadratic equation a x^2 + b x + c = 0.
+   Two values are always returned; if the roots are not real, these
+   values are NIL."
+  :c-return :number-of-answers)
+
+(defun-gsl permutation-next-new (p)
+  "gsl_permutation_next" ((p gsl-permutation-c))
+  :c-return :success-failure
+  :invalidate (p)
+  :return (p)
+  :documentation
+  "Advance the permutation @var{p} to the next permutation
+   in lexicographic order and return T.  If no further
+   permutations are available, return NIL and leave
+   @var{p} unmodified.  Starting with the identity permutation and
+   repeatedly applying this function will iterate through all possible
+   permutations of a given order.")

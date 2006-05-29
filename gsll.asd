@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun May 21 2006 - 23:22
+; modified:    Sun May 28 2006 - 22:39
 ;********************************************************
 ;;; $Id: $
 
@@ -22,14 +22,28 @@
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
 	     (:file "tests" :depends-on (lisp-unit))))
+   #+future
    (:module general
 	    :depends-on (init)
 	    :components
 	    ((:file "conditions")
 	     (:file "mathematical")))
    ;; complex numbers not necessary?  Just make a struct.
+   #+future
    (:file "cffi-array")
+   #+future
    (:file "polynomial" :depends-on (init cffi-array)) ; see file
+   #+future
+   (:module data
+	    :depends-on (init)
+	    :components
+	    ((:file "data")
+	     (:file "block" :depends-on (data))
+	     (:file "vector" :depends-on (data))
+	     (:file "matrix" :depends-on (data))
+	     (:file "permutation" :depends-on (data))
+	     (:file "combination" :depends-on (data))))
+   #+future
    (:module special-functions
 	    :depends-on (init)
 	    :components
@@ -61,16 +75,9 @@
 	     (:file "transport")
 	     (:file "trigonometry")
 	     (:file "zeta")))
-   (:module data
-	    :depends-on (init)
-	    :components
-	    ((:file "data")
-	     (:file "block" :depends-on (data))
-	     (:file "vector" :depends-on (data))
-	     (:file "matrix" :depends-on (data))
-	     (:file "permutation" :depends-on (data))
-	     (:file "combination" :depends-on (data))))
+   #+future
    (:file "sorting" :depends-on (init data))
+   #+future
    (:module linear-algebra
 	    :depends-on (init data)
 	    :components
@@ -84,4 +91,5 @@
 	     (:file "cholesky")
 	     (:file "diagonal")
 	     (:file "householder")))
+   #+future
    (:file "eigensystems" :depends-on (init data))))
