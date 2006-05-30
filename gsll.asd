@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun May 28 2006 - 22:39
+; modified:    Mon May 29 2006 - 23:00
 ;********************************************************
 ;;; $Id: $
 
@@ -22,7 +22,6 @@
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
 	     (:file "tests" :depends-on (lisp-unit))))
-   #+future
    (:module general
 	    :depends-on (init)
 	    :components

@@ -3,17 +3,19 @@
 ; description: Mathematical functions                    
 ; date:        Wed Mar  8 2006 - 22:09                   
 ; author:      Liam M. Healy
-; modified:    Thu Mar 23 2006 - 14:33
+; modified:    Mon May 29 2006 - 23:06
 ;********************************************************
 
 (in-package :gsl)
 
-(export '(+nan+ +positive-infinity+ +negative-infinity+
-	  nanp infinityp finitep log+1 exp-1 hypotenuse approximately=))
+;;; Disable floating point traps for each CL implementation. 
 
-;;;; Mathematical Constants
-;;; Is all macros
-
+;;; Not ported because they are all C macros or inline functions:
+;;;   Mathematical Constants
+;;;   Testing the Sign of Numbers
+;;;   Testing for Odd and Even Numbers
+;;;   Maximum and Minimum functions
+;;; Does CL need the small integer powers?
 
 ;;;;****************************************************************************
 ;;; Infinities and Not-a-number
@@ -32,6 +34,8 @@
    '(sb-ext:double-float-negative-infinity
      sb-ext:double-float-positive-infinity)))
 
+(export '(+nan+ +positive-infinity+ +negative-infinity+))
+
 (defconstant +nan+
   (ignore-errors
     (cffi:foreign-funcall "gsl_nan" :double)))
@@ -44,72 +48,58 @@
   (ignore-errors
     (cffi:foreign-funcall "gsl_neginf" :double)))
 
-(defunx-map nanp "gsl_isnan" (x)
-  "Return T if x is a double-float NaN."
-  (= 1
-     (cffi:foreign-funcall
-      "gsl_isnan"
-      :double x
-      :int)))
+(defun-gsl nanp (x)
+  "gsl_isnan" ((x :double))
+  :documentation "Return T if x is a double-float NaN."
+  :c-return (cr :int)
+  :return ((= 1 cr)))
 
-(defunx-map infinityp "gsl_isinf" (x)
-  "Return +1 if x is positive infinity, -1 if negative infinity
+(defun-gsl infinityp (x)
+  "gsl_isinf" ((x :double))
+  :documentation "Return +1 if x is positive infinity, -1 if negative infinity
    nil if finite."
-  (pmnil
-   (cffi:foreign-funcall
-    "gsl_isinf"
-    :double x
-    :int)))
+  :c-return (cr :int)
+  :return ((pmnil cr)))
 
-(defunx-map finitep "gsl_finite" (x)
-  "Return T if finite."
-  (= 1
-     (cffi:foreign-funcall
-      "gsl_finite"
-      :double x
-      :int)))
+(defun-gsl finitep (x)
+   "gsl_finite" ((x :double))
+  :documentation "Return T if x is finite."
+  :c-return (cr :int)
+  :return ((= 1 cr)))
 
 ;;;;****************************************************************************
 ;;; Elementary functions
 ;;;;****************************************************************************
 
-(defunx-map log+1 "gsl_log1p" (x)
-  "log(1+x), computed in a way that is accurate for small x."
-  (cffi:foreign-funcall
-   "gsl_log1p"
-   :double x
-   :double))
+(defun-gsl log+1 (x)
+  "gsl_log1p" ((x :double))
+  :c-return :double
+  :documentation
+  "log(1+x), computed in a way that is accurate for small x.")
 
-(defunx-map exp-1 "gsl_expm1" (x)
-  "exp(x)-1, computed in a way that is accurate for small x."
-  (cffi:foreign-funcall
-   "gsl_expm1"
-   :double x
-   :double))
+(defun-gsl exp-1 (x)
+  "gsl_expm1" ((x :double))
+  :c-return :double
+  :documentation
+  "exp(x)-1, computed in a way that is accurate for small x.")
 
-(defunx-map hypotenuse "gsl_hypot" (x y)
-  "sqrt{x^2 + y^2} computed in a way that avoids overflow."
-  (cffi:foreign-funcall
-   "gsl_hypot"
-   :double x
-   :double y
-   :double))
+(defun-gsl hypotenuse (x y)
+  "gsl_hypot" ((x :double) (y :double))
+  :c-return :double
+  :documentation
+  "sqrt{x^2 + y^2} computed in a way that avoids overflow.")
 
 ;; Not clear why this function exists
-(defunx-map gsl-asinh "gsl_asinh" (x)
-  "arcsinh"
-  (cffi:foreign-funcall
-   "gsl_asinh"
-   :double x
-   :double))
+(defun-gsl gsl-asinh (x)
+   "gsl_asinh" ((x :double))
+  :c-return :double
+  :documentation  "Arc hyperbolic sine.")
 
-;;; Not clear why this function exists
-(defunx-map gsl-atanh "gsl_atanh" (x)
-  "arctanh"
-  (cffi:foreign-funcall
-   "gsl_atanh"
-   :double x
-   :double))
+;; Not clear why this function exists
+(defun-gsl gsl-atanh (x)
+   "gsl_atanh" ((x :double))
+  :c-return :double
+  :documentation  "Arc hyperbolic tangent.")
 
 ;;; gsl_ldexp
 ;;; gsl_frexp
@@ -162,7 +152,10 @@ Function: double gsl_pow_9 (const double x)
 ;;; floating-point comparison algorithm proposed by D.E. Knuth in
 ;;; Section 4.2.2 of Seminumerical Algorithms (3rd edition).
 
-(defunx-map double-float-equal "gsl_fcmp" (x y epsilon)
+(defun-gsl double-float-unequal (x y epsilon)
+  "gsl_fcmp" ((x :double) (y :double) (epsilon :double))
+  :c-return (cr :int)
+  :documentation
   "This function determines whether x and y are approximately equal
     to a relative accuracy epsilon.
 
@@ -172,16 +165,23 @@ Function: double gsl_pow_9 (const double x)
     frexp().
 
     If x and y lie within this interval, they are considered
-    approximately equal and the function returns 0. Otherwise if
+    approximately equal and the function returns nil. Otherwise if
     x < y, the function returns -1, or if x > y, the function
-    returns +1.
+    returns +1."
+  :return ((pmnil cr)))
 
-    The implementation is based on the package fcmp by
-    T.C. Belding."
-  (pmnil
-   (cffi:foreign-funcall
-    "gsl_fcmp"
-    :double x
-    :double y
-    :double epsilon
-    :double)))
+;;;;****************************************************************************
+;;;; Examples and unit test
+;;;;****************************************************************************
+
+(lisp-unit:define-test mathematical
+  (lisp-unit:assert-true (nanp +nan+))
+  (lisp-unit:assert-false (nanp 1.0d0))
+  (lisp-unit:assert-true (finitep 1.0d0))
+  (lisp-unit:assert-false (infinityp 1.0d0))
+  (lisp-unit:assert-eq 1 (infinityp +positive-infinity+))
+  (lisp-unit:assert-false (finitep +positive-infinity+))
+  (lisp-unit:assert-first-fp-equal "0.999500333084d-03" (log+1 0.001d0))
+  (lisp-unit:assert-first-fp-equal "0.100050016671d-02" (exp-1 0.001d0))
+  (lisp-unit:assert-first-fp-equal "0.500000000000d+01" (hypotenuse 3.0d0 4.0d0))
+  (lisp-unit:assert-false (double-float-unequal 1.0d0 1.0d0 0.001d0)))

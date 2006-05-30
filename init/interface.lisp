@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun May 28 2006 - 22:29
+; modified:    Mon May 29 2006 - 22:35
 ;********************************************************
 
 (in-package :gsl)
@@ -179,8 +179,9 @@
 ;;; c-arguments List of (symbol c-type). Anything not in arglist will be allocated.
 ;;; arglist    List of CL arguments.
 ;;; c-return,  a symbol naming a type, (e.g. :int, :double, :void),
+;;;            or a list of (symbol type) to name the value,
 ;;;            or :error-code, :number-of-answers, :success-failure. 
-;;; cl-return, a list of quantities to return.
+;;; return, a list of quantities to return.
 ;;;            May be or include :c-return to include the c-return value
 ;;;            or its derivatives.
 ;;;            Default are allocated quantities in c-arguments, or :c-return if none.
@@ -196,6 +197,10 @@
 	  (remove-if-not #'symbolp
 			 (mapcar #'st-symbol (remove :mode c-arguments))))
 	 (clargs (or arglist carg-symbs))
+	 (cret-type (if (member c-return *special-c-return*)
+			 :int
+			 (if (listp c-return) (st-type c-return) c-return)))
+	 (cret-name (if (listp c-return) (st-symbol c-return) 'creturn))
 	 (allocated		     ; Foreign objects to be allocated
 	  (remove-if (lambda (s) (member s clargs)) carg-symbs))
 	 (allocated-decl
@@ -204,7 +209,7 @@
 	   allocated))
 	 (clret (or (substitute 'creturn :c-return return)
 		    (mapcan #'pick-result allocated-decl)
-		    c-return)))
+		    (list cret-name))))
     `(progn
        (,(if (eq type :function) 'defun 'defmethod)
 	 ,name
@@ -216,7 +221,7 @@
 		`(cffi:with-foreign-objects
 		     ,(mapcar #'wfo-declare allocated-decl))
 		'(let ()))
-	    (let ((creturn
+	    (let ((,cret-name
 		   (cffi:foreign-funcall
 		    ,gsl-name
 		    ,@(mapcan
@@ -226,9 +231,7 @@
 				   (st-type arg))
 			       (st-symbol arg)))
 		       cargs)
-		    ,(if (member c-return *special-c-return*)
-			 :int
-			 c-return))))
+		    ,cret-type)))
 	      ,@(case c-return
 		      (:void '((declare (ignore creturn))))
 		      (:error-code	; fill in arguments
@@ -264,6 +267,7 @@
 
 ;;;; Ports
 
+#|
 (defun-gsl coulomb-wave-F-array (array l-min kmax eta x)
   "gsl_sf_coulomb_wave_F_array"
   ((L-min :double) (kmax :int) (eta :double) (x :double)
@@ -323,3 +327,4 @@ In the case of overflow the exponent is stored in @var{exponent}."
    @var{p} unmodified.  Starting with the identity permutation and
    repeatedly applying this function will iterate through all possible
    permutations of a given order.")
+|#
