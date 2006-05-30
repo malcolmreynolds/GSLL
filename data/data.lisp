@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Apr 30 2006 - 11:55
+; modified:    Tue May 30 2006 - 17:38
 ;********************************************************
 ;;; $Id: $
 
@@ -57,6 +57,9 @@
   "The second dimension of the object."
   (second (storage-size object)))
 
+(defgeneric cl-base-type (object)
+  (:documentation "The CL type of an element."))
+
 ;;; Accessing elements
 (export 'gsl-aref)
 (defgeneric gsl-aref (object &rest indices)
@@ -97,7 +100,7 @@
 	     (print-data-object object nil stream))))
   (setf (pointer object) pointer))
 
-(defmacro defdata (string c-base-type cl-base-type &optional (dimensions 1))
+(defmacro defdata (string cl-base-type &optional (dimensions 1))
   "For the type named in the string,
    define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
    freeing (gsl-*-free), binary writing (binary-*-write) and
@@ -105,49 +108,42 @@
    and reading (read-*-formatted) functions."
   (flet ((gsl-name (function-name)
 	   (format nil "gsl_~a_~a" string function-name)))
-    (let ((indlist
-	   (loop for i from 1 to dimensions
-		 collect `(,(intern (format nil "N~d" i)) :size)))
+    (let ((cargs
+	   (cons '((pointer object) :pointer)
+		 (loop for i below dimensions collect `((nth ,i (storage-size object)) :size))))
 	  (object-name (data-object-name string)))
       `(progn
 	(defclass ,object-name (gsl-data)
-	  ((c-base-type :initform ,c-base-type :reader c-base-type
-			:allocation :class)
-	   (cl-base-type :initform ,cl-base-type :reader cl-base-type
+	  ((cl-base-type :initform ,cl-base-type :reader cl-base-type
 			 :allocation :class)))
-	(defmethod alloc ((object ,object-name))
-	  (assign-pointer
-	   object
-	   (apply
-	    (defun-gsl :lambda ,indlist ,(gsl-name "alloc")
-		       :c-return-value :return :return (:pointer))
-	    (storage-size object))))
-	(defmethod calloc ((object ,object-name))
-	  (assign-pointer
-	   object
-	   (apply
-	    (defun-gsl :lambda ,indlist ,(gsl-name "calloc")
-		       :c-return-value :return :return (:pointer))
-	    (storage-size object))))
-	(defmethod free ((object ,object-name))
-	  (funcall
-	   (defun-gsl :lambda ((pointer :pointer)) ,(gsl-name "free")
-		      :c-return-value :void)
-	   (pointer object)))
-	(defun-gsl write-binary ((stream :pointer) ((pointer object) :pointer))
-	  ,(gsl-name "fwrite")
-	  :method ((object ,object-name) stream))
-	(defun-gsl read-binary ((stream :pointer) ((pointer object) :pointer))
-	  ,(gsl-name "fread")
-	  :method ((object ,object-name) stream))
-	(defun-gsl write-formatted
-	    ((stream :pointer) ((pointer object) :pointer) (format :string))
+	(defun-gsl alloc ((object ,object-name))
+	  ,(gsl-name "alloc") ,cargs
+	  :type :method
+	  :c-return (cr :pointer)
+	  :return ((assign-pointer object cr)))
+	(defun-gsl calloc ((object ,object-name))
+	  ,(gsl-name "calloc") ,cargs
+	  :type :method
+	  :c-return (cr :pointer)
+	  :return ((assign-pointer object cr)))
+	(defun-gsl free ((object ,object-name))
+	  ,(gsl-name "free") (((pointer object) :pointer))
+	  :type :method
+	  :c-return :void)
+	(defun-gsl write-binary ((object ,object-name) stream)
+	  ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
+	  :type :method)
+	(defun-gsl read-binary ((object ,object-name) stream)
+	  ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
+	  :type :method)
+	(defun-gsl write-formatted ((object ,object-name) stream format)
 	  ,(gsl-name "fprintf")
-	  :method ((object ,object-name) stream format))
-	(defun-gsl read-formatted
-	    ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  :type :method)
+	(defun-gsl read-formatted ((object ,object-name) stream format)
 	  ,(gsl-name "fscanf")
-	  :method ((object ,object-name) stream format))))))
+	  ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  :type :method)))))
 
 ;;;;****************************************************************************
 ;;;; Making data objects and initializing storage

@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Mon May 29 2006 - 22:35
+; modified:    Tue May 30 2006 - 09:18
 ;********************************************************
 
 (in-package :gsl)
@@ -200,14 +200,15 @@
 	 (cret-type (if (member c-return *special-c-return*)
 			 :int
 			 (if (listp c-return) (st-type c-return) c-return)))
-	 (cret-name (if (listp c-return) (st-symbol c-return) 'creturn))
+	 (cret-name
+	  (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
 	 (allocated		     ; Foreign objects to be allocated
 	  (remove-if (lambda (s) (member s clargs)) carg-symbs))
 	 (allocated-decl
 	  (mapcar
 	   (lambda (s) (find s cargs :key #'st-symbol))
 	   allocated))
-	 (clret (or (substitute 'creturn :c-return return)
+	 (clret (or (substitute cret-name :c-return return)
 		    (mapcan #'pick-result allocated-decl)
 		    (list cret-name))))
     `(progn
@@ -233,9 +234,9 @@
 		       cargs)
 		    ,cret-type)))
 	      ,@(case c-return
-		      (:void '((declare (ignore creturn))))
+		      (:void `((declare (ignore ,cret-name))))
 		      (:error-code	; fill in arguments
-		       '((check-gsl-status creturn 'bah))))
+		       `((check-gsl-status ,cret-name 'bah))))
 	      ,@(when invalidate `((cl-invalidate ,@invalidate)))
 	      ,@(check-null-pointers check-null-pointers)
 	      ,@after
@@ -244,14 +245,14 @@
 		       (:number-of-answers
 			(mapcan
 			 (lambda (vbl seq)
-			   `((when (> creturn ,seq) ,vbl)))
+			   `((when (> ,cret-name ,seq) ,vbl)))
 			 clret
 			 (loop for i below (length clret) collect i)))
 		       (:success-failure
-			`(,@clret (success-failure creturn)))
+			`(,@clret (success-failure ,cret-name)))
 		       (t (unless (and (null return) return-supplied-p)
 			      clret)))))))
-       (map-name ',(or index name) ',gsl-name)
+       (map-name ',(or index name) ,gsl-name)
        ,@(when export `((export ',name))))))
 
 

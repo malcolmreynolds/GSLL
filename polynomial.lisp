@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Apr 28 2006 - 22:27
+; modified:    Tue May 30 2006 - 09:40
 ;********************************************************
 ;;; $Id: $
 
@@ -21,6 +21,15 @@
 ;;; (setf (data vec) #(1.0d0 2.0d0 3.0d0))
 ;;; (polynomial-eval vec -1.0d0)
 ;;; 2.0d0
+(defun-gsl polynomial-eval (coefficients x)
+    "gsl_poly_eval"
+  (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size) (x :double))
+  :documentation
+  "Evaluate the polyonomial with coefficients at the point x."
+  :c-return :double)
+
+
+#+old
 (defun-gsl polynomial-eval
     (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size) (x :double))
   "gsl_poly_eval"
@@ -29,6 +38,8 @@
   "Evaluate the polyonomial with coefficients at the point x."
   :return (:double)
   :c-return-value :return)
+
+
 
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials
