@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Tue May 30 2006 - 23:30
+; modified:    Wed May 31 2006 - 17:36
 ;********************************************************
 ;;; $Id: $
 
@@ -88,7 +88,7 @@
 ;;;;****************************************************************************
 
 (defun data-object-name (string)
-  (intern (format nil "GSL-~:@(~a~)" string)))
+  (intern (format nil "GSL-~:@(~a~)" (string string))))
 
 (defun assign-pointer (object pointer)
   "Check that a GSL data pointer is not null, then assign it to the object."
@@ -103,50 +103,102 @@
 ;;; (args (loop for i below dimensions collect (intern (format nil "I~d" i))))
 ;;; (mapcar (lambda (v) `(,v :size))			    args)
 
-(defmacro defdata (name cl-base-type &optional (dimensions 1))
+(defvar *data-name-alist* nil)
+
+(defmacro defdata (c-string cl-symbol cl-base-type &optional (dimensions 1))
   "For the type named in the string,
    define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
    freeing (gsl-*-free), binary writing (binary-*-write) and
    reading (binary-*-read), formatted writing (write-*-formatted)
    and reading (read-*-formatted) functions."
-  (let ((string (substitute #\- #\_ name)))
-    (flet ((gsl-name (function-name)
-	     (format nil "gsl_~a_~a" name function-name)))
-      (let* ((cargs (loop for i below dimensions
-		       collect `((nth ,i (storage-size object)) :size)))
-	     (object-name (data-object-name string)))
-	`(progn
-	   (defclass ,object-name (gsl-data)
-	     ((cl-base-type :initform ,cl-base-type :reader cl-base-type
-			    :allocation :class)))
-	   (defun-gsl alloc ((object ,object-name))
-	     ,(gsl-name "alloc") ,cargs
-	     :type :method
-	     :c-return (cr :pointer)
-	     :return ((assign-pointer object cr)))
-	   (defun-gsl calloc ((object ,object-name))
-	     ,(gsl-name "calloc") ,cargs
-	     :type :method
-	     :c-return (cr :pointer)
-	     :return ((assign-pointer object cr)))
-	   (defun-gsl free ((object ,object-name))
-	     ,(gsl-name "free") (((pointer object) :pointer))
-	     :type :method
-	     :c-return :void)
-	   (defun-gsl write-binary ((object ,object-name) stream)
-	     ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
-	     :type :method)
-	   (defun-gsl read-binary ((object ,object-name) stream)
-	     ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
-	     :type :method)
-	   (defun-gsl write-formatted ((object ,object-name) stream format)
-	     ,(gsl-name "fprintf")
-	     ((stream :pointer) ((pointer object) :pointer) (format :string))
-	     :type :method)
-	   (defun-gsl read-formatted ((object ,object-name) stream format)
-	     ,(gsl-name "fscanf")
-	     ((stream :pointer) ((pointer object) :pointer) (format :string))
-	     :type :method))))))
+  (setf *data-name-alist* (acons cl-symbol c-string *data-name-alist*))
+  ;; Need to remove duplicates from *data-name-alist*
+  (flet ((gsl-name (function-name)
+	   (format nil "gsl_~a_~a" c-string function-name)))
+    (let* ((cargs (loop for i below dimensions
+			collect `((nth ,i (storage-size object)) :size)))
+	   (object-name (data-object-name cl-symbol)))
+      `(progn
+	(defclass ,object-name (gsl-data)
+	  ((cl-base-type :initform ',cl-base-type :reader cl-base-type
+			 :allocation :class)))
+	(defun-gsl alloc ((object ,object-name))
+	  ,(gsl-name "alloc") ,cargs
+	  :type :method
+	  :c-return (cr :pointer)
+	  :return ((assign-pointer object cr)))
+	(defun-gsl calloc ((object ,object-name))
+	  ,(gsl-name "calloc") ,cargs
+	  :type :method
+	  :c-return (cr :pointer)
+	  :return ((assign-pointer object cr)))
+	(defun-gsl free ((object ,object-name))
+	  ,(gsl-name "free") (((pointer object) :pointer))
+	  :type :method
+	  :c-return :void)
+	(defun-gsl write-binary ((object ,object-name) stream)
+	  ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
+	  :type :method)
+	(defun-gsl read-binary ((object ,object-name) stream)
+	  ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
+	  :type :method)
+	(defun-gsl write-formatted ((object ,object-name) stream format)
+	  ,(gsl-name "fprintf")
+	  ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  :type :method)
+	(defun-gsl read-formatted ((object ,object-name) stream format)
+	  ,(gsl-name "fscanf")
+	  ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  :type :method)))))
+
+(defun splice-name (base-name remove symbol)
+  "Make a new C name for a data function from a base name." 
+  (let* ((start (search remove base-name))
+	 (end (+ start (length remove))))
+    (concatenate 'string
+		 (subseq base-name 0 start)
+		 (rest (assoc symbol *data-name-alist*))
+		 (subseq base-name end))))
+
+;;; (splice-name "gsl_vector_get" "vector" 'vector-fixnum)
+;;; "gsl_vector_int_get"
+;;; (data-object-name 'vector-fixnum)
+;;; GSL-VECTOR-FIXNUM
+
+(defmacro defun-gsl-all-vector (&rest args)
+  "A defun-gsl for each of the declared data types."
+  `(progn
+    ,@(loop for type in '(vector-double vector-single vector-fixnum vector-complex)
+	    for ctype in '(:double :float :int 'gsl-complex)
+	    collect
+	    `(defun-gsl ,(first args)
+	      ;; Set the class name for the arglist
+	      ,(mapcar
+		(lambda (x)
+		  (if (and (listp x) (eq (second x) 'gsl-vector))
+		      (list (first x) (data-object-name type))
+		      x))
+		(second args))
+	      ;; Create the correct GSL C library function name
+	      ,(splice-name (third args) "vector" type)
+	      ,(mapcar
+		(lambda (x)
+		  (if (eq (st-type x) :c-base-type)
+		      (list (st-symbol x) ctype)
+		      x))
+		(fourth args))
+	      ,@(let ((restargs (copy-list (nthcdr 4 args))))
+		     (when (eq (getf restargs :c-return) :c-base-type)
+		       (setf (getf restargs :c-return) ctype))
+		     restargs)))))
+
+#+development
+(defun-gsl-all-vector gsl-aref ((vector gsl-vector) &rest indices)
+    "gsl_vector_get"
+  (((pointer vector) :pointer) ((first indices) :size))
+  :type :method
+  :c-return :c-base-type
+  :documentation "The ith element of the vector.")
 
 ;;;;****************************************************************************
 ;;;; Making data objects and initializing storage

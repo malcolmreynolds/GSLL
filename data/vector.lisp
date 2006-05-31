@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Tue May 30 2006 - 22:57
+; modified:    Wed May 31 2006 - 09:33
 ;********************************************************
 ;;; $Id: $
 
@@ -50,10 +50,10 @@ deallocated with the vector.
   (owner :int))
 
 ;;; Allocation, freeing, reading and writing
-(defdata "vector" 'double-float)
-(defdata "vector_float" 'single-float)
-(defdata "vector_complex" 'complex)
-(defdata "vector_int" 'fixnum)
+(defdata "vector" vector-double double-float)
+(defdata "vector_float" vector-single single-float)
+(defdata "vector_complex" vector-complex complex)
+(defdata "vector_int" vector-fixnum fixnum)
 
 (defmethod gsl-array ((object gsl-vector))
   (foreign-slot-value (pointer object) 'gsl-vector-c 'data))
