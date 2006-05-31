@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Tue May 30 2006 - 09:40
+; modified:    Tue May 30 2006 - 22:59
 ;********************************************************
 ;;; $Id: $
 
@@ -28,17 +28,16 @@
 	    ((:file "conditions")
 	     (:file "mathematical")))
    ;; complex numbers not necessary?  Just make a struct.
-   #+future
    (:module data
 	    :depends-on (init)
 	    :components
 	    ((:file "data")
 	     (:file "block" :depends-on (data))
 	     (:file "vector" :depends-on (data))
-	     (:file "matrix" :depends-on (data))
-	     (:file "permutation" :depends-on (data))
-	     (:file "combination" :depends-on (data))))
-
+	     ;;(:file "matrix" :depends-on (data))
+	     ;;(:file "permutation" :depends-on (data))
+	     ;;(:file "combination" :depends-on (data))
+	     ))
    #+future
    (:file "cffi-array")
    #+future

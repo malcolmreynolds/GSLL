@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Tue May 30 2006 - 09:18
+; modified:    Tue May 30 2006 - 22:34
 ;********************************************************
 
 (in-package :gsl)
@@ -189,7 +189,7 @@
     (name arglist gsl-name c-arguments
      &key (c-return :error-code)
      (return nil return-supplied-p)
-     (type :function) index (export t)
+     (type :function) index (export (not (eq type :method)))
      documentation
      check-null-pointers invalidate after)
   (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
@@ -210,7 +210,9 @@
 	   allocated))
 	 (clret (or (substitute cret-name :c-return return)
 		    (mapcan #'pick-result allocated-decl)
-		    (list cret-name))))
+		    invalidate
+		    (unless (eq c-return :void)
+		      (list cret-name)))))
     `(progn
        (,(if (eq type :function) 'defun 'defmethod)
 	 ,name

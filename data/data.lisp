@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Tue May 30 2006 - 17:38
+; modified:    Tue May 30 2006 - 23:30
 ;********************************************************
 ;;; $Id: $
 
@@ -100,50 +100,53 @@
 	     (print-data-object object nil stream))))
   (setf (pointer object) pointer))
 
-(defmacro defdata (string cl-base-type &optional (dimensions 1))
+;;; (args (loop for i below dimensions collect (intern (format nil "I~d" i))))
+;;; (mapcar (lambda (v) `(,v :size))			    args)
+
+(defmacro defdata (name cl-base-type &optional (dimensions 1))
   "For the type named in the string,
    define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
    freeing (gsl-*-free), binary writing (binary-*-write) and
    reading (binary-*-read), formatted writing (write-*-formatted)
    and reading (read-*-formatted) functions."
-  (flet ((gsl-name (function-name)
-	   (format nil "gsl_~a_~a" string function-name)))
-    (let ((cargs
-	   (cons '((pointer object) :pointer)
-		 (loop for i below dimensions collect `((nth ,i (storage-size object)) :size))))
-	  (object-name (data-object-name string)))
-      `(progn
-	(defclass ,object-name (gsl-data)
-	  ((cl-base-type :initform ,cl-base-type :reader cl-base-type
-			 :allocation :class)))
-	(defun-gsl alloc ((object ,object-name))
-	  ,(gsl-name "alloc") ,cargs
-	  :type :method
-	  :c-return (cr :pointer)
-	  :return ((assign-pointer object cr)))
-	(defun-gsl calloc ((object ,object-name))
-	  ,(gsl-name "calloc") ,cargs
-	  :type :method
-	  :c-return (cr :pointer)
-	  :return ((assign-pointer object cr)))
-	(defun-gsl free ((object ,object-name))
-	  ,(gsl-name "free") (((pointer object) :pointer))
-	  :type :method
-	  :c-return :void)
-	(defun-gsl write-binary ((object ,object-name) stream)
-	  ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
-	  :type :method)
-	(defun-gsl read-binary ((object ,object-name) stream)
-	  ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
-	  :type :method)
-	(defun-gsl write-formatted ((object ,object-name) stream format)
-	  ,(gsl-name "fprintf")
-	  ((stream :pointer) ((pointer object) :pointer) (format :string))
-	  :type :method)
-	(defun-gsl read-formatted ((object ,object-name) stream format)
-	  ,(gsl-name "fscanf")
-	  ((stream :pointer) ((pointer object) :pointer) (format :string))
-	  :type :method)))))
+  (let ((string (substitute #\- #\_ name)))
+    (flet ((gsl-name (function-name)
+	     (format nil "gsl_~a_~a" name function-name)))
+      (let* ((cargs (loop for i below dimensions
+		       collect `((nth ,i (storage-size object)) :size)))
+	     (object-name (data-object-name string)))
+	`(progn
+	   (defclass ,object-name (gsl-data)
+	     ((cl-base-type :initform ,cl-base-type :reader cl-base-type
+			    :allocation :class)))
+	   (defun-gsl alloc ((object ,object-name))
+	     ,(gsl-name "alloc") ,cargs
+	     :type :method
+	     :c-return (cr :pointer)
+	     :return ((assign-pointer object cr)))
+	   (defun-gsl calloc ((object ,object-name))
+	     ,(gsl-name "calloc") ,cargs
+	     :type :method
+	     :c-return (cr :pointer)
+	     :return ((assign-pointer object cr)))
+	   (defun-gsl free ((object ,object-name))
+	     ,(gsl-name "free") (((pointer object) :pointer))
+	     :type :method
+	     :c-return :void)
+	   (defun-gsl write-binary ((object ,object-name) stream)
+	     ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
+	     :type :method)
+	   (defun-gsl read-binary ((object ,object-name) stream)
+	     ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
+	     :type :method)
+	   (defun-gsl write-formatted ((object ,object-name) stream format)
+	     ,(gsl-name "fprintf")
+	     ((stream :pointer) ((pointer object) :pointer) (format :string))
+	     :type :method)
+	   (defun-gsl read-formatted ((object ,object-name) stream format)
+	     ,(gsl-name "fscanf")
+	     ((stream :pointer) ((pointer object) :pointer) (format :string))
+	     :type :method))))))
 
 ;;;;****************************************************************************
 ;;;; Making data objects and initializing storage
