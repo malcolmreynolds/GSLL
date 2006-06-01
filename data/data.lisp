@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Wed May 31 2006 - 17:36
+; modified:    Wed May 31 2006 - 22:04
 ;********************************************************
 ;;; $Id: $
 
@@ -105,7 +105,9 @@
 
 (defvar *data-name-alist* nil)
 
-(defmacro defdata (c-string cl-symbol cl-base-type &optional (dimensions 1))
+(defmacro defdata
+    (c-string cl-symbol cl-base-type
+     &optional (superclass 'gsl-data) (dimensions 1))
   "For the type named in the string,
    define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
    freeing (gsl-*-free), binary writing (binary-*-write) and
@@ -119,7 +121,7 @@
 			collect `((nth ,i (storage-size object)) :size)))
 	   (object-name (data-object-name cl-symbol)))
       `(progn
-	(defclass ,object-name (gsl-data)
+	(defclass ,object-name (,superclass)
 	  ((cl-base-type :initform ',cl-base-type :reader cl-base-type
 			 :allocation :class)))
 	(defun-gsl alloc ((object ,object-name))
@@ -165,40 +167,33 @@
 ;;; (data-object-name 'vector-fixnum)
 ;;; GSL-VECTOR-FIXNUM
 
-(defmacro defun-gsl-all-vector (&rest args)
+(defun defun-gsl-all (types ctypes string general-class args)
   "A defun-gsl for each of the declared data types."
   `(progn
-    ,@(loop for type in '(vector-double vector-single vector-fixnum vector-complex)
-	    for ctype in '(:double :float :int 'gsl-complex)
-	    collect
-	    `(defun-gsl ,(first args)
-	      ;; Set the class name for the arglist
-	      ,(mapcar
-		(lambda (x)
-		  (if (and (listp x) (eq (second x) 'gsl-vector))
-		      (list (first x) (data-object-name type))
-		      x))
-		(second args))
-	      ;; Create the correct GSL C library function name
-	      ,(splice-name (third args) "vector" type)
-	      ,(mapcar
-		(lambda (x)
-		  (if (eq (st-type x) :c-base-type)
-		      (list (st-symbol x) ctype)
-		      x))
-		(fourth args))
-	      ,@(let ((restargs (copy-list (nthcdr 4 args))))
-		     (when (eq (getf restargs :c-return) :c-base-type)
-		       (setf (getf restargs :c-return) ctype))
-		     restargs)))))
-
-#+development
-(defun-gsl-all-vector gsl-aref ((vector gsl-vector) &rest indices)
-    "gsl_vector_get"
-  (((pointer vector) :pointer) ((first indices) :size))
-  :type :method
-  :c-return :c-base-type
-  :documentation "The ith element of the vector.")
+     ,@(loop for type in types
+	  for ctype in ctypes
+	  collect
+	  `(defun-gsl ,(first args)
+	       ;; Set the class name for the arglist
+	       ,(mapcar
+		 (lambda (x)
+		   (if (and (listp x) (eq (second x) general-class))
+		       (list (first x) (data-object-name type))
+		       x))
+		 (second args))
+	     ;; Create the correct GSL C library function name
+	     ,(splice-name (third args) string type)
+	     ,(mapcar
+	       (lambda (x)
+		 (if (eq (st-type x) :c-base-type)
+		     (list (st-symbol x) ctype)
+		     x))
+	       (fourth args))
+	     ,@(let ((restargs (copy-list (nthcdr 4 args))))
+		    (when (eq (getf restargs :c-return) :c-base-type)
+		      (setf (getf restargs :c-return) ctype))
+		    (setf (getf restargs :type) :method)
+		    restargs)))))
 
 ;;;;****************************************************************************
 ;;;; Making data objects and initializing storage
@@ -317,6 +312,68 @@
   (:documentation "Set elements to represent the identity.")
   (:method :after ((object gsl-data)) (cl-invalidate object)))
 
+(export 'set-basis)
+(defgeneric set-basis (object index)
+  (:documentation "Set indexth basis vector."))
+
 (export 'data-valid)
 (defgeneric data-valid (object)
   (:documentation "Validate the values in the object."))
+
+;;;;****************************************************************************
+;;;; Arithmetic operations
+;;;;****************************************************************************
+
+(export '(gsl+ gsl- gsl* gsl/ gsl*c gsl+c))
+
+(defgeneric gsl+ (a b)
+  (:documentation "Add."))
+
+(defgeneric gsl- (a b)
+  (:documentation "Subtract."))
+
+(defgeneric gsl* (a b)
+  (:documentation "Multiply."))
+
+(defgeneric gsl/ (a b)
+  (:documentation "Divide."))
+
+(defgeneric gsl+c (a x)
+  (:documentation "Add scalar."))
+
+(defgeneric gsl*c (a x)
+  (:documentation "Multiply by scalar."))
+
+;;;;****************************************************************************
+;;;; Maximum and minimum elements
+;;;;****************************************************************************
+
+(export
+ '(gsl-max gsl-min gsl-minmax gsl-max-index gsl-min-index gsl-minmax-index))
+
+(defgeneric gsl-min (a)
+  (:documentation "Minimum."))
+
+(defgeneric gsl-max (a)
+  (:documentation "Maximum."))
+
+(defgeneric gsl-minmax (a)
+  (:documentation "Minimum and maximum."))
+
+(defgeneric gsl-min-index (a)
+  (:documentation "Index of minimum."))
+
+(defgeneric gsl-max-index (a)
+  (:documentation "Index of maximum."))
+
+(defgeneric gsl-minmax-index (a)
+  (:documentation "Indices of minimum and maximum."))
+
+;;;;****************************************************************************
+;;;; Properties
+;;;;****************************************************************************
+
+(export '(gsl-zerop))
+
+(defgeneric gsl-zerop (a)
+  (:documentation "Object is zero."))

@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Tue May 30 2006 - 22:34
+; modified:    Wed May 31 2006 - 22:39
 ;********************************************************
 
 (in-package :gsl)
@@ -98,10 +98,14 @@
 (defun size-to-cl (size &optional (index 0))
   (cffi:mem-aref size :size index))
 
+(defun int-to-cl (integer &optional (index 0))
+  (cffi:mem-aref integer :int index))
+
 (defun cl-convert-function (type)
   (case type
     (:double 'double-to-cl)
     (:size 'size-to-cl)
+    (:int 'int-to-cl)
     (gsl-complex 'complex-to-cl)))
 
 (defparameter *make-sequence-type* 'list
@@ -280,29 +284,6 @@
 @math{L = Lmin \dots Lmin + kmax}, storing the results in @var{array}.
 In the case of overflow the exponent is stored in @var{exponent}."
   :return (array exponent))
-
-(defun-gsl vector-minmax-index-new (v)
-  "gsl_vector_minmax_index" (((pointer v) gsl-vector-c) (min :size) (max :size))
-  :documentation
-  "The indices of the minimum and maximum values in the vector @var{v}.
-  When there are several equal minimum elements then the lowest index is
-  returned."
-  :c-return :void)
-
-(defun-gsl set-all-new ((object gsl-vector) value)
-  "gsl_vector_set_all"
-  (((pointer object) :pointer) (value :double))
-  :type :method
-  :return ()
-  :c-return :void)
-
-(defun-gsl gsl-aref-new ((vector gsl-vector) &rest indices)
-    "gsl_vector_get"
-  (((pointer vector) :pointer) ((first indices) :size))
-  :type :method
-  :c-return :double
-  :return (:c-return)
-  :documentation "The ith element of the vector.")
 
 (defun-gsl airy-Ai-new (x)  
   "gsl_sf_airy_Ai_e"			; gsl-name
