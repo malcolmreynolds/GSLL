@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed May 31 2006 - 22:39
+; modified:    Thu Jun  1 2006 - 14:21
 ;********************************************************
 
 (in-package :gsl)
@@ -74,81 +74,6 @@
 	  `(',(st-type d)))))
 
 ;;;;****************************************************************************
-;;;;  Native types
-;;;;****************************************************************************
-
-(cffi:defcstruct gsl-complex
-  "A complex number in GSL."
-  (dat :double :count 2))
-
-(defun complex-to-cl (gsl-complex &optional (index 0))
-  "Make a CL complex number from the GSL pointer to a complex struct or
-   an array of complex structs and an index into the array." 
-  (let ((carr (cffi:foreign-slot-value
-	       (cffi:inc-pointer
-		gsl-complex
-		(* index (cffi:foreign-type-size 'gsl-complex)))
-	       'gsl-complex 'dat)))
-    (complex (mem-aref carr :double 0)
-	     (mem-aref carr :double 1))))
-
-(defun double-to-cl (double &optional (index 0))
-  (cffi:mem-aref double :double index))
-
-(defun size-to-cl (size &optional (index 0))
-  (cffi:mem-aref size :size index))
-
-(defun int-to-cl (integer &optional (index 0))
-  (cffi:mem-aref integer :int index))
-
-(defun cl-convert-function (type)
-  (case type
-    (:double 'double-to-cl)
-    (:size 'size-to-cl)
-    (:int 'int-to-cl)
-    (gsl-complex 'complex-to-cl)))
-
-(defparameter *make-sequence-type* 'list
-  "Whether sequences should be returned as list or vector.")
-
-(defun items-in-sequence (element-function length)
-  "Make a CL sequence of the type specified by *make-sequence-type*,
-   computing each element with the function element-function."
-  (let ((ans (make-sequence *make-sequence-type* length)))
-    (dotimes (i length ans)
-      (setf (elt ans i)
-	    (funcall element-function i)))))
-
-(defun pick-result (decl)
-  (if (st-arrayp decl)		; eventually, check that it's a vector
-      `((map *make-sequence-type*
-	     (function
-	      ,(cl-convert-function (st-eltype decl)))
-	     (cffi::foreign-array-to-lisp
-	      ,(st-symbol decl)
-	      ',(st-eltype decl)
-	      (list ,(st-dim decl)))))
-      (case (st-type decl)
-	(sf-result 
-	 `((val ,(st-symbol decl))
-	   (err ,(st-symbol decl))))
-	(sf-result-e10
-	 `((val ,(st-symbol decl) 'sf-result-e10)
-	   (e10 ,(st-symbol decl))
-	   (err ,(st-symbol decl) 'sf-result-e10)))
-	(t `((,(cl-convert-function (st-type decl)) ,(st-symbol decl)))))))
-
-(defun rearrange-sf-result-err (return-list)
-  "Put the 'err values from the sf-results at the end of the return values."
-  (flet ((sf-err (x)
-	   (and (eq (first x) 'cffi:foreign-slot-value)
-		(member (third x) '('sf-result 'sf-result-e10) :test #'equal)
-		(equal (fourth x) ''err))))
-    (append
-     (remove-if #'sf-err return-list)
-     (remove-if-not #'sf-err return-list))))
-
-;;;;****************************************************************************
 ;;;; Checking results from GSL functions
 ;;;;****************************************************************************
 
@@ -213,7 +138,7 @@
 	   (lambda (s) (find s cargs :key #'st-symbol))
 	   allocated))
 	 (clret (or (substitute cret-name :c-return return)
-		    (mapcan #'pick-result allocated-decl)
+		    (mapcan #'cl-convert-form allocated-decl)
 		    invalidate
 		    (unless (eq c-return :void)
 		      (list cret-name)))))
@@ -269,7 +194,7 @@
 #+development
 (t
  (rearrange-sf-result-err
-  (mapcan #'pick-result return-symb-type)))
+  (mapcan #'cl-convert-form return-symb-type)))
 ;;(x &optional (mode :double-prec))
 
 ;;;; Ports
