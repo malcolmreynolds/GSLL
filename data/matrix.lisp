@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Apr 18 2006 - 23:27
+; modified:    Fri Jun  2 2006 - 22:29
 ;********************************************************
 ;;; $Id: $
 
@@ -22,32 +22,50 @@
   (block :pointer)
   (owner :int))
 
+(defclass gsl-matrix (gsl-data) ())
+
 ;;; Allocation, freeing, reading and writing
-(defdata "matrix" :double 'double-float 2)
+(defdata "matrix" matrix-double double-float gsl-matrix 2)
+(defdata "matrix_float" matrix-single single-float gsl-matrix 2)
+(defdata "matrix_int" matrix-fixnum fixnum gsl-matrix 2)
+(defdata "matrix_complex" matrix-complex complex gsl-matrix 2)
+
+(defmacro defun-gsl-mdsfc (&rest args)
+  "A defun-gsl for matrices of double, single, fixnum, and complex."
+  (defun-gsl-all
+      '(matrix-double matrix-single matrix-fixnum matrix-complex)
+      '(:double :float :int gsl-complex)
+    "matrix"
+    'gsl-matrix
+    args))
+
+(defmacro defun-gsl-mdsf (&rest args)
+  "A defun-gsl for matrices of double, single, and fixnum."
+  (defun-gsl-all
+      '(matrix-double matrix-single matrix-fixnum)
+      '(:double :float :int)
+    "matrix"
+    'gsl-matrix
+    args))
 
 (defmethod gsl-array ((object gsl-matrix))
   (foreign-slot-value (pointer object) 'gsl-matrix-c 'data))
-
-(add-wrap-type gsl-matrix-c (lambda (x) `(pointer ,x)))
 
 ;;;;****************************************************************************
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defun-gsl gsl-aref
-    (((pointer matrix) :pointer)
-     ((first indices) :size)
-     ((second indices) :size))
+(defun-gsl-mdsfc gsl-aref ((matrix gsl-matrix) &rest indices)
   "gsl_matrix_get"
-  :method ((matrix gsl-matrix) &rest indices)
-  :return (:double)
-  :c-return-value :return
+  (((pointer matrix) :pointer)
+   ((first indices) :size)
+   ((second indices) :size))
+  :c-return :c-base-type
   :documentation "The (i,j)-th element of the matrix.")
 
-(defun-gsl gsl-matrix-ptr ((matrix :pointer) (i :size) (j :size))
-  "gsl_matrix_ptr"
-  :return (:pointer)
-  :c-return-value :return
+(defun-gsl-mdsfc gsl-matrix-ptr ((matrix gsl-matrix) i j)
+  "gsl_matrix_ptr" (((pointer matrix) :pointer) (i :size) (j :size))
+  :c-return :pointer
   :documentation "A pointer to the @math{(i,j)}-th element of a
   matrix @var{m}.")
 
@@ -68,14 +86,13 @@
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defun-gsl (setf gsl-aref)
-    (((pointer matrix) :pointer)
-     ((first indices) :size)
-     ((second indices) :size)
-     (value :double))
+(defun-gsl-mdsfc (setf gsl-aref) (value (matrix gsl-matrix) &rest indices)
   "gsl_matrix_set"
-  :method (value (matrix gsl-matrix) &rest indices)
-  :c-return-value :void
+  (((pointer matrix) :pointer)
+   ((first indices) :size)
+   ((second indices) :size)
+   (value :c-base-type))
+  :c-return :void
   :documentation "Set the (i,j)-th element of the matrix.")
 
 (defmethod (setf data) (array (object gsl-matrix))
@@ -89,21 +106,19 @@
 	      do
 	      (setf (gsl-aref object i j) (aref array i j)))))
 
-(defun-gsl set-all (((pointer object) :pointer) (value :double))
+(defun-gsl-mdsfc set-all ((object gsl-matrix) value)
   "gsl_matrix_set_all"
-  :method ((object gsl-matrix) value)
-  :return ()
-  :c-return-value :void)
+  (((pointer object) :pointer) (value :c-base-type))
+  :c-return :void)
 
-(defun-gsl set-zero (((pointer object) :pointer))
+(defun-gsl-mdsfc set-zero ((object gsl-matrix))
   "gsl_matrix_set_zero"
-  :method ((object gsl-matrix))
-  :c-return-value :void)
+  (((pointer object) :pointer))
+  :c-return :void)
 
-(defun-gsl set-identity (((pointer matrix) gsl-matrix-c))
-  "gsl_matrix_set_identity"
-  :c-return-value :void
-  :method ((matrix gsl-matrix))
+(defun-gsl-mdsfc set-identity ((matrix gsl-matrix))
+  "gsl_matrix_set_identity" (((pointer matrix) gsl-matrix-c))
+  :c-return :void
   :documentation
   "Set the elements of the matrix @var{m} to the
   corresponding elements of the identity matrix, @math{m(i,j) =
@@ -117,18 +132,10 @@
 (cffi:defcstruct gsl-matrix-view
   (matrix gsl-matrix-c))
 
-(add-wrap-type
- gsl-matrix-view
- (lambda (x)
-   `(make-instance 'gsl-matrix
-     :pointer
-     (cffi:foreign-slot-value ,x 'gsl-matrix-view 'matrix))))
-
-(defun-gsl submatrix
-    ((matrix gsl-matrix-c) (k1 :size) (k2 :size) (n1 :size) (n2 :size))
+(defun-gsl-mdsfc submatrix ((matrix gsl-matrix) k1 k2 n1 n2)
   "gsl_matrix_submatrix"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+  (((pointer matrix) gsl-matrix-c) (k1 :size) (k2 :size) (n1 :size) (n2 :size))
+  :c-return gsl-matrix-view
   :documentation
   "A matrix view of a submatrix of the matrix
    @var{m}.  The upper-left element of the submatrix is the element
@@ -136,91 +143,115 @@
    rows and @var{n2} columns.  The physical number of columns in memory
    given by @var{tda} is unchanged.")
 
-(defun-gsl matrix-array ((matrix gsl-matrix-c) (n1 :size) (n2 :size))
+(defun-gsl-mdsfc matrix-array ((matrix gsl-matrix) n1 n2)
   "gsl_matrix_view_array"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+  (((pointer matrix) gsl-matrix-c) (n1 :size) (n2 :size))
+  :c-return gsl-matrix-view
   :documentation
   "A matrix view of the array @var{base}.  The
   matrix has @var{n1} rows and @var{n2} columns.  The physical number of
   columns in memory is also given by @var{n2}.")
 
-(defun-gsl matrix-array-tda
-    ((matrix gsl-matrix-c) (n1 :size) (n2 :size) (tda :size))
+(defun-gsl-mdsfc matrix-array-tda ((matrix gsl-matrix) n1 n2 tda)
   "gsl_matrix_view_array_with_tda"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+  (((pointer matrix) gsl-matrix-c) (n1 :size) (n2 :size) (tda :size))
+  :c-return gsl-matrix-view
   :documentation
-  "These functions return a matrix view of the array @var{base} with a
-physical number of columns @var{tda} which may differ from the corresponding
-dimension of the matrix.  The matrix has @var{n1} rows and @var{n2}
-columns, and the physical number of columns in memory is given by
-@var{tda}.")
+  "A matrix view of the array @var{base} with a
+  physical number of columns @var{tda} which may differ from the corresponding
+  dimension of the matrix.  The matrix has @var{n1} rows and @var{n2}
+  columns, and the physical number of columns in memory is given by
+  @var{tda}.")
 
-(defun-gsl matrix-vector ((vector gsl-vector-c) (n1 :size) (n2 :size))
+(defmacro defun-gsl-mvdsfc (&rest args)
+  "A defun-gsl for vectors of double, single, fixnum, and complex,
+  translating to a GSL function named matrix_*."
+  (defun-gsl-all
+      '(matrix-double matrix-single matrix-fixnum matrix-complex)
+      '(:double :float :int gsl-complex)
+    "matrix"
+    'gsl-vector
+    args))
+
+(defun-gsl-mvdsfc matrix-vector ((v gsl-vector) n1 n2)
   "gsl_matrix_view_vector"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+  (((pointer v) gsl-vector-c) (n1 :size) (n2 :size))
+  :c-return gsl-matrix-view
   :documentation
-  "A matrix view of the vector @var{base}.  The
-  matrix has @var{n1} rows and @var{n2} columns.  The physical number of
-  columns in memory is also given by @var{n2}.")
+  "A matrix view of the vector @var{v}.  The matrix
+  has @var{n1} rows and @var{n2} columns. The vector must have unit
+  stride. The physical number of columns in memory is also given by
+  @var{n2}.  Mathematically, the @math{(i,j)}-th element of the new
+  matrix is given by m'(i,j) = v->data[i*n2 + j]
+  where the index @var{i} runs from 0 to @code{n1-1} and the index @var{j}
+  runs from 0 to @code{n2-1}.
+  The new matrix is only a view of the vector @var{v}.  When the view
+  goes out of scope the original vector @var{v} will continue to exist.
+  The original memory can only be deallocated by freeing the original
+  vector.  Of course, the original vector should not be deallocated while
+  the view is still in use.")
 
-(defun-gsl matrix-vector-tda
-    ((vector gsl-vector-c) (n1 :size) (n2 :size) (tda :size))
-  "gsl_matrix_view_vector_with_tda"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+(defun-gsl-mvdsfc matrix-vector-tda ((v gsl-vector) n1 n2 tda)
+    "gsl_matrix_view_vector_with_tda"
+  (((pointer v) gsl-vector-c) (n1 :size) (n2 :size) (tda :size))
+  :c-return gsl-matrix-view
   :documentation
-  "These functions return a matrix view of the vector @var{base} with a
-physical number of columns @var{tda} which may differ from the corresponding
-dimension of the matrix.  The matrix has @var{n1} rows and @var{n2}
-columns, and the physical number of columns in memory is given by
-@var{tda}.")
+  "A matrix view of the vector @var{v} with a
+  physical number of columns @var{tda} which may differ from the
+  corresponding matrix dimension.  The vector must have unit stride. The
+  matrix has @var{n1} rows and @var{n2} columns, and the physical number
+  of columns in memory is given by @var{tda}.  Mathematically, the
+  @math{(i,j)}-th element of the new matrix is given by
+  m'(i,j) = v->data[i*tda + j]
+  where the index @var{i} runs from 0 to @code{n1-1} and the index @var{j}
+  runs from 0 to @code{n2-1}.
+  The new matrix is only a view of the vector @var{v}.  When the view
+  goes out of scope the original vector @var{v} will continue to exist.
+  The original memory can only be deallocated by freeing the original
+  vector.  Of course, the original vector should not be deallocated while
+  the view is still in use.")
 
 ;;;;****************************************************************************
 ;;;; Row and Column Views
 ;;;;****************************************************************************
 
-(defun-gsl row-view ((matrix gsl-matrix-c) (i :size))
-  "gsl_matrix_row"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+(defun-gsl-mdsfc row-view ((matrix gsl-matrix) i) 
+  "gsl_matrix_row" (((pointer matrix) gsl-matrix-c) (i :size))
+  :c-return gsl-vector-view
   :check-null-pointers
   ((:creturn :EFAULT (format nil "index ~d out of range" i)))
   :documentation
   "A vector view of the @var{i}-th row of the matrix.")
 
-(defun-gsl column-view ((matrix gsl-matrix-c) (j :size))
-  "gsl_matrix_column"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+(defun-gsl-mdsfc column-view ((matrix gsl-matrix) j)
+  "gsl_matrix_column" ((matrix gsl-matrix-c) (j :size))
+  :c-return gsl-matrix-view
   :check-null-pointers
   ((:creturn :EFAULT (format nil "index ~d out of range" j)))
   :documentation
   "A vector view of the @var{j}-th column of the matrix.")
 
-(defun-gsl diagonal-view ((matrix gsl-matrix-c))
-  "gsl_matrix_diagonal"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+(defun-gsl-mdsfc diagonal-view ((matrix gsl-matrix))
+  "gsl_matrix_diagonal" ((matrix gsl-matrix-c))
+  :c-return gsl-matrix-view
   :documentation
-  "A vector view of the diagonal of the matrix. The matrix is not required to be square.
+  "A vector view of the diagonal of the matrix.
+   The matrix is not required to be square.
    For a rectangular matrix the length of the diagonal is the same as the smaller
    dimension of the matrix.")
 
-(defun-gsl subdiagonal-view ((matrix gsl-matrix-c) (k :size))
-  "gsl_matrix_subdiagonal"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+(defun-gsl-mdsfc subdiagonal-view ((matrix gsl-matrix) k)
+  "gsl_matrix_subdiagonal" ((matrix gsl-matrix-c) (k :size))
+  :c-return gsl-matrix-view
   :documentation
   "A vector view of the @var{k}-th subdiagonal of the matrix; it is not
-   required to be square.  The diagonal of the matrix corresponds to @math{k = 0}.")
+   required to be square.  The diagonal of the matrix corresponds to
+   @math{k = 0}.")
 
-(defun-gsl superdiagonal-view ((matrix gsl-matrix-c) (k :size))
+(defun-gsl-mdsfc superdiagonal-view ((matrix gsl-matrix) k)
   "gsl_matrix_superdiagonal"
-  :c-return-value :return
-  :return (gsl-matrix-view)
+  ((matrix gsl-matrix-c) (k :size))
+  :c-return gsl-matrix-view
   :documentation
   "A vector view of the @var{k}-th superdiagonal of the matrix; it is not
    required to be square. The diagonal of the matrix corresponds to @math{k = 0}.")
@@ -229,18 +260,17 @@ columns, and the physical number of columns in memory is given by
 ;;;; Copying
 ;;;;****************************************************************************
 
-(defun-gsl matrix-copy
-    ((destination gsl-matrix-c) (source gsl-matrix-c))
+(defun-gsl-mdsfc matrix-copy ((destination gsl-matrix) (source gsl-matrix))
   "gsl_matrix_memcpy"
-  :after ((cl-invalidate destination))
+  ((destination gsl-matrix-c) (source gsl-matrix-c))
+  :invalidate (destination)
   :documentation
   "Copy the elements of the matrix @var{source} into the
    matrix @var{destination}.  The two matrices must have the same size.")
 
-(defun-gsl matrix-swap
-    ((m1 gsl-matrix-c) (m2 gsl-matrix-c))
-  "gsl_matrix_swap"
-  :after ((cl-invalidate m1 m2))
+(defun-gsl-mdsfc matrix-swap ((m1 gsl-matrix) (m2 gsl-matrix))
+  "gsl_matrix_swap" ((m1 gsl-matrix-c) (m2 gsl-matrix-c))
+  :invalidate (m1 m2)
   :documentation
   "Exchange the elements of the matrices @var{m1} and
    @var{m2} by copying.  The two matrices must have the same size.")
@@ -249,31 +279,37 @@ columns, and the physical number of columns in memory is given by
 ;;;; Copying rows and columns
 ;;;;****************************************************************************
 
-(defun-gsl row ((vector gsl-vector-c) (matrix gsl-matrix-c) (i :size))
+(defun-gsl-mdsfc row ((vector gsl-vector) (matrix gsl-matrix) i)
   "gsl_matrix_get_row"
+  ((vector gsl-vector-c) (matrix gsl-matrix-c) (i :size))
+  :invalidate (vector)
   :documentation
   "Copy the elements of the @var{i}-th row of the matrix
    into the vector.  The length of the vector must be the
    same as the length of the row.")
 
-(defun-gsl column ((vector gsl-vector-c) (matrix gsl-matrix-c) (j :size))
+(defun-gsl-mdsfc column ((vector gsl-vector) (matrix gsl-matrix) i)
   "gsl_matrix_get_col"
+  ((vector gsl-vector-c) (matrix gsl-matrix-c) (j :size))
+  :invalidate (vector)
   :documentation
   "Copy the elements of the @var{j}-th column of the matrix
    into the vector.  The length of the vector must be the
    same as the length of the column.")
 
-(defun-gsl set-row ((matrix gsl-matrix-c) (i :size) (vector gsl-vector-c))
+(defun-gsl-mdsfc set-row ((matrix gsl-matrix) i (vector gsl-vector))
   "gsl_matrix_set_row"
-  :after ((cl-invalidate matrix))
+  ((matrix gsl-matrix-c) (i :size) (vector gsl-vector-c))
+  :invalidate (matrix)
   :documentation
   "Copy the elements of the vector into the
    @var{i}-th row of the matrix.  The length of the vector must be
    the same as the length of the row.")
 
-(defun-gsl set-column ((matrix gsl-matrix-c) (j :size) (vector gsl-vector-c))
+(defun-gsl-mdsfc set-column ((matrix gsl-matrix) j (vector gsl-vector))
   "gsl_matrix_set_col"
-  :after ((cl-invalidate matrix))
+  ((matrix gsl-matrix-c) (j :size) (vector gsl-vector-c))
+  :invalidate (matrix)
   :documentation
   "Copy the elements of the vector into the @var{j}-th column of the matrix.
   The length of the vector must be the same as the length of the column.")
@@ -285,38 +321,42 @@ columns, and the physical number of columns in memory is given by
 ;;;; Exchanging rows and columns
 ;;;;****************************************************************************
 
-(defun-gsl swap-rows ((matrix gsl-matrix-c) (i :size) (j :size))
+(defun-gsl-mdsfc swap-rows ((matrix gsl-matrix) i j)
   "gsl_matrix_swap_rows"
-  :after ((cl-invalidate matrix))
+  ((matrix gsl-matrix-c) (i :size) (j :size))
+  :invalidate (matrix)
   :documentation
   "Exchange the @var{i}-th and @var{j}-th rows of the matrix in-place.")
 
-(defun-gsl swap-columns ((matrix gsl-matrix-c) (i :size) (j :size))
-  "gsl_matrix_swap_columns"
-  :after ((cl-invalidate matrix))
+(defun-gsl-mdsfc swap-columns ((matrix gsl-matrix) i j)
+  "gsl_matrix_swap_columns" ((matrix gsl-matrix-c) (i :size) (j :size))
+  :invalidate (matrix)
   :documentation
   "Exchange the @var{i}-th and @var{j}-th columns of the matrix in-place.")
 
-(defun-gsl swap-rowcol ((matrix gsl-matrix-c) (i :size) (j :size))
+(defun-gsl-mdsfc swap-rowcol ((matrix gsl-matrix) i j)
   "gsl_matrix_swap_rowcol"
-  :after ((cl-invalidate matrix))
+  ((matrix gsl-matrix-c) (i :size) (j :size))
+  :invalidate (matrix)
   :documentation
   "Exchange the @var{i}-th row and @var{j}-th column of the
    matrix in-place.  The matrix must be square for this operation to
    be possible.")
 
-(defun-gsl matrix-transpose-copy
-    ((destination gsl-matrix-c) (source gsl-matrix-c))
+(defun-gsl-mdsfc matrix-transpose-copy
+    ((destination gsl-matrix) (source gsl-matrix))
   "gsl_matrix_transpose_memcpy"
-  :after ((cl-invalidate destination))
+  ((destination gsl-matrix-c) (source gsl-matrix-c))
+  :invalidate (destination)
   :documentation
   "Make the destination matrix the transpose of the source matrix
    by copying the elements.  The dimensions of the destination
    matrix must match the transposed dimensions of the source.")
 
-(defun-gsl matrix-transpose ((matrix gsl-matrix-c))
+(defun-gsl-mdsfc matrix-transpose ((matrix gsl-matrix))
   "gsl_matrix_transpose"
-  :after ((cl-invalidate matrix))
+  ((matrix gsl-matrix-c))
+  :invalidate (matrix)
   :documentation
   "Replace the matrix by its transpose by copying the elements
    of the matrix in-place.  The matrix must be square for this
@@ -326,50 +366,50 @@ columns, and the physical number of columns in memory is given by
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(defun-gsl matrix+ ((a gsl-matrix-c) (b gsl-matrix-c))
-  "gsl_matrix_add"
-  :after ((cl-invalidate a))
+(defun-gsl-mdsfc gsl+ ((a gsl-matrix) (b gsl-matrix))
+    "gsl_matrix_add"
+  ((a gsl-matrix-c) (b gsl-matrix-c))
+  :invalidate (a)
   :documentation
   "Add the elements of matrix @var{b} to the elements of matrix @var{a},
    @math{a'_i = a_i + b_i}. The two matrices must have the
    same dimensions.")
 
-(defun-gsl matrix- ((a gsl-matrix-c) (b gsl-matrix-c))
-  "gsl_matrix_sub"
-  :after ((cl-invalidate a))
+(defun-gsl-mdsfc gsl- ((a gsl-matrix) (b gsl-matrix))
+  "gsl_matrix_sub" ((a gsl-matrix-c) (b gsl-matrix-c))
+  :invalidate (a)
   :documentation
   "Subtract the elements of matrix @var{b} from the elements of matrix
    @var{a}, @math{a'_i = a_i - b_i}. The two matrices must have the
    same dimensions.")
 
-(defun-gsl matrix* ((a gsl-matrix-c) (b gsl-matrix-c))
+(defun-gsl-mdsfc gsl* ((a gsl-matrix) (b gsl-matrix))
   "gsl_matrix_mul_elements"
-  :after ((cl-invalidate a))
+  ((a gsl-matrix-c) (b gsl-matrix-c))
+  :invalidate (a)
   :documentation
   "Multiply the elements of matrix @var{a} by the elements of
   matrix @var{b}, @math{a'(i,j) = a(i,j) * b(i,j)}. The two matrices must have the
   same dimensions.")
 
-(defun-gsl matrix/ ((a gsl-matrix-c) (b gsl-matrix-c))
-  "gsl_matrix_div_elements"
-  :after ((cl-invalidate a))
+(defun-gsl-mdsfc gsl/ ((a gsl-matrix) (b gsl-matrix))
+  "gsl_matrix_div_elements" ((a gsl-matrix-c) (b gsl-matrix-c))
+  :invalidate (a)
   :documentation
   "Divide the elements of matrix @var{a} by the elements of
    matrix @var{b}, @math{a'(i,j) = a(i,j) / b(i,j)}. The two matrices must have the
    same dimensions.")
 
-(defun-gsl matrix*c
-    ((a gsl-matrix-c) (x :double))
-  "gsl_matrix_scale"
-  :after ((cl-invalidate a))
+(defun-gsl-mdsfc gsl*c ((a gsl-matrix) x)
+  "gsl_matrix_scale" ((a gsl-matrix-c) (x :c-base-type))
+  :invalidate (a)
   :documentation
   "Multiply the elements of matrix @var{a} by the constant
   factor @var{x}, @math{a'(i,j) = x a(i,j)}.")
 
-(defun-gsl matrix+c
-    ((a gsl-matrix-c) (x :double))
-  "gsl_matrix_add_constant"
-  :after ((cl-invalidate a))
+(defun-gsl-mdsfc gsl+c ((a gsl-matrix) x)
+  "gsl_matrix_add_constant" ((a gsl-matrix-c) (x :c-base-type))
+  :invalidate (a)
   :documentation
   "Add the constant value @var{x} to the elements of the
   matrix @var{a}, @math{a'(i,j) = a(i,j) + x}.")
@@ -378,59 +418,60 @@ columns, and the physical number of columns in memory is given by
 ;;;; Maximum and minimum elements
 ;;;;****************************************************************************
 
-(defun-gsl matrix-max ((m gsl-matrix-c)) "gsl_matrix_max"
+(defun-gsl-mdsf gsl-max ((m gsl-matrix))
+  "gsl_matrix_max" ((m gsl-matrix-c))
   :documentation
   "The maximum value in the matrix @var{m}."
-  :c-return-value :return
-  :return (:double))
+  :c-return :c-base-type)
 
-(defun-gsl matrix-min ((m gsl-matrix-c)) "gsl_matrix_min"
+(defun-gsl-mdsf gsl-min ((m gsl-matrix))
+  "gsl_matrix_min" ((m gsl-matrix-c))
   :documentation
   "The minimum value in the matrix @var{m}."
-  :c-return-value :return
-  :return (:double))
+  :c-return :c-base-type)
 
-(defun-gsl matrix-minmax ((m gsl-matrix-c))
+(defun-gsl-mdsf gsl-minmax ((m gsl-matrix))
   "gsl_matrix_minmax"
+  ((m gsl-matrix-c) (min :c-base-type) (max :c-base-type))
   :documentation
   "The minimum and maximum values in the matrix @var{m}."
-  :c-return-value :void
-  :return (:double :double))
+  :c-return :void
+  :return (min max))
 
-(defun-gsl matrix-max-index ((m gsl-matrix-c)) "gsl_matrix_max_index"
+(defun-gsl-mdsf gsl-max-index ((m gsl-matrix))
+  "gsl_matrix_max_index" ((m gsl-matrix-c))
   :documentation
   "The index of the maximum value in the matrix @var{m}.
    When there are several equal minimum elements then the lowest index is
    returned."
-  :c-return-value :return
-  :return (:size))
+  :c-return :size)
 
-(defun-gsl matrix-min-index ((m gsl-matrix-c)) "gsl_matrix_min_index"
+(defun-gsl-mdsf gsl-min-index ((m gsl-matrix))
+  "gsl_matrix_min_index" ((m gsl-matrix-c))
   :documentation
-  "The index of the minimum value in the matrix @var{m}.  When there are several
-  equal minimum elements then the lowest index is returned."
-  :c-return-value :return
-  :return (:size))
+  "The index of the minimum value in the matrix @var{m}.
+  When there are several equal minimum elements then the
+  lowest index is returned."
+  :c-return :size)
 
-(defun-gsl matrix-minmax-index ((m gsl-matrix-c))
-  "gsl_matrix_minmax_index"
+(defun-gsl-mdsf gsl-minmax-index ((m gsl-matrix))
+  "gsl_matrix_minmax_index" ((m gsl-matrix-c) (imin :size) (imax :size))
   :documentation
   "The indices of the minimum and maximum values in the matrix @var{m}.
   When there are several equal minimum elements then the lowest index is
   returned."
-  :c-return-value :void
-  :return (:size :size))
+  :c-return :void
+  :return (imin imax))
 
 ;;;;****************************************************************************
 ;;;; Properties
 ;;;;****************************************************************************
 
-(defun-gsl matrix-zerop ((m gsl-matrix-c))
-  "gsl_matrix_isnull"
+(defun-gsl-mdsfc gsl-zerop ((m gsl-matrix))
+  "gsl_matrix_isnull" ((m gsl-matrix-c))
   :documentation
   "All elements of matrix @var{m} are zero."
-  :c-return-value :return
-  :return (:boolean))
+  :c-return :boolean)
 
 ;;;;****************************************************************************
 ;;;; Examples

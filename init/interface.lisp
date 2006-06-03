@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Thu Jun  1 2006 - 14:21
+; modified:    Fri Jun  2 2006 - 23:20
 ;********************************************************
 
 (in-package :gsl)
@@ -90,10 +90,10 @@
 	   :gsl-errno (cffi:foreign-enum-value 'gsl-errorno error-code)
 	   :gsl-reason reason)))
 
-(defun check-null-pointers (check-null-pointers)
+(defun check-null-pointers (check-null-pointers creturn)
   (let ((cret (find :creturn check-null-pointers :key #'first)))
     (when cret
-	`((check-null-pointer creturn ,@(rest cret))))))
+	`((check-null-pointer ,creturn ,@(rest cret))))))
 
 (defun success-failure (value)
   "If status indicates failure, return NIL, othewise return T."
@@ -125,14 +125,18 @@
 	 (carg-symbs
 	  (remove-if-not #'symbolp
 			 (mapcar #'st-symbol (remove :mode c-arguments))))
-	 (clargs (or arglist carg-symbs))
+	 (clargs
+	  (or arglist carg-symbs))
+	 (arglist-symbs
+	  (when arglist			; can be method, so get symbol
+	    (mapcar (lambda (x) (if (listp x) (first x) x)) arglist)))
 	 (cret-type (if (member c-return *special-c-return*)
-			 :int
-			 (if (listp c-return) (st-type c-return) c-return)))
+			:int
+			(if (listp c-return) (st-type c-return) c-return)))
 	 (cret-name
 	  (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
 	 (allocated		     ; Foreign objects to be allocated
-	  (remove-if (lambda (s) (member s clargs)) carg-symbs))
+	  (remove-if (lambda (s) (member s arglist-symbs)) carg-symbs))
 	 (allocated-decl
 	  (mapcar
 	   (lambda (s) (find s cargs :key #'st-symbol))
@@ -169,7 +173,7 @@
 		      (:error-code	; fill in arguments
 		       `((check-gsl-status ,cret-name 'bah))))
 	      ,@(when invalidate `((cl-invalidate ,@invalidate)))
-	      ,@(check-null-pointers check-null-pointers)
+	      ,@(check-null-pointers check-null-pointers cret-name)
 	      ,@after
 	      (values
 	       ,@(case c-return
@@ -182,7 +186,7 @@
 		       (:success-failure
 			`(,@clret (success-failure ,cret-name)))
 		       (t (unless (and (null return) return-supplied-p)
-			      clret)))))))
+			    clret)))))))
        (map-name ',(or index name) ,gsl-name)
        ,@(when export `((export ',name))))))
 

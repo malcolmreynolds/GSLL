@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Wed May 31 2006 - 22:04
+; modified:    Fri Jun  2 2006 - 22:52
 ;********************************************************
 ;;; $Id: $
 
@@ -113,45 +113,45 @@
    freeing (gsl-*-free), binary writing (binary-*-write) and
    reading (binary-*-read), formatted writing (write-*-formatted)
    and reading (read-*-formatted) functions."
-  (setf *data-name-alist* (acons cl-symbol c-string *data-name-alist*))
   ;; Need to remove duplicates from *data-name-alist*
   (flet ((gsl-name (function-name)
 	   (format nil "gsl_~a_~a" c-string function-name)))
     (let* ((cargs (loop for i below dimensions
-			collect `((nth ,i (storage-size object)) :size)))
+		     collect `((nth ,i (storage-size object)) :size)))
 	   (object-name (data-object-name cl-symbol)))
       `(progn
-	(defclass ,object-name (,superclass)
-	  ((cl-base-type :initform ',cl-base-type :reader cl-base-type
-			 :allocation :class)))
-	(defun-gsl alloc ((object ,object-name))
-	  ,(gsl-name "alloc") ,cargs
-	  :type :method
-	  :c-return (cr :pointer)
-	  :return ((assign-pointer object cr)))
-	(defun-gsl calloc ((object ,object-name))
-	  ,(gsl-name "calloc") ,cargs
-	  :type :method
-	  :c-return (cr :pointer)
-	  :return ((assign-pointer object cr)))
-	(defun-gsl free ((object ,object-name))
-	  ,(gsl-name "free") (((pointer object) :pointer))
-	  :type :method
-	  :c-return :void)
-	(defun-gsl write-binary ((object ,object-name) stream)
-	  ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
-	  :type :method)
-	(defun-gsl read-binary ((object ,object-name) stream)
-	  ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
-	  :type :method)
-	(defun-gsl write-formatted ((object ,object-name) stream format)
-	  ,(gsl-name "fprintf")
-	  ((stream :pointer) ((pointer object) :pointer) (format :string))
-	  :type :method)
-	(defun-gsl read-formatted ((object ,object-name) stream format)
-	  ,(gsl-name "fscanf")
-	  ((stream :pointer) ((pointer object) :pointer) (format :string))
-	  :type :method)))))
+	 (setf *data-name-alist* (acons ',cl-symbol ,c-string *data-name-alist*))
+	 (defclass ,object-name (,superclass)
+	   ((cl-base-type :initform ',cl-base-type :reader cl-base-type
+			  :allocation :class)))
+	 (defun-gsl alloc ((object ,object-name))
+	   ,(gsl-name "alloc") ,cargs
+	   :type :method
+	   :c-return (cr :pointer)
+	   :return ((assign-pointer object cr)))
+	 (defun-gsl calloc ((object ,object-name))
+	   ,(gsl-name "calloc") ,cargs
+	   :type :method
+	   :c-return (cr :pointer)
+	   :return ((assign-pointer object cr)))
+	 (defun-gsl free ((object ,object-name))
+	   ,(gsl-name "free") (((pointer object) :pointer))
+	   :type :method
+	   :c-return :void)
+	 (defun-gsl write-binary ((object ,object-name) stream)
+	   ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
+	   :type :method)
+	 (defun-gsl read-binary ((object ,object-name) stream)
+	   ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
+	   :type :method)
+	 (defun-gsl write-formatted ((object ,object-name) stream format)
+	   ,(gsl-name "fprintf")
+	   ((stream :pointer) ((pointer object) :pointer) (format :string))
+	   :type :method)
+	 (defun-gsl read-formatted ((object ,object-name) stream format)
+	   ,(gsl-name "fscanf")
+	   ((stream :pointer) ((pointer object) :pointer) (format :string))
+	   :type :method)))))
 
 (defun splice-name (base-name remove symbol)
   "Make a new C name for a data function from a base name." 

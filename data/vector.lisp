@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Wed May 31 2006 - 23:01
+; modified:    Fri Jun  2 2006 - 22:16
 ;********************************************************
 ;;; $Id: $
 
@@ -15,13 +15,9 @@
 ;;; #'subvector, #'subvector-stride cause crash, see notes 2006-03-30
 ;;; #'vector-complex-real, #'vector-complex-imag need structure definition
 
-;;; Need to build real vector out of view pointer.
+;;; GSL bug?:  no gsl_vector_complex_add, etc.
 
-;;; Syntax:
-;;; (setf (gsl-aref vec 0) -3.21d0)
-;;; (gsl-aref vec 0)
-;;; (gsl+ vec1 vec2)
-;;; (with-data ((vec1 vector 3) (vec2 vector 3)) ...)
+;;; Need to build real vector out of view pointer.
 
 ;;;;****************************************************************************
 ;;;; Vector structure and CL object
