@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jun  2 2006 - 22:16
+; modified:    Sat Jun  3 2006 - 21:04
 ;********************************************************
 ;;; $Id: $
 
@@ -186,7 +186,7 @@ deallocated with the vector.
 ;;;; Copying
 ;;;;****************************************************************************
 
-(defun-gsl-vdsfc vector-copy ((destination gsl-vector) (source gsl-vector))
+(defun-gsl-vdsfc copy ((destination gsl-vector) (source gsl-vector))
   "gsl_vector_memcpy"
   (((pointer destination) gsl-vector-c) ((pointer source) gsl-vector-c))
   :invalidate (destination)
@@ -194,7 +194,7 @@ deallocated with the vector.
   "Copy the elements of the vector @var{source} into the
    vector @var{destination}.  The two vectors must have the same length.")
 
-(defun-gsl-vdsfc vector-swap ((v gsl-vector) (w gsl-vector))
+(defun-gsl-vdsfc swap ((v gsl-vector) (w gsl-vector))
   "gsl_vector_swap" (((pointer v) gsl-vector-c) ((pointer w) gsl-vector-c))
   :invalidate (v w)
   :documentation
@@ -205,9 +205,9 @@ deallocated with the vector.
 ;;;; Exchanging elements
 ;;;;****************************************************************************
 
-(export '(vector-swap-elements vector-reverse))
+(export '(swap-elements vector-reverse))
 
-(defgeneric vector-swap-elements (vec i j)
+(defgeneric swap-elements (vec i j)
   (:documentation
    "Exchange the @var{i}-th and @var{j}-th elements of the
    vector @var{vec} in-place."))
@@ -217,7 +217,7 @@ deallocated with the vector.
    "Exchange the @var{i}-th and @var{j}-th elements of the
    vector @var{vec} in-place."))
 
-(defun-gsl-vdsfc vector-swap-elements ((vec gsl-vector) i j)
+(defun-gsl-vdsfc swap-elements ((vec gsl-vector) i j)
   "gsl_vector_swap_elements" (((pointer vec) gsl-vector-c) (i :size) (j :size))
   :after ((when (listp (cl-invalid vec))
 	    (push (list i) (cl-invalid vec))
@@ -397,23 +397,23 @@ same length.")
    (progn
      (setf (data *intvec-1*) #(-1 -12 8 3))
      (multiple-value-list (gsl-minmax-index *intvec-1*))))
-  (lisp-unit:assert-equalp		;vector-copy
+  (lisp-unit:assert-equalp		;copy
    #(1 2 3 4)
    (progn
      (setf (data *intvec-1*) #(1 2 3 4))
-     (vector-copy *intvec-2* *intvec-1*) (data *intvec-2*)))
-  (lisp-unit:assert-equalp		;vector-swap
+     (copy *intvec-2* *intvec-1*) (data *intvec-2*)))
+  (lisp-unit:assert-equalp		;swap
    #(5 6 7 8 1 2 3 4)
    (progn
      (setf (data *intvec-1*) #(1 2 3 4)
 	   (data *intvec-2*) #(5 6 7 8))
-     (vector-swap *intvec-1* *intvec-2*)
+     (swap *intvec-1* *intvec-2*)
      (concatenate 'vector (data *intvec-1*) (data *intvec-2*))))
-  (lisp-unit:assert-equalp		;vector-swap-elements
+  (lisp-unit:assert-equalp		;swap-elements
    #(1 4 3 2)
    (progn
      (setf (data *intvec-1*) #(1 2 3 4))
-     (vector-swap-elements *intvec-1* 1 3)
+     (swap-elements *intvec-1* 1 3)
      (data *intvec-1*))))
 
 ;;;;****************************************************************************

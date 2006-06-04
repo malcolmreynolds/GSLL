@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jun  2 2006 - 22:52
+; modified:    Sat Jun  3 2006 - 20:43
 ;********************************************************
 ;;; $Id: $
 
@@ -120,7 +120,8 @@
 		     collect `((nth ,i (storage-size object)) :size)))
 	   (object-name (data-object-name cl-symbol)))
       `(progn
-	 (setf *data-name-alist* (acons ',cl-symbol ,c-string *data-name-alist*))
+	 (eval-when (:compile-toplevel :load-toplevel :execute)
+	   (setf *data-name-alist* (acons ',cl-symbol ,c-string *data-name-alist*)))
 	 (defclass ,object-name (,superclass)
 	   ((cl-base-type :initform ',cl-base-type :reader cl-base-type
 			  :allocation :class)))
@@ -319,6 +320,17 @@
 (export 'data-valid)
 (defgeneric data-valid (object)
   (:documentation "Validate the values in the object."))
+
+;;;;****************************************************************************
+;;;; Copying
+;;;;****************************************************************************
+
+(export '(copy swap))
+(defgeneric copy (destination source)
+  (:documentation "Copy from source to destination."))
+
+(defgeneric swap (obj1 obj2)
+  (:documentation "Swap contents of obj1 and obj2."))
 
 ;;;;****************************************************************************
 ;;;; Arithmetic operations

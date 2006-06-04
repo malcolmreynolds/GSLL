@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jun  2 2006 - 22:29
+; modified:    Sat Jun  3 2006 - 20:45
 ;********************************************************
 ;;; $Id: $
 
@@ -72,14 +72,15 @@
 (defmethod data ((object gsl-matrix) &optional array)
   (let ((arr (or array
 		 (make-array (storage-size object)
-			     :element-type 'double-float))))
+			     :element-type (cl-base-type object)))))
     (loop for i from 0
-	  below (min (array-dimension arr 0) (first (storage-size object)))
+       below (min (array-dimension arr 0) (first (storage-size object)))
+       do
+       (loop for j from 0
+	  below
+	  (min (array-dimension arr 1) (second (storage-size object)))
 	  do
-	  (loop for j from 0
-		below (min (array-dimension arr 1) (second (storage-size object)))
-		do
-		(setf (aref arr i j) (gsl-aref object i j))))
+	  (setf (aref arr i j) (gsl-aref object i j))))
     arr))
 
 ;;;;****************************************************************************
@@ -260,16 +261,17 @@
 ;;;; Copying
 ;;;;****************************************************************************
 
-(defun-gsl-mdsfc matrix-copy ((destination gsl-matrix) (source gsl-matrix))
+(defun-gsl-mdsfc copy ((destination gsl-matrix) (source gsl-matrix))
   "gsl_matrix_memcpy"
-  ((destination gsl-matrix-c) (source gsl-matrix-c))
+  (((pointer destination) gsl-matrix-c) ((pointer source) gsl-matrix-c))
   :invalidate (destination)
   :documentation
   "Copy the elements of the matrix @var{source} into the
    matrix @var{destination}.  The two matrices must have the same size.")
 
-(defun-gsl-mdsfc matrix-swap ((m1 gsl-matrix) (m2 gsl-matrix))
-  "gsl_matrix_swap" ((m1 gsl-matrix-c) (m2 gsl-matrix-c))
+(defun-gsl-mdsfc swap ((m1 gsl-matrix) (m2 gsl-matrix))
+  "gsl_matrix_swap"
+  (((pointer m1) gsl-matrix-c) ((pointer m2) gsl-matrix-c))
   :invalidate (m1 m2)
   :documentation
   "Exchange the elements of the matrices @var{m1} and
@@ -281,16 +283,16 @@
 
 (defun-gsl-mdsfc row ((vector gsl-vector) (matrix gsl-matrix) i)
   "gsl_matrix_get_row"
-  ((vector gsl-vector-c) (matrix gsl-matrix-c) (i :size))
+  (((pointer vector) gsl-vector-c) ((pointer matrix) gsl-matrix-c) (i :size))
   :invalidate (vector)
   :documentation
   "Copy the elements of the @var{i}-th row of the matrix
    into the vector.  The length of the vector must be the
    same as the length of the row.")
 
-(defun-gsl-mdsfc column ((vector gsl-vector) (matrix gsl-matrix) i)
+(defun-gsl-mdsfc column ((vector gsl-vector) (matrix gsl-matrix) j)
   "gsl_matrix_get_col"
-  ((vector gsl-vector-c) (matrix gsl-matrix-c) (j :size))
+  (((pointer vector) gsl-vector-c) ((pointer matrix) gsl-matrix-c) (j :size))
   :invalidate (vector)
   :documentation
   "Copy the elements of the @var{j}-th column of the matrix
@@ -299,7 +301,7 @@
 
 (defun-gsl-mdsfc set-row ((matrix gsl-matrix) i (vector gsl-vector))
   "gsl_matrix_set_row"
-  ((matrix gsl-matrix-c) (i :size) (vector gsl-vector-c))
+  (((pointer matrix) gsl-matrix-c) (i :size) ((pointer vector) gsl-vector-c))
   :invalidate (matrix)
   :documentation
   "Copy the elements of the vector into the
@@ -308,7 +310,7 @@
 
 (defun-gsl-mdsfc set-column ((matrix gsl-matrix) j (vector gsl-vector))
   "gsl_matrix_set_col"
-  ((matrix gsl-matrix-c) (j :size) (vector gsl-vector-c))
+  (((pointer matrix) gsl-matrix-c) (j :size) ((pointer vector) gsl-vector-c))
   :invalidate (matrix)
   :documentation
   "Copy the elements of the vector into the @var{j}-th column of the matrix.
@@ -323,20 +325,21 @@
 
 (defun-gsl-mdsfc swap-rows ((matrix gsl-matrix) i j)
   "gsl_matrix_swap_rows"
-  ((matrix gsl-matrix-c) (i :size) (j :size))
+  (((pointer matrix) gsl-matrix-c) (i :size) (j :size))
   :invalidate (matrix)
   :documentation
   "Exchange the @var{i}-th and @var{j}-th rows of the matrix in-place.")
 
 (defun-gsl-mdsfc swap-columns ((matrix gsl-matrix) i j)
-  "gsl_matrix_swap_columns" ((matrix gsl-matrix-c) (i :size) (j :size))
+  "gsl_matrix_swap_columns"
+  (((pointer matrix) gsl-matrix-c) (i :size) (j :size))
   :invalidate (matrix)
   :documentation
   "Exchange the @var{i}-th and @var{j}-th columns of the matrix in-place.")
 
 (defun-gsl-mdsfc swap-rowcol ((matrix gsl-matrix) i j)
   "gsl_matrix_swap_rowcol"
-  ((matrix gsl-matrix-c) (i :size) (j :size))
+  (((pointer matrix) gsl-matrix-c) (i :size) (j :size))
   :invalidate (matrix)
   :documentation
   "Exchange the @var{i}-th row and @var{j}-th column of the
@@ -346,7 +349,7 @@
 (defun-gsl-mdsfc matrix-transpose-copy
     ((destination gsl-matrix) (source gsl-matrix))
   "gsl_matrix_transpose_memcpy"
-  ((destination gsl-matrix-c) (source gsl-matrix-c))
+  (((pointer destination) gsl-matrix-c) ((pointer source) gsl-matrix-c))
   :invalidate (destination)
   :documentation
   "Make the destination matrix the transpose of the source matrix
@@ -355,7 +358,7 @@
 
 (defun-gsl-mdsfc matrix-transpose ((matrix gsl-matrix))
   "gsl_matrix_transpose"
-  ((matrix gsl-matrix-c))
+  (((pointer matrix) gsl-matrix-c))
   :invalidate (matrix)
   :documentation
   "Replace the matrix by its transpose by copying the elements
@@ -368,7 +371,7 @@
 
 (defun-gsl-mdsfc gsl+ ((a gsl-matrix) (b gsl-matrix))
     "gsl_matrix_add"
-  ((a gsl-matrix-c) (b gsl-matrix-c))
+  (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
   :documentation
   "Add the elements of matrix @var{b} to the elements of matrix @var{a},
@@ -376,7 +379,7 @@
    same dimensions.")
 
 (defun-gsl-mdsfc gsl- ((a gsl-matrix) (b gsl-matrix))
-  "gsl_matrix_sub" ((a gsl-matrix-c) (b gsl-matrix-c))
+  "gsl_matrix_sub" (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
   :documentation
   "Subtract the elements of matrix @var{b} from the elements of matrix
@@ -385,7 +388,7 @@
 
 (defun-gsl-mdsfc gsl* ((a gsl-matrix) (b gsl-matrix))
   "gsl_matrix_mul_elements"
-  ((a gsl-matrix-c) (b gsl-matrix-c))
+  (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
   :documentation
   "Multiply the elements of matrix @var{a} by the elements of
@@ -393,7 +396,8 @@
   same dimensions.")
 
 (defun-gsl-mdsfc gsl/ ((a gsl-matrix) (b gsl-matrix))
-  "gsl_matrix_div_elements" ((a gsl-matrix-c) (b gsl-matrix-c))
+  "gsl_matrix_div_elements"
+  (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
   :documentation
   "Divide the elements of matrix @var{a} by the elements of
@@ -401,14 +405,14 @@
    same dimensions.")
 
 (defun-gsl-mdsfc gsl*c ((a gsl-matrix) x)
-  "gsl_matrix_scale" ((a gsl-matrix-c) (x :c-base-type))
+  "gsl_matrix_scale" (((pointer a) gsl-matrix-c) (x :c-base-type))
   :invalidate (a)
   :documentation
   "Multiply the elements of matrix @var{a} by the constant
   factor @var{x}, @math{a'(i,j) = x a(i,j)}.")
 
 (defun-gsl-mdsfc gsl+c ((a gsl-matrix) x)
-  "gsl_matrix_add_constant" ((a gsl-matrix-c) (x :c-base-type))
+  "gsl_matrix_add_constant" (((pointer a) gsl-matrix-c) (x :c-base-type))
   :invalidate (a)
   :documentation
   "Add the constant value @var{x} to the elements of the
@@ -419,49 +423,55 @@
 ;;;;****************************************************************************
 
 (defun-gsl-mdsf gsl-max ((m gsl-matrix))
-  "gsl_matrix_max" ((m gsl-matrix-c))
+  "gsl_matrix_max" (((pointer m) gsl-matrix-c))
   :documentation
   "The maximum value in the matrix @var{m}."
   :c-return :c-base-type)
 
 (defun-gsl-mdsf gsl-min ((m gsl-matrix))
-  "gsl_matrix_min" ((m gsl-matrix-c))
+  "gsl_matrix_min" (((pointer m) gsl-matrix-c))
   :documentation
   "The minimum value in the matrix @var{m}."
   :c-return :c-base-type)
 
 (defun-gsl-mdsf gsl-minmax ((m gsl-matrix))
   "gsl_matrix_minmax"
-  ((m gsl-matrix-c) (min :c-base-type) (max :c-base-type))
+  (((pointer m) gsl-matrix-c) (min :c-base-type) (max :c-base-type))
   :documentation
   "The minimum and maximum values in the matrix @var{m}."
-  :c-return :void
-  :return (min max))
+  :c-return :void)
 
 (defun-gsl-mdsf gsl-max-index ((m gsl-matrix))
-  "gsl_matrix_max_index" ((m gsl-matrix-c))
+  "gsl_matrix_max_index"
+  (((pointer m) gsl-matrix-c) (imax :size) (jmax :size))
   :documentation
   "The index of the maximum value in the matrix @var{m}.
-   When there are several equal minimum elements then the lowest index is
+   When there are several equal maximum elements then the lowest index is
    returned."
-  :c-return :size)
+  :c-return :void
+  :return ((list (size-to-cl imax) (size-to-cl jmax))))
 
 (defun-gsl-mdsf gsl-min-index ((m gsl-matrix))
-  "gsl_matrix_min_index" ((m gsl-matrix-c))
+  "gsl_matrix_min_index"
+  (((pointer m) gsl-matrix-c) (imin :size) (jmin :size))
   :documentation
   "The index of the minimum value in the matrix @var{m}.
   When there are several equal minimum elements then the
   lowest index is returned."
-  :c-return :size)
+  :c-return :void
+  :return ((list (size-to-cl imin) (size-to-cl jmin))))
 
 (defun-gsl-mdsf gsl-minmax-index ((m gsl-matrix))
-  "gsl_matrix_minmax_index" ((m gsl-matrix-c) (imin :size) (imax :size))
+  "gsl_matrix_minmax_index"
+  (((pointer m) gsl-matrix-c)
+   (imin :size) (jmin :size) (imax :size) (jmax :size))
   :documentation
   "The indices of the minimum and maximum values in the matrix @var{m}.
   When there are several equal minimum elements then the lowest index is
   returned."
   :c-return :void
-  :return (imin imax))
+  :return ((list (size-to-cl imin) (size-to-cl jmin))
+	   (list (size-to-cl imax) (size-to-cl jmax))))
 
 ;;;;****************************************************************************
 ;;;; Properties
@@ -472,6 +482,105 @@
   :documentation
   "All elements of matrix @var{m} are zero."
   :c-return :boolean)
+
+;;;;****************************************************************************
+;;;; Examples and unit test
+;;;;****************************************************************************
+
+(defparameter *intmat-1* (make-data 'matrix-fixnum nil 2 2))
+(defparameter *intmat-2* (make-data 'matrix-fixnum nil 2 2))
+(defparameter *intmatvec* (make-data 'vector-fixnum nil 2))
+
+(lisp-unit:define-test matrix-fixnum
+  (lisp-unit:assert-eql			;(setf gsl-aref), gsl-aref
+   77
+   (progn
+     (setf (gsl-aref *intmat-1* 0 1) 77)
+     (gsl-aref *intmat-1* 0 1)))
+  (lisp-unit:assert-equalp		;(setf data)
+   #2A((4 6) (8 2))
+   (progn (setf (data *intmat-1*) #2A((4 6) (8 2))) (data *intmat-1*)))
+  (lisp-unit:assert-equalp		;set-zero
+   #2A((0 0) (0 0))
+   (progn (set-zero *intmat-1*) (data *intmat-1*)))
+  (lisp-unit:assert-equalp		;set-all
+   #2A((44 44)(44 44))
+   (progn (set-all *intmat-1* 44) (data *intmat-1*)))
+  (lisp-unit:assert-equalp		;set-basis
+   #2A((1 0)(0 1))
+   (progn (set-identity *intmat-1*) (data *intmat-1*)))
+  (lisp-unit:assert-equalp		;row
+   #(4 6)
+   (progn
+     (setf (data *intmat-1*) #2A((4 6) (8 2)))
+     (row *intmatvec* *intmat-1* 0)
+     (data *intmatvec*)))
+  (lisp-unit:assert-equalp		;column
+   #(6 2)
+   (progn
+     (setf (data *intmat-1*) #2A((4 6) (8 2)))
+     (column *intmatvec* *intmat-1* 1)
+     (data *intmatvec*)))
+  (lisp-unit:assert-eql			;gsl-min
+   -12
+   (progn
+     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
+     (gsl-min *intmat-1*)))
+  (lisp-unit:assert-eql			;gsl-max
+   8
+   (progn
+     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
+     (gsl-max *intmat-1*)))
+  (lisp-unit:assert-equal		;gsl-minmax
+   '(-12 8)
+   (progn
+     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
+     (multiple-value-list (gsl-minmax *intmat-1*))))
+  (lisp-unit:assert-equal		;gsl-min-index
+   '(0 1)
+   (progn
+     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
+     (gsl-min-index *intmat-1*)))
+  (lisp-unit:assert-equal		;gsl-max-index
+   '(1 0)
+   (progn
+     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
+     (gsl-max-index *intmat-1*)))
+  (lisp-unit:assert-equal		;gsl-minmax-index
+   '((0 1) (1 0))
+   (progn
+     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
+     (multiple-value-list (gsl-minmax-index *intmat-1*))))
+  (lisp-unit:assert-equalp		;copy
+   #2A((1 2)(3 4))
+   (progn
+     (setf (data *intmat-1*) #2A((1 2)(3 4)))
+     (copy *intmat-2* *intmat-1*) (data *intmat-2*)))
+  (lisp-unit:assert-equalp		;swap
+   #2A((5 6) (7 8))
+   (progn
+     (setf (data *intmat-1*) #2A((1 2) (3 4))
+	   (data *intmat-2*) #2A((5 6) (7 8)))
+     (swap *intmat-1* *intmat-2*)
+     (data *intmat-1*)))
+  (lisp-unit:assert-equalp		;swap-rows
+   #2A((3 4) (1 2))
+   (progn
+     (setf (data *intmat-1*) #2A((1 2) (3 4)))
+     (swap-rows *intmat-1* 0 1)
+     (data *intmat-1*)))
+  (lisp-unit:assert-equalp		;swap-columns
+   #2A((2 1) (4 3))
+   (progn
+     (setf (data *intmat-1*) #2A((1 2) (3 4)))
+     (swap-columns *intmat-1* 0 1)
+     (data *intmat-1*)))
+  (lisp-unit:assert-equalp		;swap-rowcol
+   #2A((2 4) (3 1))
+   (progn
+     (setf (data *intmat-1*) #2A((1 2) (3 4)))
+     (swap-rowcol *intmat-1* 0 1)
+     (data *intmat-1*))))
 
 ;;;;****************************************************************************
 ;;;; Examples
