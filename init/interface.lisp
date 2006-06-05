@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Fri Jun  2 2006 - 23:20
+; modified:    Sun Jun  4 2006 - 21:39
 ;********************************************************
 
 (in-package :gsl)
@@ -184,7 +184,10 @@
 			 clret
 			 (loop for i below (length clret) collect i)))
 		       (:success-failure
-			`(,@clret (success-failure ,cret-name)))
+			(if (equal clret invalidate)
+			    ;; success-failure more important than passed-in
+			    `((success-failure ,cret-name) ,@clret)
+			    `(,@clret (success-failure ,cret-name))))
 		       (t (unless (and (null return) return-supplied-p)
 			    clret)))))))
        (map-name ',(or index name) ,gsl-name)

@@ -3,7 +3,7 @@
 ; description: Permutations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun  3 2006 - 22:04
+; modified:    Sun Jun  4 2006 - 21:02
 ;********************************************************
 ;;; $Id: $
 
@@ -19,7 +19,7 @@
   (data :pointer))
 
 ;;; Allocation, freeing, reading and writing
-(defdata "permutation" permutation fixnum)
+(defdata "permutation" permutation unsigned-byte)
 
 (defmethod gsl-array ((object gsl-permutation))
   (foreign-slot-value (pointer object) 'gsl-permutation-c 'data))
@@ -157,7 +157,7 @@
   "Apply the inverse of the permutation @var{p} to the array @var{data} of
    size @var{n} with stride @var{stride}.")
 
-(defun-gsl permute-vector (p v)
+(defun-gsl-vdsfc permute-vector (p (v gsl-vector))
   "gsl_permute_vector"
   (((pointer p) gsl-permutation-c) ((pointer v) gsl-vector-c))
   :invalidate (v)
@@ -169,7 +169,7 @@
    identity matrix. The permutation @var{p} and the vector @var{v} must
    have the same length.")
 
-(defun-gsl permute-vector-inverse (p v)
+(defun-gsl-vdsfc permute-vector-inverse (p (v gsl-vector))
   "gsl_permute_vector_inverse"
   (((pointer p) gsl-permutation-c) ((pointer v) gsl-vector-c))
   :invalidate (v)

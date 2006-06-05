@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sat Jun  3 2006 - 22:08
+; modified:    Sun Jun  4 2006 - 21:40
 ;********************************************************
 ;;; $Id: $
 
@@ -36,9 +36,8 @@
 	     (:file "block" :depends-on (data))
 	     (:file "vector" :depends-on (data))
 	     (:file "matrix" :depends-on (data vector))
-	     (:file "permutation" :depends-on (data))
-	     ;;(:file "combination" :depends-on (data))
-	     ))
+	     (:file "permutation" :depends-on (data vector))
+	     (:file "combination" :depends-on (data))))
    #+future
    (:file "cffi-array")
    #+future
