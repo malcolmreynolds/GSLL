@@ -3,7 +3,7 @@
 ; description: Combinations
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Jun  4 2006 - 21:43
+; modified:    Mon Jun  5 2006 - 11:19
 ;********************************************************
 ;;; $Id: $
 
@@ -159,21 +159,18 @@
    (progn
      (init-first *comb-1*)
      (loop collect (data *comb-1*)
-	while (combination-next *comb-1*))))
-  (lisp-unit:assert-equal		; init-first, combination-next
+       while (combination-next *comb-1*))))
+  (lisp-unit:assert-equal		; init-last, combination-previous
    '((2 3) (1 3) (1 2) (0 3) (0 2) (0 1))
    (progn
      (init-last *comb-1*)
      (loop collect (data *comb-1*)
-	while (combination-previous *comb-1*)))))
-
-#|
-(loop for i from 0 to 4
-      append
-      (with-data (comb combination (4 i) t)
-	(loop collect (data comb)
-	      while (combination-next comb))))
-
-(NIL (0) (1) (2) (3) (0 1) (0 2) (0 3) (1 2) (1 3) (2 3)
+       while (combination-previous *comb-1*))))
+  (lisp-unit:assert-equal		; with-data, combination-next
+   '(NIL (0) (1) (2) (3) (0 1) (0 2) (0 3) (1 2) (1 3) (2 3)
      (0 1 2) (0 1 3) (0 2 3) (1 2 3) (0 1 2 3))
-|#
+   (loop for i from 0 to 4
+	 append
+	 (with-data (comb combination (4 i) t)
+	   (loop collect (data comb)
+	     while (combination-next comb))))))
