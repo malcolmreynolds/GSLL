@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Jun  4 2006 - 21:39
+; modified:    Wed Jun  7 2006 - 17:33
 ;********************************************************
 
 (in-package :gsl)
@@ -171,7 +171,7 @@
 	      ,@(case c-return
 		      (:void `((declare (ignore ,cret-name))))
 		      (:error-code	; fill in arguments
-		       `((check-gsl-status ,cret-name 'bah))))
+		       `((check-gsl-status ,cret-name ',name))))
 	      ,@(when invalidate `((cl-invalidate ,@invalidate)))
 	      ,@(check-null-pointers check-null-pointers cret-name)
 	      ,@after

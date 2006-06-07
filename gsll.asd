@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Tue Jun  6 2006 - 19:04
+; modified:    Wed Jun  7 2006 - 17:33
 ;********************************************************
 ;;; $Id: $
 
@@ -42,38 +42,38 @@
    (:file "cffi-array")
    #+future
    (:file "polynomial" :depends-on (init cffi-array)) ; see file
-   #+future
    (:module special-functions
 	    :depends-on (init)
 	    :components
 	    ((:file "airy")
-	     (:file "bessel")
-	     (:file "clausen")
-	     (:file "coulomb")
-	     (:file "coupling")		; always zero?
-	     (:file "dawson")
-	     (:file "debye")
-	     (:file "dilogarithm")
-	     (:file "elementary")
-	     (:file "elliptic-integrals")
-	     (:file "elliptic-functions")
-	     (:file "error-functions")
-	     (:file "exponential-functions")
-	     (:file "exponential-integrals")
-	     (:file "fermi-dirac")
-	     (:file "gamma")
-	     (:file "gegenbauer")
-	     (:file "hypergeometric")
-	     (:file "laguerre")
-	     (:file "lambert")
-	     (:file "legendre")
-	     (:file "logarithm")
-	     (:file "power")
-	     (:file "psi")
-	     (:file "synchrotron")
-	     (:file "transport")
-	     (:file "trigonometry")
-	     (:file "zeta")))
+	     ;;(:file "bessel")
+	     ;;(:file "clausen")
+	     ;;(:file "coulomb")
+	     ;;(:file "coupling")		; always zero?
+	     ;;(:file "dawson")
+	     ;;(:file "debye")
+	     ;;(:file "dilogarithm")
+	     ;;(:file "elementary")
+	     ;;(:file "elliptic-integrals")
+	     ;;(:file "elliptic-functions")
+	     ;;(:file "error-functions")
+	     ;;(:file "exponential-functions")
+	     ;;(:file "exponential-integrals")
+	     ;;(:file "fermi-dirac")
+	     ;;(:file "gamma")
+	     ;;(:file "gegenbauer")
+	     ;;(:file "hypergeometric")
+	     ;;(:file "laguerre")
+	     ;;(:file "lambert")
+	     ;;(:file "legendre")
+	     ;;(:file "logarithm")
+	     ;;(:file "power")
+	     ;;(:file "psi")
+	     ;;(:file "synchrotron")
+	     ;;(:file "transport")
+	     ;;(:file "trigonometry")
+	     ;;(:file "zeta")
+	     ))
    #+future
    (:file "sorting" :depends-on (init data))
    #+future
