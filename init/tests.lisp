@@ -3,7 +3,7 @@
 ; description: Test functions.                           
 ; date:        Sat Apr 22 2006 - 16:52                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Jun  6 2006 - 09:45
+; modified:    Tue Jun  6 2006 - 22:08
 ;********************************************************
 ;;; $Id: $
 
@@ -11,7 +11,7 @@
 ;;; point numbers and a form for generating floating point tests.
 
 (in-package :lisp-unit)
-(export 'assert-first-fp-equal)
+(export '(assert-first-fp-equal fp-values))
 
 (defparameter *test-fp-decimal-digits* 12
   "The number of decimal digits on which floating point
@@ -19,13 +19,23 @@
 
 (defun fp-string (fp &optional (decimal-digits *test-fp-decimal-digits*))
   "Format the floating point number as a string for comparison."
-  (format nil "~,v,2,0,,,ve"
-	  decimal-digits (if (typep fp 'double-float) #\d #\e) fp))
+  (if (typep fp 'complex)
+      (list (fp-string (realpart fp)) (fp-string (imagpart fp)))
+      (format nil "~,v,2,0,,,ve"
+	      decimal-digits (if (typep fp 'double-float) #\d #\e) fp)))
 
 (defmacro assert-first-fp-equal (expected form &rest extras)
   (lisp-unit::expand-assert
    :equal form `(fp-string (nth-value 0 ,form)) expected extras
    :test #'string-equal))
+
+(defmacro fp-values (results)
+  `(mapcar #'fp-string (multiple-value-list ,results)))
+
+
+;;(gsl:double-float-unequal x y double-float-epsilon)
+
+
 
 ;;; (make-fp-test '(legendre-conicalP-half 3.5d0 10.0d0))
 (defun gsl::make-fp-test (form)
