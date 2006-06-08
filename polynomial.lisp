@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Tue May 30 2006 - 09:40
+; modified:    Wed Jun  7 2006 - 22:28
 ;********************************************************
 ;;; $Id: $
 
@@ -17,236 +17,206 @@
 ;;;; Polynomial Evaluation
 ;;;;****************************************************************************
 
-;;; (defparameter vec (make-data 'vector nil 3))
-;;; (setf (data vec) #(1.0d0 2.0d0 3.0d0))
-;;; (polynomial-eval vec -1.0d0)
-;;; 2.0d0
 (defun-gsl polynomial-eval (coefficients x)
-    "gsl_poly_eval"
+  "gsl_poly_eval"
   (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size) (x :double))
   :documentation
   "Evaluate the polyonomial with coefficients at the point x."
   :c-return :double)
 
-
-#+old
-(defun-gsl polynomial-eval
-    (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size) (x :double))
-  "gsl_poly_eval"
-  :function (coefficients x)
-  :documentation
-  "Evaluate the polyonomial with coefficients at the point x."
-  :return (:double)
-  :c-return-value :return)
-
-
-
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials
 ;;;;****************************************************************************
 
-;;; Use with-divided-difference to compute the divided difference, an
-;;; opaque object that is then passed to 
-;;; get-divided-difference, eval-divided-difference or taylor-divided-difference
-;;; in the body.
+;;; Use with-divided-difference to compute the divided difference,
+;;; which may be passed to eval-divided-difference or
+;;; taylor-divided-difference in the body.
 
-(export '(with-divided-difference))
-(defmacro with-divided-difference ((dd xa ya) &body body)
-  "Compute the divided difference and bind dd to it.
-   This variable may then be passed to divided-difference
-   functions in the body."
-  `(let ((,dd (find-divided-difference ,xa ,ya)))
-    (unwind-protect 
-	 (progn ,@body)
-      (cffi::foreign-array-free (first ,dd))
-      (cffi::foreign-array-free (second ,dd)))))
+(defun-gsl divided-difference-int (dd xa ya)
+  "gsl_poly_dd_init"
+  (((gsl-array dd) :pointer)
+   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer)
+   ((dim0 xa) :size))
+  :return (dd)
+  :export nil
+  :index divided-difference)
 
-;;; Do not call this function directly; use with-divided-difference.
-(defun find-divided-difference (xa ya)
-  "Find the divided difference representation of the interpolating polynomial
-   for the points stored in the arrays @var{xa} and @var{ya}."
-  (let* ((size (length xa))
-	 (dd (foreign-alloc :double :count size))
-	 (xac (foreign-alloc :double :count size)))
-    (cffi::with-foreign-array (yac ya :double (list size))
-      ;; return code not checked
-      (cffi:foreign-funcall
-       "gsl_poly_dd_init"
-       :pointer dd
-       :pointer xac
-       :pointer yac
-       :size size
-       :int))
-    (list dd xac size)))
+(export '(divided-difference))
+(defun divided-difference (xa ya)
+  "Compute a divided-difference representation of the
+  interpolating polynomial for the points (@var{xa}, @var{ya}) stored in
+  the arrays @var{xa} and @var{ya}.  The output is the
+  divided-differences of (@var{xa},@var{ya}) stored in an gsl-vector
+  of the same length as xa and ya."
+  (let ((len (length xa)))
+    (with-data (xad vector-double len)
+      (with-data (yad vector-double len)
+	(setf (data xad) xa (data yad) ya)
+	(divided-difference-int
+	 (make-data 'vector-double nil len)
+	 xad yad)))))
 
-(defunx get-divided-difference (dd)
-  "Convert the divided difference into an array."
-  (cffi::foreign-array-to-lisp
-   (first dd) :double (list (third dd))))
-
-(defunx-map eval-divided-difference "gsl_poly_dd_eval" (dd x)
+(defun-gsl polynomial-eval-divided-difference (dd xa x)
+  "gsl_poly_dd_eval"
+  (((gsl-array dd) :pointer)
+   ((gsl-array xa) :pointer)
+   ((dim0 xa) :size)
+   (x :double))
+  :c-return :double
+  :documentation
   "Evaluate the polynomial stored in divided-difference form
-   at the point @var{x}. Call only within a
-   with-divided-difference form."
-  (cffi:foreign-funcall
-   "gsl_poly_dd_eval"
-   :pointer (first dd)
-   :pointer (second dd)
-   :size (third dd)
-   :double x
-   :double))
+   in the arrays @var{dd} and @var{xa} at the point @var{x}.")
 
-(defunx-map taylor-divided-difference "gsl_poly_dd_taylor" (dd xp)
+(defun-gsl taylor-divided-difference (coefs dd xp workspace)
+  "gsl_poly_dd_taylor"
+  (((gsl-array coefs) :pointer)
+   ((gsl-array xp) :pointer)
+   ((gsl-array dd) :pointer)
+   ((gsl-array x) :pointer)
+   ((dim0 xa) :size)
+   ((gsl-array workspace) :pointer))
+  :documentation
   "Convert the divided-difference representation of a polynomial
    to a Taylor expansion about the point xp.  Call only within a
-   with-divided-difference form."
-  (let ((cc (foreign-alloc :double :count (third dd)))
-	(workspace (foreign-alloc :double :count (third dd))))
-    (unwind-protect
-	 (progn
-	   ;; Return value not checked.
-	   (cffi:foreign-funcall
-	    "gsl_poly_dd_taylor"
-	    :pointer cc
-	    :double xp
-	    :pointer (first dd)
-	    :pointer (second dd)
-	    :size (third dd)
-	    :pointer workspace
-	    :int)
-	   (cffi::foreign-array-to-lisp
-	    cc :double (list (third dd))))
-      (cffi::foreign-array-free workspace)
-      (cffi::foreign-array-free cc))))
+   with-divided-difference form.")
 
 ;;;;****************************************************************************
 ;;;; Quadratic Equations
 ;;;;****************************************************************************
 
-(defun-gsl solve-quadratic ((a :double) (b :double) (c :double))
+(defun-gsl solve-quadratic (a b c)
   "gsl_poly_solve_quadratic"
+  ((a :double) (b :double) (c :double) (root1 :double) (root2 :double))
   :documentation
   "The real roots of the quadratic equation a x^2 + b x + c = 0.
    Two values are always returned; if the roots are not real, these
    values are NIL."
-  :return (:double :double)
-  :c-return-value :number-of-answers)
+  :c-return :number-of-answers)
 
-(defun-gsl solve-quadratic-complex ((a :double) (b :double) (c :double))
+(defun-gsl solve-quadratic-complex (a b c)
   "gsl_poly_complex_solve_quadratic"
+  ((a :double) (b :double) (c :double) (root1 gsl-complex) (root2 gsl-complex))
   :documentation
   "The complex roots of the quadratic equation a x^2 + b x + c = 0.
    Two values are always returned; if a root does not exist, the
    value returned will be NIL."
-  :return (gsl-complex gsl-complex)
-  :c-return-value :number-of-answers) 
+  :c-return :number-of-answers) 
 
 ;;;;****************************************************************************
 ;;;; Cubic Equations
 ;;;;****************************************************************************
 
-;;; (solve-cubic -6.0d0 -13.0d0 42.0d0)
-;;; -3.0d0
-;;; 1.9999999999999996d0
-;;; 7.0d0
-
-;;; (solve-cubic -1.0d0 1.0d0 -1.0d0)
-;;; 1.0d0
-;;; NIL
-;;; NIL
-
-(defun-gsl solve-cubic ((a :double) (b :double) (c :double))
+(defun-gsl solve-cubic (a b c)
   "gsl_poly_solve_cubic"
+  ((a :double) (b :double) (c :double)
+   (root1 :double) (root2 :double) (root3 :double))
   :documentation
   "Find the real roots of the cubic equation, x^3 + a x^2 + b x + c = 0
    with a leading coefficient of unity.  The roots are given
    in ascending order.  Three values are always returned;
    if a root is not real, the value returned for it will be NIL."
-  :return (:double :double :double)
-  :c-return-value :number-of-answers)
+  :c-return :number-of-answers)
 
-(defun-gsl solve-cubic-complex ((a :double) (b :double) (c :double))
+(defun-gsl solve-cubic-complex (a b c)
   "gsl_poly_complex_solve_cubic"
+  ((a :double) (b :double) (c :double)
+   (root1 gsl-complex) (root2 gsl-complex) (root3 gsl-complex))
   :documentation
   "Find the complex roots of the cubic equation, x^3 + a x^2 + b x + c = 0
    with a leading coefficient of unity.  Three values are always returned;
    if a root does not exist, the value returned for it will be NIL."
-  :return (gsl-complex gsl-complex gsl-complex)
-  :c-return-value :number-of-answers)
+  :c-return :number-of-answers)
 
 ;;;;****************************************************************************
 ;;;; General Polynomial Equations
 ;;;;****************************************************************************
 
-;;; Note:
-;;; If one polynomial needs to be solved #'polynomial-solve 
-;;; without the second argument is appropriate.  If multiple polynomials
-;;; of the same degree need to be solved, then use with-poly-complex-workspace
-;;; once, wrapping the multiple calls to polynomial-solve with an
-;;; explicit workspace argument.  This insures that the workspace, which
-;;; GSL needs for scratch space, is allocated and deallocated only once.
+(defun-gsl complex-workspace-alloc (n)
+  "gsl_poly_complex_workspace_alloc" ((n :size))
+  :check-null-pointers
+  ((:creturn :ENOMEM (format nil "No complex workspace")))
+  :c-return :pointer
+  :export nil
+  :index with-poly-complex-workspace)
 
-#|
-;;; Example from GSL manual:
-(with-poly-complex-workspace (ws 6)
-  (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0) ws))
-
-(polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0))
-(#C(-0.8090169943749475d0 0.5877852522924731d0)
- #C(-0.8090169943749475d0 -0.5877852522924731d0)
- #C(0.30901699437494745d0 0.9510565162951536d0)
- #C(0.30901699437494745d0 -0.9510565162951536d0)
- #C(1.0000000000000002d0 0.0d0))
-|#
-
-;;; See /usr/include/gsl/gsl_poly.h
-(cffi:defcstruct poly-complex-workspace
-  (nc :size)
-  (matrix :pointer))
+(defun-gsl complex-workspace-free (ws)
+  "gsl_poly_complex_workspace_free" ((ws :pointer))
+  :c-return :void
+  :export nil
+  :index with-poly-complex-workspace)
 
 (export '(with-poly-complex-workspace))
 (defmacro with-poly-complex-workspace ((workspace size) &body body)
   "Macro to create and cleanup workspace for polynomial root solver." 
-  `(let ((,workspace
-	  (funcall
-	   (defun-gsl :lambda ((n :size))
-	     "gsl_poly_complex_workspace_alloc"
-	     :return
-	     (poly-complex-workspace)
-	     :c-return-value :return)
-	   ,size)))
-    (unwind-protect 
-	 (progn ,@body)
-      (funcall
-       (defun-gsl :lambda ((,workspace poly-complex-workspace))
-	 "gsl_poly_complex_workspace_free"
-	 :c-return-value :void)
-       ,workspace))))
+  `(let ((,workspace (complex-workspace-alloc ,size)))
+     (unwind-protect
+	  (progn ,@body)
+       (complex-workspace-free ,workspace))))
 
-(defun-gsl polynomial-solve-ws
-    (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size)
-     (workspace poly-complex-workspace))
+(defun-gsl polynomial-solve-ws (coefficients workspace answer-pd)
   "gsl_poly_complex_solve"
-  :function (coefficients workspace)
-  :return ((gsl-complex (1- (dim0 coefficients)))))
+  (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size)
+   (workspace :pointer) ((gsl-array answer-pd) :pointer))
+  :return
+  ((loop for i from 0 below (dim0 answer-pd) by 2
+      collect (complex (gsl-aref answer-pd i)
+		       (gsl-aref answer-pd (1+ i)))))
+  :documentation
+  "Arguments are:
+   a GSL array of coefficients, a workspace, a gsl-array of doubles."
+  :export nil
+  :index polynomial-solve)
 
-#+future
-(export '(polynomial-solve))
-#+future
-(defmacro polynomial-solve (coefficients &optional workspace)
+(defun polynomial-solve (coefficients)
   "The roots of the general polynomial 
-@c{$P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1}$} 
-@math{P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_@{n-1@} x^@{n-1@}} using 
-balanced-QR reduction of the companion matrix.  The parameter @var{n}
-specifies the length of the coefficient array.  The coefficient of the
-highest order term must be non-zero.  The function requires a workspace
-@var{w} of the appropriate size.  The @math{n-1} roots are returned in
-the packed complex array @var{z} of length @math{2(n-1)}, alternating
-real and imaginary parts."
-  (if workspace
-      `(polynomial-solve-ws ,coefficients ,workspace)
-      (let ((ws (gensym "WS"))
-	    (coef (gensym "COEF")))
-	`(let ((,coef ,coefficients))
-	   (with-poly-complex-workspace (,ws (length ,coef))
-	     (polynomial-solve-ws ,coef ,ws))))))
+  @math{P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_@{n-1@} x^@{n-1@}} using 
+  balanced-QR reduction of the companion matrix.  The parameter @var{n}
+  specifies the length of the coefficient array.  The coefficient of the
+  highest order term must be non-zero.  The function requires a workspace
+  @var{w} of the appropriate size.  The @math{n-1} roots are returned in
+  the packed complex array @var{z} of length @math{2(n-1)}, alternating
+  real and imaginary parts."
+  (let ((len (length coefficients)))
+    (with-data (coef vector-double len)
+      (setf (data coef) coefficients)
+      (with-data (answer vector-double ((* 2 (1- len))))
+	(with-poly-complex-workspace (ws len)
+	  (values-list (polynomial-solve-ws coef ws answer)))))))
+
+;;;;****************************************************************************
+;;;; Examples and unit test
+;;;;****************************************************************************
+
+(lisp-unit:define-test polynomial
+  (lisp-unit:assert-first-fp-equal
+   "0.200000000000d+01"
+   (with-data (vec vector-double 3)
+     (setf (data vec) #(1.0d0 2.0d0 3.0d0))
+     (polynomial-eval vec -1.0d0)))
+  (lisp-unit:assert-equal
+   '(NIL NIL)
+   (multiple-value-list (solve-quadratic 1.0d0 0.0d0 1.0d0)))
+  (lisp-unit:assert-equal
+   '(1.0d0 1.0d0)
+   (multiple-value-list (solve-quadratic 1.0d0 -2.0d0 1.0d0)))
+  (lisp-unit:assert-equal
+   '(#C(1.0d0 0.0d0) #C(1.0d0 0.0d0))
+   (multiple-value-list (solve-quadratic-complex 1.0d0 -2.0d0 1.0d0)))
+  (lisp-unit:assert-equal
+   '("-0.300000000000d+01" "0.200000000000d+01" "0.700000000000d+01")
+   (lisp-unit:fp-values (solve-cubic -6.0d0 -13.0d0 42.0d0)))
+  ;; This should use double-float-unequal
+  (lisp-unit:assert-equal
+   '(("-0.902598308594d-17" "-1.000000000000d+00")
+     ("-0.902598308594d-17" "1.000000000000d+00")
+     ("0.100000000000d+01" "0.000000000000d+01"))
+   (lisp-unit:fp-values (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)))
+  (lisp-unit:assert-equal
+   '(("-0.809016994375d+00" "0.587785252292d+00")
+     ("-0.809016994375d+00" "-0.587785252292d+00")
+     ("0.309016994375d+00" "0.951056516295d+00")
+     ("0.309016994375d+00" "-0.951056516295d+00")
+     ("0.100000000000d+01" "0.000000000000d+01"))
+   ;; Example from GSL manual
+   (lisp-unit:fp-values (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
+   ))
