@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Jun  7 2006 - 22:28
+; modified:    Wed Jun  7 2006 - 22:47
 ;********************************************************
 ;;; $Id: $
 
@@ -67,6 +67,7 @@
   "Evaluate the polynomial stored in divided-difference form
    in the arrays @var{dd} and @var{xa} at the point @var{x}.")
 
+#+development
 (defun-gsl taylor-divided-difference (coefs dd xp workspace)
   "gsl_poly_dd_taylor"
   (((gsl-array coefs) :pointer)
