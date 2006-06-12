@@ -3,7 +3,7 @@
 ; description: Coulumb functions                         
 ; date:        Sat Mar 18 2006 - 23:23                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Jun 11 2006 - 22:17
+; modified:    Mon Jun 12 2006 - 08:55
 ;********************************************************
 ;;; $Id:$
 
@@ -174,4 +174,4 @@
    '("0.108422513102d+00" "0.511108628318d-01" "0.114287363681d-01")
    (lisp-unit:fp-sequence
     (with-data (cl vector-double 3)
-      (coulomb-CL-array 0.0d0 1.0d0 arr) (data arr)))))
+      (coulomb-CL-array 0.0d0 1.0d0 cl) (data cl)))))
