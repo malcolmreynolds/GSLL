@@ -3,15 +3,15 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Jun  7 2006 - 22:47
+; modified:    Sat Jun 10 2006 - 23:37
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-;;; To do:
-;;; Divided difference needs to be checked.
-;;; polynomial-solve-ws awaits complex vectors 
+;;; To do: finish divided differences, which requires figuring out how
+;;; to handle raw C arrays, and deciding if/how to provide
+;;; autotranslation from CL pure arrays.
 
 ;;;;****************************************************************************
 ;;;; Polynomial Evaluation

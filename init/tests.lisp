@@ -3,7 +3,7 @@
 ; description: Test functions.                           
 ; date:        Sat Apr 22 2006 - 16:52                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Jun  6 2006 - 22:08
+; modified:    Sun Jun 11 2006 - 22:20
 ;********************************************************
 ;;; $Id: $
 
@@ -11,7 +11,7 @@
 ;;; point numbers and a form for generating floating point tests.
 
 (in-package :lisp-unit)
-(export '(assert-first-fp-equal fp-values))
+(export '(assert-first-fp-equal fp-values fp-sequence))
 
 (defparameter *test-fp-decimal-digits* 12
   "The number of decimal digits on which floating point
@@ -32,10 +32,11 @@
 (defmacro fp-values (results)
   `(mapcar #'fp-string (multiple-value-list ,results)))
 
+(defun fp-sequence (results)
+  (map 'list #'fp-string results))
+
 
 ;;(gsl:double-float-unequal x y double-float-epsilon)
-
-
 
 ;;; (make-fp-test '(legendre-conicalP-half 3.5d0 10.0d0))
 (defun gsl::make-fp-test (form)

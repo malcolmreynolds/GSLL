@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Wed Jun  7 2006 - 17:33
+; modified:    Sun Jun 11 2006 - 22:18
 ;********************************************************
 ;;; $Id: $
 
@@ -46,9 +46,9 @@
 	    :depends-on (init)
 	    :components
 	    ((:file "airy")
-	     ;;(:file "bessel")
-	     ;;(:file "clausen")
-	     ;;(:file "coulomb")
+	     (:file "bessel")
+	     (:file "clausen")
+	     (:file "coulomb")
 	     ;;(:file "coupling")		; always zero?
 	     ;;(:file "dawson")
 	     ;;(:file "debye")
