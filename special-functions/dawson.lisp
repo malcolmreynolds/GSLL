@@ -3,7 +3,7 @@
 ; description: Dawson function                           
 ; date:        Sun Mar 19 2006 - 14:31                   
 ; author:      Liam M. Healy                             
-; modified:    Sun May 21 2006 - 14:58
+; modified:    Mon Jun 12 2006 - 23:17
 ;********************************************************
 ;;; $Id: $
 
@@ -16,11 +16,10 @@ Stegun, Table 7.5.  The Dawson functions are declared in the header file
 
 (in-package :gsl)
 
-(defun-gsl dawson ((x :double))
-  "gsl_sf_dawson_e"
+(defun-gsl dawson (x)
+  "gsl_sf_dawson_e" ((x :double) (ret sf-result))
   :documentation
-  "Dawson's integral for @var{x}."
-  :return (sf-result))
+  "Dawson's integral for @var{x}.")
 
 (lisp-unit:define-test dawson
   (lisp-unit:assert-first-fp-equal "0.538079506913d+00" (dawson 1.0d0)))
