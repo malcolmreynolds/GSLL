@@ -3,15 +3,14 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun 10 2006 - 23:37
+; modified:    Tue Jun 13 2006 - 22:57
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-;;; To do: finish divided differences, which requires figuring out how
-;;; to handle raw C arrays, and deciding if/how to provide
-;;; autotranslation from CL pure arrays.
+;;; Provide autotranslation from CL pure arrays?
+;;; Divided differences not complete/tested.
 
 ;;;;****************************************************************************
 ;;;; Polynomial Evaluation
@@ -27,10 +26,6 @@
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials
 ;;;;****************************************************************************
-
-;;; Use with-divided-difference to compute the divided difference,
-;;; which may be passed to eval-divided-difference or
-;;; taylor-divided-difference in the body.
 
 (defun-gsl divided-difference-int (dd xa ya)
   "gsl_poly_dd_init"
@@ -67,19 +62,22 @@
   "Evaluate the polynomial stored in divided-difference form
    in the arrays @var{dd} and @var{xa} at the point @var{x}.")
 
-#+development
-(defun-gsl taylor-divided-difference (coefs dd xp workspace)
+(defun-gsl taylor-divided-difference (coefs xp dd xa workspace)
   "gsl_poly_dd_taylor"
   (((gsl-array coefs) :pointer)
-   ((gsl-array xp) :pointer)
+   (xp :double)
    ((gsl-array dd) :pointer)
-   ((gsl-array x) :pointer)
+   ((gsl-array xa) :pointer)
    ((dim0 xa) :size)
    ((gsl-array workspace) :pointer))
+  :invalidate (coefs)
   :documentation
-  "Convert the divided-difference representation of a polynomial
-   to a Taylor expansion about the point xp.  Call only within a
-   with-divided-difference form.")
+  "Convert the divided-difference representation of a
+  polynomial to a Taylor expansion.  The divided-difference representation
+  is supplied in the arrays @var{dd} and @var{xa} of the same length.
+  On output the Taylor coefficients of the polynomial expanded about the
+  point @var{xp} are stored in the array coefs which has the same length
+  as xa and dd.  A workspace of length @var{size} must be provided.")
 
 ;;;;****************************************************************************
 ;;;; Quadratic Equations
@@ -219,5 +217,5 @@
      ("0.309016994375d+00" "-0.951056516295d+00")
      ("0.100000000000d+01" "0.000000000000d+01"))
    ;; Example from GSL manual
-   (lisp-unit:fp-values (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
-   ))
+   (lisp-unit:fp-values
+    (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))))

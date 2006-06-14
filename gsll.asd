@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Jun 12 2006 - 23:43
+; modified:    Tue Jun 13 2006 - 22:58
 ;********************************************************
 ;;; $Id: $
 
@@ -38,10 +38,8 @@
 	     (:file "matrix" :depends-on (data vector))
 	     (:file "permutation" :depends-on (data vector))
 	     (:file "combination" :depends-on (data))))
-   #+future
-   (:file "cffi-array")
-   #+future
-   (:file "polynomial" :depends-on (init cffi-array)) ; see file
+   #+unnecessary (:file "cffi-array")
+   (:file "polynomial" :depends-on (init data))
    (:module special-functions
 	    :depends-on (init)
 	    :components
@@ -53,15 +51,15 @@
 	     (:file "dawson")
 	     (:file "debye")
 	     (:file "dilogarithm")
-	     ;;(:file "elementary")
-	     ;;(:file "elliptic-integrals")
-	     ;;(:file "elliptic-functions")
-	     ;;(:file "error-functions")
-	     ;;(:file "exponential-functions")
-	     ;;(:file "exponential-integrals")
-	     ;;(:file "fermi-dirac")
-	     ;;(:file "gamma")
-	     ;;(:file "gegenbauer")
+	     (:file "elementary")
+	     (:file "elliptic-integrals")
+	     (:file "elliptic-functions")
+	     (:file "error-functions")
+	     (:file "exponential-functions")
+	     (:file "exponential-integrals")
+	     (:file "fermi-dirac")
+	     (:file "gamma")
+	     (:file "gegenbauer")
 	     ;;(:file "hypergeometric")
 	     ;;(:file "laguerre")
 	     ;;(:file "lambert")

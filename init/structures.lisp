@@ -3,7 +3,7 @@
 ; description: Common structures defined by GSL.         
 ; date:        Sun May 28 2006 - 22:04                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Jun  1 2006 - 14:32
+; modified:    Tue Jun 13 2006 - 21:45
 ;********************************************************
 ;;; $Id: $
 
@@ -41,7 +41,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
   (cffi:foreign-slot-value sf-result type 'err))
 
 (defun e10 (sf-result)
-  (cffi:foreign-slot-value sf-result 'sf-result-e10 'err))
+  (cffi:foreign-slot-value sf-result 'sf-result-e10 'e10))
 
 ;;;;****************************************************************************
 ;;;; Complex numbers

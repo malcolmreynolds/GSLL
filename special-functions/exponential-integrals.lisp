@@ -3,7 +3,7 @@
 ; description: Exponential integrals                     
 ; date:        Tue Mar 21 2006 - 17:37                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 26 2006 - 10:13
+; modified:    Tue Jun 13 2006 - 21:40
 ;********************************************************
 ;;; $Id: $
 
@@ -13,79 +13,78 @@
 ;;;; Exponential Integral
 ;;;;****************************************************************************
 
-(defun-gsl expint-E1 ((x :double))
-  "gsl_sf_expint_E1_e"
+(defun-gsl expint-E1 (x)
+  "gsl_sf_expint_E1_e" ((x :double) (ret sf-result))
   :documentation
-  "The exponential integral @math{E_1(x)}, E_1(x) := \Re \int_1^\infty dt \exp(-xt)/t.."
-  :return (sf-result))
+  "The exponential integral
+   @math{E_1(x)}, E_1(x) := \Re \int_1^\infty dt \exp(-xt)/t..")
 
-(defun-gsl expint-E2 ((x :double))
-  "gsl_sf_expint_E2_e"
+(defun-gsl expint-E2 (x)
+  "gsl_sf_expint_E2_e" ((x :double) (ret sf-result))
   :documentation
-  "The second-order exponential integral @math{E_2(x)}, E_2(x) := \Re \int_1^\infty dt \exp(-xt)/t^2."
-  :return (sf-result))
+  "The second-order exponential integral
+   @math{E_2(x)}, E_2(x) := \Re \int_1^\infty dt \exp(-xt)/t^2.")
 
 ;;;;****************************************************************************
 ;;;; Ei
 ;;;;****************************************************************************
 
-(defun-gsl expint-Ei ((x :double))
-  "gsl_sf_expint_Ei_e"
+(defun-gsl expint-Ei (x)
+    "gsl_sf_expint_Ei_e" ((x :double) (ret sf-result))
   :documentation
-  "The exponential integral @math{Ei(x)}, Ei(x) := - PV\left(\int_{-x}^\infty dt \exp(-t)/t\right)."
-  :return (sf-result))
+  "The exponential integral @math{Ei(x)},
+   Ei(x) := - PV\left(\int_{-x}^\infty dt \exp(-t)/t\right).")
 
 ;;;;****************************************************************************
 ;;;; Hyperbolic Integrals
 ;;;;****************************************************************************
 
-(defun-gsl Shi ((x :double))
-  "gsl_sf_Shi_e"
+(defun-gsl Shi (x)
+  "gsl_sf_Shi_e" ((x :double) (ret sf-result))
   :documentation
-  "The integral @math{Shi(x) = \int_0^x dt \sinh(t)/t}."
-  :return (sf-result))
+  "The integral @math{Shi(x) = \int_0^x dt \sinh(t)/t}.")
 
-(defun-gsl Chi ((x :double))
-  "gsl_sf_Chi_e"
+(defun-gsl Chi (x)
+  "gsl_sf_Chi_e" ((x :double) (ret sf-result))
   :documentation
-  "The integral @math{ Chi(x) := \Re[ \gamma_E + \log(x) + \int_0^x dt (\cosh[t]-1)/t] }, where @math{\gamma_E} is the Euler constant."
-  :return (sf-result))
+  "The integral
+   @math{ Chi(x) := \Re[ \gamma_E + \log(x) + \int_0^x dt (\cosh[t]-1)/t] },
+   where @math{\gamma_E} is the Euler constant.")
 
 ;;;;****************************************************************************
 ;;;; Ei-3
 ;;;;****************************************************************************
 
-(defun-gsl expint-3 ((x :double))
-  "gsl_sf_expint_3_e"
+(defun-gsl expint-3 (x)
+  "gsl_sf_expint_3_e" ((x :double) (ret sf-result))
   :documentation
-  "The third-order exponential integral @math{Ei_3(x) = \int_0^xdt \exp(-t^3)} for @c{$x \ge 0$} @math{x >= 0}."
-  :return (sf-result))
+  "The third-order exponential integral @math{Ei_3(x) = \int_0^xdt \exp(-t^3)}
+  for @math{x >= 0}.")
 
 ;;;;****************************************************************************
 ;;;; Trigonometric Integrals
 ;;;;****************************************************************************
 
-(defun-gsl Si ((x :double))
-  "gsl_sf_Si_e"
+(defun-gsl Si (x)
+  "gsl_sf_Si_e" ((x :double) (ret sf-result))
   :documentation
-  "The Sine integral @math{Si(x) = \int_0^x dt \sin(t)/t}."
-  :return (sf-result))
+  "The Sine integral @math{Si(x) = \int_0^x dt \sin(t)/t}.")
 
-(defun-gsl Ci ((x :double))
-  "gsl_sf_Ci_e"
+(defun-gsl Ci (x)
+  "gsl_sf_Ci_e" ((x :double) (ret sf-result))
   :documentation
-  "The Cosine integral @math{Ci(x) = -\int_x^\infty dt \cos(t)/t} for @math{x > 0}."
-  :return (sf-result))
+  "The Cosine integral @math{Ci(x) = -\int_x^\infty dt \cos(t)/t}
+   for @math{x > 0}.")
 
 ;;;;****************************************************************************
 ;;;; Trigonometric Integrals
 ;;;;****************************************************************************
 
-(defun-gsl atanint ((x :double))
-  "gsl_sf_atanint_e"
+(defun-gsl atanint (x)
+  "gsl_sf_atanint_e" ((x :double) (ret sf-result))
   :documentation
-  "The Arctangent integral, which is defined as @math{AtanInt(x) = \int_0^x dt \arctan(t)/t}."
-  :return (sf-result))
+  "The Arctangent integral, which is defined as
+   @math{AtanInt(x) = \int_0^x dt \arctan(t)/t}.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
