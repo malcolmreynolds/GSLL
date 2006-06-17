@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Tue Jun 13 2006 - 22:58
+; modified:    Fri Jun 16 2006 - 22:21
 ;********************************************************
 ;;; $Id: $
 
@@ -60,11 +60,11 @@
 	     (:file "fermi-dirac")
 	     (:file "gamma")
 	     (:file "gegenbauer")
-	     ;;(:file "hypergeometric")
-	     ;;(:file "laguerre")
-	     ;;(:file "lambert")
-	     ;;(:file "legendre")
-	     ;;(:file "logarithm")
+	     (:file "hypergeometric")
+	     (:file "laguerre")
+	     (:file "lambert")
+	     (:file "legendre")
+	     (:file "logarithm")
 	     ;;(:file "power")
 	     ;;(:file "psi")
 	     ;;(:file "synchrotron")

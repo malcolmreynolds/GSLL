@@ -3,7 +3,7 @@
 ; description: Lambert's W functions
 ; date:        Fri Apr 28 2006 - 20:40                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Apr 29 2006 - 19:00
+; modified:    Fri Jun 16 2006 - 21:13
 ;********************************************************
 ;;; $Id: $
 
@@ -18,15 +18,13 @@
 ;;; @math{W_@{-1@}(x)} to be the other real branch, where
 ;;; @math{W < -1} for @math{x < 0}.  
 
-(defun-gsl lambert-W0 ((x :double))
-  "gsl_sf_lambert_W0_e"
-  :return (sf-result)
+(defun-gsl lambert-W0 (x)
+  "gsl_sf_lambert_W0_e" ((x :double) (ret sf-result))
   :documentation
   "The principal branch of the Lambert W function, @math{W_0(x)}.")
 
-(defun-gsl lambert-Wm1 ((x :double))
-  "gsl_sf_lambert_Wm1_e"
-  :return (sf-result)
+(defun-gsl lambert-Wm1 (x)
+  "gsl_sf_lambert_Wm1_e" ((x :double) (ret sf-result))
   :documentation
   "The secondary real-valued branch of the Lambert W function, 
    @math{W_@{-1@}(x)}.")

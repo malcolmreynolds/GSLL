@@ -3,33 +3,29 @@
 ; description: Laguerre polynomials                    
 ; date:        Fri Apr 28 2006 - 20:40                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Apr 29 2006 - 18:32
+; modified:    Fri Jun 16 2006 - 21:12
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl laguerre-1 ((a :double) (x :double))
-  "gsl_sf_laguerre_1_e"
-  :return (sf-result)
+(defun-gsl laguerre-1 (a x)
+  "gsl_sf_laguerre_1_e" ((a :double) (x :double) (ret sf-result))
   :documentation "The generalized Laguerre polynomial
    @math{L^a_1(x)} using explicit representations.")
 
-(defun-gsl laguerre-2 ((a :double) (x :double))
-  "gsl_sf_laguerre_2_e"
-  :return (sf-result)
+(defun-gsl laguerre-2 (a x)
+  "gsl_sf_laguerre_2_e" ((a :double) (x :double) (ret sf-result))
   :documentation  "The generalized Laguerre polynomial
    @math{L^a_2(x)} using explicit representations.")
 
-(defun-gsl laguerre-3 ((a :double) (x :double))
-  "gsl_sf_laguerre_3_e"
-  :return (sf-result)
+(defun-gsl laguerre-3 (a x)
+  "gsl_sf_laguerre_3_e" ((a :double) (x :double) (ret sf-result))
   :documentation "The generalized Laguerre polynomial
    @math{L^a_3(x)} using explicit representations.")
 
-(defun-gsl laguerre ((n :int) (a :double) (x :double))
-  "gsl_sf_laguerre_n_e"
-  :return (sf-result)
+(defun-gsl laguerre (n a x)
+  "gsl_sf_laguerre_n_e" ((n :int) (a :double) (x :double) (ret sf-result))
   :documentatiOn "The generalized Laguerre polynomials
   @math{L^a_n(x)} for @math{a > -1}, @math{n >= 0}.")
 
@@ -46,4 +42,7 @@
    (laguerre-2 1.0d0 3.0d0))
   (lisp-unit:assert-first-fp-equal
    "-0.500000000000d+00"
-   (laguerre-3 1.0d0 3.0d0)))
+   (laguerre-3 1.0d0 3.0d0))
+  (lisp-unit:assert-first-fp-equal
+   "0.875000000000d+00"
+   (laguerre 4 1.0d0 3.0d0)))
