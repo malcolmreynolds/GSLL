@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Fri Jun 16 2006 - 22:21
+; modified:    Sat Jun 17 2006 - 23:03
 ;********************************************************
 ;;; $Id: $
 
@@ -65,13 +65,12 @@
 	     (:file "lambert")
 	     (:file "legendre")
 	     (:file "logarithm")
-	     ;;(:file "power")
-	     ;;(:file "psi")
-	     ;;(:file "synchrotron")
-	     ;;(:file "transport")
-	     ;;(:file "trigonometry")
-	     ;;(:file "zeta")
-	     ))
+	     (:file "power")
+	     (:file "psi")
+	     (:file "synchrotron")
+	     (:file "transport")
+	     (:file "trigonometry")
+	     (:file "zeta")))
    #+future
    (:file "sorting" :depends-on (init data))
    #+future
