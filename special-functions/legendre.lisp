@@ -3,7 +3,7 @@
 ; description: Legendre functions                        
 ; date:        Sat Apr 29 2006 - 19:16                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jun 16 2006 - 22:56
+; modified:    Mon Jun 19 2006 - 09:09
 ;********************************************************
 ;;; $Id: $
 
@@ -102,14 +102,14 @@
     @math{l = |m|, ..., |m|+length(array)-1} and @math{|x| <= 1}."
   :invalidate (array))
 
-(defun-gsl legendre-Plm-deriv-array (m x array)
+(defun-gsl legendre-Plm-deriv-array (m x values derivatives)
   "gsl_sf_legendre_Plm_deriv_array"
-  (((+ (dim0 array) m -1) :int) (m :int) (x :double)
-   ((gsl-array array) :pointer))
+  (((+ (dim0 values) m -1) :int) (m :int) (x :double)
+   ((gsl-array values) :pointer) ((gsl-array derivatives) :pointer))
   :documentation "An array of Legendre polynomials derivatives
     @math{dP_l^m(x)/dx} for @math{m >= 0}, 
-    @math{l = |m|, ..., length(array)} and @math{|x| <= 1}."
-  :invalidate (array))
+    @math{l = |m|, ..., length(values)} and @math{|x| <= 1}."
+  :invalidate (values derivatives))
 
 (defun-gsl legendre-sphPlm (l m x)
   "gsl_sf_legendre_sphPlm_e" ((l :int) (m :int) (x :double) (ret sf-result))
