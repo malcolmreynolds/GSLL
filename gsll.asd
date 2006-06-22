@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sat Jun 17 2006 - 23:03
+; modified:    Wed Jun 21 2006 - 22:03
 ;********************************************************
 ;;; $Id: $
 
@@ -71,7 +71,6 @@
 	     (:file "transport")
 	     (:file "trigonometry")
 	     (:file "zeta")))
-   #+future
    (:file "sorting" :depends-on (init data))
    #+future
    (:module linear-algebra

@@ -3,7 +3,7 @@
 ; description: Legendre functions                        
 ; date:        Sat Apr 29 2006 - 19:16                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Jun 19 2006 - 09:09
+; modified:    Wed Jun 21 2006 - 21:44
 ;********************************************************
 ;;; $Id: $
 
@@ -106,7 +106,8 @@
   "gsl_sf_legendre_Plm_deriv_array"
   (((+ (dim0 values) m -1) :int) (m :int) (x :double)
    ((gsl-array values) :pointer) ((gsl-array derivatives) :pointer))
-  :documentation "An array of Legendre polynomials derivatives
+  :documentation "An array of Legendre polynomials
+    values and derivatives
     @math{dP_l^m(x)/dx} for @math{m >= 0}, 
     @math{l = |m|, ..., length(values)} and @math{|x| <= 1}."
   :invalidate (values derivatives))
@@ -130,14 +131,14 @@
    for @math{m >= 0}, @math{l = |m|, ..., length(array)}, @math{|x| <= 1.0}."
   :invalidate (array))
 
-(defun-gsl legendre-sphPlm-deriv-array (m x array)
+(defun-gsl legendre-sphPlm-deriv-array (m x values derivatives)
   "gsl_sf_legendre_sphPlm_deriv_array"
-  (((+ (dim0 array) m -1) :int) (m :int) (x :double)
-   ((gsl-array array) :pointer))
+  (((+ (dim0 values) m -1) :int) (m :int) (x :double)
+   ((gsl-array values) :pointer) ((gsl-array derivatives) :pointer))
   :documentation "An array of normalized associated Legendre functions
-   derivatives for @math{m >= 0}, @math{l = |m|, ..., length(array)},
-   @math{|x| <= 1.0}."
-  :invalidate (array))
+   values and derivatives for @math{m >= 0},
+   @math{l = |m|, ..., length(array)}, @math{|x| <= 1.0}."
+  :invalidate (values derivatives))
 
 (defun-gsl legendre-array-size (lmax m)
   "gsl_sf_legendre_array_size" ((lmax :int) (m :int))
@@ -283,13 +284,13 @@
       (legendre-Plm-array 2 0.5d0 arr)
       (data arr))))
   (lisp-unit:assert-equal
-   '("0.225000000000d+01" "0.562500000000d+01"
-     "0.421875000000d+01" "-0.492187500000d+01")
-   ;; suspicious? same answer as legendre-Plm-array?
+   '("-0.300000000000d+01" "0.375000000000d+01"
+     "0.337500000000d+02" "0.557812500000d+02")
    (lisp-unit:fp-sequence
-    (with-data (arr vector-double 4)
-      (legendre-Plm-deriv-array 2 0.5d0 arr)
-      (data arr))))
+    (with-data (val vector-double 4)
+      (with-data (deriv vector-double 4)
+	(legendre-Plm-deriv-array 2 0.5d0 val deriv)
+	(data deriv)))))
   (lisp-unit:assert-first-fp-equal
    "0.398506257222d-13"
    (legendre-sphplm 1200 1100 0.5d0))
@@ -302,12 +303,13 @@
       (data arr))))
   ;; suspicious? same answer as legendre-sphPlm-array?
   (lisp-unit:assert-equal
-   '("0.248924639500d+00" "0.412794815148d+00"
-     "0.351206555622d+00" "0.515993518936d-01")
+   '("-0.663799038667d+00" "-0.275196543432d+00"
+     "0.127103324892d+01" "0.264876673054d+01")
    (lisp-unit:fp-sequence
-    (with-data (arr vector-double 4)
-      (legendre-sphPlm-deriv-array 4 0.5d0 arr)
-      (data arr))))
+    (with-data (val vector-double 4)
+      (with-data (deriv vector-double 4)
+	(legendre-sphPlm-deriv-array 4 0.5d0 val deriv)
+	(data deriv)))))
   (lisp-unit:assert-first-fp-equal
    "-0.125529904888d+00"
    (legendre-conicalp-half 3.5d0 10.0d0))
