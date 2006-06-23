@@ -3,7 +3,7 @@
 ; description: BLAS level 1, Vector operations
 ; date:        Wed Apr 26 2006 - 15:23                   
 ; author:      Liam Healy                                
-; modified:    Wed Apr 26 2006 - 21:54
+; modified:    Thu Jun 22 2006 - 23:07
 ;********************************************************
 ;;; $Id: $
 
@@ -18,7 +18,7 @@
 
 (export '(dot norm asum imax swap copy axpy scal rot))
 
-(defgeneric dot (vector1 vector2)
+(defgeneric dot (result vector1 vector2)
   (:documentation "Dot, or inner, product between vectors."))
 
 (defgeneric norm (x)
@@ -52,64 +52,85 @@
    "Apply a Givens rotation (x', y') = (c x + s y, -s x + c y) to the vectors x, y."))
 
 ;;;;****************************************************************************
+;;;; Single
+;;;;****************************************************************************
+
+(defun-gsl sdot (result alpha vec1 vec2)
+  "gsl_blas_sdsdot"
+  ((alpha :float) ((pointer vec1) :pointer) ((pointer vec2) :pointer)
+   ((gsl-array result) :pointer))
+  :invalidate (result))
+
+;;;;****************************************************************************
 ;;;; Double
 ;;;;****************************************************************************
 
-(defun-gsl dot (((pointer vec1) :pointer) ((pointer vec2) :pointer))
+(defun-gsl dot
+    ((vec1 gsl-vector-double) (vec2 gsl-vector-double) (result gsl-vector-double))
   "gsl_blas_ddot"
-  :method
-  ((vec1 gsl-vector) (vec2 gsl-vector))
-  :return (:double))
+  (((pointer vec1) :pointer) ((pointer vec2) :pointer)
+   ((gsl-array result) :pointer))
+  :type :method
+  :invalidate (result))
 
-(defun-gsl norm (((pointer vec) :pointer))
-  "gsl_blas_dnrm2"
-  :method
-  ((vec gsl-vector))
-  :c-return-value :return
-  :return (:double))
+(defun-gsl norm ((vec gsl-vector-double))
+  "gsl_blas_dnrm2"  (((pointer vec) :pointer))
+  :type :method
+  :c-return :double)
 
-(defun-gsl asum (((pointer vec) :pointer))
-  "gsl_blas_dasum"
-  :method
-  ((vec gsl-vector))
-  :c-return-value :return
-  :return (:double))
+(defun-gsl asum ((vec gsl-vector-double))
+  "gsl_blas_dasum" (((pointer vec) :pointer))
+  :type :method
+  :c-return :double)
 
-(defun-gsl imax (((pointer vec) :pointer))
-  "gsl_blas_idamax"
-  :method ((vec gsl-vector))
-  :c-return-value :return
-  :return (:int))
+(defun-gsl imax ((vec gsl-vector-double))
+  "gsl_blas_idamax" (((pointer vec) :pointer))
+  :type :method 
+  :c-return :int)
 
-(defun-gsl swap (((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  "gsl_blas_dswap"
-  :method ((vec1 gsl-vector) (vec2 gsl-vector))
-  :after ((cl-invalidate vec2)))
+(defun-gsl swap ((vec1 gsl-vector-double) (vec2 gsl-vector-double))
+  "gsl_blas_dswap" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
+  :type :method 
+  :invalidate (vec1 vec2))
 
-(defun-gsl copy (((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  "gsl_blas_dcopy"
-  :method ((vec1 gsl-vector) (vec2 gsl-vector))
-  :after ((cl-invalidate vec2)))
+(defun-gsl copy ((vec1 gsl-vector-double) (vec2 gsl-vector-double))
+  "gsl_blas_dcopy" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
+  :type :method
+  :invalidate (vec2))
 
-(defun-gsl axpy
-    ((alpha :double) ((pointer vec1) :pointer) ((pointer vec2) :pointer))
+(defun-gsl axpy (alpha (vec1 gsl-vector-double) (vec2 gsl-vector-double))
   "gsl_blas_daxpy"
-  :method (alpha (vec1 gsl-vector) (vec2 gsl-vector))
-  :after ((cl-invalidate vec2)))
+  ((alpha :double) ((pointer vec1) :pointer) ((pointer vec2) :pointer))
+  :type :method 
+  :invalidate (vec2))
 
-(defun-gsl scal ((alpha :double) ((pointer vec) :pointer))
-  "gsl_blas_dscal"
-  :method (alpha (vec gsl-vector))
-  :after ((cl-invalidate vec))
-  :c-return-value :void)
+(defun-gsl scal (alpha (vec gsl-vector-double))
+  "gsl_blas_dscal" ((alpha :double) ((pointer vec) :pointer))
+  :type :method 
+  :invalidate (vec)
+  :c-return :void)
 
 (defun-gsl rot
-    (((pointer vec1) :pointer) ((pointer vec2) :pointer) (c :double) (s :double))
+    ((vec1 gsl-vector-double) (vec2 gsl-vector-double)
+     (c double-float) (s double-float))
   "gsl_blas_drot"
-  :method ((vec1 gsl-vector) (vec2 gsl-vector) (c double-float) (s double-float))
-  :after ((cl-invalidate vec1 vec2)))
+  (((pointer vec1) :pointer) ((pointer vec2) :pointer) (c :double) (s :double))
+  :type :method
+  :invalidate (vec1 vec2))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
+(lisp-unit:define-test blas1
+  (lisp-unit:fp-equal
+   #(3.0d0 8.0d0 15.0d0)
+   (with-data (a vector-double 3)
+     (with-data (b vector-double 3)
+       (with-data (c vector-double 3)
+	 (setf (data a) #(1.0d0 2.0d0 3.0d0)
+	       (data b) #(3.0d0 4.0d0 5.0d0))
+	 (dot a b c)
+	 (data c))))
+   )
+  )
