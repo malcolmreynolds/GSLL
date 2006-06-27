@@ -3,7 +3,7 @@
 ; description: Common structures defined by GSL.         
 ; date:        Sun May 28 2006 - 22:04                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Jun 13 2006 - 21:45
+; modified:    Mon Jun 26 2006 - 21:38
 ;********************************************************
 ;;; $Id: $
 
@@ -66,6 +66,9 @@ and a scaling exponent e10, such that the value is val*10^e10."
 ;;;; Built-in numerical types
 ;;;;****************************************************************************
 
+(defun float-to-cl (float &optional (index 0))
+  (cffi:mem-aref float :float index))
+
 (defun double-to-cl (double &optional (index 0))
   (cffi:mem-aref double :double index))
 
@@ -77,6 +80,7 @@ and a scaling exponent e10, such that the value is val*10^e10."
 
 (defun cl-convert-function (type)
   (case type
+    (:float 'float-to-cl)
     (:double 'double-to-cl)
     (:size 'size-to-cl)
     (:int 'int-to-cl)
