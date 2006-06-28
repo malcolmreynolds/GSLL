@@ -3,16 +3,14 @@
 ; description: BLAS level 1, Vector operations
 ; date:        Wed Apr 26 2006 - 15:23                   
 ; author:      Liam Healy                                
-; modified:    Mon Jun 26 2006 - 22:22
+; modified:    Tue Jun 27 2006 - 23:59
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-;;; Currently only includes double-float vector routines.
+;;; Currently only includes vector-single and vector-double routines.
 ;;; Not ported: routines that use raw vectors gsl_blas_drotg, gsl_blas_drotmg, gsl_blas_drotm
-
-;;; Doesn't work: swap, copy
 
 ;;;;****************************************************************************
 ;;;; Generic
@@ -37,10 +35,10 @@
    largest value occurs several times then the index of the first
    occurrence is returned."))
 
-(defgeneric swap (x y)
+(defgeneric blas-swap (x y)
   (:documentation "Exchange the elements of the vectors x and y"))
 
-(defgeneric copy (x y)
+(defgeneric blas-copy (x y)
   (:documentation "Copy the elements of the vector x into the vector y."))
 
 (defgeneric axpy (alpha x y)
@@ -83,6 +81,36 @@
   :type :method 
   :c-return :int)
 
+(defun-gsl blas-swap ((vec1 gsl-vector-single) (vec2 gsl-vector-single))
+  "gsl_blas_sswap" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
+  :type :method 
+  :invalidate (vec1 vec2))
+
+(defun-gsl blas-copy ((vec1 gsl-vector-single) (vec2 gsl-vector-single))
+  "gsl_blas_scopy" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
+  :type :method
+  :invalidate (vec2))
+
+(defun-gsl axpy (alpha (vec1 gsl-vector-single) (vec2 gsl-vector-single))
+  "gsl_blas_saxpy"
+  ((alpha :float) ((pointer vec1) :pointer) ((pointer vec2) :pointer))
+  :type :method 
+  :invalidate (vec2))
+
+(defun-gsl scal (alpha (vec gsl-vector-single))
+  "gsl_blas_sscal" ((alpha :float) ((pointer vec) :pointer))
+  :type :method 
+  :invalidate (vec)
+  :c-return :void)
+
+(defun-gsl rot
+    ((vec1 gsl-vector-single) (vec2 gsl-vector-single)
+     (c single-float) (s single-float))
+  "gsl_blas_srot"
+  (((pointer vec1) :pointer) ((pointer vec2) :pointer) (c :float) (s :float))
+  :type :method
+  :invalidate (vec1 vec2))
+
 ;;;;****************************************************************************
 ;;;; Double
 ;;;;****************************************************************************
@@ -107,12 +135,12 @@
   :type :method 
   :c-return :int)
 
-(defun-gsl swap ((vec1 gsl-vector-double) (vec2 gsl-vector-double))
+(defun-gsl blas-swap ((vec1 gsl-vector-double) (vec2 gsl-vector-double))
   "gsl_blas_dswap" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
   :type :method 
   :invalidate (vec1 vec2))
 
-(defun-gsl copy ((vec1 gsl-vector-double) (vec2 gsl-vector-double))
+(defun-gsl blas-copy ((vec1 gsl-vector-double) (vec2 gsl-vector-double))
   "gsl_blas_dcopy" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
   :type :method
   :invalidate (vec2))
@@ -165,6 +193,30 @@
    (with-data (b vector-single 3)
      (setf (data b) #(3.0f0 5.0f0 4.0f0))
      (imax b)))
+  (lisp-unit:assert-equalp
+   '("0.500000000000e+01" "0.800000000000e+01" "0.110000000000e+02")
+   (lisp-unit:fp-sequence (with-data (a vector-single 3)
+			    (with-data (b vector-single 3)
+			      (setf (data a) #(1.0f0 2.0f0 3.0f0)
+				    (data b) #(3.0f0 4.0f0 5.0f0))
+			      (axpy 2.0f0 a b)
+			      (data b)))))
+  (lisp-unit:assert-equal
+   '("0.600000000000e+01" "0.800000000000e+01" "0.100000000000e+02")
+   (lisp-unit:fp-sequence
+    (with-data (b vector-single 3)
+      (setf (data b) #(3.0f0 4.0f0 5.0f0))
+      (scal 2.0f0 b)
+      (data b))))
+  (lisp-unit:assert-equal
+   '("0.494974760000e+01" "0.424264040000e+01")
+   (lisp-unit:fp-sequence
+      (with-data (a vector-single 2)
+	(with-data (b vector-single 2)
+	  (setf (data a) #(1.0f0 3.0f0)
+		(data b) #(8.0f0 9.0f0))
+	  (rot a b (/ (sqrt 2.0f0)) (/ (sqrt 2.0f0)))
+	  (data b)))))
   ;; double
   (lisp-unit:assert-first-fp-equal
    "0.260000000000d+02"
@@ -187,4 +239,47 @@
    1
    (with-data (b vector-double 3)
      (setf (data b) #(3.0d0 5.0d0 4.0d0))
-     (imax b))))
+     (imax b)))
+  (lisp-unit:assert-equalp
+   '("0.300000000000d+01" "0.400000000000d+01" "0.500000000000d+01")
+   (lisp-unit:fp-sequence
+    (with-data (a vector-double 3)
+      (with-data (b vector-double 3)
+	(setf (data a) #(1.0d0 2.0d0 3.0d0)
+	      (data b) #(3.0d0 4.0d0 5.0d0))
+	(blas-swap a b)
+	(data a)))))
+  (lisp-unit:assert-equalp
+   '("0.300000000000d+01" "0.400000000000d+01" "0.500000000000d+01")
+   (lisp-unit:fp-sequence
+    (with-data (a vector-double 3)
+      (with-data (b vector-double 3)
+	(setf (data a) #(1.0d0 2.0d0 3.0d0)
+	      (data b) #(3.0d0 4.0d0 5.0d0))
+	(blas-copy b a)
+	(data a)))))
+  (lisp-unit:assert-equalp
+   '("0.500000000000d+01" "0.800000000000d+01" "0.110000000000d+02")
+   (lisp-unit:fp-sequence
+    (with-data (a vector-double 3)
+      (with-data (b vector-double 3)
+	(setf (data a) #(1.0d0 2.0d0 3.0d0)
+	      (data b) #(3.0d0 4.0d0 5.0d0))
+	(axpy 2.0d0 a b)
+	(data b)))))
+  (lisp-unit:assert-equal
+   '("0.600000000000d+01" "0.800000000000d+01" "0.100000000000d+02")
+   (lisp-unit:fp-sequence
+    (with-data (b vector-double 3)
+      (setf (data b) #(3.0d0 4.0d0 5.0d0))
+      (scal 2.0d0 b)
+      (data b))))
+  (lisp-unit:assert-equal
+   '("0.494974746831d+01" "0.424264068712d+01")
+   (lisp-unit:fp-sequence
+    (with-data (a vector-double 2)
+      (with-data (b vector-double 2)
+	(setf (data a) #(1.0d0 3.0d0)
+	      (data b) #(8.0d0 9.0d0))
+	(rot a b (/ (sqrt 2.0d0)) (/ (sqrt 2.0d0)))
+	(data b))))))

@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Wed Jun 21 2006 - 22:03
+; modified:    Tue Jun 27 2006 - 23:55
 ;********************************************************
 ;;; $Id: $
 
@@ -72,19 +72,19 @@
 	     (:file "trigonometry")
 	     (:file "zeta")))
    (:file "sorting" :depends-on (init data))
-   #+future
    (:module linear-algebra
 	    :depends-on (init data)
 	    :components
 	    ((:file "blas1")
-	     (:file "blas2")
-	     (:file "blas3" :depends-on (blas2))
-	     (:file "lu")
-	     (:file "qr")
-	     (:file "qrpt")
-	     (:file "svd")
-	     (:file "cholesky")
-	     (:file "diagonal")
-	     (:file "householder")))
+	     ;;(:file "blas2")
+	     ;;(:file "blas3" :depends-on (blas2))
+	     ;;(:file "lu")
+	     ;;(:file "qr")
+	     ;;(:file "qrpt")
+	     ;;(:file "svd")
+	     ;;(:file "cholesky")
+	     ;;(:file "diagonal")
+	     ;;(:file "householder")
+	     ))
    #+future
    (:file "eigensystems" :depends-on (init data))))
