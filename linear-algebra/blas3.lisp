@@ -3,7 +3,7 @@
 ; description: BLAS level 3, Matrix-matrix operations
 ; date:        Wed Apr 26 2006 - 21:08                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 26 2006 - 22:47
+; modified:    Sat Jul  1 2006 - 18:20
 ;********************************************************
 ;;; $Id: $
 
@@ -92,51 +92,104 @@
 	   (cl-invalidate C)))
 
 ;;;;****************************************************************************
+;;;; Single
+;;;;****************************************************************************
+
+(defun-gsl gemm
+    (TransA TransB alpha (A gsl-matrix-single) (B gsl-matrix-single)
+	    beta (C gsl-matrix-single))
+  "gsl_blas_sgemm"
+  ((transa cblas-transpose) (transb cblas-transpose)
+   (alpha :float) (A gsl-matrix-c) (B gsl-matrix-c)
+   (beta :float) (C gsl-matrix-c))
+  :type :method)
+
+(defun-gsl symm
+    (side uplo alpha (A gsl-matrix-single) (B gsl-matrix-single)
+	  beta (C gsl-matrix-single))
+  "gsl_blas_ssymm"
+  ((side cblas-side) (uplo cblas-uplo) (alpha :float)
+   (A gsl-matrix-c) (B gsl-matrix-c) (beta :float) (C gsl-matrix-c))
+  :type :method)
+
+(defun-gsl trmm
+    (side uplo transa diag alpha (A gsl-matrix-single) (B gsl-matrix-single))
+  "gsl_blas_strmm"
+  ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (alpha :float) (A gsl-matrix-c) (B gsl-matrix-c))
+  :type :method)
+
+(defun-gsl trsm
+    (side uplo transa diag alpha (A gsl-matrix-single) (B gsl-matrix-single))
+  "gsl_blas_strsm"
+  ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (alpha :float) (A gsl-matrix-c) (B gsl-matrix-c))
+  :type :method)
+
+(defun-gsl syrk
+    (uplo trans alpha (A gsl-matrix-single) beta (C gsl-matrix-single))
+  "gsl_blas_ssyrk"
+  ((uplo cblas-uplo) (trans cblas-transpose) (alpha :float)
+   (A gsl-matrix-c) (beta :float) (C gsl-matrix-c))
+  :type :method)
+
+(defun-gsl syr2k
+    (uplo trans alpha (A gsl-matrix-single) (B gsl-matrix-single)
+	  beta (C gsl-matrix-single))
+  "gsl_blas_ssyr2k"
+  ((uplo cblas-uplo) (trans cblas-transpose) (alpha :float)
+   (A gsl-matrix-c) (B gsl-matrix-c) (beta :float) (C gsl-matrix-c))
+  :type :method)
+
+;;;;****************************************************************************
 ;;;; Double
 ;;;;****************************************************************************
 
 (defun-gsl gemm
-    ((transa cblas-transpose) (transb cblas-transpose)
-     (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c)
-     (beta :double) (C gsl-matrix-c))
+    (TransA TransB alpha (A gsl-matrix-double) (B gsl-matrix-double)
+	    beta (C gsl-matrix-double))
   "gsl_blas_dgemm"
-  :method
-  (TransA TransB alpha (A gsl-matrix) (B gsl-matrix) beta (C gsl-matrix)))
+  ((transa cblas-transpose) (transb cblas-transpose)
+   (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c)
+   (beta :double) (C gsl-matrix-c))
+  :type :method)
 
 (defun-gsl symm
-    ((side cblas-side) (uplo cblas-uplo) (alpha :double)
-     (A gsl-matrix-c) (B gsl-matrix-c) (beta :double) (C gsl-matrix-c))
+    (side uplo alpha (A gsl-matrix-double) (B gsl-matrix-double)
+	  beta (C gsl-matrix-double))
   "gsl_blas_dsymm"
-  :method
-  (side uplo alpha (A gsl-matrix) (B gsl-matrix) beta (C gsl-matrix)))
+  ((side cblas-side) (uplo cblas-uplo) (alpha :double)
+   (A gsl-matrix-c) (B gsl-matrix-c) (beta :double) (C gsl-matrix-c))
+  :type :method)
 
 (defun-gsl trmm
-    ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-     (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c))
+    (side uplo transa diag alpha (A gsl-matrix-double) (B gsl-matrix-double))
   "gsl_blas_dtrmm"
-  :method
-  (side uplo transa diag alpha (A gsl-matrix) (B gsl-matrix)))
+  ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c))
+  :type :method)
 
 (defun-gsl trsm
-    ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-     (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c))
+    (side uplo transa diag alpha (A gsl-matrix-double) (B gsl-matrix-double))
   "gsl_blas_dtrsm"
-  :method
-  (side uplo transa diag alpha (A gsl-matrix) (B gsl-matrix)))
+  ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c))
+  :type :method)
 
 (defun-gsl syrk
-    ((uplo cblas-uplo) (trans cblas-transpose) (alpha :double)
-     (A gsl-matrix-c) (alpha :double) (C gsl-matrix-c))
+    (uplo trans alpha (A gsl-matrix-double) beta (C gsl-matrix-double))
   "gsl_blas_dsyrk"
-  :method
-  (uplo trans alpha (A gsl-matrix) beta (C gsl-matrix)))
+  ((uplo cblas-uplo) (trans cblas-transpose) (alpha :double)
+   (A gsl-matrix-c) (alpha :double) (C gsl-matrix-c))
+  :type :method)
 
 (defun-gsl syr2k
-    ((uplo cblas-uplo) (trans cblas-transpose) (alpha :double)
-     (A gsl-matrix-c) (B gsl-matrix-c) (beta :double) (C gsl-matrix-c))
+    (uplo trans (alpha double-float) (A gsl-matrix-double) (B gsl-matrix-double)
+	  beta (C gsl-matrix-double))
   "gsl_blas_dsyr2k"
-  :method
-  (uplo trans alpha (A gsl-matrix) (B gsl-matrix) beta (C gsl-matrix)))
+  ((uplo cblas-uplo) (trans cblas-transpose) (alpha :double)
+   (A gsl-matrix-c) (B gsl-matrix-c) (beta :double) (C gsl-matrix-c))
+  :type :method)
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

@@ -3,7 +3,7 @@
 ; description: BLAS level 2, Matrix-vector operations
 ; date:        Wed Apr 26 2006 - 21:08                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Apr 26 2006 - 22:43
+; modified:    Sat Jul  1 2006 - 15:45
 ;********************************************************
 ;;; $Id: $
 
@@ -98,55 +98,104 @@
 	   (cl-invalidate A)))
 
 ;;;;****************************************************************************
+;;;; Single
+;;;;****************************************************************************
+
+(defun-gsl gemv
+    (TransA alpha
+	    (A gsl-matrix-single) (x gsl-vector-single) beta (y gsl-vector-single))
+  "gsl_blas_sgemv"
+  ((transa cblas-transpose) (alpha :float) (A gsl-matrix-c)
+   (x gsl-vector-c) (beta :float) (y gsl-vector-c))
+  :type :method)
+
+(defun-gsl trmv (uplo transa diag (A gsl-matrix-single) (x gsl-vector-single))
+  "gsl_blas_strmv"
+  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (A gsl-matrix-c) (x gsl-vector-c))
+  :type :method)
+
+(defun-gsl trsv (uplo transa diag (A gsl-matrix-single) (x gsl-vector-single))
+  "gsl_blas_strsv"
+  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (A gsl-matrix-c) (x gsl-vector-c))
+  :type :method)
+
+(defun-gsl symv
+    (uplo alpha (A gsl-matrix-single) (x gsl-vector-single)
+	  beta (y gsl-vector-single))
+  "gsl_blas_ssymv"
+  ((uplo cblas-uplo) (alpha :float) (A gsl-matrix-c)
+   (x gsl-vector-c) (beta :float) (y gsl-vector-c))
+  :type :method)
+
+(defun-gsl ger
+    (alpha (x gsl-vector-single) (y gsl-vector-single) (A gsl-matrix-single))
+  "gsl_blas_sger"
+  ((alpha :float) (x gsl-vector-c) (y gsl-vector-c) (A gsl-matrix-c))
+  :type :method)
+
+(defun-gsl syr (uplo alpha (x gsl-vector-single) (A gsl-matrix-single))
+  "gsl_blas_ssyr"
+  ((uplo cblas-uplo) (alpha :float) (x gsl-vector-c) (A gsl-matrix-c))
+  :type :method)
+
+(defun-gsl syr2
+    (uplo alpha (x gsl-vector-single) (y gsl-vector-single) (A gsl-matrix-single))
+  "gsl_blas_ssyr2"
+  ((uplo cblas-uplo) (alpha :float)
+   (x gsl-vector-c) (y gsl-vector-c) (A gsl-matrix-c))
+  :type :method)
+
+;;;;****************************************************************************
 ;;;; Double
 ;;;;****************************************************************************
 
 (defun-gsl gemv
-    ((transa cblas-transpose) (alpha :double) (A gsl-matrix-c)
-     (x gsl-vector-c) (beta :double) (y gsl-vector-c))
+    (TransA alpha
+	    (A gsl-matrix-double) (x gsl-vector-double) beta (y gsl-vector-double))
   "gsl_blas_dgemv"
-  :method
-  (TransA alpha (A gsl-matrix) (x gsl-vector) beta (y gsl-vector)))
+  ((transa cblas-transpose) (alpha :double) (A gsl-matrix-c)
+   (x gsl-vector-c) (beta :double) (y gsl-vector-c))
+  :type :method)
 
-(defun-gsl trmv
-    ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-     (A gsl-matrix-c) (x gsl-vector-c))
+(defun-gsl trmv (uplo transa diag (A gsl-matrix-double) (x gsl-vector-double))
   "gsl_blas_dtrmv"
-  :method
-  (uplo transa diag (A gsl-matrix) (x gsl-vector)))
+  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (A gsl-matrix-c) (x gsl-vector-c))
+  :type :method)
 
-(defun-gsl trsv
-    ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-     (A gsl-matrix-c) (x gsl-vector-c))
+(defun-gsl trsv (uplo transa diag (A gsl-matrix-double) (x gsl-vector-double))
   "gsl_blas_dtrsv"
-  :method
-  (uplo transa diag (A gsl-matrix) (x gsl-vector)))
+  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
+   (A gsl-matrix-c) (x gsl-vector-c))
+  :type :method)
 
 (defun-gsl symv
-    ((uplo cblas-uplo) (alpha :double) (A gsl-matrix-c)
-     (x gsl-vector-c) (beta :double) (y gsl-vector-c))
+    (uplo alpha (A gsl-matrix-double) (x gsl-vector-double)
+	  beta (y gsl-vector-double))
   "gsl_blas_dsymv"
-  :method
-  (uplo alpha (A gsl-matrix) (x gsl-vector) beta (y gsl-vector)))
+  ((uplo cblas-uplo) (alpha :double) (A gsl-matrix-c)
+   (x gsl-vector-c) (beta :double) (y gsl-vector-c))
+  :type :method)
 
 (defun-gsl ger
-    ((alpha :double) (x gsl-vector-c) (y gsl-vector-c) (A gsl-matrix-c))
+    (alpha (x gsl-vector-double) (y gsl-vector-double) (A gsl-matrix-double))
   "gsl_blas_dger"
-  :method
-  (alpha (x gsl-vector) (y gsl-vector) (A gsl-matrix)))
+  ((alpha :double) (x gsl-vector-c) (y gsl-vector-c) (A gsl-matrix-c))
+  :type :method)
 
-(defun-gsl syr
-    ((uplo cblas-uplo) (alpha :double) (x gsl-vector-c) (A gsl-matrix-c))
+(defun-gsl syr (uplo alpha (x gsl-vector-double) (A gsl-matrix-double))
   "gsl_blas_dsyr"
-  :method
-  (uplo alpha (x gsl-vector) (A gsl-matrix)))
+  ((uplo cblas-uplo) (alpha :double) (x gsl-vector-c) (A gsl-matrix-c))
+  :type :method)
 
 (defun-gsl syr2
-    ((uplo cblas-uplo) (alpha :double)
-     (x gsl-vector-c) (y gsl-vector-c) (A gsl-matrix-c))
+    (uplo alpha (x gsl-vector-double) (y gsl-vector-double) (A gsl-matrix-double))
   "gsl_blas_dsyr2"
-  :method
-  (uplo alpha (x gsl-vector) (y gsl-vector) (A gsl-matrix)))
+  ((uplo cblas-uplo) (alpha :double)
+   (x gsl-vector-c) (y gsl-vector-c) (A gsl-matrix-c))
+  :type :method)
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

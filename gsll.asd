@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Tue Jun 27 2006 - 23:55
+; modified:    Sat Jul  1 2006 - 22:50
 ;********************************************************
 ;;; $Id: $
 
@@ -76,9 +76,9 @@
 	    :depends-on (init data)
 	    :components
 	    ((:file "blas1")
-	     ;;(:file "blas2")
-	     ;;(:file "blas3" :depends-on (blas2))
-	     ;;(:file "lu")
+	     (:file "blas2")
+	     (:file "blas3" :depends-on (blas2))
+	     (:file "lu")
 	     ;;(:file "qr")
 	     ;;(:file "qrpt")
 	     ;;(:file "svd")
