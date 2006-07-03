@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sat Jul  1 2006 - 22:50
+; modified:    Mon Jul  3 2006 - 09:32
 ;********************************************************
 ;;; $Id: $
 
@@ -79,7 +79,7 @@
 	     (:file "blas2")
 	     (:file "blas3" :depends-on (blas2))
 	     (:file "lu")
-	     ;;(:file "qr")
+	     (:file "qr")
 	     ;;(:file "qrpt")
 	     ;;(:file "svd")
 	     ;;(:file "cholesky")
