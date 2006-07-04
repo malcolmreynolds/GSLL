@@ -3,7 +3,7 @@
 ; description: Cholesky Decomposition
 ; date:        Wed May  3 2006 - 16:38                   
 ; author:      Liam Healy                                
-; modified:    Wed May 10 2006 - 10:05
+; modified:    Mon Jul  3 2006 - 23:17
 ;********************************************************
 ;;; $Id: $
 
@@ -20,8 +20,8 @@
 ;;; (@math{L y = b}, @math{L^T x = y}), which can be solved by forward and
 ;;; back-substitution.
 
-(defun-gsl cholesky-decomp ((A gsl-matrix-c))
-  "gsl_linalg_cholesky_decomp"
+(defun-gsl cholesky-decomp (A)
+  "gsl_linalg_cholesky_decomp" (((pointer A) gsl-matrix-c))
   :documentation
   "Factorize the positive-definite square matrix @var{A}
   into the Cholesky decomposition @math{A = L L^T}. On output the diagonal
@@ -30,24 +30,23 @@
   @math{L^T}, the diagonal terms being identical for both @math{L} and
   @math{L^T}.  If the matrix is not positive-definite then the
   decomposition will fail, returning the error code :EDOM."
-  :invalidate (A)
-  :return-input (A))
+  :invalidate (A))
 
-(defun-gsl cholesky-solve
-    ((cholesky gsl-matrix-c) (b gsl-vector-c) (x gsl-vector-c))
+(defun-gsl cholesky-solve (cholesky b x)
   "gsl_linalg_cholesky_solve"
+  (((pointer cholesky) gsl-matrix-c) ((pointer b) gsl-vector-c)
+   ((pointer x) gsl-vector-c))
   :documentation "Solve the system @math{A x = b} using the Cholesky
   decomposition of @math{A} into the matrix @var{cholesky} given by
   #'cholesky-decomp."
-  :invalidate (x)
-  :return-input (x))
+  :invalidate (x))
 
-(defun-gsl cholesky-svx ((cholesky gsl-matrix-c) (x gsl-vector-c))
+(defun-gsl cholesky-svx (cholesky x)
   "gsl_linalg_cholesky_svx"
+  (((pointer cholesky) gsl-matrix-c) ((pointer x) gsl-vector-c))
   :documentation "Solve the system @math{A x = b} in-place using the
   Cholesky decomposition of @math{A} into the matrix @var{cholesky} given
   by @code{gsl_linalg_cholesky_decomp}. On input @var{x} should contain
   the right-hand side @math{b}, which is replaced by the solution on
   output."
-  :invalidate (x)
-  :return-input (x))
+  :invalidate (x))

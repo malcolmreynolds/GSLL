@@ -3,7 +3,7 @@
 ; description: Singular Value Decomposition              
 ; date:        Tue May  2 2006 - 12:15                   
 ; author:      Liam Healy                                
-; modified:    Wed May  3 2006 - 16:43
+; modified:    Mon Jul  3 2006 - 23:34
 ;********************************************************
 ;;; $Id: $
 
@@ -45,8 +45,10 @@
 ;;; precision. Small singular values should be edited by choosing a suitable
 ;;; tolerance.
 
-(defun-gsl SV-decomp ((A gsl-matrix-c) (V gsl-matrix-c) (S gsl-vector-c) (work gsl-vector-c))
+(defun-gsl SV-decomp (A V S work)
   "gsl_linalg_SV_decomp"
+  (((pointer A) gsl-matrix-c) ((pointer V) gsl-matrix-c)
+   ((pointer S) gsl-vector-c) ((pointer work) gsl-vector-c))
   :documentation
   "Factorize the @math{M}-by-@math{N} matrix @var{A} into
   the singular value decomposition @math{A = U S V^T} for @c{$M \ge N$}
@@ -59,32 +61,35 @@
   transpose of @var{V}.  A workspace of length @var{N} is required in
   @var{work}.
   This routine uses the Golub-Reinsch SVD algorithm."
-  :invalidate (A)
-  :return-input (A))
+  :invalidate (A))
 
-(defun-gsl SV-decomp-mod
-    ((A gsl-matrix-c) (X gsl-matrix-c) (V gsl-matrix-c) (S gsl-vector-c) (work gsl-vector-c))
+(defun-gsl SV-decomp-mod (A X V S work)
   "gsl_linalg_SV_decomp_mod"
+  (((pointer A) gsl-matrix-c) ((pointer X) gsl-matrix-c)
+   ((pointer V) gsl-matrix-c)
+   ((pointer S) gsl-vector-c) ((pointer work) gsl-vector-c))
   :documentation
   "The SVD using the modified Golub-Reinsch algorithm, which is faster for @c{$M \gg N$}
   @math{M>>N}.  It requires the vector @var{work} of length @var{N} and the
   @math{N}-by-@math{N} matrix @var{X} as additional working space."
-  :invalidate (A)
-  :return-input (A))
+  :invalidate (A))
 
-(defun-gsl SV-decomp-jacobi ((A gsl-matrix-c) (V gsl-matrix-c) (S gsl-vector-c))
+(defun-gsl SV-decomp-jacobi (A V S)
   "gsl_linalg_SV_decomp_jacobi"
+  (((pointer A) gsl-matrix-c) ((pointer V) gsl-matrix-c)
+   ((pointer S) gsl-vector-c))
   :documentation "The SVD of the @math{M}-by-@math{N} matrix @var{A}
    using one-sided Jacobi orthogonalization for @c{$M \ge N$} 
    @math{M >= N}.  The Jacobi method can compute singular values to higher
    relative accuracy than Golub-Reinsch algorithms (see references for
    details)."
-  :invalidate (A)
-  :return-input (A))
+  :invalidate (A))
 
-(defun-gsl SV-solve
-    ((U gsl-matrix-c) (V gsl-matrix-c) (S gsl-vector-c) (b gsl-vector-c) (x gsl-vector-c))
+(defun-gsl SV-solve (U V S b x)
   "gsl_linalg_SV_solve"
+  (((pointer U) gsl-matrix-c) ((pointer V) gsl-matrix-c)
+   ((pointer S) gsl-vector-c)
+   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
   :documentation "Solve the system @math{A x = b} using the singular value
    decomposition (@var{U}, @var{S}, @var{V}) of @math{A} given by #'SV-decomp.
 
@@ -96,5 +101,4 @@
    In the over-determined case where @var{A} has more rows than columns the
    system is solved in the least squares sense, returning the solution
    @var{x} which minimizes @math{||A x - b||_2}."
-  :invalidate (x)
-  :return-input (x))
+  :invalidate (x))

@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Jul  3 2006 - 09:32
+; modified:    Mon Jul  3 2006 - 23:41
 ;********************************************************
 ;;; $Id: $
 
@@ -80,11 +80,10 @@
 	     (:file "blas3" :depends-on (blas2))
 	     (:file "lu")
 	     (:file "qr")
-	     ;;(:file "qrpt")
-	     ;;(:file "svd")
-	     ;;(:file "cholesky")
-	     ;;(:file "diagonal")
-	     ;;(:file "householder")
-	     ))
+	     (:file "qrpt")
+	     (:file "svd")
+	     (:file "cholesky")
+	     (:file "diagonal")
+	     (:file "householder")))
    #+future
    (:file "eigensystems" :depends-on (init data))))

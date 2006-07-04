@@ -3,7 +3,7 @@
 ; description: BLAS level 3, Matrix-matrix operations
 ; date:        Wed Apr 26 2006 - 21:08                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jul  1 2006 - 18:20
+; modified:    Mon Jul  3 2006 - 23:45
 ;********************************************************
 ;;; $Id: $
 
@@ -100,8 +100,8 @@
 	    beta (C gsl-matrix-single))
   "gsl_blas_sgemm"
   ((transa cblas-transpose) (transb cblas-transpose)
-   (alpha :float) (A gsl-matrix-c) (B gsl-matrix-c)
-   (beta :float) (C gsl-matrix-c))
+   (alpha :float) ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c)
+   (beta :float) ((pointer C) gsl-matrix-c))
   :type :method)
 
 (defun-gsl symm
@@ -109,28 +109,29 @@
 	  beta (C gsl-matrix-single))
   "gsl_blas_ssymm"
   ((side cblas-side) (uplo cblas-uplo) (alpha :float)
-   (A gsl-matrix-c) (B gsl-matrix-c) (beta :float) (C gsl-matrix-c))
+   ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c)
+   (beta :float) ((pointer C) gsl-matrix-c))
   :type :method)
 
 (defun-gsl trmm
     (side uplo transa diag alpha (A gsl-matrix-single) (B gsl-matrix-single))
   "gsl_blas_strmm"
   ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   (alpha :float) (A gsl-matrix-c) (B gsl-matrix-c))
+   (alpha :float) ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c))
   :type :method)
 
 (defun-gsl trsm
     (side uplo transa diag alpha (A gsl-matrix-single) (B gsl-matrix-single))
   "gsl_blas_strsm"
   ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   (alpha :float) (A gsl-matrix-c) (B gsl-matrix-c))
+   (alpha :float) ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c))
   :type :method)
 
 (defun-gsl syrk
     (uplo trans alpha (A gsl-matrix-single) beta (C gsl-matrix-single))
   "gsl_blas_ssyrk"
   ((uplo cblas-uplo) (trans cblas-transpose) (alpha :float)
-   (A gsl-matrix-c) (beta :float) (C gsl-matrix-c))
+   ((pointer A) gsl-matrix-c) (beta :float) ((pointer C) gsl-matrix-c))
   :type :method)
 
 (defun-gsl syr2k
@@ -138,7 +139,8 @@
 	  beta (C gsl-matrix-single))
   "gsl_blas_ssyr2k"
   ((uplo cblas-uplo) (trans cblas-transpose) (alpha :float)
-   (A gsl-matrix-c) (B gsl-matrix-c) (beta :float) (C gsl-matrix-c))
+   ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c)
+   (beta :float) ((pointer C) gsl-matrix-c))
   :type :method)
 
 ;;;;****************************************************************************
@@ -159,28 +161,29 @@
 	  beta (C gsl-matrix-double))
   "gsl_blas_dsymm"
   ((side cblas-side) (uplo cblas-uplo) (alpha :double)
-   (A gsl-matrix-c) (B gsl-matrix-c) (beta :double) (C gsl-matrix-c))
+   ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c)
+   (beta :double) ((pointer C) gsl-matrix-c))
   :type :method)
 
 (defun-gsl trmm
     (side uplo transa diag alpha (A gsl-matrix-double) (B gsl-matrix-double))
   "gsl_blas_dtrmm"
   ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c))
+   (alpha :double) ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c))
   :type :method)
 
 (defun-gsl trsm
     (side uplo transa diag alpha (A gsl-matrix-double) (B gsl-matrix-double))
   "gsl_blas_dtrsm"
   ((side cblas-side) (uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   (alpha :double) (A gsl-matrix-c) (B gsl-matrix-c))
+   (alpha :double) ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c))
   :type :method)
 
 (defun-gsl syrk
     (uplo trans alpha (A gsl-matrix-double) beta (C gsl-matrix-double))
   "gsl_blas_dsyrk"
   ((uplo cblas-uplo) (trans cblas-transpose) (alpha :double)
-   (A gsl-matrix-c) (alpha :double) (C gsl-matrix-c))
+   ((pointer A) gsl-matrix-c) (alpha :double) ((pointer C) gsl-matrix-c))
   :type :method)
 
 (defun-gsl syr2k
@@ -188,7 +191,8 @@
 	  beta (C gsl-matrix-double))
   "gsl_blas_dsyr2k"
   ((uplo cblas-uplo) (trans cblas-transpose) (alpha :double)
-   (A gsl-matrix-c) (B gsl-matrix-c) (beta :double) (C gsl-matrix-c))
+   ((pointer A) gsl-matrix-c) ((pointer B) gsl-matrix-c)
+   (beta :double) ((pointer C) gsl-matrix-c))
   :type :method)
 
 ;;;;****************************************************************************
