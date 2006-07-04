@@ -3,7 +3,7 @@
 ; description: Tridiagonal and Bidiagonal matrices
 ; date:        Thu May  4 2006 - 15:43                   
 ; author:      Liam Healy                                
-; modified:    Mon Jul  3 2006 - 23:15
+; modified:    Tue Jul  4 2006 - 00:00
 ;********************************************************
 ;;; $Id: $
 
@@ -75,6 +75,27 @@
    upper triangular part of @var{A} and imaginary parts of the diagonal are
    not referenced."
   :invalidate (A tau))
+
+;;; GSL doc or arglist incorrect? Q->U
+(defun-gsl hermitian-unpack (A tau U diag subdiag)
+  "gsl_linalg_hermtd_unpack"
+  (((pointer A) gsl-matrix-c) ((pointer tau) gsl-vector-c)
+   ((pointer U) gsl-matrix-c)
+   ((pointer diag) gsl-vector-c) ((pointer subdiag) gsl-vector-c))
+  :documentation "Unpacks the encoded tridiagonal decomposition (@var{A},
+  @var{tau}) obtained from hermitian-decomp into the
+  unitary matrix @var{U}, the real vector of diagonal elements @var{diag} and
+  the real vector of subdiagonal elements @var{subdiag}. "
+  :invalidate (U diag subdiag))
+
+(defun-gsl hermitian-unpack-T (A diag subdiag)
+  "gsl_linalg_hermtd_unpack_T"
+  (((pointer A) gsl-matrix-c)
+   ((pointer diag) gsl-vector-c) ((pointer subdiag) gsl-vector-c))
+  :documentation "Unpack the diagonal and subdiagonal of the encoded
+  tridiagonal decomposition (@var{A}, @var{tau}) obtained from the
+  hermitian-decomp into the real vectors @var{diag} and @var{subdiag}."
+  :invalidate (diag subdiag))
 
 ;;;;****************************************************************************
 ;;;; Bidiagonal
