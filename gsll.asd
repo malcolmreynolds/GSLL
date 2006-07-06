@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Jul  3 2006 - 23:41
+; modified:    Tue Jul  4 2006 - 22:56
 ;********************************************************
 ;;; $Id: $
 
@@ -85,5 +85,4 @@
 	     (:file "cholesky")
 	     (:file "diagonal")
 	     (:file "householder")))
-   #+future
    (:file "eigensystems" :depends-on (init data))))

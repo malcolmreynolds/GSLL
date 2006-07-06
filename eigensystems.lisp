@@ -3,14 +3,13 @@
 ; description: Eigenvectors and eigenvalues
 ; date:        Sun May 21 2006 - 19:52                   
 ; author:      Liam M. Healy                             
-; modified:    Sun May 21 2006 - 23:22
+; modified:    Tue Jul  4 2006 - 23:09
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-;;; Hermitian matrix functions not defined, await complex matrices.
-
+;;; Eventually make a with-* macro for the eigen-herm functions.
 
 ;;;;****************************************************************************
 ;;;; Workspace macro
@@ -44,35 +43,32 @@
 ;;;; Real Symmetric Matrices
 ;;;;****************************************************************************
 
-(defun-gsl eigen-symm-alloc ((n :size))
-  "gsl_eigen_symm_alloc"
-  :return (:pointer)
-  :c-return-value :return
+(defun-gsl eigen-symm-alloc (n)
+  "gsl_eigen_symm_alloc" ((n :size))
   :documentation "Allocate a workspace for computing eigenvalues of
   @var{n}-by-@var{n} real symmetric matrices.  The size of the workspace
-  is @math{O(2n)}.")
+  is @math{O(2n)}."
+  :c-return :pointer)
 
-(defun-gsl eigen-symm-free ((w :pointer))
-  "gsl_eigen_symm_free"
-  :c-return-value :void
+(defun-gsl eigen-symm-free (w)
+  "gsl_eigen_symm_free" ((w :pointer))
+  :c-return :void
   :documentation "Free the memory associated with the workspace @var{w}.")
 
-(defun-gsl eigen-symmv-alloc ((n :size))
-  "gsl_eigen_symmv_alloc"
-  :return (:pointer)
-  :c-return-value :return
+(defun-gsl eigen-symmv-alloc (n)
+  "gsl_eigen_symmv_alloc" ((n :size))
   :documentation "Allocate a workspace for computing eigenvalues and
   eigenvectors of @var{n}-by-@var{n} real symmetric matrices.  The size of
-  the workspace is @math{O(4n)}.")
+  the workspace is @math{O(4n)}."
+  :c-return :pointer)
 
-(defun-gsl eigen-symmv-free ((w :pointer))
-  "gsl_eigen_symmv_free"
-  :c-return-value :void
+(defun-gsl eigen-symmv-free (w)
+  "gsl_eigen_symmv_free" ((w :pointer))
+  :c-return :void
   :documentation "Free the memory associated with the workspace @var{w}.")
 
-(defun-gsl eigenvalues-symmetric
-    ((A gsl-matrix-c) (eval gsl-vector-c) (ws :pointer))
-  "gsl_eigen_symm"
+(defun-gsl eigenvalues-symmetric (A eval ws)
+  "gsl_eigen_symm" ((A gsl-matrix-c) (eval gsl-vector-c) (ws :pointer))
   :documentation "Eigenvalues of the real symmetric matrix
   @var{A}.  Additional workspace of the appropriate size must be provided
   in @var{w}.  The diagonal and lower triangular part of @var{A} are
@@ -80,11 +76,11 @@
   is not referenced.  The eigenvalues are stored in the vector @var{eval}
   and are unordered."
   :invalidate (A eval)
-  :return-input (eval))
+  :return (eval))
 
-(defun-gsl eigenvalues-eigenvectors-symmetric
-    ((A gsl-matrix-c) (eval gsl-vector-c) (evec gsl-matrix-c) (ws :pointer))
+(defun-gsl eigenvalues-eigenvectors-symmetric (A eval evec ws)
   "gsl_eigen_symmv"
+  ((A gsl-matrix-c) (eval gsl-vector-c) (evec gsl-matrix-c) (ws :pointer))
   :documentation "The eigenvalues and eigenvectors of the real
   symmetric matrix @var{A}.  Additional workspace of the appropriate size
   must be provided in @var{w}.  The diagonal and lower triangular part of
@@ -96,39 +92,68 @@
   The eigenvectors are guaranteed to be mutually orthogonal and normalised
   to unit magnitude."
   :invalidate (A eval evec)
-  :return-input (eval evec))
+  :return (eval evec))
 
 ;;;;****************************************************************************
 ;;;; Complex Hermitian Matrices
 ;;;;****************************************************************************
 
-(defun-gsl eigen-herm-alloc ((n :size))
-  "gsl_eigen_herm_alloc"
-  :return (:pointer)
-  :c-return-value :return
+(defun-gsl eigen-herm-alloc (n)
+  "gsl_eigen_herm_alloc" ((n :size))
   :documentation "Allocate a workspace for computing eigenvalues of
   @var{n}-by-@var{n} complex hermitian matrices.  The size of the workspace
-  is @math{O(3n)}.")
+  is @math{O(3n)}."
+  :c-return :pointer)
 
-(defun-gsl eigen-herm-free ((w :pointer))
-  "gsl_eigen_herm_free"
-  :c-return-value :void
+(defun-gsl eigen-herm-free (w)
+  "gsl_eigen_herm_free" ((w :pointer))
+  :c-return :void
   :documentation "Free the memory associated with the workspace @var{w}.")
 
-(defun-gsl eigen-hermv-alloc ((n :size))
-  "gsl_eigen_hermv_alloc"
-  :return (:pointer)
-  :c-return-value :return
+(defun-gsl eigenvalues-hermitian (A eval w)
+  "gsl_eigen_herm"
+  (((pointer A) gsl-matrix-c) ((pointer eval) gsl-vector-c) (w :pointer))
+  :documentation
+  "Compute the eigenvalues of the complex hermitian matrix
+   @var{A}.  Additional workspace of the appropriate size must be provided
+   in @var{w}.  The diagonal and lower triangular part of @var{A} are
+   destroyed during the computation, but the strict upper triangular part
+   is not referenced.  The imaginary parts of the diagonal are assumed to be
+   zero and are not referenced. The eigenvalues are stored in the vector
+   @var{eval} and are unordered."
+  :invalidate (eval A)
+  :return (eval))
+
+(defun-gsl eigen-hermv-alloc (n)
+  "gsl_eigen_hermv_alloc" ((n :size))
   :documentation "Allocate a workspace for computing eigenvalues and
   eigenvectors of @var{n}-by-@var{n} complex hermitian matrices.  The size of
-  the workspace is @math{O(5n)}.")
+  the workspace is @math{O(5n)}."
+  :c-return :pointer)
 
-(defun-gsl eigen-hermv-free ((w :pointer))
-  "gsl_eigen_hermv_free"
-  :c-return-value :void
+(defun-gsl eigen-hermv-free (w)
+  "gsl_eigen_hermv_free" ((w :pointer))
+  :c-return :void
   :documentation "Free the memory associated with the workspace @var{w}.")
 
-;;; The rest awaits complex matrices
+(defun-gsl eigenvalues-eigenvectors-hermitian (A eval evec w)
+  "gsl_eigen_hermv"
+  (((pointer A) gsl-matrix-c) ((pointer eval) gsl-vector-c)
+   ((pointer evec) gsl-matrix-c) (w :pointer))
+  :documentation
+  "Compute the eigenvalues and eigenvectors of the complex
+  hermitian matrix @var{A}.  Additional workspace of the appropriate size
+  must be provided in @var{w}.  The diagonal and lower triangular part of
+  @var{A} are destroyed during the computation, but the strict upper
+  triangular part is not referenced. The imaginary parts of the diagonal
+  are assumed to be zero and are not referenced.  The eigenvalues are
+  stored in the vector @var{eval} and are unordered.  The corresponding
+  complex eigenvectors are stored in the columns of the matrix @var{evec}.
+  For example, the eigenvector in the first column corresponds to the
+  first eigenvalue.  The eigenvectors are guaranteed to be mutually
+  orthogonal and normalised to unit magnitude."
+  :invalidate (A eval evec)
+  :return (eval evec))
 
 ;;;;****************************************************************************
 ;;;; Sorting Eigenvalues and Eigenvectors
@@ -139,15 +164,27 @@
   :value-ascending :value-descending :absolute-ascending :absolute-descending)
 
 (defun-gsl sort-eigenvalues-eigenvectors
-    ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
+    ((eval gsl-vector-double) evec sort-type)
   "gsl_eigen_symmv_sort"
+  ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
   :documentation "Simultaneously sort the eigenvalues stored in the vector
   @var{eval} and the corresponding real eigenvectors stored in the columns
   of the matrix @var{evec} into ascending or descending order according to
   the value of the parameter @var{sort_type}, :value-ascending,
   :value-descending, :absolute-ascending, :absolute-descending."
-  :invalidate (eval evec)
-  :return-input (eval evec))
+  :type :method
+  :invalidate (eval evec))
+
+(defun-gsl sort-eigenvalues-eigenvectors
+    ((eval gsl-vector-complex) evec sort-type)
+  "gsl_eigen_hermv_sort"
+  ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
+  :documentation "Simultaneously sort the eigenvalues stored in the vector
+  @var{eval} and the corresponding complex eigenvectors stored in the
+  columns of the matrix @var{evec} into ascending or descending order
+  according to the value of the parameter @var{sort_type}."
+  :type :method
+  :invalidate (eval evec))
 
 ;;;;****************************************************************************
 ;;;; Example
