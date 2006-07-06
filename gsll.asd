@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Tue Jul  4 2006 - 22:56
+; modified:    Wed Jul  5 2006 - 23:19
 ;********************************************************
 ;;; $Id: $
 
@@ -85,4 +85,6 @@
 	     (:file "cholesky")
 	     (:file "diagonal")
 	     (:file "householder")))
-   (:file "eigensystems" :depends-on (init data))))
+   (:file "eigensystems" :depends-on (init data))
+   ;; Skip fft for now, I'm not sure how it works in C
+   ))
