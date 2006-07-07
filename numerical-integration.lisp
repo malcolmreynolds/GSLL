@@ -3,7 +3,7 @@
 ; description: Numerical integration                     
 ; date:        Wed Jul  5 2006 - 23:14                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Jul  6 2006 - 23:07
+; modified:    Fri Jul  7 2006 - 11:36
 ;********************************************************
 ;;; $Id: $
 
@@ -36,10 +36,10 @@
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
   "gsl_integration_qng"
-  (((with-foreign-object (fn 'gsl-function)
-      (setf (foreign-slot-value fn 'gsl-function 'function)
-	    (get-callback function)
-	    (foreign-slot-value fn 'gsl-function 'params)
+  (((cffi:with-foreign-object (fn 'gsl-function)
+      (setf (cffi:foreign-slot-value fn 'gsl-function 'function)
+	    (cffi:get-callback function)
+	    (cffi:foreign-slot-value fn 'gsl-function 'params)
 	    (cffi:null-pointer))
       fn)
     :pointer)
@@ -75,10 +75,10 @@
 (export 'with-integration-workspace)
 (defmacro with-integration-workspace ((workspace size) &body body)
   `(let ((,workspace (integration-workspace-alloc ,size)))
-     (unwind-protect
-	  (progn
-	    ,@body)
-       (integration-workspace-free workspace)))))
+    (unwind-protect
+	 (progn
+	   ,@body)
+      (integration-workspace-free workspace))))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
