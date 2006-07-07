@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Wed Jun  7 2006 - 17:33
+; modified:    Thu Jul  6 2006 - 23:11
 ;********************************************************
 
 (in-package :gsl)
@@ -91,7 +91,7 @@
 	   :gsl-reason reason)))
 
 (defun check-null-pointers (check-null-pointers creturn)
-  (let ((cret (find :creturn check-null-pointers :key #'first)))
+  (let ((cret (find creturn check-null-pointers :key #'first)))
     (when cret
 	`((check-null-pointer ,creturn ,@(rest cret))))))
 
@@ -173,7 +173,11 @@
 		      (:error-code	; fill in arguments
 		       `((check-gsl-status ,cret-name ',name))))
 	      ,@(when invalidate `((cl-invalidate ,@invalidate)))
-	      ,@(check-null-pointers check-null-pointers cret-name)
+	      ,@(check-null-pointers
+		 (or check-null-pointers
+		     ;; automatic check if C function returns unnamed :pointer
+		     (when (eq c-return :pointer) `((,cret-name))))
+		 cret-name)
 	      ,@after
 	      (values
 	       ,@(case c-return
@@ -192,55 +196,3 @@
 			    clret)))))))
        (map-name ',(or index name) ,gsl-name)
        ,@(when export `((export ',name))))))
-
-
-;;;;****************************************************************************
-;;;; examples
-;;;;****************************************************************************
-
-#+development
-(t
- (rearrange-sf-result-err
-  (mapcan #'cl-convert-form return-symb-type)))
-;;(x &optional (mode :double-prec))
-
-;;;; Ports
-
-#|
-(defun-gsl coulomb-wave-F-array (array l-min kmax eta x)
-  "gsl_sf_coulomb_wave_F_array"
-  ((L-min :double) (kmax :int) (eta :double) (x :double)
-   ((pointer array) gsl-vector-c) (exponent :double))
-  :documentation
-  "The Coulomb wave function @math{F_L(\eta,x)} for
-@math{L = Lmin \dots Lmin + kmax}, storing the results in @var{array}.
-In the case of overflow the exponent is stored in @var{exponent}."
-  :return (array exponent))
-
-(defun-gsl airy-Ai-new (x)  
-  "gsl_sf_airy_Ai_e"			; gsl-name
-  ((x :double) :mode (result sf-result))	; c-arguments
-  :documentation "The Airy function Ai(x).")
-
-(defun-gsl solve-quadratic-new (a b c)
-  "gsl_poly_solve_quadratic"
-  ((a :double) (b :double) (c :double) (root1 :double) (root2 :double))
-  :documentation
-  "The real roots of the quadratic equation a x^2 + b x + c = 0.
-   Two values are always returned; if the roots are not real, these
-   values are NIL."
-  :c-return :number-of-answers)
-
-(defun-gsl permutation-next-new (p)
-  "gsl_permutation_next" ((p gsl-permutation-c))
-  :c-return :success-failure
-  :invalidate (p)
-  :return (p)
-  :documentation
-  "Advance the permutation @var{p} to the next permutation
-   in lexicographic order and return T.  If no further
-   permutations are available, return NIL and leave
-   @var{p} unmodified.  Starting with the identity permutation and
-   repeatedly applying this function will iterate through all possible
-   permutations of a given order.")
-|#
