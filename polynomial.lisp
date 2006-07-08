@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Jun 13 2006 - 22:57
+; modified:    Fri Jul  7 2006 - 23:11
 ;********************************************************
 ;;; $Id: $
 
@@ -132,8 +132,6 @@
 
 (defun-gsl complex-workspace-alloc (n)
   "gsl_poly_complex_workspace_alloc" ((n :size))
-  :check-null-pointers
-  ((:creturn :ENOMEM (format nil "No complex workspace")))
   :c-return :pointer
   :export nil
   :index with-poly-complex-workspace)

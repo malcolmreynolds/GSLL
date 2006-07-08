@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun  3 2006 - 20:45
+; modified:    Fri Jul  7 2006 - 23:17
 ;********************************************************
 ;;; $Id: $
 
@@ -219,16 +219,14 @@
 (defun-gsl-mdsfc row-view ((matrix gsl-matrix) i) 
   "gsl_matrix_row" (((pointer matrix) gsl-matrix-c) (i :size))
   :c-return gsl-vector-view
-  :check-null-pointers
-  ((:creturn :EFAULT (format nil "index ~d out of range" i)))
+  :null-pointer-info (:EFAULT (format nil "index ~d out of range" i))
   :documentation
   "A vector view of the @var{i}-th row of the matrix.")
 
 (defun-gsl-mdsfc column-view ((matrix gsl-matrix) j)
   "gsl_matrix_column" ((matrix gsl-matrix-c) (j :size))
   :c-return gsl-matrix-view
-  :check-null-pointers
-  ((:creturn :EFAULT (format nil "index ~d out of range" j)))
+  :null-pointer-info (:EFAULT (format nil "index ~d out of range" j))
   :documentation
   "A vector view of the @var{j}-th column of the matrix.")
 
