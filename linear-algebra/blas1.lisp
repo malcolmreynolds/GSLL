@@ -3,7 +3,7 @@
 ; description: BLAS level 1, Vector operations
 ; date:        Wed Apr 26 2006 - 15:23                   
 ; author:      Liam Healy                                
-; modified:    Tue Jun 27 2006 - 23:59
+; modified:    Wed Jul 12 2006 - 12:32
 ;********************************************************
 ;;; $Id: $
 
@@ -181,12 +181,12 @@
   (lisp-unit:assert-first-fp-equal
    "0.707106770000e+01"
    (with-data (b vector-single 3)
-     (setf (data b) #(3.0 4.0 5.0))
+     (setf (data b) #(3.0f0 4.0f0 5.0f0))
      (norm b)))
   (lisp-unit:assert-first-fp-equal
    "0.120000000000e+02"
    (with-data (b vector-single 3)
-     (setf (data b) #(3.0 4.0 5.0))
+     (setf (data b) #(3.0f0 4.0f0 5.0f0))
      (asum b)))
   (lisp-unit:assert-eql
    1
