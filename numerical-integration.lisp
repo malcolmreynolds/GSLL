@@ -3,9 +3,11 @@
 ; description: Numerical integration                     
 ; date:        Wed Jul  5 2006 - 23:14                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jul  8 2006 - 23:01
+; modified:    Tue Jul 11 2006 - 23:17
 ;********************************************************
 ;;; $Id: $
+
+;;; To do: QAWS, QAWO, QAWF, more tests
 
 (in-package :gsl)
 
@@ -249,19 +251,15 @@
 
 (def-gsl-function one-sine x (sin x))
 
-
-#|
-(integration-qng 'one-sine 0.0d0 pi)
-2.0d0
-2.220446049250313d-14
-21
-
-(with-integration-workspace (ws 20)
-  (integration-QAG 'one-sine 0.0d0 pi :gauss15 20 ws))
-1.9999999999999998d0
-2.2204460492503128d-14
-
-;;; Error
-(with-integration-workspace (ws 20)
-  (integration-QAG 'one-sine 0.0d0 pi :gauss15 50 ws))
-|#
+(lisp-unit:define-test numerical-integration
+  (lisp-unit:assert-first-fp-equal
+   "0.200000000000d+01"
+   (integration-qng 'one-sine 0.0d0 pi))
+  (lisp-unit:assert-first-fp-equal
+   "0.200000000000d+01"
+   (with-integration-workspace (ws 20)
+     (integration-QAG 'one-sine 0.0d0 pi :gauss15 20 ws)))
+  (lisp-unit:assert-error
+   'gsl-error
+   (with-integration-workspace (ws 20)
+     (integration-QAG 'one-sine 0.0d0 pi :gauss15 50 ws))))
