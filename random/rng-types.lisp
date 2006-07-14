@@ -1,11 +1,13 @@
 ;********************************************************
-; file:        random.lisp                               
+; file:        rng-types.lisp                               
 ; description: Random number generation                  
 ; date:        Tue Jul 11 2006 - 23:39                   
 ; author:      Liam M. Healy                             
-; modified:    Thu Jul 13 2006 - 22:59
+; modified:    Fri Jul 14 2006 - 10:14
 ;********************************************************
 ;;; $Id: $
+
+;;; Random number generator types and information functions.
 
 (in-package :gsl)
 
@@ -50,6 +52,33 @@
    can return.  Usually this value is zero.  There are some generators with
    algorithms that cannot return zero, and for these generators the minimum
    value is 1.")
+
+(defun-gsl rng-state (rng)
+  "gsl_rng_state" ((rng :pointer))
+  :c-return :pointer
+  :documentation "A pointer to the state of generator.")
+
+(defun-gsl rng-size (rng)
+  "gsl_rng_size" ((rng :pointer))
+  :c-return :size
+  :documentation "The size of the generator.")
+
+(defun-gsl rng-types-setup ()
+  "gsl_rng_types_setup" ()
+  :c-return :pointer
+  :documentation
+  "A pointer to an array of all the available generator types,
+   terminated by a null pointer. The function should be
+   called once at the start of the program, if needed.")
+
+;;; Probably only works for 64 bit hardware; need to generalize
+(defun all-rngs ()
+  "A list of all random number generators."
+  (let ((start (rng-types-setup)))
+    (loop for i from 0
+	  for ptr = (inc-pointer start (* 8 i))	;  (mem-aref ptr :pointer i)
+	  until (null-pointer-p (mem-ref ptr :pointer))
+	  collect (rng-name (mem-aref ptr 'random-number-generator-type 0)))))
 
 ;;;;****************************************************************************
 ;;;; Defining RNGs and default

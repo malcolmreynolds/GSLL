@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Fri Jul  7 2006 - 11:27
+; modified:    Fri Jul 14 2006 - 17:46
 ;********************************************************
 ;;; $Id: $
 
@@ -88,4 +88,8 @@
    (:file "eigensystems" :depends-on (init data))
    ;; Skip fft for now, I'm not sure how it works in C
    (:file "numerical-integration" :depends-on (init))
+   (:module random
+	    :depends-on (init)
+	    :components
+	    (:file "rng-types"))
    ))
