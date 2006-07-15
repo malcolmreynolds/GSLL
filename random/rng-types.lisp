@@ -3,7 +3,7 @@
 ; description: Random number generation                  
 ; date:        Tue Jul 11 2006 - 23:39                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jul 14 2006 - 10:14
+; modified:    Fri Jul 14 2006 - 22:34
 ;********************************************************
 ;;; $Id: $
 
@@ -34,6 +34,8 @@
 ;;;; Auxiliary functions
 ;;;;****************************************************************************
 
+(export '(random-number-generator-state all-random-number-generators))
+
 (defun-gsl rng-name (rng)
   "gsl_rng_name" ((rng :pointer))
   :c-return :string
@@ -63,22 +65,34 @@
   :c-return :size
   :documentation "The size of the generator.")
 
+(defun random-number-generator-state (rng)
+  "The complete state of a given random number generator, specified
+   as a vector of bytes."
+  (let ((ans (make-array (rng-size rng) :element-type '(unsigned-byte 8))))
+    (loop for i from 0 below (length ans)
+	  do
+	  (setf (aref ans i)
+		(mem-aref (rng-state rng) :uint8 i)))
+    ans))
+
 (defun-gsl rng-types-setup ()
   "gsl_rng_types_setup" ()
   :c-return :pointer
+  :export nil
   :documentation
   "A pointer to an array of all the available generator types,
    terminated by a null pointer. The function should be
-   called once at the start of the program, if needed.")
+   called once at the start of the program, if needed.
+   Users should call all-random-number-generators.")
 
-;;; Probably only works for 64 bit hardware; need to generalize
-(defun all-rngs ()
+(defun all-random-number-generators ()
   "A list of all random number generators."
   (let ((start (rng-types-setup)))
     (loop for i from 0
-	  for ptr = (inc-pointer start (* 8 i))	;  (mem-aref ptr :pointer i)
-	  until (null-pointer-p (mem-ref ptr :pointer))
-	  collect (rng-name (mem-aref ptr 'random-number-generator-type 0)))))
+	  for ptr
+	  = (cffi:inc-pointer start (* (cffi:foreign-type-size :pointer) i))
+	  until (cffi:null-pointer-p (cffi:mem-ref ptr :pointer))
+	  collect (cffi:mem-ref ptr 'random-number-generator-type))))
 
 ;;;;****************************************************************************
 ;;;; Defining RNGs and default
