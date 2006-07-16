@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Fri Jul 14 2006 - 21:51
+; modified:    Sat Jul 15 2006 - 22:02
 ;********************************************************
 ;;; $Id: $
 
@@ -91,4 +91,5 @@
    (:module random
 	    :depends-on (init)
 	    :components
-	    ((:file "rng-types")))))
+	    ((:file "rng-types")
+	     (:file "generators" :depends-on (rng-types))))))

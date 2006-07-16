@@ -3,18 +3,13 @@
 ; description: Random number generation                  
 ; date:        Tue Jul 11 2006 - 23:39                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jul 14 2006 - 22:34
+; modified:    Sat Jul 15 2006 - 16:29
 ;********************************************************
 ;;; $Id: $
 
 ;;; Random number generator types and information functions.
 
 (in-package :gsl)
-
-(defun-gsl setup-random-number-generator ()
-  "gsl_rng_env_setup" ()
-  :c-return :pointer
-  :documentation "Setup random number generator.")
 
 ;;;;****************************************************************************
 ;;;; Random number generator types
@@ -34,46 +29,7 @@
 ;;;; Auxiliary functions
 ;;;;****************************************************************************
 
-(export '(random-number-generator-state all-random-number-generators))
-
-(defun-gsl rng-name (rng)
-  "gsl_rng_name" ((rng :pointer))
-  :c-return :string
-  :documentation "The name of the random number generator.")
-
-(defun-gsl rng-max (rng)
-  "gsl_rng_max" ((rng :pointer))
-  :c-return :unsigned-long
-  :documentation "The largest value that @code{gsl_rng_get}
-   can return.")
-
-(defun-gsl rng-min (rng)
-  "gsl_rng_min" ((rng :pointer))
-  :c-return :unsigned-long
-  :documentation "The smallest value that @code{gsl_rng_get}
-   can return.  Usually this value is zero.  There are some generators with
-   algorithms that cannot return zero, and for these generators the minimum
-   value is 1.")
-
-(defun-gsl rng-state (rng)
-  "gsl_rng_state" ((rng :pointer))
-  :c-return :pointer
-  :documentation "A pointer to the state of generator.")
-
-(defun-gsl rng-size (rng)
-  "gsl_rng_size" ((rng :pointer))
-  :c-return :size
-  :documentation "The size of the generator.")
-
-(defun random-number-generator-state (rng)
-  "The complete state of a given random number generator, specified
-   as a vector of bytes."
-  (let ((ans (make-array (rng-size rng) :element-type '(unsigned-byte 8))))
-    (loop for i from 0 below (length ans)
-	  do
-	  (setf (aref ans i)
-		(mem-aref (rng-state rng) :uint8 i)))
-    ans))
+(export '(all-random-number-generators))
 
 (defun-gsl rng-types-setup ()
   "gsl_rng_types_setup" ()
@@ -86,13 +42,15 @@
    Users should call all-random-number-generators.")
 
 (defun all-random-number-generators ()
-  "A list of all random number generators."
+  "A list of all random number generator types."
   (let ((start (rng-types-setup)))
     (loop for i from 0
-	  for ptr
-	  = (cffi:inc-pointer start (* (cffi:foreign-type-size :pointer) i))
-	  until (cffi:null-pointer-p (cffi:mem-ref ptr :pointer))
-	  collect (cffi:mem-ref ptr 'random-number-generator-type))))
+       for ptr
+       = (cffi:mem-ref 
+	  (cffi:inc-pointer start (* (cffi:foreign-type-size :pointer) i))
+	  :pointer)
+       until (cffi:null-pointer-p ptr)
+       collect ptr)))
 
 ;;;;****************************************************************************
 ;;;; Defining RNGs and default
@@ -104,17 +62,24 @@
 	 (or gsl-name
 	     (remove #\*
 		     (substitute #\_ #\- 
-				 (format nil "gsl_rng_~(~a~)" lisp-name)))))
-	(sym (gensym "RNG")))
+				 (format nil "gsl_rng_~(~a~)" lisp-name))))))
     `(progn
-      (cffi:defcvar (,cname ,sym) :pointer :read-only t)
-      (defparameter ,lisp-name (cffi:get-var-pointer ',sym)
-	,documentation)
-      (map-name ',lisp-name ,cname))))
+       (cffi:defcvar (,cname ,lisp-name) :pointer :read-only t)
+       (setf (documentation ',lisp-name 'variable) ,documentation)
+       (map-name ',lisp-name ,cname)
+       (export ',lisp-name))))
 
-(def-rng-type *rngdefault*
-    "The default, set by environment variables GSL_RNG_TYPE and GSL_RNG_SEED"
+(def-rng-type *default-type*
+    "The default random number generator type,
+     set by environment variables GSL_RNG_TYPE and GSL_RNG_SEED"
   "gsl_rng_default")
+
+(defun-gsl rng-environment-setup ()
+  "gsl_rng_env_setup" ()
+  :c-return :pointer
+  :documentation "Read the environment variables @code{GSL_RNG_TYPE} and
+  @code{GSL_RNG_SEED} and uses their values to set the corresponding
+  library variables *default-type* and *default-seed*")
 
 ;;;;****************************************************************************
 ;;;; Modern random number generators
