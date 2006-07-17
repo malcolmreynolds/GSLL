@@ -3,7 +3,7 @@
 ; description: Random number generation                  
 ; date:        Tue Jul 11 2006 - 23:39                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jul 15 2006 - 16:29
+; modified:    Sun Jul 16 2006 - 16:28
 ;********************************************************
 ;;; $Id: $
 
@@ -61,8 +61,9 @@
   (let ((cname
 	 (or gsl-name
 	     (remove #\*
-		     (substitute #\_ #\- 
-				 (format nil "gsl_rng_~(~a~)" lisp-name))))))
+		     (substitute
+		      #\_ #\- 
+		      (format nil "gsl_rng_~(~a~)" lisp-name))))))
     `(progn
        (cffi:defcvar (,cname ,lisp-name) :pointer :read-only t)
        (setf (documentation ',lisp-name 'variable) ,documentation)

@@ -3,21 +3,25 @@
 ; description: Generators of random numbers.             
 ; date:        Sat Jul 15 2006 - 14:43                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jul 15 2006 - 21:54
+; modified:    Sun Jul 16 2006 - 17:41
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
+;;; Would it be useful to have a make-data like macro?
 
 (export '(random-number-generator make-random-number-generator))
 
-(defclass random-number-generator ()
+(defclass gsl-random ()
   ((type :initarg :type :reader rng-type)
-   (generator :initarg :generator :accessor generator))
+   (generator :initarg :generator :accessor generator)))
+
+(defclass random-number-generator (gsl-random)
+  ()
   (:documentation "A generator of random numbers."))
 
-(defmethod print-object ((object random-number-generator) stream)
+(defmethod print-object ((object gsl-random) stream)
   (print-unreadable-object (object stream :type t :identity t) 
     (format stream "~a" (when (generator object) (rng-name object)))))
 
@@ -132,8 +136,9 @@
 ;;;; Information functions about instances
 ;;;;****************************************************************************
 
-(defun-gsl rng-name (rng-instance)
+(defun-gsl rng-name ((rng-instance random-number-generator))
   "gsl_rng_name" (((generator rng-instance) :pointer))
+  :type :method
   :c-return :string
   :documentation "The name of the random number generator.")
 
@@ -144,23 +149,25 @@
    can return.")
 
 (defun-gsl rng-min (rng-instance)
-  "gsl_rng_min" ((generator rng-instance :pointer))
+  "gsl_rng_min" (((generator rng-instance) :pointer))
   :c-return :unsigned-long
   :documentation "The smallest value that @code{gsl_rng_get}
    can return.  Usually this value is zero.  There are some generators with
    algorithms that cannot return zero, and for these generators the minimum
    value is 1.")
 
-(defun-gsl rng-state (rng-instance)
-  "gsl_rng_state" ((rng-instance :pointer))
+(defun-gsl rng-state ((rng-instance random-number-generator))
+  "gsl_rng_state" (((generator rng-instance) :pointer))
   :c-return :pointer
+  :type :method
   :export nil
   :index gsl-random-state
   :documentation "A pointer to the state of generator.")
 
-(defun-gsl rng-size (rng-instance)
-  "gsl_rng_size" ((rng-instance :pointer))
+(defun-gsl rng-size ((rng-instance random-number-generator))
+  "gsl_rng_size" (((generator rng-instance) :pointer))
   :c-return :size
+  :type :method
   :export nil
   :index gsl-random-state
   :documentation "The size of the generator.")
@@ -169,7 +176,7 @@
 (defun gsl-random-state (rng-instance)
   "The complete state of a given random number generator, specified
    as a vector of bytes."
-  (let* ((gen (generator rng-instance))
+  (let* ((gen rng-instance)
 	 (ans
 	  (make-array (rng-size gen)
 		      :element-type '(unsigned-byte 8))))
@@ -194,9 +201,10 @@
    making @var{destination} into an exact copy
    of @var{source}.  The two generators must be of the same type.")
 
-(defun-gsl clone-generator (rng-instance)
-  "gsl_rng_clone" ((rng-instance :pointer))
+(defun-gsl clone-generator ((instance random-number-generator))
+  "gsl_rng_clone" (((generator instance) :pointer))
   :c-return :pointer
+  :type :method
   :documentation
   "Create a new generator which is an exact copy of the original.
    Dont' use; use #'make-random-number-generator, #'copy instead.")
