@@ -3,7 +3,7 @@
 ; description: Quasi-Random Number Generators            
 ; date:        Sun Jul 16 2006 - 15:54                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Jul 16 2006 - 17:40
+; modified:    Mon Jul 17 2006 - 10:10
 ;********************************************************
 ;;; $Id: $
 
@@ -115,14 +115,6 @@
     @cite{USSR Comput. Maths. Math. Phys.} 19, 252 (1980). It is valid up to
     40 dimensions."
   "gsl_qrng_sobol")
-
-(with-data (vec vector-double 2)
-  (let ((gen (make-quasi-random-number-generator 2 *sobol*)))
-    (init gen)
-    (prog1
-	(loop repeat 5 times
-	   append (coerce (data (qrng-get gen vec)) 'list))
-      (free gen))))
 
 ;;; Examples and unit test
 (lisp-unit:define-test quasi-random-number-generators
