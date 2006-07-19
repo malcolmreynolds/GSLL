@@ -3,7 +3,7 @@
 ; description: Test functions.                           
 ; date:        Sat Apr 22 2006 - 16:52                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Jun 11 2006 - 22:20
+; modified:    Tue Jul 18 2006 - 22:36
 ;********************************************************
 ;;; $Id: $
 
@@ -45,3 +45,17 @@
     ,(lisp-unit::fp-string (eval form))
     ,form))
 
+;;;;;;;;;;;;;;;;;
+;;; Thinking about how to do floating point comparisons
+
+(defun gsl::equal-float (x rat)
+  "Is the float very close to the rational?"
+  (<= (abs (- rat (rationalize x)))
+      (* 4 (if (typep x 'double-float)
+	       double-float-epsilon
+	       single-float-epsilon))))
+
+;;; Tests:
+;;; assert-float-equal: First value only
+;;; turn multiple values into a list
+;;; compare sequences including structure.
