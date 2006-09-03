@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Aug 21 2006 - 22:16
+; modified:    Sat Sep  2 2006 - 19:18
 ;********************************************************
 ;;; $Id: $
 
@@ -95,4 +95,6 @@
 	     (:file "generators" :depends-on (rng-types))
 	     (:file "quasi" :depends-on (rng-types))
 	     (:file "gaussian" :depends-on (rng-types))
-	     (:file "gaussian-tail" :depends-on (rng-types))))))
+	     (:file "gaussian-tail" :depends-on (rng-types))
+	     (:file "gaussian-bivariate" :depends-on (rng-types))
+	     (:file "exponential" :depends-on (rng-types))))))
