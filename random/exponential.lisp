@@ -3,9 +3,11 @@
 ; description: Exponential distribution                  
 ; date:        Sat Sep  2 2006 - 19:04                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Sep  2 2006 - 19:17
+; modified:    Mon Sep 11 2006 - 11:58
 ;********************************************************
 ;;; $Id: $
+
+(in-package :gsl)
 
 (defun-gsl exponential (generator mu)
   "gsl_ran_exponential"
