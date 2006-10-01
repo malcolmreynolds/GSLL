@@ -3,7 +3,7 @@
 ; description: Exponential distribution                  
 ; date:        Sun Sep 17 2006
 ; author:      Liam M. Healy                             
-; modified:    Sun Sep 17 2006 - 22:06
+; modified:    Sat Sep 30 2006 - 19:17
 ;********************************************************
 ;;; $Id: $
 
@@ -66,16 +66,16 @@
 	    (laplace *rng-mt19937* 10.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.500000000000d-01"
-   (laplace-pdf 0.0 10.0))
+   (laplace-pdf 0.0d0 10.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.696734670144d+00"
-   (laplace-p 1.0 2.0))
+   (laplace-p 1.0d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.303265329856d+00"
-   (laplace-q 1.0 2.0))
+   (laplace-q 1.0d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.100000000000d+01"
-   (laplace-pinv 0.6967346701436833 2.0))
+   (laplace-pinv 0.6967346701436833d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.100000000000d+01"
-   (laplace-qinv 0.3032653298563167 2.0)))
+   (laplace-qinv 0.3032653298563167d0 2.0d0)))

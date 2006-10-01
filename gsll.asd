@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Sep 17 2006 - 22:00
+; modified:    Sat Sep 30 2006 - 22:46
 ;********************************************************
 ;;; $Id: $
 
@@ -98,4 +98,10 @@
 	     (:file "gaussian-tail" :depends-on (rng-types))
 	     (:file "gaussian-bivariate" :depends-on (rng-types))
 	     (:file "exponential" :depends-on (rng-types))
-	     (:file "laplace" :depends-on (rng-types))))))
+	     (:file "laplace" :depends-on (rng-types))
+	     (:file "exponential-power" :depends-on (rng-types))
+	     (:file "cauchy" :depends-on (rng-types))
+	     (:file "rayleigh" :depends-on (rng-types))
+	     (:file "rayleigh-tail" :depends-on (rng-types))
+	     (:file "landau" :depends-on (rng-types))
+	     (:file "levy" :depends-on (rng-types))))))
