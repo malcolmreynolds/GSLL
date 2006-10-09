@@ -3,7 +3,7 @@
 ; description: Coulumb functions                         
 ; date:        Sat Mar 18 2006 - 23:23                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Jun 12 2006 - 08:55
+; modified:    Sat Oct  7 2006 - 15:21
 ;********************************************************
 ;;; $Id:$
 
@@ -156,7 +156,7 @@
    (coulomb-wave-fg 1.0d0 2.0d0 2.5d0 1))
   (lisp-unit:assert-equal
    '("0.350215846039d-01" "0.575250061420d-02" "0.711695560198d-03"
-     "0.000000000000d+01" "0.000000000000d+01" "0.000000000000d+01")
+     "0.000000000000d+01" "0.800000000000d+01" "0.110000000000d+02")
    (lisp-unit:fp-sequence 
     (with-data (Farr vector-double 3)
       (with-data (Garr vector-double 3)

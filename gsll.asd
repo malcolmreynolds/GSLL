@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sat Sep 30 2006 - 22:46
+; modified:    Sun Oct  8 2006 - 21:46
 ;********************************************************
 ;;; $Id: $
 
@@ -104,4 +104,13 @@
 	     (:file "rayleigh" :depends-on (rng-types))
 	     (:file "rayleigh-tail" :depends-on (rng-types))
 	     (:file "landau" :depends-on (rng-types))
-	     (:file "levy" :depends-on (rng-types))))))
+	     (:file "levy" :depends-on (rng-types))
+	     (:file "gamma" :depends-on (rng-types))
+	     (:file "flat" :depends-on (rng-types))
+	     (:file "lognormal" :depends-on (rng-types))
+	     (:file "chi-squared" :depends-on (rng-types))
+	     (:file "fdist" :depends-on (rng-types))
+	     (:file "tdist" :depends-on (rng-types))
+	     (:file "beta" :depends-on (rng-types))
+	     (:file "logistic" :depends-on (rng-types))
+	     (:file "pareto" :depends-on (rng-types))))))
