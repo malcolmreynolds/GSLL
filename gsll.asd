@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Oct  8 2006 - 21:46
+; modified:    Sun Oct 22 2006 - 22:12
 ;********************************************************
 ;;; $Id: $
 
@@ -113,4 +113,6 @@
 	     (:file "tdist" :depends-on (rng-types))
 	     (:file "beta" :depends-on (rng-types))
 	     (:file "logistic" :depends-on (rng-types))
-	     (:file "pareto" :depends-on (rng-types))))))
+	     (:file "pareto" :depends-on (rng-types))
+	     (:file "spherical-vector" :depends-on (rng-types))
+	     (:file "weibull" :depends-on (rng-types))))))
