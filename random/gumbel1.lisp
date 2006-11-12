@@ -3,7 +3,7 @@
 ; description: Beta distribution                  
 ; date:        Sun Oct 29 2006
 ; author:      Liam M. Healy                             
-; modified:    Sun Oct 29 2006 - 21:07
+; modified:    Sat Nov 11 2006 - 20:58
 ;********************************************************
 ;;; $Id: $
 
@@ -70,16 +70,16 @@
 	 (gumbel1 *rng-mt19937* 1.0d0 2.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.296257089650d+00"
-   (gumbel1-pdf 0.1 1.0 2.0))
+   (gumbel1-pdf 0.1d0 1.0d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.163707359877d+00"
-   (gumbel1-P 0.1 1.0 2.0))
+   (gumbel1-P 0.1d0 1.0d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.836292640123d+00"
-   (gumbel1-Q 0.1 1.0 2.0))
+   (gumbel1-Q 0.1d0 1.0d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.100000000000d+00"
-   (gumbel1-Pinv 0.1637073598773166 1.0 2.0))
+   (gumbel1-Pinv 0.1637073598773166d0 1.0d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.100000000000d+00"
-   (gumbel1-Qinv 0.8362926401226833 1.0 2.0)))
+   (gumbel1-Qinv 0.8362926401226833d0 1.0d0 2.0d0)))

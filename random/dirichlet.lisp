@@ -3,7 +3,7 @@
 ; description: Dirichlet distribution                  
 ; date:        Sun Oct 29 2006
 ; author:      Liam M. Healy                             
-; modified:    Sun Oct 29 2006 - 22:00
+; modified:    Sat Nov 11 2006 - 20:57
 ;********************************************************
 ;;; $Id: $
 
@@ -75,13 +75,13 @@
    "0.288000000000d+01"
    (with-data (alpha vector-double 4)
      (with-data (theta vector-double 4)
-       (setf (data alpha) #(1.0 2.0 3.0 4.0))
-       (setf (data theta) #(0.1 0.3 0.4 0.2))
+       (setf (data alpha) #(1.0d0 2.0d0 3.0d0 4.0d0)
+	     (data theta) #(0.1d0 0.3d0 0.4d0 0.2d0))
        (dirichlet-pdf alpha theta))))
   (lisp-unit:assert-first-fp-equal
    "0.105779029415d+01"
    (with-data (alpha vector-double 4)
      (with-data (theta vector-double 4)
-       (setf (data alpha) #(1.0 2.0 3.0 4.0))
-       (setf (data theta) #(0.1 0.3 0.4 0.2))
+       (setf (data alpha) #(1.0d0 2.0d0 3.0d0 4.0d0)
+	     (data theta) #(0.1d0 0.3d0 0.4d0 0.2d0))
        (dirichlet-log-pdf alpha theta)))))

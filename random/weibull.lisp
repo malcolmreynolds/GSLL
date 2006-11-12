@@ -3,7 +3,7 @@
 ; description: Weibull distribution                  
 ; date:        Sun Oct 22 2006
 ; author:      Liam M. Healy                             
-; modified:    Sun Oct 22 2006 - 22:11
+; modified:    Sat Nov 11 2006 - 20:59
 ;********************************************************
 ;;; $Id: $
 
@@ -65,16 +65,16 @@
 	    (weibull *rng-mt19937* 1.0d0 2.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.242631749722d+00"
-   (weibull-pdf 1.5 1.3 1.0))
+   (weibull-pdf 1.5d0 1.3d0 1.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.999288774280d+00"
-   (weibull-P 3.5 1.3 2.0))
+   (weibull-P 3.5d0 1.3d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.711225720092d-03"
-   (weibull-Q 3.5 1.3 2.0))
+   (weibull-Q 3.5d0 1.3d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.350000000000d+01"
-   (weibull-Pinv 0.9992887742799077d0 1.3 2.0))
+   (weibull-Pinv 0.9992887742799077d0 1.3d0 2.0d0))
   (lisp-unit:assert-first-fp-equal
    "0.350000000000d+01"
-   (weibull-Qinv 7.112257200923508e-4 1.3 2.0)))
+   (weibull-Qinv 7.112257200923508d-4 1.3d0 2.0d0)))

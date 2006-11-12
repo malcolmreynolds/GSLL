@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun  3 2006 - 21:04
+; modified:    Sat Nov 11 2006 - 23:20
 ;********************************************************
 ;;; $Id: $
 
@@ -422,78 +422,48 @@ same length.")
 
 #|
 
-(with-data (vec vector 3)
+(with-data (vec vector-double 3)
   (setf (gsl-aref vec 0) -3.21d0
 	(gsl-aref vec 1) 1.0d0
 	(gsl-aref vec 2) 12.8d0)
-  (print-vector vec))
+  (data vec))
 
-(with-data (vec vector 3)
+(with-data (vec vector-double 3)
   (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
-  (print-vector vec))
+  (data vec))
 
 (defparameter vec (make-data 'vector nil 3))
 (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
 (free vec)
 
 
-(with-data (vec vector 3)
+(with-data (vec vector-double 3)
   (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
   (data vec))
 
-(with-data (vec vector 3)
+(with-data (vec vector-double 3)
   (set-all vec 77.8d0)
   (print-vector vec)
   (set-zero vec)
-  (print-vector vec))
+  (data vec))
 
 (with-data (vec vector 3) (set-basis vec 1)
 	   (format t "~&~a ~a ~a"
 		   (gsl-aref vec 0) (gsl-aref vec 1) (gsl-aref vec 2)))
 
 ;;; broken
-(with-data (vec vector 3)
+(with-data (vec vector-double 3)
   (setf (gsl-aref vec 0) -3.21d0
 	(gsl-aref vec 1) 1.0d0
 	(gsl-aref vec 2) 12.8d0)
   (subvector vec 1 2))
 
-(with-data (vec1 vector 3)
-  (with-data (vec2 vector 3)
+(with-data (vec1 vector-double 3)
+  (with-data (vec2 vector-double 3)
     (setf (gsl-aref vec1 0) -3.21d0
 	  (gsl-aref vec1 1) 1.0d0
 	  (gsl-aref vec1 2) 12.8d0)
     (vector-copy vec2 vec1)
-    (print-vector vec2)))
-
-(with-data (vec1 vector 3)
-  (set-vector vec1 -3.21d0 1.0d0 12.8d0) (print-vector vec1)
-  (vector-swap-elements vec1 0 1) (print-vector vec1)
-  (vector-reverse vec1) (print-vector vec1)
-  (vector*c vec1 2.0d0) (print-vector vec1)
-  (vector+c vec1 2.0d0) (print-vector vec1))
-
-(with-data (vec1 vector 3)
-  (with-data (vec2 vector 3)
-    (set-vector vec1 -3.21d0 1.0d0 12.8d0)
-    (set-vector vec2 1.4d0 17.0d0 -3.0d0)
-    (vector+ vec1 vec2)
-    (print-vector vec1)
-    (vector* vec1 vec2)
-    (print-vector vec1)))
-
-(with-data (vec1 vector 3)
-  (set-vector vec1 -3.21d0 1.0d0 12.8d0)
-  (print-vector vec1)
-  (print (vector-min vec1))
-  (print (vector-max vec1))
-  (vector-minmax vec1))
-
-(with-data (vec1 vector 3)
-  (set-vector vec1 -3.21d0 1.0d0 12.8d0)
-  (print-vector vec1)
-  (print (vector-min-index vec1))
-  (print (vector-max-index vec1))
-  (vector-minmax-index vec1))
+    (data vec2)))
 
 |#

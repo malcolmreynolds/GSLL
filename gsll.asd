@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Oct 29 2006 - 22:17
+; modified:    Sun Nov 12 2006 - 00:10
 ;********************************************************
 ;;; $Id: $
 
@@ -118,4 +118,5 @@
 	     (:file "weibull" :depends-on (rng-types))
 	     (:file "gumbel1" :depends-on (rng-types))
 	     (:file "gumbel2" :depends-on (rng-types))
-	     (:file "dirichlet" :depends-on (rng-types))))))
+	     (:file "dirichlet" :depends-on (rng-types))
+	     (:file "discrete" :depends-on (rng-types))))))
