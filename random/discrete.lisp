@@ -3,7 +3,7 @@
 ; description: Discrete random variables
 ; date:        Sat Nov 11 2006 - 21:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Nov 12 2006 - 00:09
+; modified:    Sat Nov 25 2006 - 16:46
 ;********************************************************
 ;;; $Id: $
 
@@ -66,7 +66,7 @@
    '(1 0 1 1 0 1 1 2 1 2 2)
    (with-data (probabilities vector-double 3)
      (setf (data probabilities) #(0.25d0 0.5d0 0.25d0))
-     (with-discrete-table probabilities table
+     (with-discrete-table (probabilities table)
        (rng-set *rng-mt19937* 0)
        (loop for i from 0 to 10
 	  collect
@@ -76,8 +76,7 @@
     (with-data (probabilities vector-double 3)
       (setf (data probabilities)
 	    #(0.25d0 0.5d0 0.25d0))
-      (with-discrete-table probabilities
-	  table
+      (with-discrete-table (probabilities table)
 	(discrete-pdf
 	 1
 	 table))))))

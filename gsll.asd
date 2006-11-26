@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Nov 12 2006 - 00:10
+; modified:    Sat Nov 25 2006 - 23:01
 ;********************************************************
 ;;; $Id: $
 
@@ -119,4 +119,12 @@
 	     (:file "gumbel1" :depends-on (rng-types))
 	     (:file "gumbel2" :depends-on (rng-types))
 	     (:file "dirichlet" :depends-on (rng-types))
-	     (:file "discrete" :depends-on (rng-types))))))
+	     (:file "discrete" :depends-on (rng-types))
+	     (:file "poisson" :depends-on (rng-types))
+	     (:file "bernoulli" :depends-on (rng-types))
+	     (:file "binomial" :depends-on (rng-types))
+	     (:file "multnomial" :depends-on (rng-types))
+	     (:file "negative-binomial" :depends-on (rng-types))
+	     (:file "geometric" :depends-on (rng-types))
+	     (:file "hypergeometric" :depends-on (rng-types))
+	     (:file "logarithmic" :depends-on (rng-types))))))
