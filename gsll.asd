@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sat Nov 25 2006 - 23:01
+; modified:    Sun Dec  3 2006 - 21:58
 ;********************************************************
 ;;; $Id: $
 
@@ -18,6 +18,7 @@
   ((:module init
 	    :components
 	    ((:file "init")
+	     (:file "utility" :depends-on (init))
 	     (:file "structures" :depends-on (init))
 	     (:file "interface" :depends-on (init))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
@@ -123,8 +124,13 @@
 	     (:file "poisson" :depends-on (rng-types))
 	     (:file "bernoulli" :depends-on (rng-types))
 	     (:file "binomial" :depends-on (rng-types))
-	     (:file "multnomial" :depends-on (rng-types))
+	     (:file "multinomial" :depends-on (rng-types))
 	     (:file "negative-binomial" :depends-on (rng-types))
 	     (:file "geometric" :depends-on (rng-types))
 	     (:file "hypergeometric" :depends-on (rng-types))
-	     (:file "logarithmic" :depends-on (rng-types))))))
+	     (:file "logarithmic" :depends-on (rng-types))
+	     (:file "shuffling-sampling" :depends-on (rng-types))))
+   (:module statistics
+	    :depends-on (init data)
+	    :components
+	    ((:file "mean-variance")))))

@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Nov 11 2006 - 23:20
+; modified:    Sun Dec  3 2006 - 18:44
 ;********************************************************
 ;;; $Id: $
 
@@ -56,7 +56,7 @@ deallocated with the vector.
 (defmacro defun-gsl-vdsfc (&rest args)
   "A defun-gsl for vectors of double, single, fixnum, and complex."
   (defun-gsl-all
-      '(vector-double vector-single vector-fixnum vector-complex)
+      '(double single fixnum complex)
       '(:double :float :int gsl-complex)
     "vector"
     'gsl-vector
@@ -65,7 +65,7 @@ deallocated with the vector.
 (defmacro defun-gsl-vdsf (&rest args)
   "A defun-gsl for vectors of double, single, and fixnum."
   (defun-gsl-all
-      '(vector-double vector-single vector-fixnum)
+      '(double single fixnum)
       '(:double :float :int)
     "vector"
     'gsl-vector
@@ -421,12 +421,12 @@ same length.")
 ;;;;****************************************************************************
 
 #|
-
 (with-data (vec vector-double 3)
-  (setf (gsl-aref vec 0) -3.21d0
-	(gsl-aref vec 1) 1.0d0
-	(gsl-aref vec 2) 12.8d0)
-  (data vec))
+       (setf (gsl-aref vec 0) -3.21d0
+	     (gsl-aref vec 1) 1.0d0
+	     (gsl-aref vec 2) 12.8d0
+	     (cl-invalid vec) t)
+       (data vec))
 
 (with-data (vec vector-double 3)
   (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
@@ -436,15 +436,8 @@ same length.")
 (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
 (free vec)
 
-
 (with-data (vec vector-double 3)
   (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
-  (data vec))
-
-(with-data (vec vector-double 3)
-  (set-all vec 77.8d0)
-  (print-vector vec)
-  (set-zero vec)
   (data vec))
 
 (with-data (vec vector 3) (set-basis vec 1)

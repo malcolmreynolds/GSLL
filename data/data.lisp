@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun  3 2006 - 20:43
+; modified:    Sun Dec  3 2006 - 10:24
 ;********************************************************
 ;;; $Id: $
 
@@ -87,9 +87,6 @@
 ;;;; Macro defdata to define class etc.
 ;;;;****************************************************************************
 
-(defun data-object-name (string)
-  (intern (format nil "GSL-~:@(~a~)" (string string))))
-
 (defun assign-pointer (object pointer)
   "Check that a GSL data pointer is not null, then assign it to the object."
   (check-null-pointer
@@ -103,7 +100,11 @@
 ;;; (args (loop for i below dimensions collect (intern (format nil "I~d" i))))
 ;;; (mapcar (lambda (v) `(,v :size))			    args)
 
-(defvar *data-name-alist* nil)
+(defparameter *data-name-alist*
+  '((FIXNUM . "_int")
+    (SINGLE . "_float")
+    (DOUBLE . "")
+    (COMPLEX . "_complex")))
 
 (defmacro defdata
     (c-string cl-symbol cl-base-type
@@ -118,10 +119,8 @@
 	   (format nil "gsl_~a_~a" c-string function-name)))
     (let* ((cargs (loop for i below dimensions
 		     collect `((nth ,i (storage-size object)) :size)))
-	   (object-name (data-object-name cl-symbol)))
+	   (object-name (make-symbol-from-strings *gsl-prefix* cl-symbol)))
       `(progn
-	 (eval-when (:compile-toplevel :load-toplevel :execute)
-	   (setf *data-name-alist* (acons ',cl-symbol ,c-string *data-name-alist*)))
 	 (defclass ,object-name (,superclass)
 	   ((cl-base-type :initform ',cl-base-type :reader cl-base-type
 			  :allocation :class)))
@@ -154,18 +153,17 @@
 	   ((stream :pointer) ((pointer object) :pointer) (format :string))
 	   :type :method)))))
 
-(defun splice-name (base-name remove symbol)
+(defun splice-name (base-name keyword symbol)
   "Make a new C name for a data function from a base name." 
-  (let* ((start (search remove base-name))
-	 (end (+ start (length remove))))
+  (let* ((insert (+ (search keyword base-name) (length keyword))))
     (concatenate 'string
-		 (subseq base-name 0 start)
+		 (subseq base-name 0 insert)
 		 (rest (assoc symbol *data-name-alist*))
-		 (subseq base-name end))))
+		 (subseq base-name insert))))
 
 ;;; (splice-name "gsl_vector_get" "vector" 'vector-fixnum)
 ;;; "gsl_vector_int_get"
-;;; (data-object-name 'vector-fixnum)
+;;; (make-symbol-from-strings *gsl-prefix* 'vector-fixnum)
 ;;; GSL-VECTOR-FIXNUM
 
 (defun defun-gsl-all (types ctypes string general-class args)
@@ -179,7 +177,8 @@
 	       ,(mapcar
 		 (lambda (x)
 		   (if (and (listp x) (eq (second x) general-class))
-		       (list (first x) (data-object-name type))
+		       (list (first x)
+			     (make-symbol-from-strings general-class type))
 		       x))
 		 (second args))
 	     ;; Create the correct GSL C library function name
@@ -219,7 +218,7 @@
    memory when done."
   (let ((obj
 	 (make-instance
-	  (data-object-name type)
+	  (make-symbol-from-strings *gsl-prefix* type)
 	  :storage-size size)))
     (if zero (calloc obj) (alloc obj))
     obj))

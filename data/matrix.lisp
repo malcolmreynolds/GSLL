@@ -3,7 +3,7 @@
 ; description: Matrices
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jul  7 2006 - 23:17
+; modified:    Sun Dec  3 2006 - 18:53
 ;********************************************************
 ;;; $Id: $
 
@@ -33,7 +33,7 @@
 (defmacro defun-gsl-mdsfc (&rest args)
   "A defun-gsl for matrices of double, single, fixnum, and complex."
   (defun-gsl-all
-      '(matrix-double matrix-single matrix-fixnum matrix-complex)
+      '(double single fixnum complex)
       '(:double :float :int gsl-complex)
     "matrix"
     'gsl-matrix
@@ -42,7 +42,7 @@
 (defmacro defun-gsl-mdsf (&rest args)
   "A defun-gsl for matrices of double, single, and fixnum."
   (defun-gsl-all
-      '(matrix-double matrix-single matrix-fixnum)
+      '(double single fixnum)
       '(:double :float :int)
     "matrix"
     'gsl-matrix
@@ -168,7 +168,7 @@
   "A defun-gsl for vectors of double, single, fixnum, and complex,
   translating to a GSL function named matrix_*."
   (defun-gsl-all
-      '(matrix-double matrix-single matrix-fixnum matrix-complex)
+      '(double single fixnum complex)
       '(:double :float :int gsl-complex)
     "matrix"
     'gsl-vector
