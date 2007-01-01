@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Dec  3 2006 - 21:58
+; modified:    Sun Dec 31 2006 - 22:07
 ;********************************************************
 ;;; $Id: $
 
@@ -133,4 +133,10 @@
    (:module statistics
 	    :depends-on (init data)
 	    :components
-	    ((:file "mean-variance")))))
+	    ((:file "mean-variance")
+	     (:file "absolute-deviation")
+	     (:file "higher-moments")
+	     (:file "autocorrelation")
+	     (:file "covariance")
+	     ;; minimum and maximum values provided in vector.lisp
+	     (:file "median-percentile")))))

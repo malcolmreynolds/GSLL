@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Dec  3 2006 - 10:24
+; modified:    Sun Dec 31 2006 - 17:34
 ;********************************************************
 ;;; $Id: $
 
@@ -104,6 +104,7 @@
   '((FIXNUM . "_int")
     (SINGLE . "_float")
     (DOUBLE . "")
+    ;;(LONG-DOUBLE . "_long_double")
     (COMPLEX . "_complex")))
 
 (defmacro defdata

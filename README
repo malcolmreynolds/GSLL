@@ -13,6 +13,18 @@ Features:
 - This library is pure common lisp.  No C is used; the only requirement
 is that the GSL library must be loaded and accessible.
 
+---- policies:
+
+- All arrays and vectors that need to be passed to and from are
+  converted to or from GSL vectors or matrices; for GSL functions that
+  take/return raw C arrays (or pointers), a layer is wrapped
+  around them that do the conversion.
+
+-  Each defun-gsl corresponds to one C function.  Where multiple
+  such functions may be combined into a single regular or generic
+  function. 
+
+  
 ======================
 Needs work:
 See Thu Apr 20 2006 
@@ -45,3 +57,7 @@ This means that the following functions have been put aside:
 - #'polynomial-solve (requires vector_complex)
 - The index functions in sorting that are not returning permutations,
 because they need a vector_int.
+
+
+It would be nice to use e.g. vector-sap for direct vectors in
+e.g. SBCL.

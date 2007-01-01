@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Fri Jul  7 2006 - 23:24
+; modified:    Sun Dec 31 2006 - 22:49
 ;********************************************************
 
 (in-package :gsl)
@@ -45,6 +45,9 @@
  ;; ((#:RET3502 (:DOUBLE (1+ KMAX))) (#:RET3503 (:DOUBLE (1+ KMAX)))
  ;;  (#:RET3504 (:DOUBLE (1+ KMAX))) (#:RET3505 (:DOUBLE (1+ KMAX)))
  ;;  (#:RET3506 :DOUBLE) (#:RET3507 :DOUBLE))
+
+(defun make-st (symbol type)
+  (list symbol type))
 
 (defun st-symbol (decl)
   (first decl))
@@ -169,7 +172,8 @@
 	  ,@(when invalidate `((cl-invalidate ,@invalidate)))
 	  ,@(when (or null-pointer-info (eq c-return :pointer))
 		  `((check-null-pointer ,cret-name
-		     ,@(or null-pointer-info '(:ENOMEM "No memory allocated")))))
+		     ,@(or null-pointer-info
+			   '(:ENOMEM "No memory allocated")))))
 	  ,@after
 	  (values
 	   ,@(case c-return
@@ -189,4 +193,22 @@
       (map-name ',(or index name) ,gsl-name)
       ,@(when export `((export ',name))))))
 
+;;;;****************************************************************************
+;;;; Macro defun-gsl 
+;;;;****************************************************************************
 
+(defmacro defun-optionals
+    (name arglist no-optional optionals &optional documentation)
+  "Define a function with and without optional arguments."
+  (let* ((optpos (position '&optional arglist))
+	 (mandatory-arglist (subseq arglist 0 optpos))
+	 (optional-arglist (subseq arglist (1+ optpos))))
+    `(defun ,name ,arglist
+       ,documentation
+       (if ,(first optional-arglist)
+	   (,(intern
+	      (concatenate 'string (string name) (string optionals)))
+	     ,@mandatory-arglist ,@optional-arglist)
+	   (,(intern
+	      (concatenate 'string (string name) (string no-optional)))
+	     ,@mandatory-arglist)))))

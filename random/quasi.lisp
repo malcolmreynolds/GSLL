@@ -3,7 +3,7 @@
 ; description: Quasi-Random Number Generators            
 ; date:        Sun Jul 16 2006 - 15:54                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Jul 17 2006 - 10:10
+; modified:    Sun Dec 31 2006 - 22:59
 ;********************************************************
 ;;; $Id: $
 
@@ -13,8 +13,12 @@
   ((dimension :initarg :dimension :accessor qr-dimension))
   (:documentation "A generator of quasi-random numbers."))
 
+(defparameter *default-quasi-random-number-generator* nil)
+
 (defun make-quasi-random-number-generator 
-    (dimension &optional (type *niederreiter2*) (generator t))
+    (dimension
+     &optional (type *default-quasi-random-number-generator*)
+     (generator t))
   "Make a random number generator; by default it is allocated on creation."
   (let ((instance
 	 (make-instance
@@ -109,6 +113,9 @@
      @cite{ACM Trans. Model. Comp. Sim.} 2, 195 (1992). It is
      valid up to 12 dimensions."
   "gsl_qrng_niederreiter_2")
+
+(eval-when (:load-toplevel :execute)
+ (setf *default-quasi-random-number-generator* *niederreiter2*))
 
 (def-rng-type *sobol*
     "This generator uses the Sobol sequence described in Antonov, Saleev,
