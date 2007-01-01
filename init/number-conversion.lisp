@@ -1,9 +1,9 @@
 ;********************************************************
-; file:        structures.lisp                           
-; description: Common structures defined by GSL.         
+; file:        number-conversion.lisp
+; description: Conversion of numbers C->CL
 ; date:        Sun May 28 2006 - 22:04                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Jan  1 2007 - 11:35
+; modified:    Mon Jan  1 2007 - 12:10
 ;********************************************************
 ;;; $Id: $
 
