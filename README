@@ -24,7 +24,6 @@ is that the GSL library must be loaded and accessible.
   such functions may be combined into a single regular or generic
   function. 
 
-  
 ======================
 Needs work:
 See Thu Apr 20 2006 
@@ -61,3 +60,7 @@ because they need a vector_int.
 
 It would be nice to use e.g. vector-sap for direct vectors in
 e.g. SBCL.
+
+- reading and writing functions will require handling of C streams,
+  not provided.
+  

@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Dec 31 2006 - 22:49
+; modified:    Mon Jan  1 2007 - 17:26
 ;********************************************************
 
 (in-package :gsl)
@@ -101,13 +101,15 @@
 ;;;; Macro defun-gsl 
 ;;;;****************************************************************************
 
-(defvar *special-c-return* '(:error-code :number-of-answers :success-failure))
+(defvar *special-c-return*
+  '(:error-code :number-of-answers :success-failure :true-false))
 
 ;;; c-arguments List of (symbol c-type). Anything not in arglist will be allocated.
 ;;; arglist    List of CL arguments.
 ;;; c-return,  a symbol naming a type, (e.g. :int, :double, :void),
 ;;;            or a list of (symbol type) to name the value,
-;;;            or :error-code, :number-of-answers, :success-failure. 
+;;;            or :error-code, :number-of-answers, :success-failure,
+;;;            :true-false
 ;;; return, a list of quantities to return.
 ;;;            May be or include :c-return to include the c-return value
 ;;;            or its derivatives.
@@ -144,54 +146,61 @@
 		    (unless (eq c-return :void)
 		      (list cret-name)))))
     `(progn
-      (,(if (eq type :function) 'defun 'defmethod)
-       ,name
-       ,(if (member :mode c-arguments)
-	    `(,@clargs &optional (mode :double-prec))
-	    `(,@clargs))
-       ,@(when documentation (list documentation))
-       (,@(if allocated
-	      `(cffi:with-foreign-objects
-		,(mapcar #'wfo-declare allocated-decl))
-	      '(let ()))
-	(let ((,cret-name
-	       (cffi:foreign-funcall
-		,gsl-name
-		,@(mapcan
-		   (lambda (arg)
-		     (list (if (member (st-symbol arg) allocated)
-			       :pointer
-			       (st-type arg))
-			   (st-symbol arg)))
-		   cargs)
-		,cret-type)))
-	  ,@(case c-return
-		  (:void `((declare (ignore ,cret-name))))
-		  (:error-code		; fill in arguments
-		   `((check-gsl-status ,cret-name ',name))))
-	  ,@(when invalidate `((cl-invalidate ,@invalidate)))
-	  ,@(when (or null-pointer-info (eq c-return :pointer))
-		  `((check-null-pointer ,cret-name
-		     ,@(or null-pointer-info
-			   '(:ENOMEM "No memory allocated")))))
-	  ,@after
-	  (values
-	   ,@(case c-return
-		   (:number-of-answers
-		    (mapcan
-		     (lambda (vbl seq)
-		       `((when (> ,cret-name ,seq) ,vbl)))
-		     clret
-		     (loop for i below (length clret) collect i)))
-		   (:success-failure
-		    (if (equal clret invalidate)
-			;; success-failure more important than passed-in
-			`((success-failure ,cret-name) ,@clret)
-			`(,@clret (success-failure ,cret-name))))
-		   (t (unless (and (null return) return-supplied-p)
-			clret)))))))
-      (map-name ',(or index name) ,gsl-name)
-      ,@(when export `((export ',name))))))
+       (,(if (eq type :function) 'defun 'defmethod)
+	 ,name
+	 ,(if (member :mode c-arguments)
+	      `(,@clargs &optional (mode :double-prec))
+	      `(,@clargs))
+	 ,@(when documentation (list documentation))
+	 (,@(if allocated
+		`(cffi:with-foreign-objects
+		     ,(mapcar #'wfo-declare allocated-decl))
+		'(let ()))
+	    (let ((,cret-name
+		   (cffi:foreign-funcall
+		    ,gsl-name
+		    ,@(mapcan
+		       (lambda (arg)
+			 (list (if (member (st-symbol arg) allocated)
+				   :pointer
+				   (st-type arg))
+			       (st-symbol arg)))
+		       cargs)
+		    ,cret-type)))
+	      ,@(case c-return
+		      (:void `((declare (ignore ,cret-name))))
+		      (:error-code	; fill in arguments
+		       `((check-gsl-status ,cret-name ',name))))
+	      ,@(when invalidate `((cl-invalidate ,@invalidate)))
+	      ,@(when (or null-pointer-info (eq c-return :pointer))
+		      `((check-null-pointer ,cret-name
+					    ,@(or null-pointer-info
+						  '(:ENOMEM "No memory allocated")))))
+	      ,@after
+	      (values
+	       ,@(case c-return
+		       (:number-of-answers
+			(mapcan
+			 (lambda (vbl seq)
+			   `((when (> ,cret-name ,seq) ,vbl)))
+			 clret
+			 (loop for i below (length clret) collect i)))
+		       (:success-failure
+			(if (equal clret invalidate)
+			    ;; success-failure more important than passed-in
+			    `((success-failure ,cret-name) ,@clret)
+			    (remove cret-name ; don't return c-return itself
+				    `(,@clret (success-failure ,cret-name)))))
+		       (:true-false
+			`((not (zerop ,cret-name))))
+		       (t (unless
+			      (or
+			       (and (eq c-return :error-code)
+				    (not allocated))
+			       (and (null return) return-supplied-p))
+			    clret)))))))
+       (map-name ',(or index name) ,gsl-name)
+       ,@(when export `((export ',name))))))
 
 ;;;;****************************************************************************
 ;;;; Macro defun-gsl 

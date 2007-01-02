@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Jan  1 2007 - 12:10
+; modified:    Mon Jan  1 2007 - 22:08
 ;********************************************************
 ;;; $Id: $
 
@@ -140,4 +140,13 @@
 	     (:file "autocorrelation")
 	     (:file "covariance")
 	     ;; minimum and maximum values provided in vector.lisp
-	     (:file "median-percentile")))))
+	     (:file "median-percentile")))
+   (:module histogram
+	    :depends-on (init)
+	    :components
+	    ((:file "histogram")
+	     (:file "updating-accessing" :depends-on (histogram))
+	     (:file "statistics" :depends-on (histogram))
+	     (:file "operations" :depends-on (histogram))
+	     (:file "read-write" :depends-on (histogram))
+	     (:file "probability-distribution" :depends-on (histogram))))))
