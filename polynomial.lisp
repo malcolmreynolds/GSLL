@@ -3,7 +3,7 @@
 ; description: Polynomials                               
 ; date:        Tue Mar 21 2006 - 18:33                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jul  7 2006 - 23:11
+; modified:    Tue Jan  2 2007 - 09:27
 ;********************************************************
 ;;; $Id: $
 
@@ -150,19 +150,6 @@
 	  (progn ,@body)
        (complex-workspace-free ,workspace))))
 
-(defun-gsl polynomial-solve-ws (coefficients workspace answer-pd)
-  "gsl_poly_complex_solve"
-  (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size)
-   (workspace :pointer) ((gsl-array answer-pd) :pointer))
-  :return
-  ((loop for i from 0 below (dim0 answer-pd) by 2
-      collect (complex (gsl-aref answer-pd i)
-		       (gsl-aref answer-pd (1+ i)))))
-  :documentation
-  "Arguments are:
-   a GSL array of coefficients, a workspace, a gsl-array of doubles."
-  :export nil
-  :index polynomial-solve)
 
 (defun polynomial-solve (coefficients)
   "The roots of the general polynomial 
@@ -179,6 +166,21 @@
       (with-data (answer vector-double ((* 2 (1- len))))
 	(with-poly-complex-workspace (ws len)
 	  (values-list (polynomial-solve-ws coef ws answer)))))))
+
+(defun-gsl polynomial-solve-ws (coefficients workspace answer-pd)
+  "gsl_poly_complex_solve"
+  (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size)
+   (workspace :pointer) ((gsl-array answer-pd) :pointer))
+  :return
+  ((loop for i from 0 below (dim0 answer-pd) by 2
+      collect (complex (gsl-aref answer-pd i)
+		       (gsl-aref answer-pd (1+ i)))))
+  :documentation
+  "Arguments are:
+   a GSL array of coefficients, a workspace, a gsl-array of doubles."
+  :export nil
+  :index polynomial-solve)
+
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

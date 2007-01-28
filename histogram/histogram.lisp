@@ -3,7 +3,7 @@
 ; description: The histogram structure.                  
 ; date:        Mon Jan  1 2007 - 11:32                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Jan  1 2007 - 20:44
+; modified:    Tue Jan  2 2007 - 23:03
 ;********************************************************
 ;;; $Id: $
 
@@ -192,5 +192,11 @@
 (defun make-histogram (size &optional from)
   "Make a histogram, optionally filling it with
    data from an existing histogram."
-  (make-instance 'histogram :number-of-bins size
-		 :pointer (when from (clone from))))
+  (let ((ret
+	 (make-instance 'histogram :number-of-bins size
+			:pointer (when from (clone from)))))
+    (unless (pointer ret)
+      (alloc ret))
+    ret))
+
+

@@ -4,7 +4,7 @@
 ;              elements.                                 
 ; date:        Mon Jan  1 2007 - 14:43                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Jan  1 2007 - 20:50
+; modified:    Tue Jan  2 2007 - 21:52
 ;********************************************************
 ;;; $Id: $
 
@@ -119,3 +119,30 @@
   (histo-1d2d histogram histogram-find
 	      ((first values))
 	      ((first values) (second values))))
+
+;;; Examples and unit test
+(defparameter *sample-histogram*
+  (let ((histo (make-histogram 10)))
+    (set-ranges-uniform histo 0.0d0 10.0d0)
+    histo))
+
+#|
+
+(lisp-unit:define-test histogram
+  (lisp-unit:assert-equal
+   ))
+
+
+(reset *sample-histogram*)
+(increment *sample-histogram* 2.7d0)
+(increment *sample-histogram* 6.9d0 2.0d0)
+(increment *sample-histogram* -2.0d0)
+(gsl-aref *sample-histogram* 1)
+(gsl-aref *sample-histogram* 2)
+(gsl-aref *sample-histogram* 6)
+(gsl-aref *sample-histogram* 16)	; error
+(gsl-min-range *sample-histogram*)
+(gsl-max-range *sample-histogram*)
+(bins *sample-histogram*)
+(histogram-find *sample-histogram* 5.5d0)
+|#
