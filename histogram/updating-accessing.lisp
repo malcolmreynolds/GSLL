@@ -4,7 +4,7 @@
 ;              elements.                                 
 ; date:        Mon Jan  1 2007 - 14:43                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Jan  2 2007 - 21:52
+; modified:    Sun Jan 28 2007 - 22:19
 ;********************************************************
 ;;; $Id: $
 
@@ -126,23 +126,46 @@
     (set-ranges-uniform histo 0.0d0 10.0d0)
     histo))
 
-#|
+(defun setup-sample-histogram ()
+  (reset *sample-histogram*)
+  (increment *sample-histogram* 2.7d0)
+  (increment *sample-histogram* 6.9d0 2.0d0))
 
 (lisp-unit:define-test histogram
-  (lisp-unit:assert-equal
-   ))
+  (lisp-unit:assert-error
+   'gsl-warning
+   (progn
+     (setup-sample-histogram)
+     (increment *sample-histogram* -2.0d0)))
+  (lisp-unit:assert-first-fp-equal
+   "0.000000000000d+01"
+   (progn
+     (setup-sample-histogram)
+     (gsl-aref *sample-histogram* 1)))
+  (lisp-unit:assert-first-fp-equal
+   "0.100000000000d+01"
+   (progn
+     (setup-sample-histogram)
+     (gsl-aref *sample-histogram* 2)))
+  (lisp-unit:assert-first-fp-equal
+   "0.200000000000d+01"
+   (progn
+     (setup-sample-histogram)
+     (gsl-aref *sample-histogram* 6)))
+  (lisp-unit:assert-error
+   'gsl-error
+   (gsl-aref *sample-histogram* 16))
+  (lisp-unit:assert-first-fp-equal
+   "0.000000000000d+01"
+   (gsl-min-range *sample-histogram*))
+  (lisp-unit:assert-first-fp-equal
+   "0.100000000000d+02"
+   (gsl-max-range *sample-histogram*))
+  (lisp-unit:assert-eql
+   10
+   (bins *sample-histogram*))
+  (lisp-unit:assert-eql
+   5
+   (histogram-find *sample-histogram* 5.5d0)))
 
-
-(reset *sample-histogram*)
-(increment *sample-histogram* 2.7d0)
-(increment *sample-histogram* 6.9d0 2.0d0)
-(increment *sample-histogram* -2.0d0)
-(gsl-aref *sample-histogram* 1)
-(gsl-aref *sample-histogram* 2)
-(gsl-aref *sample-histogram* 6)
-(gsl-aref *sample-histogram* 16)	; error
-(gsl-min-range *sample-histogram*)
-(gsl-max-range *sample-histogram*)
-(bins *sample-histogram*)
-(histogram-find *sample-histogram* 5.5d0)
-|#
+  

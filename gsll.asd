@@ -1,9 +1,9 @@
 ;********************************************************
-; file:        numerica.asd                              
+; file:        gsll.asd                              
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Jan  1 2007 - 22:08
+; modified:    Sun Jan 28 2007 - 22:03
 ;********************************************************
 ;;; $Id: $
 
