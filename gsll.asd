@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Jan 28 2007 - 22:03
+; modified:    Sun Feb  4 2007 - 23:06
 ;********************************************************
 ;;; $Id: $
 
@@ -149,4 +149,6 @@
 	     (:file "statistics" :depends-on (histogram))
 	     (:file "operations" :depends-on (histogram))
 	     (:file "read-write" :depends-on (histogram))
-	     (:file "probability-distribution" :depends-on (histogram))))))
+	     (:file "probability-distribution" :depends-on (histogram))
+	     (:file "ntuple")))
+   (:file "monte-carlo" :depends-on (init data random))))

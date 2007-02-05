@@ -3,7 +3,7 @@
 ; description: Random number generation                  
 ; date:        Tue Jul 11 2006 - 23:39                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Jul 16 2006 - 16:28
+; modified:    Sun Feb  4 2007 - 15:51
 ;********************************************************
 ;;; $Id: $
 
@@ -79,7 +79,7 @@
   "gsl_rng_env_setup" ()
   :c-return :pointer
   :documentation "Read the environment variables @code{GSL_RNG_TYPE} and
-  @code{GSL_RNG_SEED} and uses their values to set the corresponding
+  @code{GSL_RNG_SEED} and use their values to set the corresponding
   library variables *default-type* and *default-seed*")
 
 ;;;;****************************************************************************
