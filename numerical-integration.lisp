@@ -3,7 +3,7 @@
 ; description: Numerical integration                     
 ; date:        Wed Jul  5 2006 - 23:14                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Feb 11 2007 - 11:05
+; modified:    Sun Feb 11 2007 - 12:02
 ;********************************************************
 ;;; $Id: $
 
@@ -15,7 +15,7 @@
   "Passing functions to GSL."
   ;; see /usr/include/gsl/gsl_math.h
   (function :pointer)
-  (params :pointer))
+  (parameters :pointer))
 
 (export 'def-gsl-function)
 (defmacro def-gsl-function (name arg &body body)
@@ -39,15 +39,21 @@
 		  ,@body))
 	    body))))
 
-(defun make-gsl-function (function)
+(defmacro with-integration-function
+    ((name function &optional number-of-arguments) &body body)
   "Make a function for GSL to integrate."
   ;; Is this creating and deallocating the gsl-function object?
-  (cffi:with-foreign-object (fn 'gsl-function)
-    (setf (cffi:foreign-slot-value fn 'gsl-function 'function)
-	  (cffi:get-callback function)
-	  (cffi:foreign-slot-value fn 'gsl-function 'params)
-	  (cffi:null-pointer))
-    fn))
+  (let ((structure (if number-of-arguments 'monte-function 'gsl-function)))
+    `(cffi:with-foreign-object (,name ',structure)
+      (setf (cffi:foreign-slot-value ,name ',structure 'function)
+       (cffi:get-callback ,function)
+       ,@(when number-of-arguments
+	       `((cffi:foreign-slot-value ,name ',structure 'dimensions)
+		 ,number-of-arguments))
+       ;; Pass the parameters in with a closure.
+       (cffi:foreign-slot-value ,name ',structure 'parameters)
+       (cffi:null-pointer))
+      ,@body)))
 
 ;;;;****************************************************************************
 ;;;; QNG non-adaptive Gauss-Kronrod integration
@@ -59,7 +65,7 @@
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
   "gsl_integration_qng"
-  (((make-gsl-function function) :pointer)
+  ((function :pointer)
    (a :double) (b :double)
    (epsabs :double) (epsrel :double)
    (result :double) (abserr :double) (neval :size))
@@ -108,7 +114,7 @@
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
   "gsl_integration_qag"
-  (((make-gsl-function function) :pointer)
+  ((function :pointer)
    (a :double) (b :double)
    (epsabs :double) (epsrel :double)
    (limit :size) (method integrate-method) (workspace :pointer)
@@ -139,7 +145,7 @@
 (defun-gsl integration-QAGS
     (function a b limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
   "gsl_integration_qags"
-  (((make-gsl-function function) :pointer)
+  ((function :pointer)
    (a :double) (b :double)
    (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
    (result :double) (abserr :double))
@@ -164,7 +170,7 @@
 (defun-gsl integration-QAGP
     (function points limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
   "gsl_integration_qagp"
-  (((make-gsl-function function) :pointer)
+  ((function :pointer)
    ((pointer points) :pointer) ((dim0 points) :size)
    (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
    (result :double) (abserr :double))
@@ -187,7 +193,7 @@
 (defun-gsl integration-QAGi
     (function limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
   "gsl_integration_qagi"
-  (((make-gsl-function function) :pointer)
+  ((function :pointer)
    (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation
@@ -204,7 +210,7 @@
 (defun-gsl integration-QAGiu
     (function a limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
   "gsl_integration_qagiu"
-  (((make-gsl-function function) :pointer) (a :double)
+  ((function :pointer) (a :double)
    (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation
@@ -217,7 +223,7 @@
 (defun-gsl integration-QAGil
     (function b limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
   "gsl_integration_qagil"
-  (((make-gsl-function function) :pointer) (b :double)
+  ((function :pointer) (b :double)
    (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation
@@ -234,7 +240,7 @@
 (defun-gsl integration-QAWC
     (function a b c limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
   "gsl_integration_qawc"
-  (((make-gsl-function function) :pointer)
+  ((function :pointer)
    (a :double) (b :double) (c :double)
    (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
    (result :double) (abserr :double))
@@ -265,12 +271,15 @@
 (lisp-unit:define-test numerical-integration
   (lisp-unit:assert-first-fp-equal
    "0.200000000000d+01"
-   (integration-qng 'one-sine 0.0d0 pi))
+   (with-integration-function (os 'one-sine)
+     (integration-qng os 0.0d0 pi)))
   (lisp-unit:assert-first-fp-equal
    "0.200000000000d+01"
-   (with-integration-workspace (ws 20)
-     (integration-QAG 'one-sine 0.0d0 pi :gauss15 20 ws)))
+   (with-integration-function (os 'one-sine)
+     (with-integration-workspace (ws 20)
+       (integration-QAG os 0.0d0 pi :gauss15 20 ws))))
   (lisp-unit:assert-error
    'gsl-error
-   (with-integration-workspace (ws 20)
-     (integration-QAG 'one-sine 0.0d0 pi :gauss15 50 ws))))
+   (with-integration-function (os 'one-sine)
+     (with-integration-workspace (ws 20)
+       (integration-QAG os 0.0d0 pi :gauss15 50 ws)))))

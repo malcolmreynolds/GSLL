@@ -3,7 +3,7 @@
 ; description: Monte Carlo Integration                   
 ; date:        Sat Feb  3 2007 - 17:42                   
 ; author:      Liam Healy                                
-; modified:    Sun Feb 11 2007 - 11:08
+; modified:    Sun Feb 11 2007 - 12:03
 ;********************************************************
 ;;; $Id: $
 
@@ -13,21 +13,6 @@
   (function :pointer)
   (dimensions :size)
   (parameters :pointer))
-
-(defmacro with-monte-carlo-function
-    ((name function number-of-arguments) &body body)
-  "Make a function for GSL to integrate."
-  ;; Is this creating and deallocating the gsl-function object?
-  `(cffi:with-foreign-object (,name 'monte-function)
-    (setf (cffi:foreign-slot-value ,name 'monte-function 'function)
-     (cffi:get-callback ,function)
-     (cffi:foreign-slot-value ,name 'monte-function 'dimensions)
-     ,number-of-arguments
-     ;; As in numerical-integration, we'll pass the parameters
-     ;; in with a closure.
-     (cffi:foreign-slot-value ,name 'monte-function 'parameters)
-     (cffi:null-pointer))
-    ,@body))
 
 ;;;;****************************************************************************
 ;;;; PLAIN Monte Carlo
@@ -325,7 +310,7 @@
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
 	      (data upper) (vector pi pi pi))
 	(rng-set *rng-mt19937* 0)
-	(with-monte-carlo-function (mcf 'monte-carlo-g 3)
+	(with-integration-function (mcf 'monte-carlo-g 3)
 	  (monte-carlo-integrate-plain
 	   mcf
 	   lower upper
@@ -340,7 +325,7 @@
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
 	      (data upper) (vector pi pi pi))
 	(rng-set *rng-mt19937* 0)
-	(with-monte-carlo-function (mcf 'monte-carlo-g 3)
+	(with-integration-function (mcf 'monte-carlo-g 3)
 	  (monte-carlo-integrate-miser
 	   mcf
 	   lower upper
@@ -355,7 +340,7 @@
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
 	      (data upper) (vector pi pi pi))
 	(rng-set *rng-mt19937* 0)
-	(with-monte-carlo-function (mcf 'monte-carlo-g 3)
+	(with-integration-function (mcf 'monte-carlo-g 3)
 	  (monte-carlo-integrate-vegas
 	   mcf
 	   lower upper
