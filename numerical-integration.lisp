@@ -3,7 +3,7 @@
 ; description: Numerical integration                     
 ; date:        Wed Jul  5 2006 - 23:14                   
 ; author:      Liam M. Healy                             
-; modified:    Tue Jul 11 2006 - 23:17
+; modified:    Sun Feb 11 2007 - 11:05
 ;********************************************************
 ;;; $Id: $
 
@@ -18,15 +18,26 @@
   (params :pointer))
 
 (export 'def-gsl-function)
-(defmacro def-gsl-function
-    (name integration-variable &body body)
-  "Define a GSL function of one double-float to be used in
-   numerical integration functions.  Parameters (non
-   integration variables) may be passed by using a lexical closure. "
-  `(cffi:defcallback ,name :double
-       ((,integration-variable :double) (params :pointer))
-     (declare (ignore params))
-     ,@body))
+(defmacro def-gsl-function (name arg &body body)
+  "Define a GSL (C) function of either one argument of type
+   double (if arg is a symbol), or a C array of doubles
+   (if arg is a list), for GSL numerical
+   integration functions.
+   Parameters (non integration variables) may be passed by
+   using a lexical closure."
+  (let ((argvec (gensym "MCARG")))
+    `(cffi:defcallback ,name :double
+      (,(if (listp arg)
+	    `(,argvec :pointer)
+	    `(,arg :double))
+       (params :pointer))
+      (declare (ignore params))
+      ,@(if (listp arg)
+	    `((symbol-macrolet
+		    ,(loop for i from 0 for a in arg
+			   collect `(,a (cffi:mem-aref ,argvec :double ,i)))
+		  ,@body))
+	    body))))
 
 (defun make-gsl-function (function)
   "Make a function for GSL to integrate."

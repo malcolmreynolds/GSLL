@@ -3,7 +3,7 @@
 ; description: Monte Carlo Integration                   
 ; date:        Sat Feb  3 2007 - 17:42                   
 ; author:      Liam Healy                                
-; modified:    Sun Feb  4 2007 - 16:28
+; modified:    Sun Feb 11 2007 - 11:08
 ;********************************************************
 ;;; $Id: $
 
@@ -23,26 +23,11 @@
      (cffi:get-callback ,function)
      (cffi:foreign-slot-value ,name 'monte-function 'dimensions)
      ,number-of-arguments
-     ;; As in numerical-integration, we'll pass the parmeters
+     ;; As in numerical-integration, we'll pass the parameters
      ;; in with a closure.
      (cffi:foreign-slot-value ,name 'monte-function 'parameters)
      (cffi:null-pointer))
     ,@body))
-
-;;; Modify def-gsl-function in numerical-integration.lisp to work with
-;;; multivariable arguments.
-(export 'def-gsl-function-multi)
-(defmacro def-gsl-function-multi (name &body body)
-  "Define a GSL function of one C array to be used in
-   numerical integration functions.  Arguments are specified
-   by (argument n) where n=0, 1,...  Parameters (non
-   integration variables) may be passed by using a lexical closure. "
-  (let ((arg (gensym "MCARG")))
-    `(cffi:defcallback ,name :double
-      ((,arg :pointer) (params :pointer))
-      (declare (ignore params))
-      (macrolet ((argument (n) `(cffi:mem-aref ,',arg :double ,n)))
-      	,@body))))
 
 ;;;;****************************************************************************
 ;;;; PLAIN Monte Carlo
@@ -329,9 +314,9 @@
 ;;; Example from Sec. 23.5
 ;;; This is a function that occurs in random walk studies.
 
-(def-gsl-function-multi monte-carlo-g
+(def-gsl-function monte-carlo-g (x y z)
   (* (/ (expt pi 3))
-     (/ (- 1 (* (cos (argument 0)) (cos (argument 1)) (cos (argument 2)))))))
+     (/ (- 1 (* (cos x) (cos y) (cos z))))))
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (with-monte-carlo-plain (ws 3)
