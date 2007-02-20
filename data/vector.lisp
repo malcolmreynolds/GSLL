@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Dec  3 2006 - 18:44
+; modified:    Sun Feb 18 2007 - 19:08
 ;********************************************************
 ;;; $Id: $
 
@@ -72,7 +72,7 @@ deallocated with the vector.
     args))
 
 (defmethod gsl-array ((object gsl-vector))
-  (foreign-slot-value (pointer object) 'gsl-vector-c 'data))
+  (cffi:foreign-slot-value (pointer object) 'gsl-vector-c 'data))
 
 ;;;;****************************************************************************
 ;;;; Getting values

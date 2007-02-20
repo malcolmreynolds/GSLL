@@ -1,9 +1,9 @@
 ;********************************************************
 ; file:        quasi.lisp                                
-; description: Quasi-Random Number Generators            
+; description: Quasi-random sequences in arbitrary dimensions.
 ; date:        Sun Jul 16 2006 - 15:54                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Dec 31 2006 - 22:59
+; modified:    Sat Feb 17 2007 - 17:45
 ;********************************************************
 ;;; $Id: $
 
@@ -106,7 +106,7 @@
   :type :method
   :documentation
   "Create a new generator which is an exact copy of the original.
-   Dont' use; use #'make-random-number-generator, #'copy instead.")
+   Don't use; use #'make-random-number-generator, #'copy instead.")
 
 (def-rng-type *niederreiter2*
     "Described in Bratley, Fox, Niederreiter,
@@ -115,7 +115,8 @@
   "gsl_qrng_niederreiter_2")
 
 (eval-when (:load-toplevel :execute)
- (setf *default-quasi-random-number-generator* *niederreiter2*))
+ (setf *default-quasi-random-number-generator*
+       (make-quasi-random-number-generator 2 *niederreiter2*)))
 
 (def-rng-type *sobol*
     "This generator uses the Sobol sequence described in Antonov, Saleev,

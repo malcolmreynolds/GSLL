@@ -3,7 +3,7 @@
 ; description: Airy functions                            
 ; date:        Fri Mar 17 2006 - 18:41                   
 ; author:      Liam M. Healy
-; modified:    Wed Jun  7 2006 - 17:32
+; modified:    Sun Feb 18 2007 - 12:16
 ;********************************************************
 
 (in-package :gsl)
@@ -92,3 +92,16 @@
   (lisp-unit:assert-first-fp-equal "-0.117371322271d+01" (airy-zero-bi 1))
   (lisp-unit:assert-first-fp-equal "-0.101879297165d+01" (airy-zero-ai-deriv 1))
   (lisp-unit:assert-first-fp-equal "-0.229443968261d+01" (airy-zero-bi-deriv 1)))
+
+
+#|
+;;; Mathematica results
+In[4]:= AiryAi[2.5]
+Out[4]= 0.01572592338047049
+In[5]:= AiryBi[2.5]
+Out[5]= 6.481660738460579
+In[6]:= AiryAiPrime[2.5]
+Out[6]= -0.02625088103590323
+In[7]:= AiryBiPrime[2.5]
+Out[7]= 9.4214233173343
+|#

@@ -3,7 +3,7 @@
 ; description: Generators of random numbers.             
 ; date:        Sat Jul 15 2006 - 14:43                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Jul 16 2006 - 17:41
+; modified:    Sat Feb 17 2007 - 21:56
 ;********************************************************
 ;;; $Id: $
 
@@ -12,6 +12,13 @@
 ;;; Would it be useful to have a make-data like macro?
 
 (export '(random-number-generator make-random-number-generator))
+
+(defgeneric generator (object)
+  (:method ((object t))
+    (if (cffi:pointerp object)
+	object
+	(call-next-method)))
+  (:documentation "The foreign pointer to the GSL generator function."))
 
 (defclass gsl-random ()
   ((type :initarg :type :reader rng-type)
@@ -207,7 +214,7 @@
   :type :method
   :documentation
   "Create a new generator which is an exact copy of the original.
-   Dont' use; use #'make-random-number-generator, #'copy instead.")
+   Don't use; use #'make-random-number-generator, #'copy instead.")
 
 (defun-gsl write-binary
     ((object random-number-generator) stream)
@@ -227,6 +234,7 @@
 
 (defparameter *rng-mt19937* (make-random-number-generator *mt19937*))
 (defparameter *rng-cmrg* (make-random-number-generator *cmrg*))
+;;; (defparameter *rng-default* (make-random-number-generator *default-type*))
 
 (lisp-unit:define-test random-number-generators
   (lisp-unit:assert-equal
