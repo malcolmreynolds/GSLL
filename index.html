@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+       <title>GSLL, the GNU Scientific Library for Lisp</title>
+  </head>
+  <body>
+    <div class="body">
+
+ <div class="header">
+  <h1>GSLL</h1>
+  <h2>GNU Scientific Library for Lisp</h2>
+ </div>
+
+ <h3>Introduction</h3>
+ <div class="content">
+      <p>The GNU Scientific Library for Lisp (GSLL) allows you to use
+      the <a href="http://www.gnu.org/software/gsl/">GNU Scientific
+      Library (GSL)</a> from Common Lisp.  This library provides a
+      full range of common mathematical operations useful to
+      scientific and engineering applications.  The design of the GSLL
+      interface is such that access to most of the GSL library is
+      possible in a Lisp-natural way; the intent is that the user not
+      be hampered by the restrictions of the C language in which GSL
+      has been written.  GSLL thus provides interactive use of GSL for
+      getting quick answers, even for someone not intending
+      to program in Lisp.
+      </p>
+      <p>This code should be considered alpha but it is largely usable
+      now, with some GSL capability not yet available. See
+      Development section below.</p>
+ <p>This software is distributed under the <a
+	  href="http://www.cliki.net/GPL">GPL</a>
+	  and <a href="http://www.gnu.org/copyleft/fdl.html">FDL</a>.
+	  ??? REally; can't find it in the source code.???
+	  If the GSL docstrings are included, the ??? text ???? must
+	  be included in any distribution, as required by the FDL.
+	  The remainder of the source code is licensed under the GPL.
+	  </p> 
+ </div>
+ 
+ <h3>Examples</h3>
+ <div class="content">
+ <p>The Jacobian elliptic functions <i>sn</i>, <i>cn</i>, and
+ <i>dn</i> are special functions (Chapter 7):</p> 
+<pre>
+(jacobian-elliptic-functions 0.2d0 0.81d0)
+0.19762082367187703d0
+0.9802785369736752d0
+0.9840560289645665d0
+1.828927267118668d-318
+1.4821969375237396d-321
+2.023692885365746d-320
+</pre>
+      <p>which returns the three function values in succession, along
+      with the estimated errors of each.  The functions are defined
+      only if the second argument <i>m</i> is not greater than 1,
+      so an error is signalled if this parameter is out of range: </p>
+<pre>
+(jacobian-elliptic-functions 0.61802d0 1.5d0)
+debugger invoked on a GSL-ERROR in thread #<THREAD "initial thread" {10032258C1}>:
+  Input domain error (EDOM), |m| > 1.0 in elljac.c at line 46
+</pre>
+ </div>
+ 
+ <h3>Documentation</h3>
+ <div class="content">
+
+ <p>There is little separate documentation for GSLL.  Instead, the
+ following techniques for using the API are advised:</p>
+ <ul>
+ <li>Find the appropriate function(s) in the <a
+ href="http://www.gnu.org/software/gsl/manual/">GSL
+ documentation</a>.</li>
+ <li>Use the GSLL function gsl-lookup
+  to find the equivalent GSLL function, for example
+<pre>
+(gsl-lookup "gsl_sf_elljac_e")
+((JACOBIAN-ELLIPTIC-FUNCTIONS . "gsl_sf_elljac_e"))
+</pre>
+to find that the Lisp function name is #'JACOBIAN-ELLIPTIC-FUNCTIONS.  
+  </li>
+ <li>Look at the documentation for that Lisp function, e.g.
+   <pre>(documentation #'jacobian-elliptic-functions 'function)
+  "The Jacobian elliptic functions @math{sn(u|m)},
+  @math{cn(u|m)}, @math{dn(u|m)} computed by descending Landen
+  transformations."
+   </pre>
+   to get an explanation of the arguments etc.
+ </li>
+ <li>Look at the end of the Lisp source file for examples.</li>
+ </ul>
+ </div>
+
+ <h3>Requirements and Platforms</h3>
+ <div class="content">
+  <p> GSLL should work in
+      any Common Lisp implementation and platform combination
+      that has <a href="http://common-lisp.net/project/cffi/">CFFI</a>
+       with callbacks and defcfun support.  You will need
+      </p>
+	<ul>
+	<li><a href="http://www.gnu.org/software/gsl/">GSL</a></li>
+	<li><a href="http://common-lisp.net/project/cffi/">CFFI</a></li>
+	<li><a href="http://www.cliki.net/asdf">ASDF</a>
+	  </ul>
+      <p>
+	If you are running Debian, the following should work:</p>
+      <blockquote><pre>apt-get install libgsl0 cl-cffi</pre></blockquote>
+      (asdf is automatically installed with your CL implementation).
+      <p>Once your CL implementation is running, do</p>
+      <blockquote><pre>(asdf:operate 'asdf:compile-op :gsll)
+      </pre></blockquote>
+      <p>or, if using Debian with the common-lisp-controller,</p>
+      <blockquote><pre>(clc:clc-require :gsll)</pre></blockquote>
+  <p>GSLL has been tested with SBCL on Debian i386 and amd64.</p>
+ </div>
+ 
+ <h3>Source downloads [not yet available]</h3>
+ <div class="content">
+ <p>You may browse or download the <a
+	    href="http://subversion.tigris.org/">Subversion</a>
+	  repository at
+	  svn://common-lisp.net/project/gsll/subversion/trunk.  For
+	  example, 
+	   </p>
+	<pre>svn list svn://common-lisp.net/project/gsll/subversion/trunk
+svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
+	You can also get a tgz file <a href="gsll.tgz">here</a>.</p>
+ </div>
+ 
+ <h3>Project Development</h3>
+  <div class="content">
+  <p>This project has been in development for a year.  A majority is
+  done, but there is still much work to do.  The status is summarized
+  below, by reference to the Chapters in the GSL manual.</p>
+   <p>It is possible that the library API will change but probably not
+   substantially; most of the remaining work involves added functions.
+   GSLL is written in pure Common Lisp; there is no C "glue" layer.
+   As such, most every function can be defined with the supplied macro
+   <code>defun-gsl</code>, which simplifies the process of porting.
+   The arguments and defaults provide a convenient way of defining new
+   functions; it is likely this will not change as the rest of GSL
+   functionality is added to GSLL.  Where functions in the GSL library
+   do input and output to files, the remainder of the necessary
+   file-related operations must also be performed in C; no CL
+   interface is yet provided.</p>
+   <p>Regression tests using <a
+   href="http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html">lisp-unit</a>
+   (provided) are given for many of the functions defined.  These
+   also serve as examples.  The judgement of floating point numbers as
+   equivalent is a hack, and needs to be replaced; I am looking for
+   good ideas.  Note that most of the result have not been verified
+   with an indpendent source; the values given are from previous
+   tests.</p>
+  <p>A Trac web page will soon be set up for those interested in
+  development, and for reporting bugs.  In the meantime, send email to
+  me at this address: <code>lhealy</code> -at-
+  <code>common-lisp</code> -dot- <code>net</code>.</p> 
+ <h4>Completed</h4>
+  <div class="content">
+   </div>
+ <h4>In progress</h4>
+  <div class="content">
+  Work has been done on the following, but not to completion
+   </div>
+ <h4>To be done</h4>
+  <div class="content">
+  The following should eventually be done
+  Native vectors
+  </div>
+ <h4>Won't be done</h4>
+  <div class="content">
+  <p>The following is not part of the plan for the GSLL interface:</p>
+  <ul>
+  <li>Anything that is defined solely in C header files and not in the .so
+  library will not be a part of GSLL, because of the lack of access
+  through the library.  For example, Chapter 38, Physical Constants,
+  are all defined as C macros.</li>
+  <li>Anything for which there are two near-equivalent GSL functions
+  and for which one is already provided.  For example, all of the
+  special functions have two forms, one which provides the answer(s)
+  with an estimated error as a structure, and one which just provides
+  the answer as a double.  This makes a
+  difference when C programming, but GSLL always uses the form with the
+  error estimate and returns the error as a later multiple value so
+  that it can easily be ignored.</li>
+  <li>Anything for which there is a Common Lisp
+  equivalent probably won't be done, unless there is a need to have it
+  present for some other GSL functionality that isn't present in CL.
+  </li>
+  </ul>
+   </div>
+ </div>
+
+
+ 
+ <h3>Related projects</h3>
+  <div class="content">
+  A partial automatically-generated interface to GSL is provided in <a
+  href="http://common-lisp.net/project/cl-gsl/">cl-gsl</a>.
+  A matlab-like array syntax and plotting is provided by
+  <a href="http://nlisp.info/">NLISP</a> which might work well with
+  GSLL. 
+  </div>
+
+ <div class="footer">
+    <hr>
+    <address><a href="mailto:">Liam Healy</a></address>
+<!-- Created: Feb 25 2005 -->
+<!-- hhmts start -->
+Last modified: March 4, 2007
+<!-- hhmts end -->
+ </div>
+
+ </body>
+</html>

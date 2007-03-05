@@ -3,7 +3,7 @@
 ; description: Coulumb functions                         
 ; date:        Sat Mar 18 2006 - 23:23                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Oct  7 2006 - 15:21
+; modified:    Sat Mar  3 2007 - 22:45
 ;********************************************************
 ;;; $Id:$
 
@@ -67,9 +67,8 @@
   :invalidate (fc-array)
   :return (fc-array (double-to-cl F-exponent)))
 
-;;; gc-array seems to always be zero.  Is that right?
 (defun-gsl coulomb-wave-FG-array (L-min eta x fc-array gc-array)
-  "gsl_sf_coulomb_wave_F_array"
+  "gsl_sf_coulomb_wave_FG_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((gsl-array fc-array) :pointer) ((gsl-array gc-array) :pointer)
    (F-exponent :double) (G-exponent :double))
@@ -156,7 +155,7 @@
    (coulomb-wave-fg 1.0d0 2.0d0 2.5d0 1))
   (lisp-unit:assert-equal
    '("0.350215846039d-01" "0.575250061420d-02" "0.711695560198d-03"
-     "0.000000000000d+01" "0.800000000000d+01" "0.110000000000d+02")
+     "0.647172649613d+01" "0.275745747216d+02" "0.170560372931d+03")
    (lisp-unit:fp-sequence 
     (with-data (Farr vector-double 3)
       (with-data (Garr vector-double 3)

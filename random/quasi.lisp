@@ -3,7 +3,7 @@
 ; description: Quasi-random sequences in arbitrary dimensions.
 ; date:        Sun Jul 16 2006 - 15:54                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Feb 17 2007 - 17:45
+; modified:    Sat Mar  3 2007 - 19:55
 ;********************************************************
 ;;; $Id: $
 
@@ -133,6 +133,7 @@
      (let ((gen (make-quasi-random-number-generator 2 *sobol*)))
        (init gen)
        (prog1
-	   (loop repeat 5 
-	      append (coerce (data (qrng-get gen vec)) 'list))
+	   (loop repeat 5
+		 do (qrng-get gen vec)
+		 append (coerce (data vec) 'list))
 	 (free gen))))))

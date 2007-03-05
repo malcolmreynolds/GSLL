@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Feb 18 2007 - 19:08
+; modified:    Sun Mar  4 2007 - 09:40
 ;********************************************************
 ;;; $Id: $
 
@@ -52,6 +52,8 @@ deallocated with the vector.
 (defdata "vector_float" vector-single single-float gsl-vector)
 (defdata "vector_int" vector-fixnum fixnum gsl-vector)
 (defdata "vector_complex" vector-complex complex gsl-vector)
+;;; (defdata "vector_uint" vector-unsigned-fixnum (unsigned-byte 64) gsl-vector)
+;;; doesn't work 2007-03-04.
 
 (defmacro defun-gsl-vdsfc (&rest args)
   "A defun-gsl for vectors of double, single, fixnum, and complex."

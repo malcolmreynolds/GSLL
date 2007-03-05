@@ -3,7 +3,7 @@
 ; description: Dirichlet distribution                  
 ; date:        Sun Oct 29 2006
 ; author:      Liam M. Healy                             
-; modified:    Sat Nov 11 2006 - 20:57
+; modified:    Sat Mar  3 2007 - 22:40
 ;********************************************************
 ;;; $Id: $
 
@@ -12,14 +12,14 @@
 (defun-gsl dirichlet (generator alpha theta)
   "gsl_ran_dirichlet"
   (((generator generator) :pointer)
-   ((1- (dim0 alpha)) :size)
+   ((dim0 alpha) :size)
    ((gsl-array alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((gsl-array theta) :pointer))
   :c-return :void
   :documentation
-  "An array of @var{K} random variates from a Dirichlet
-  distribution of order @var{K}-1. The distribution function is
+  "An array of K=(length alpha) random variates from a Dirichlet
+  distribution of order K-1.  The distribution function is
   p(\theta_1,\ldots,\theta_K) \, d\theta_1 \cdots d\theta_K = 
         {1 \over Z} \prod_{i=1}^{K} \theta_i^{\alpha_i - 1} 
           \; \delta(1 -\sum_{i=1}^K \theta_i) d\theta_1 \cdots d\theta_K
@@ -61,8 +61,8 @@
 ;;; Examples and unit test
 (lisp-unit:define-test dirichlet
   (lisp-unit:assert-equal
-   '("0.485599280805d-04" "0.578734200082d+00"
-     "0.421217239990d+00" "0.200000000000d+00")
+   '("0.392833324564d-04" "0.468176310887d+00"
+     "0.340750440311d+00" "0.191033965469d+00")
    (lisp-unit:fp-sequence
     (progn
       (rng-set *rng-mt19937* 0)

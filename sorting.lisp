@@ -3,7 +3,7 @@
 ; description: Sorting                                   
 ; date:        Fri Apr 14 2006 - 20:20                   
 ; author:      Liam M. Healy                             
-; modified:    Wed Jun 21 2006 - 23:29
+; modified:    Sun Mar  4 2007 - 10:06
 ;********************************************************
 ;;; $Id: $
 
@@ -11,6 +11,11 @@
 
 ;;; #'heapsort has just a cursory port, use CL's #'sort.
 ;;; Raw C array functions not ported, not policy.
+
+;;; Errors:
+;;; sort-vector-smallest-index and sort-vector-largest-index
+;;; do not work on amd64/SBCL, and should be defined in terms of
+;;; vector-unsigned-fixnum anyway
 
 ;;;;****************************************************************************
 ;;;; Heapsort, not recommended
@@ -82,7 +87,8 @@
   :c-return :void
   :invalidate (dest))
 
-;;; This is not right in that p should be over uint, not int.
+;;; p should be gsl-vector-unsigned-fixnum, if that can be made to
+;;; work (see vector.lisp).
 (defun-gsl-vdsf sort-vector-smallest-index
     ((p gsl-vector-fixnum) (v gsl-vector))
   "gsl_sort_vector_smallest_index"
@@ -104,7 +110,8 @@
   :c-return :void
   :invalidate (dest))
 
-;;; This is not right in that p should be over uint, not int.
+;;; p should be gsl-vector-unsigned-fixnum, if that can be made to
+;;; work (see vector.lisp).
 (defun-gsl-vdsf sort-vector-largest-index
     ((p gsl-vector-fixnum) (v gsl-vector))
   "gsl_sort_vector_largest_index"
