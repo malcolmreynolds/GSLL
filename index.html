@@ -33,11 +33,7 @@
  <p>This software is distributed under the <a
 	  href="http://www.cliki.net/GPL">GPL</a>
 	  and <a href="http://www.gnu.org/copyleft/fdl.html">FDL</a>.
-	  ??? REally; can't find it in the source code.???
-	  If the GSL docstrings are included, the ??? text ???? must
-	  be included in any distribution, as required by the FDL.
-	  The remainder of the source code is licensed under the GPL.
-	  </p> 
+	  See COPYING.</p> 
  </div>
  
  <h3>Examples</h3>
@@ -158,20 +154,11 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
   development, and for reporting bugs.  In the meantime, send email to
   me at this address: <code>lhealy</code> -at-
   <code>common-lisp</code> -dot- <code>net</code>.</p> 
- <h4>Completed</h4>
-  <div class="content">
-   </div>
- <h4>In progress</h4>
-  <div class="content">
-  Work has been done on the following, but not to completion
-   </div>
- <h4>To be done</h4>
-  <div class="content">
-  The following should eventually be done
-  Native vectors
-  </div>
- <h4>Won't be done</h4>
-  <div class="content">
+  <p>
+  In addition to the chapters below, it would be nice if the following
+  were done<ul>
+  <li>Native vectors like <code>sb-sys:vector-sap</code> in SBCL.
+  </ul>
   <p>The following is not part of the plan for the GSLL interface:</p>
   <ul>
   <li>Anything that is defined solely in C header files and not in the .so
@@ -191,12 +178,163 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
   present for some other GSL functionality that isn't present in CL.
   </li>
   </ul>
-   </div>
+ <p>The following is the status of the project by <a
+  href="http://www.gnu.org/software/gsl/manual/html_node/">GSL
+  manual</a> chapter:</p>
+    <table border=5 frame=all cellpadding=4 cellspacing=4 cols=2>
+        <thead align=center valign=middle>
+	<tr><th>Chapter</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+      <base href="http://www.gnu.org/software/gsl/manual/html_node/">
+	<tr><td><a href="/Mathematical-Functions.html">
+  Mathematical Functions</a></td>
+  <td>Done</td></tr>
+	<tr><td><a href="Complex-Numbers.html">Complex Numbers</a></td><td>Unneeded</td>
+	</tr>
+	<tr><td><a href="Polynomials.html">Polynomials</a></td><td>Done</td></tr>
+	<tr>
+	<td><a href="Special-Functions.html">Special Functions</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Vectors-and-Matrices.html">Vectors and Matrices</a></td>
+	<td>Done for integer, real, double, complex</td>
+	</tr>
+	<tr>
+	<td><a href="Permutations.html">Permutations</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Combinations.html">Combinations</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Sorting.html">Sorting</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="BLAS-Support.html">BLAS</a></td>
+	<td>Done?</td>
+	</tr>
+	<tr>
+	<td><a href="Linear-Algebra.html">Linear Algebra</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Eigensystems.html">Eigensystems</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Fast-Fourier-Transforms.html">FFTs</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Numerical-Integration.html">Numerical Integration</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Random-Number-Generation.html">Random Number Generation</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Quasi_002dRandom-Sequences.html">Quasi-Random Sequences</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Random-Number-Distributions.html">Random Number Distributions</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Statistics.html">Statistics</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Histograms.html">Histograms</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="N_002dtuples.html">N-Tuples</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Monte-Carlo-Integration.html">Monte Carlo Integration</a></td>
+	<td>Done</td>
+	</tr>
+	<tr>
+	<td><a href="Simulated-Annealing.html">Simulated Annealing</a></td>
+	<td>Done but broken</td>
+	</tr>
+	<tr>
+	<td><a href="Ordinary-Differential-Equations.html">Ordinary
+	Differential Equations</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Interpolation.html">Interpolation</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Numerical-Differentiation.html">Numerical Differentiation</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Chebyshev-Approximations.html">Chebyshev Approximations</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Series-Acceleration.html">Series Acceleration</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Wavelet-Transforms.html">Wavelet Transforms</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Discrete-Hankel-Transforms.html">Discrete Hankel Transforms</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a
+  href="One-dimensional-Root_002dFinding.html">One-dimensional Root Finding</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a
+  href="One-dimensional-Minimization.html">One-dimensional Minimization</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Multidimensional-Root_002dFinding.html">
+	Multidimensional Root Finding</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Multidimensional-Minimization.html">
+	Multidimensional Minimization</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Least_002dSquares-Fitting.html">
+	Least Squares Fitting</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Nonlinear-Least_002dSquares-Fitting.html">
+	Nonlinear Least Squares Fitting</a></td>
+	<td>Not done</td>
+	</tr>
+	<tr>
+	<td><a href="Basis-Splines.html">Basis Splines</a></td>
+	<td>Not done</td>
+	</tr>
+      </tbody>
+    </table>
  </div>
 
 
  
- <h3>Related projects</h3>
+ <h3>Related projects from others</h3>
   <div class="content">
   A partial automatically-generated interface to GSL is provided in <a
   href="http://common-lisp.net/project/cl-gsl/">cl-gsl</a>.
@@ -210,7 +348,7 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
     <address><a href="mailto:">Liam Healy</a></address>
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
-Last modified: March 4, 2007
+Last modified: April 11, 2007
 <!-- hhmts end -->
  </div>
 
