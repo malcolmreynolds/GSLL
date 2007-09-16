@@ -50,13 +50,7 @@ gsl_vector_short.h
 gsl_vector_uchar.h
 gsl_vector_char.h
 
-I have implemented only one, double.
-
-This means that the following functions have been put aside:
-- #'polynomial-solve (requires vector_complex)
-- The index functions in sorting that are not returning permutations,
-because they need a vector_int.
-
+I implemented only int, double, complex.
 
 It would be nice to use e.g. vector-sap for direct vectors in
 e.g. SBCL.

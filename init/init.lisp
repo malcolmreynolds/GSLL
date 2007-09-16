@@ -1,9 +1,9 @@
 ;********************************************************
-; file:        library.lisp                              
+; file:        init.lisp                              
 ; description: Load GSL                                  
 ; date:        Sat Mar  4 2006 - 18:53                   
 ; author:      Liam M. Healy
-; modified:    Fri Mar 24 2006 - 20:04
+; modified:    Sat Sep 15 2007 - 18:59
 ;********************************************************
 
 (defpackage gsll
