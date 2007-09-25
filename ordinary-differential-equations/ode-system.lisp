@@ -1,9 +1,9 @@
 ;********************************************************
-; file:        ordinary-differential-equations.lisp      
-; description: ODE initial value problems                
+; file:        ode-system.lisp      
+; description: ODE system setup
 ; date:        Sun Apr 15 2007 - 14:19                   
 ; author:      Liam Healy                                
-; modified:    Sun Sep 23 2007 - 18:26
+; modified:    Mon Sep 24 2007 - 21:33
 ;********************************************************
 ;;; $Id: $
 
