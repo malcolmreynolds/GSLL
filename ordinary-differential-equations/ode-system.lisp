@@ -3,7 +3,7 @@
 ; description: ODE system setup
 ; date:        Sun Apr 15 2007 - 14:19                   
 ; author:      Liam Healy                                
-; modified:    Mon Sep 24 2007 - 21:33
+; modified:    Sat Sep 29 2007 - 17:54
 ;********************************************************
 ;;; $Id: $
 
@@ -19,7 +19,7 @@
 
 (export 'def-ode-function 'def-jacobian-function)
 
-(defmacro def-ode-function (name time dependent derivatives &body body)
+(defmacro def-ode-function (name (time dependent derivatives) &body body)
   "Define a function that will evaluate the right-hand sides (derivatives)
    defining a set of ordinary differential equations (ODE).
    The function should take as input the time (a double-float) and
@@ -46,7 +46,7 @@
 	(double-to-cl dydt 1) (double-to-cl y 0)))
 |#
 
-(defmacro def-jacobian-function (name time dependent dfdy dfdt &body body)
+(defmacro def-jacobian-function (name (time dependent dfdy dfdt) &body body)
   "Define a function that will evaluate the Jacobian (partial derivative)
    of the set of ordinary differential equations (ODE).
    The function should take as input the time (a double-float) and

@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Mon Jan  1 2007 - 17:26
+; modified:    Sat Sep 29 2007 - 22:43
 ;********************************************************
 
 (in-package :gsl)
@@ -102,24 +102,35 @@
 ;;;;****************************************************************************
 
 (defvar *special-c-return*
-  '(:error-code :number-of-answers :success-failure :true-false))
+  '(:error-code :number-of-answers :success-failure :true-false :enumerate))
 
-;;; c-arguments List of (symbol c-type). Anything not in arglist will be allocated.
 ;;; arglist    List of CL arguments.
+;;; gsl-name   Name of the GSL C function, as a quoted string.
+;;; c-arguments List of (symbol c-type). Anything not in arglist will be allocated.
 ;;; c-return,  a symbol naming a type, (e.g. :int, :double, :void),
 ;;;            or a list of (symbol type) to name the value,
 ;;;            or :error-code, :number-of-answers, :success-failure,
-;;;            :true-false
+;;;            :true-false, :enumerate.  If :enumeration is given,
+;;;            the :enumeration keyword argument will supply the name
+;;;            of the enumeration.
 ;;; return, a list of quantities to return.
 ;;;            May be or include :c-return to include the c-return value
 ;;;            or its derivatives.
 ;;;            Default are allocated quantities in c-arguments, or :c-return if none.
+;;; type       :function or :method
+;;; index      Name under which this function should be cross-referenced
+;;; export     Whether to export the symbol.
+;;; null-pointer-info Return value if C function returns a null pointer.
+;;; documentation
+;;; invalidate   Invalidate the CL array/matrix cache.
+;;; after        After method.
+;;; enumeration  The name of the enumeration return.
 (defmacro defun-gsl
     (name arglist gsl-name c-arguments
      &key (c-return :error-code)
      (return nil return-supplied-p)
      (type :function) index (export (not (eq type :method)))
-     null-pointer-info documentation invalidate after)
+     null-pointer-info documentation invalidate after enumeration)
   (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
 	 (carg-symbs
 	  (remove-if-not #'symbolp
@@ -193,6 +204,8 @@
 				    `(,@clret (success-failure ,cret-name)))))
 		       (:true-false
 			`((not (zerop ,cret-name))))
+		       (:enumerate
+			`((cffi:foreign-enum-keyword ',enumeration ,cret-name)))
 		       (t (unless
 			      (or
 			       (and (eq c-return :error-code)
