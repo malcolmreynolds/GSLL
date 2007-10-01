@@ -3,7 +3,7 @@
 ; description: ODE system setup
 ; date:        Sun Apr 15 2007 - 14:19                   
 ; author:      Liam Healy                                
-; modified:    Sat Sep 29 2007 - 17:54
+; modified:    Sun Sep 30 2007 - 15:47
 ;********************************************************
 ;;; $Id: $
 
@@ -17,7 +17,7 @@
   (dimension :size)
   (parameters :pointer))
 
-(export 'def-ode-function 'def-jacobian-function)
+(export '(def-ode-function def-jacobian-function))
 
 (defmacro def-ode-function (name (time dependent derivatives) &body body)
   "Define a function that will evaluate the right-hand sides (derivatives)
