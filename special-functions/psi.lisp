@@ -3,7 +3,7 @@
 ; description: Psi (digamma) functions                   
 ; date:        Mon May  1 2006 - 22:11                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun 17 2006 - 22:30
+; modified:    Mon Oct  8 2007 - 11:30
 ;********************************************************
 ;;; $Id: $
 
@@ -16,13 +16,13 @@
 (defgeneric psi (x)
   (:documentation "The psi, or digamma, function."))
 
-(defun-gsl psi  ((n fixnum))
+(defun-gsl psi  ((n integer))
   "gsl_sf_psi_int_e" ((n :int) (ret sf-result))
   :type :method
   :export t
   :documentation "Domain: n integer, n > 0.")
 
-(defun-gsl psi ((x double-float))
+(defun-gsl psi ((x float))
   "gsl_sf_psi_e" ((x :double) (ret sf-result))
   :type :method 
   :documentation "Domain: x /= 0.0, -1.0, -2.0, ...")
@@ -39,12 +39,12 @@
 (defgeneric psi-1 (x)
   (:documentation "The Trigamma function."))
 
-(defun-gsl psi-1 ((n fixnum))
+(defun-gsl psi-1 ((n integer))
   "gsl_sf_psi_1_int_e" ((n :int) (ret sf-result))
   :type :method 
   :documentation "Domain: n integer, n > 0.")
 
-(defun-gsl psi-1 ((x double-float))
+(defun-gsl psi-1 ((x float))
   "gsl_sf_psi_1_e" ((x :double) (ret sf-result))
   :type :method
   :documentation "Domain: x /= 0.0, -1.0, -2.0, ...")

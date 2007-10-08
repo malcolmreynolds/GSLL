@@ -3,7 +3,7 @@
 ; description: Mean, standard deviation, and variance    
 ; date:        Sat Dec  2 2006 - 22:15                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Dec 31 2006 - 21:45
+; modified:    Mon Oct  8 2007 - 10:34
 ;********************************************************
 ;;; $Id: $
 
@@ -106,7 +106,7 @@
 ;;;;****************************************************************************
 
 (defgeneric weighted-variance-nom (gsl-vector weights)
-   (:documentation nil))
+   (:documentation "Compute the weighted variance with the mean unknown."))
 
 (defun-gsl-stats weighted-variance-nom ((vector gsl-vector) weights)
   "gsl_stats_wvariance"

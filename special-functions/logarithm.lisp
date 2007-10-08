@@ -3,7 +3,7 @@
 ; description: Logarithm                                 
 ; date:        Sun Apr 30 2006 - 22:08                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jun 16 2006 - 22:20
+; modified:    Mon Oct  8 2007 - 11:27
 ;********************************************************
 ;;; $Id: $
 
@@ -13,7 +13,7 @@
   (:documentation
    "The natural logarithm of @var{x}, @math{\log(x)}, for @math{x > 0}."))
 
-(defun-gsl gsl-log ((x double-float))
+(defun-gsl gsl-log ((x float))
   "gsl_sf_log_e" ((x :double) (ret sf-result))
   :type :method
   :export t)

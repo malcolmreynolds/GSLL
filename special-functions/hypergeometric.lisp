@@ -3,7 +3,7 @@
 ; description: Hypergeometric function                   
 ; date:        Fri Apr 28 2006 - 23:00                   
 ; author:      Liam M. Healy                             
-; modified:    Fri Jun 16 2006 - 21:05
+; modified:    Mon Oct  8 2007 - 11:30
 ;********************************************************
 ;;; $Id: $
 
@@ -17,14 +17,14 @@
   (:documentation "The confluent hypergeometric function
    @math{1F1(m,n,x) = M(m,n,x)}."))
 
-(defun-gsl hypergeometric-1F1 ((m fixnum) (n fixnum) x)
+(defun-gsl hypergeometric-1F1 ((m integer) (n integer) x)
   "gsl_sf_hyperg_1F1_int_e" ((m :int) (n :int) (x :double) (ret sf-result))
   :type :method
   :export t
   :documentation "The confluent hypergeometric function
    @math{1F1(m,n,x) = M(m,n,x)} for integer parameters @var{m}, @var{n}.")
 
-(defun-gsl hypergeometric-1F1 ((a double-float) (b double-float) x)
+(defun-gsl hypergeometric-1F1 ((a float) (b float) x)
   "gsl_sf_hyperg_1F1_e" ((a :double) (b :double) (x :double) (ret sf-result))
   :type :method
   :documentation "The confluent hypergeometric function
@@ -34,14 +34,14 @@
   (:documentation "The confluent hypergeometric function
    @math{U(m,n,x)}."))
 
-(defun-gsl hypergeometric-U ((m fixnum) (n fixnum) x)
+(defun-gsl hypergeometric-U ((m integer) (n integer) x)
   "gsl_sf_hyperg_U_int_e" ((m :int) (n :int) (x :double) (ret sf-result))
   :type :method
   :export t
   :documentation "The confluent hypergeometric function
    @math{U(m,n,x)} for integer parameters @var{m}, @var{n}.")
 
-(defun-gsl hypergeometric-U ((a double-float) (b double-float) x)
+(defun-gsl hypergeometric-U ((a float) (b float) x)
   "gsl_sf_hyperg_U_e" ((a :double) (b :double) (x :double) (ret sf-result))
   :type :method
   :documentation "The confluent hypergeometric function @math{U(a,b,x)}.")
@@ -51,7 +51,7 @@
    @math{U(m,n,x)} using the @code{gsl_sf_result_e10} type
    to return a result with extended range."))
 
-(defun-gsl hypergeometric-U-e10 ((m fixnum) (n fixnum) x)
+(defun-gsl hypergeometric-U-e10 ((m integer) (n integer) x)
   "gsl_sf_hyperg_U_int_e10_e"
   ((m :int) (n :int) (x :double) (ret sf-result-e10))
   :type :method
@@ -60,7 +60,7 @@
   @math{U(m,n,x)} for integer parameters @var{m}, @var{n} using the
   @code{gsl_sf_result_e10} type to return a result with extended range.")
 
-(defun-gsl hypergeometric-U-e10 ((a double-float) (b double-float) x)
+(defun-gsl hypergeometric-U-e10 ((a float) (b float) x)
   "gsl_sf_hyperg_U_e10_e"
   ((a :double) (b :double) (x :double) (ret sf-result-e10))
   :type :method

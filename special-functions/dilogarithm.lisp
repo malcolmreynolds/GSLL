@@ -3,7 +3,7 @@
 ; description: Dilogarithm                               
 ; date:        Fri Mar 17 2006 - 18:44                   
 ; author:      Liam M. Healy
-; modified:    Mon Jun 12 2006 - 23:43
+; modified:    Mon Oct  8 2007 - 11:27
 ;********************************************************
 
 (in-package :gsl)
@@ -12,7 +12,7 @@
 (defgeneric dilogarithm (x)
   (:documentation "The dilogarithm."))
 
-(defun-gsl dilogarithm ((x double-float))
+(defun-gsl dilogarithm ((x float))
   "gsl_sf_dilog_e" ((x :double) (ret sf-result))
   :type :method)
 

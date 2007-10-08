@@ -3,7 +3,7 @@
 ; description: BLAS level 1, Vector operations
 ; date:        Wed Apr 26 2006 - 15:23                   
 ; author:      Liam Healy                                
-; modified:    Wed Jul 12 2006 - 12:32
+; modified:    Mon Oct  8 2007 - 11:32
 ;********************************************************
 ;;; $Id: $
 
@@ -105,7 +105,7 @@
 
 (defun-gsl rot
     ((vec1 gsl-vector-single) (vec2 gsl-vector-single)
-     (c single-float) (s single-float))
+     (c float) (s float))
   "gsl_blas_srot"
   (((pointer vec1) :pointer) ((pointer vec2) :pointer) (c :float) (s :float))
   :type :method
@@ -159,7 +159,7 @@
 
 (defun-gsl rot
     ((vec1 gsl-vector-double) (vec2 gsl-vector-double)
-     (c double-float) (s double-float))
+     (c float) (s float))
   "gsl_blas_drot"
   (((pointer vec1) :pointer) ((pointer vec2) :pointer) (c :double) (s :double))
   :type :method

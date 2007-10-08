@@ -3,7 +3,7 @@
 ; description: BLAS level 3, Matrix-matrix operations
 ; date:        Wed Apr 26 2006 - 21:08                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Jul  3 2006 - 23:45
+; modified:    Mon Oct  8 2007 - 11:32
 ;********************************************************
 ;;; $Id: $
 
@@ -187,7 +187,7 @@
   :type :method)
 
 (defun-gsl syr2k
-    (uplo trans (alpha double-float) (A gsl-matrix-double) (B gsl-matrix-double)
+    (uplo trans (alpha float) (A gsl-matrix-double) (B gsl-matrix-double)
 	  beta (C gsl-matrix-double))
   "gsl_blas_dsyr2k"
   ((uplo cblas-uplo) (trans cblas-transpose) (alpha :double)

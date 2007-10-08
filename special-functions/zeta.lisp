@@ -3,7 +3,7 @@
 ; description: Zeta functions                              
 ; date:        Sat May 13 2006 - 23:27
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun 17 2006 - 23:02
+; modified:    Mon Oct  8 2007 - 11:30
 ;********************************************************
 ;;; $Id: $
 
@@ -19,14 +19,14 @@
 (defgeneric zeta (x)
   (:documentation "The Riemann zeta function @math{\zeta(n)}."))
 
-(defun-gsl zeta ((n fixnum))
+(defun-gsl zeta ((n integer))
   "gsl_sf_zeta_int_e" ((n :int) (ret sf-result))
   :type :method
   :export t
   :documentation "The Riemann zeta function @math{\zeta(n)} 
    for integer @var{n}, @math{n \ne 1}.")
 
-(defun-gsl zeta ((s double-float))
+(defun-gsl zeta ((s float))
   "gsl_sf_zeta_e" ((s :double) (ret sf-result))
   :documentation "The Riemann zeta function @math{\zeta(s)}
    for arbitrary @var{s}, @math{s \ne 1}."
@@ -39,14 +39,14 @@
 (defgeneric zeta-1 (x)
   (:documentation "zeta - 1."))
 
-(defun-gsl zeta-1 ((n fixnum))
+(defun-gsl zeta-1 ((n integer))
   "gsl_sf_zetam1_int_e" ((n :int) (ret sf-result))
   :documentation "The Riemann zeta function @math{\zeta(n)} 
    for integer @var{n}, @math{n \ne 1}."
   :type :method
   :export t)
 
-(defun-gsl zeta-1 ((s double-float))
+(defun-gsl zeta-1 ((s float))
   "gsl_sf_zetam1_e" ((s :double) (ret sf-result))
   :documentation "The Riemann zeta function @math{\zeta(s)}
    for arbitrary @var{s}, @math{s \ne 1}."

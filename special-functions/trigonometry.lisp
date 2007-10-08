@@ -3,7 +3,7 @@
 ; description: Trigonometry                              
 ; date:        Thu May  4 2006 - 22:58                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Jun 17 2006 - 22:59
+; modified:    Mon Oct  8 2007 - 11:27
 ;********************************************************
 ;;; $Id: $
 
@@ -19,7 +19,7 @@
 (defgeneric gsl-cos (x)
   (:documentation "The cosine function @math{\sin(x)}."))
 
-(defun-gsl gsl-sin ((x double-float))
+(defun-gsl gsl-sin ((x float))
   "gsl_sf_sin_e" ((x :double) (ret sf-result))
   :type :method
   :export t)
@@ -32,7 +32,7 @@
   :return ((complex (val re-ret) (val im-ret))
 	   (complex (err re-ret) (err im-ret))))
 
-(defun-gsl gsl-cos ((x double-float))
+(defun-gsl gsl-cos ((x float))
   "gsl_sf_cos_e" ((x :double) (ret sf-result))
   :type :method
   :export t)
