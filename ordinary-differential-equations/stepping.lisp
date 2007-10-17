@@ -3,7 +3,7 @@
 ; description: Stepping functions for ODE systems        
 ; date:        Mon Sep 24 2007 - 21:33                   
 ; author:      Liam Healy                                
-; modified:    Mon Sep 24 2007 - 22:42
+; modified:    Tue Oct 16 2007 - 22:45
 ;********************************************************
 ;;; $Id: $
 
@@ -78,34 +78,39 @@
    those from @code{gsl_odeiv_step_apply} itself, any user-defined return
    values should be distinct from the standard GSL error codes.")
 
-(defvar *step-rk2* (cffi:foreign-symbol-pointer "gsl_odeiv_step_rk2")
+(defmacro defstep (cl-symbol gsl-symbol documentation)
+  `(progn
+    (cffi:defcvar (,gsl-symbol ,cl-symbol) :pointer :read-only t)
+    (setf (documentation ',cl-symbol 'variable) ,documentation)))
+
+(defstep *step-rk2* "gsl_odeiv_step_rk2"
   "Embedded Runge-Kutta (2, 3) method.")
 
-(defvar *step-rk4* (cffi:foreign-symbol-pointer "gsl_odeiv_step_rk4")
+(defstep *step-rk4* "gsl_odeiv_step_rk4"
   "4th order (classical) Runge-Kutta.")
 
-(defvar *step-rkf45* (cffi:foreign-symbol-pointer "gsl_odeiv_step_rkf45")
+(defstep *step-rkf45* "gsl_odeiv_step_rkf45"
   "Embedded Runge-Kutta-Fehlberg (4, 5) method.  This method is a good
    general-purpose integrator.")
 
-(defvar *step-rkck* (cffi:foreign-symbol-pointer "gsl_odeiv_step_rkck")
+(defstep *step-rkck* "gsl_odeiv_step_rkck"
   "Embedded Runge-Kutta Cash-Karp (4, 5) method.")
 
-(defvar *step-rk8pd* (cffi:foreign-symbol-pointer "gsl_odeiv_step_rk8pd")
+(defstep *step-rk8pd* "gsl_odeiv_step_rk8pd"
   "Embedded Runge-Kutta Prince-Dormand (8,9) method.")
 
-(defvar *step-rk2imp* (cffi:foreign-symbol-pointer "gsl_odeiv_step_rk2imp")
+(defstep *step-rk2imp* "gsl_odeiv_step_rk2imp"
   "Implicit 2nd order Runge-Kutta at Gaussian points.")
 
-(defvar *step-rk4imp* (cffi:foreign-symbol-pointer "gsl_odeiv_step_rk4imp")
+(defstep *step-rk4imp* "gsl_odeiv_step_rk4imp"
   "Implicit 4th order Runge-Kutta at Gaussian points.")
 
-(defvar *step-bsimp* (cffi:foreign-symbol-pointer "gsl_odeiv_step_bsimp")
+(defstep *step-bsimp* "gsl_odeiv_step_bsimp"
   "Implicit Bulirsch-Stoer method of Bader and Deuflhard.  This algorithm
    requires the Jacobian.")
 
-(defvar *step-gear1* (cffi:foreign-symbol-pointer "gsl_odeiv_step_gear1")
+(defstep *step-gear1* "gsl_odeiv_step_gear1"
   "M=1 implicit Gear method.")
 
-(defvar *step-gear2* (cffi:foreign-symbol-pointer "gsl_odeiv_step_gear2")
+(defstep *step-gear2* "gsl_odeiv_step_gear2"
   "M=2 implicit Gear method.")
