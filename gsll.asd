@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Feb 11 2007 - 16:14
+; modified:    Thu Oct 18 2007 - 22:18
 ;********************************************************
 ;;; $Id: $
 
@@ -151,4 +151,12 @@
 	     (:file "read-write" :depends-on (histogram))
 	     (:file "probability-distribution" :depends-on (histogram))
 	     (:file "ntuple")))
-   (:file "monte-carlo" :depends-on (init data random numerical-integration))))
+   (:file "monte-carlo" :depends-on (init data random numerical-integration))
+   (:module ordinary-differential-equations
+	    :depends-on (init)
+	    :components
+	    ((:file "ode-system")
+	     (:file "stepping")
+	     (:file "control")
+	     (:file "evolution")
+	     (:file "ode-example" :depends-on (ode-system stepping))))))

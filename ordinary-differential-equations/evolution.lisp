@@ -3,7 +3,7 @@
 ; description: Evolution functions for ODE integration.  
 ; date:        Sun Sep 30 2007 - 14:31                   
 ; author:      Liam Healy                                
-; modified:    Sun Sep 30 2007 - 15:50
+; modified:    Thu Oct 18 2007 - 22:18
 ;********************************************************
 ;;; $Id: $
 
@@ -21,8 +21,8 @@
     (evolve control step dydt time max-time step-size y)
   "gsl_odeiv_evolve_apply"
   ((evolve :pointer) (control :pointer) (step :pointer)
-   (dydt :pointer) (time :double) (max-time :double)
-   (step-size :double) (y :pointer))
+   (dydt :pointer) (time :pointer) (max-time :double)
+   (step-size :pointer) (y :pointer))
   :documentation
   "Advance the system (@var{e}, @var{dydt}) from time
    @var{t} and position @var{y} using the stepping function @var{step}.
