@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Thu Oct 18 2007 - 22:18
+; modified:    Sat Nov 10 2007 - 21:15
 ;********************************************************
 ;;; $Id: $
 
@@ -159,4 +159,11 @@
 	     (:file "stepping")
 	     (:file "control")
 	     (:file "evolution")
-	     (:file "ode-example" :depends-on (ode-system stepping))))))
+	     (:file "ode-example" :depends-on (ode-system stepping))))
+   (:module interpolation
+	    :depends-on (init)
+	    :components
+	    ((:file "interpolation")
+	     (:file "types")
+	     (:file "lookup")
+	     (:file "evaluation")))))

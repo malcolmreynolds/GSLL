@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat Sep 29 2007 - 22:43
+; modified:    Sun Nov  4 2007 - 17:50
 ;********************************************************
 
 (in-package :gsl)
@@ -215,10 +215,6 @@
        (map-name ',(or index name) ,gsl-name)
        ,@(when export `((export ',name))))))
 
-;;;;****************************************************************************
-;;;; Macro defun-gsl 
-;;;;****************************************************************************
-
 (defmacro defun-optionals
     (name arglist no-optional optionals &optional documentation)
   "Define a function with and without optional arguments."
@@ -234,3 +230,14 @@
 	   (,(intern
 	      (concatenate 'string (string name) (string no-optional)))
 	     ,@mandatory-arglist)))))
+
+;;;;****************************************************************************
+;;;; Variables in library
+;;;;****************************************************************************
+
+(defmacro defvariable (cl-symbol gsl-symbol documentation)
+  "Define a library variable pointer."
+  `(progn
+    (cffi:defcvar (,gsl-symbol ,cl-symbol) :pointer :read-only t)
+    (map-name ',cl-symbol ,gsl-symbol)
+    (setf (documentation ',cl-symbol 'variable) ,documentation)))
