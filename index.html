@@ -159,6 +159,11 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
   In addition to the chapters below, it would be nice if the following
   were done<ul>
   <li>Native vectors like <code>sb-sys:vector-sap</code> in SBCL.
+  <li>Make more lisp-natural the definition of "callback"
+  function definitions to the extent possible.  These are used in
+  numerical integration, differentiation, Monte Carlo, and ODE
+  integration.  Minimizing the number of CL definitions by unifying
+  these would be helpful too.
   </ul>
   <p>The following is not part of the plan for the GSLL interface:</p>
   <ul>
@@ -181,7 +186,11 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
   </ul>
  <p>The following is the status of the project by <a
   href="http://www.gnu.org/software/gsl/manual/html_node/">GSL
-  manual</a> chapter:</p>
+  manual</a> chapter.  When marked "Done" it means that all or a
+  substantial portion
+  that is planned that GSLL will cover has been defined and <i>some</i> of those
+  definitions have been tested.  Improvements may still be
+  desirable.</p> 
     <table border=5 frame=all cellpadding=4 cellspacing=4 cols=2>
         <thead align=center valign=middle>
 	<tr><th>Chapter</th><th>Status</th></tr>
@@ -277,7 +286,7 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
 	</tr>
 	<tr>
 	<td><a href="Numerical-Differentiation.html">Numerical Differentiation</a></td>
-	<td>Not started</td>
+	<td>Done</td>
 	</tr>
 	<tr>
 	<td><a href="Chebyshev-Approximations.html">Chebyshev Approximations</a></td>

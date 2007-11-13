@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sat Nov 10 2007 - 21:15
+; modified:    Mon Nov 12 2007 - 22:38
 ;********************************************************
 ;;; $Id: $
 
@@ -166,4 +166,5 @@
 	    ((:file "interpolation")
 	     (:file "types")
 	     (:file "lookup")
-	     (:file "evaluation")))))
+	     (:file "evaluation")))
+   (:file "numerical-differentiation" :depends-on (init numerical-integration))))
