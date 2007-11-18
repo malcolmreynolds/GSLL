@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Nov 12 2007 - 22:38
+; modified:    Sat Nov 17 2007 - 22:37
 ;********************************************************
 ;;; $Id: $
 
@@ -167,4 +167,8 @@
 	     (:file "types")
 	     (:file "lookup")
 	     (:file "evaluation")))
-   (:file "numerical-differentiation" :depends-on (init numerical-integration))))
+   ;; Once common callback definitions are moved out of
+   ;; numerical-integration to something in init, the
+   ;; numerical-integration dependency won't be necessary.
+   (:file "numerical-differentiation" :depends-on (init numerical-integration))
+   (:file "chebyshev" :depends-on (init numerical-integration))))

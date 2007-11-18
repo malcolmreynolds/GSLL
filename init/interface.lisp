@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Nov  4 2007 - 17:50
+; modified:    Sat Nov 17 2007 - 21:35
 ;********************************************************
 
 (in-package :gsl)
@@ -228,7 +228,8 @@
 	      (concatenate 'string (string name) (string optionals)))
 	     ,@mandatory-arglist ,@optional-arglist)
 	   (,(intern
-	      (concatenate 'string (string name) (string no-optional)))
+	      (concatenate 'string (string name)
+			   (if no-optional (string no-optional) "")))
 	     ,@mandatory-arglist)))))
 
 ;;;;****************************************************************************

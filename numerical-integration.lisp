@@ -3,7 +3,7 @@
 ; description: Numerical integration                     
 ; date:        Wed Jul  5 2006 - 23:14                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Feb 11 2007 - 12:02
+; modified:    Sat Nov 17 2007 - 21:51
 ;********************************************************
 ;;; $Id: $
 
@@ -39,6 +39,7 @@
 		  ,@body))
 	    body))))
 
+(export 'with-integration-function)
 (defmacro with-integration-function
     ((name function &optional number-of-arguments) &body body)
   "Make a function for GSL to integrate."
