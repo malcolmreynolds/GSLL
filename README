@@ -58,3 +58,7 @@ e.g. SBCL.
 - reading and writing functions will require handling of C streams,
   not provided.
   
+- Would be nice to have common callback definition and usage.
+- I already have a generic alloc and free; need to apply that to all
+the later chapters.  But this would require making gratuitous CLOS
+objects?
