@@ -3,7 +3,7 @@
 ; description: Interpolation types                       
 ; date:        Sun Nov  4 2007 - 17:41                   
 ; author:      Liam Healy                                
-; modified:    Sun Nov  4 2007 - 19:02
+; modified:    Mon Nov 26 2007 - 21:07
 ;********************************************************
 ;;; $Id: $
 
@@ -48,7 +48,7 @@
   ((interpolation :pointer))
   :c-return :string
   :documentation
-  "This function returns the name of the interpolation type.")
+  "The name of the interpolation type.")
 
 (defun-gsl interpolation-minimum-size (interpolation)
   "gsl_interp_min_size"
@@ -64,7 +64,7 @@
   ((interpolation :pointer))
   :c-return :string
   :documentation
-  "This function returns the name of the interpolation type.")
+  "The name of the interpolation type.")
 
 (defun-gsl spline-minimum-size (interpolation)
   "gsl_spline_min_size"

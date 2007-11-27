@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Mar  4 2007 - 09:40
+; modified:    Mon Nov 26 2007 - 23:30
 ;********************************************************
 ;;; $Id: $
 
@@ -18,6 +18,9 @@
 ;;; GSL bug?:  no gsl_vector_complex_add, etc.
 
 ;;; Need to build real vector out of view pointer.
+
+;;; Need to #'cl-invalidate when (setf gsl-aref) called, see Mon Nov 26 2007.
+
 
 ;;;;****************************************************************************
 ;;;; Vector structure and CL object

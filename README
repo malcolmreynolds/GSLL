@@ -62,3 +62,14 @@ e.g. SBCL.
 - I already have a generic alloc and free; need to apply that to all
 the later chapters.  But this would require making gratuitous CLOS
 objects?
+
+Proposed generic functions #'name, and creation of CLOS objects to
+represent wavelets, series acceleration, chebyshev, etc.  Then convert
+the alloc, free, initialize functions to generics, generic with-
+macro?
+
+No strides allowed yet.
+
+Can't use a function call as the length in with-data:
+    (with-data (data double-float (length vector))...)
+
