@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Nov 26 2007 - 23:33
+; modified:    Sat Dec  8 2007 - 18:41
 ;********************************************************
 ;;; $Id: $
 
@@ -173,4 +173,5 @@
    (:file "numerical-differentiation" :depends-on (init numerical-integration))
    (:file "chebyshev" :depends-on (init numerical-integration))
    (:file "series-acceleration" :depends-on (init))
-   (:file "wavelet" :depends-on (init data))))
+   (:file "wavelet" :depends-on (init data))
+   (:file "hankel" :depends-on (init data))))

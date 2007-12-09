@@ -3,11 +3,13 @@
 ; description: Wavelet transforms.                       
 ; date:        Mon Nov 26 2007 - 20:43                   
 ; author:      Liam Healy                                
-; modified:    Mon Nov 26 2007 - 23:26
+; modified:    Sun Dec  2 2007 - 17:10
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
+
+;;; Examples do not agree with C results.
 
 ;;;;****************************************************************************
 ;;;; Allocation of wavelets
@@ -364,6 +366,9 @@
  -0.0337541528239205d0 -0.0137541528239206d0 -0.00875415282392056d0 -0.00875415282392056d0)
   "Data for example wavelet transform from doc/examples/ecg.dat.")
 
+;;; These examples do not agree with their C counterparts; the answers
+;;; are completely different.
+
 (defun wavelet-example (&optional (cl-data *wavelet-sample*))
   "Demonstrates the use of the one-dimensional wavelet transform
    functions. It computes an approximation to an input signal (of length
@@ -375,14 +380,32 @@
       (let ((wavelet (allocate-wavelet *daubechies-wavelet* 4))
 	    (workspace (allocate-wavelet-workspace n)))
 	(wavelet-transform-forward wavelet vector 1 workspace)
-	;; Sort and set to 0 all but the largest 20.
-	(with-data (permutation permutation n)
-	  (sort-vector-index permutation vector)
-	  (loop for i from 20 below n do
-		(setf (gsl-aref vector (gsl-aref permutation i))
-		      0.0d0))) ;; Transform back
+	(with-data (absvector vector-double n)
+	  (dotimes (i n)
+	    (setf (gsl-aref absvector i) (abs (gsl-aref vector i))))
+	  ;; Sort and set to 0 all but the largest 20.
+	  (with-data (permutation permutation n)
+	    (sort-vector-index permutation absvector)
+	    (dotimes (i (- n 20))
+	      (setf (gsl-aref vector (gsl-aref permutation i))
+		    0.0d0)))) ;; Transform back
+	(dotimes (i n) (format t "~&~a" (gsl-aref vector i)))
 	(cl-invalidate vector)
 	(wavelet-transform-inverse wavelet vector 1 workspace)
+	(prog1 (data vector)
+	  (free-wavelet-workspace workspace)
+	  (free-wavelet wavelet))))))
+
+
+(defun wavelet-forward-example (&optional (cl-data *wavelet-sample*))
+  "Simpler example, with only a Daubechies wavelet forward transformation."
+  (let ((n (length cl-data)))
+    (with-data (vector vector-double n)
+      (setf (data vector) cl-data)
+      (let ((wavelet (allocate-wavelet *daubechies-wavelet* 4))
+	    (workspace (allocate-wavelet-workspace n)))
+	(wavelet-transform-forward wavelet vector 1 workspace)
+	(cl-invalidate vector)
 	(prog1 (data vector)
 	  (free-wavelet-workspace workspace)
 	  (free-wavelet wavelet))))))
