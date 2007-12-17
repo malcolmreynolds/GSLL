@@ -3,7 +3,7 @@
 ; description: Chebyshev Approximations                  
 ; date:        Sat Nov 17 2007 - 20:36                   
 ; author:      Liam Healy                                
-; modified:    Sat Nov 17 2007 - 22:35
+; modified:    Mon Dec 10 2007 - 18:53
 ;********************************************************
 ;;; $Id: $
 
@@ -117,7 +117,7 @@
 ;;;;****************************************************************************
 
 ;;; From Chap. 28.5, except I have set steps = 100 instead of 10000
-;;; to things sane.
+;;; to keep things sane.
 
 ;;; Calling a callback from CL is not possible, so we define a
 ;;; separate CL function to show what the answer really is.
