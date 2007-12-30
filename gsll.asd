@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sat Dec  8 2007 - 18:41
+; modified:    Sun Dec 30 2007 - 15:46
 ;********************************************************
 ;;; $Id: $
 
@@ -20,7 +20,7 @@
 	    ((:file "init")
 	     (:file "utility" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
-	     (:file "interface" :depends-on (init))
+	     (:file "interface" :depends-on (init number-conversion))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
 	     (:file "tests" :depends-on (init lisp-unit))))
@@ -28,7 +28,8 @@
 	    :depends-on (init)
 	    :components
 	    ((:file "conditions")
-	     (:file "mathematical")))
+	     (:file "mathematical")
+	     (:file "functions")))
    ;; complex numbers not necessary?  Just make a struct.
    (:module data
 	    :depends-on (init)
@@ -89,7 +90,7 @@
 	     (:file "householder")))
    (:file "eigensystems" :depends-on (init data))
    ;; Skip fft for now, I'm not sure how it works in C
-   (:file "numerical-integration" :depends-on (init))
+   (:file "numerical-integration" :depends-on (init general))
    (:module random
 	    :depends-on (init)
 	    :components
@@ -151,7 +152,7 @@
 	     (:file "read-write" :depends-on (histogram))
 	     (:file "probability-distribution" :depends-on (histogram))
 	     (:file "ntuple")))
-   (:file "monte-carlo" :depends-on (init data random numerical-integration))
+   (:file "monte-carlo" :depends-on (init data random general))
    (:module ordinary-differential-equations
 	    :depends-on (init)
 	    :components
@@ -170,8 +171,8 @@
    ;; Once common callback definitions are moved out of
    ;; numerical-integration to something in init, the
    ;; numerical-integration dependency won't be necessary.
-   (:file "numerical-differentiation" :depends-on (init numerical-integration))
-   (:file "chebyshev" :depends-on (init numerical-integration))
+   (:file "numerical-differentiation" :depends-on (init general))
+   (:file "chebyshev" :depends-on (init general))
    (:file "series-acceleration" :depends-on (init))
    (:file "wavelet" :depends-on (init data))
    (:file "hankel" :depends-on (init data))))

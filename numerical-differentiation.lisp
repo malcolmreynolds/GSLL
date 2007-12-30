@@ -3,7 +3,7 @@
 ; description: Numerical differentiation.                
 ; date:        Mon Nov 12 2007 - 22:07                   
 ; author:      Liam Healy                                
-; modified:    Mon Nov 12 2007 - 22:33
+; modified:    Sun Dec 30 2007 - 14:25
 ;********************************************************
 ;;; $Id: $
 
@@ -71,13 +71,14 @@
    @var{x}.  This function is equivalent to calling #'forward-derivative
    with a negative step-size.")
 
-#|
+;;;; Examples and unit test
+
 ;;; This is the example given in the GSL manual, Sec. 27.2.
+(defun-scalar 3/2-power (x) (expt x 3/2))
+;;; (3/2-power 2.0d0)
 
-(def-gsl-function 3/2-power x (expt x 3/2))
-
-(with-integration-function (fn '3/2-power)
-  (central-derivative fn 2.0d0 1.0d-8))
-
-;;; Compare with (* 3/2 (sqrt 2.0d0)).
-|#
+(lisp-unit:define-test numerical-differentiation
+  (lisp-unit:assert-first-fp-equal
+   "0.212132031200d+01"
+   ;; Compare to (* 3/2 (sqrt 2.0d0))
+   (central-derivative 3/2-power 2.0d0 1.d-8)))

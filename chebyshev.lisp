@@ -3,7 +3,7 @@
 ; description: Chebyshev Approximations                  
 ; date:        Sat Nov 17 2007 - 20:36                   
 ; author:      Liam Healy                                
-; modified:    Mon Dec 10 2007 - 18:53
+; modified:    Sun Dec 30 2007 - 16:05
 ;********************************************************
 ;;; $Id: $
 
@@ -119,21 +119,39 @@
 ;;; From Chap. 28.5, except I have set steps = 100 instead of 10000
 ;;; to keep things sane.
 
-;;; Calling a callback from CL is not possible, so we define a
-;;; separate CL function to show what the answer really is.
-(defun chebyshev-step (x) (if (< x 0.5) 0.25 0.75))
-(def-gsl-function chebyshev-step-c x (chebyshev-step x))
+(defun-scalar chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
 
-(defun chebyshev-example ()
+(defun chebyshev-table-example ()
   (let ((cheb (allocate-chebyshev 40))
 	(steps 100))
-    (with-integration-function (step-fn 'chebyshev-step-c)
-      (initialize-chebyshev cheb step-fn 0.0d0 1.0d0)
-      (dotimes (i steps)
-	(let ((x (coerce (/ i steps) 'double-float)))
-	  (format t "~&~a ~a ~a ~a"
-		  x
-		  (chebyshev-step x)
-		  (evaluate-chebyshev cheb x 10)
-		  (evaluate-chebyshev cheb x))))
-      (free-chebyshev cheb))))
+    (initialize-chebyshev cheb chebyshev-step 0.0d0 1.0d0)
+    (dotimes (i steps)
+      (let ((x (coerce (/ i steps) 'double-float)))
+	(format t "~&~a ~a ~a ~a"
+		x
+		(chebyshev-step x)
+		(evaluate-chebyshev cheb x 10)
+		(evaluate-chebyshev cheb x))))
+    (free-chebyshev cheb)))
+
+(defun chebyshev-point-example (x)
+  (check-type x double-float)
+  (let ((cheb (allocate-chebyshev 40))
+	(deriv (allocate-chebyshev 40))
+	(integ (allocate-chebyshev 40)))
+    (initialize-chebyshev cheb chebyshev-step 0.0d0 1.0d0)
+    (derivative-chebyshev deriv cheb)
+    (integral-chebyshev integ cheb)
+    (prog1
+	(list
+	 (evaluate-chebyshev cheb x)
+	 (evaluate-chebyshev deriv x)
+	 (evaluate-chebyshev integ x))
+      (free-chebyshev cheb)
+      (free-chebyshev deriv)
+      (free-chebyshev integ))))
+
+(lisp-unit:define-test chebyshev
+  (lisp-unit:assert-equal
+   '("0.715920990169d+00" "-0.150199666581d+01" "0.172397194040d+00")
+   (lisp-unit:fp-sequence (chebyshev-point-example 0.55d0))))

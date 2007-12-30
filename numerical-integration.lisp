@@ -3,58 +3,13 @@
 ; description: Numerical integration                     
 ; date:        Wed Jul  5 2006 - 23:14                   
 ; author:      Liam M. Healy                             
-; modified:    Sat Nov 17 2007 - 21:51
+; modified:    Sun Dec 30 2007 - 14:19
 ;********************************************************
 ;;; $Id: $
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
 
 (in-package :gsl)
-
-(cffi:defcstruct gsl-function
-  "Passing functions to GSL."
-  ;; see /usr/include/gsl/gsl_math.h
-  (function :pointer)
-  (parameters :pointer))
-
-(export 'def-gsl-function)
-(defmacro def-gsl-function (name arg &body body)
-  "Define a GSL (C) function of either one argument of type
-   double (if arg is a symbol), or a C array of doubles
-   (if arg is a list), for GSL numerical
-   integration functions.
-   Parameters (non integration variables) may be passed by
-   using a lexical closure."
-  (let ((argvec (gensym "MCARG")))
-    `(cffi:defcallback ,name :double
-      (,(if (listp arg)
-	    `(,argvec :pointer)
-	    `(,arg :double))
-       (params :pointer))
-      (declare (ignore params))
-      ,@(if (listp arg)
-	    `((symbol-macrolet
-		    ,(loop for i from 0 for a in arg
-			   collect `(,a (cffi:mem-aref ,argvec :double ,i)))
-		  ,@body))
-	    body))))
-
-(export 'with-integration-function)
-(defmacro with-integration-function
-    ((name function &optional number-of-arguments) &body body)
-  "Make a function for GSL to integrate."
-  ;; Is this creating and deallocating the gsl-function object?
-  (let ((structure (if number-of-arguments 'monte-function 'gsl-function)))
-    `(cffi:with-foreign-object (,name ',structure)
-      (setf (cffi:foreign-slot-value ,name ',structure 'function)
-       (cffi:get-callback ,function)
-       ,@(when number-of-arguments
-	       `((cffi:foreign-slot-value ,name ',structure 'dimensions)
-		 ,number-of-arguments))
-       ;; Pass the parameters in with a closure.
-       (cffi:foreign-slot-value ,name ',structure 'parameters)
-       (cffi:null-pointer))
-      ,@body)))
 
 ;;;;****************************************************************************
 ;;;; QNG non-adaptive Gauss-Kronrod integration
@@ -264,23 +219,22 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(let ((mult 2.0d0))
-  (def-gsl-function two-sine x (sin (* mult x))))
+;;; defun-scalar is a combination of defun and def-scalar-function:
+(defun-scalar one-sine (x) (sin x))
 
-(def-gsl-function one-sine x (sin x))
+;;; Parameters may be defined through the lexical environment:
+(let ((mult 2.0d0))
+  (defun-scalar two-sine (x) (sin (* mult x))))
 
 (lisp-unit:define-test numerical-integration
   (lisp-unit:assert-first-fp-equal
    "0.200000000000d+01"
-   (with-integration-function (os 'one-sine)
-     (integration-qng os 0.0d0 pi)))
+   (integration-qng one-sine 0.0d0 pi))
   (lisp-unit:assert-first-fp-equal
    "0.200000000000d+01"
-   (with-integration-function (os 'one-sine)
-     (with-integration-workspace (ws 20)
-       (integration-QAG os 0.0d0 pi :gauss15 20 ws))))
+   (with-integration-workspace (ws 20)
+     (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws)))
   (lisp-unit:assert-error
    'gsl-error
-   (with-integration-function (os 'one-sine)
-     (with-integration-workspace (ws 20)
-       (integration-QAG os 0.0d0 pi :gauss15 50 ws)))))
+   (with-integration-workspace (ws 20)
+     (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws))))

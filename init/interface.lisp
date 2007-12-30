@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sat Nov 17 2007 - 21:35
+; modified:    Sun Dec  9 2007 - 17:51
 ;********************************************************
 
 (in-package :gsl)
@@ -95,7 +95,9 @@
 
 (defun success-failure (value)
   "If status indicates failure, return NIL, othewise return T."
-  (not (eql value (cffi:foreign-enum-value 'gsl-errorno :FAILURE))))
+  ;;(not (eql value (cffi:foreign-enum-value 'gsl-errorno :FAILURE)))
+  ;; More general, to allow :CONTINUE
+  (not (minusp value)))
 
 ;;;;****************************************************************************
 ;;;; Macro defun-gsl 

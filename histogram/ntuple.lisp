@@ -3,7 +3,7 @@
 ; description: N-tuples                                  
 ; date:        Sat Feb  3 2007 - 12:53                   
 ; author:      Liam Healy                                
-; modified:    Sat Feb  3 2007 - 14:32
+; modified:    Sun Dec 30 2007 - 16:33
 ;********************************************************
 ;;; $Id: $
 
@@ -81,9 +81,19 @@
    the histogram, so subsequent calls can be used to accumulate further
    data in the same histogram.") 
 
-;;; This works for either select-function or value-function.
-;;; The functions themselves will have to be defined with cffi:defcallback.
-(cffi:defcstruct ntuple-function
-  (function :pointer)
-  (parameters :pointer))
+;;; Callback definitions
 
+(export '(def-ntuple-select-function def-ntuple-value-function))
+
+(defmacro def-ntuple-select-function (name arg)
+  "The selection function determines which ntuple rows are selected
+   for histogramming. The struct component function should return a
+   non-zero value for each ntuple row that is to be included in the
+   histogram. "
+  `(def-scalar-function ,name ,arg :int :pointer))
+
+(defmacro def-ntuple-value-function (name arg)
+  "The value function computes scalar values for those ntuple rows
+   selected by the selection function which should return the value
+   to be added to the histogram."
+  `(def-scalar-function ,name ,arg :double :pointer))

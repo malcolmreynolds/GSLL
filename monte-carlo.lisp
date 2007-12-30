@@ -3,16 +3,11 @@
 ; description: Monte Carlo Integration                   
 ; date:        Sat Feb  3 2007 - 17:42                   
 ; author:      Liam Healy                                
-; modified:    Sun Feb 11 2007 - 12:03
+; modified:    Sun Dec 30 2007 - 15:45
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
-
-(cffi:defcstruct monte-function
-  (function :pointer)
-  (dimensions :size)
-  (parameters :pointer))
 
 ;;;;****************************************************************************
 ;;;; PLAIN Monte Carlo
@@ -293,15 +288,40 @@
    consistent with 1 for the weighted average to be reliable.")
 
 ;;;;****************************************************************************
+;;;; Callback definition
+;;;;****************************************************************************
+
+(cffi:defcstruct monte-function
+  (function :pointer)
+  (dimensions :size)
+  (parameters :pointer))
+
+(export 'def-mc-function)
+(defmacro def-mc-function (name arg dimensions)
+  `(progn
+    (cffi:defcallback ,name :double
+	((,arg :pointer) (params :pointer))
+      (declare (ignore params))
+      (,name ,arg))
+    ;; Assume that defcallback does not bind the variable 'name.
+    (defparameter ,name (cffi:foreign-alloc 'monte-function))
+    (set-slot-function ,name 'monte-function 'function ',name)
+    (set-structure-slot ,name 'monte-function 'dimensions ,dimensions)
+    (set-parameters ,name 'monte-function)))
+
+;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
 ;;; Example from Sec. 23.5
 ;;; This is a function that occurs in random walk studies.
 
-(def-gsl-function monte-carlo-g (x y z)
-  (* (/ (expt pi 3))
-     (/ (- 1 (* (cos x) (cos y) (cos z))))))
+(defun monte-carlo-g (arg)
+  (with-c-vector (arg x y z)
+    (* (/ (expt pi 3))
+       (/ (- 1 (* (cos x) (cos y) (cos z)))))))
+
+(def-mc-function monte-carlo-g arg 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (with-monte-carlo-plain (ws 3)
@@ -310,13 +330,12 @@
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
 	      (data upper) (vector pi pi pi))
 	(rng-set *rng-mt19937* 0)
-	(with-integration-function (mcf 'monte-carlo-g 3)
-	  (monte-carlo-integrate-plain
-	   mcf
-	   lower upper
-	   nsamples
-	   *rng-mt19937*
-	   ws))))))
+	(monte-carlo-integrate-plain
+	 monte-carlo-g
+	 lower upper
+	 nsamples
+	 *rng-mt19937*
+	 ws)))))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (with-monte-carlo-miser (ws 3)
@@ -325,13 +344,12 @@
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
 	      (data upper) (vector pi pi pi))
 	(rng-set *rng-mt19937* 0)
-	(with-integration-function (mcf 'monte-carlo-g 3)
-	  (monte-carlo-integrate-miser
-	   mcf
-	   lower upper
-	   nsamples
-	   *rng-mt19937*
-	   ws))))))
+	(monte-carlo-integrate-miser
+	 monte-carlo-g
+	 lower upper
+	 nsamples
+	 *rng-mt19937*
+	 ws)))))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (with-monte-carlo-vegas (ws 3)
@@ -340,13 +358,12 @@
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
 	      (data upper) (vector pi pi pi))
 	(rng-set *rng-mt19937* 0)
-	(with-integration-function (mcf 'monte-carlo-g 3)
-	  (monte-carlo-integrate-vegas
-	   mcf
-	   lower upper
-	   nsamples
-	   *rng-mt19937*
-	   ws))))))
+	(monte-carlo-integrate-vegas
+	 monte-carlo-g
+	 lower upper
+	 nsamples
+	 *rng-mt19937*
+	 ws)))))
 
 (lisp-unit:define-test monte-carlo
   (lisp-unit:assert-first-fp-equal
