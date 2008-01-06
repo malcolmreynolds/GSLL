@@ -3,22 +3,16 @@
 ; description: Simulated Annealing                       
 ; date:        Sun Feb 11 2007 - 17:23                   
 ; author:      Liam Healy                                
-; modified:    Sat Sep 15 2007 - 18:21
+; modified:    Sat Jan  5 2008 - 21:20
 ;********************************************************
 ;;; $Id: $
 
 (in-package :gsl)
 
-;;; There are some problems.  First, step-size is not successfully
-;;; returned by GSL to the step function, it comes back as garbage.
-;;; That is not a big problem because it's never used by GSL, it is
-;;; only sent back, so we can just define and use it locally.  The
-;;; main problem is that it seems to run forever, even on the
-;;; "trivial" example.  This is apparently because n-tries is
-;;; not getting to GSL either.  It seems the problem is with
-;;; simulated-annealing-parameters.
-;;; Also, the code could use quite a bit of clean
-;;; up to present a simpler interface.
+;;; This does not work.
+;;; Step size passed to the step function is incorrect.
+;;; Print function is ignored, but probably couldn't work if it weren't.
+;;; Does not converge.
 
 
 (cffi:defcstruct simulated-annealing-parameters
@@ -30,6 +24,36 @@
   (t-initial :double)
   (mu-t :double)
   (t-min :double))
+
+(defmacro with-simulated-annealing-parameters
+    ((name number-of-tries iterations-per-temperature
+		      step-size &optional k t-initial mu-t t-min)
+     &body body)
+  `(cffi:with-foreign-object (,name 'simulated-annealing-parameters)
+    (setf
+     (cffi:foreign-slot-value
+      ,name 'simulated-annealing-parameters 'n-tries)
+     ,number-of-tries
+     (cffi:foreign-slot-value
+      ,name 'simulated-annealing-parameters 'iterations-fixed-T)
+     ,iterations-per-temperature
+     (cffi:foreign-slot-value
+      ,name 'simulated-annealing-parameters 'step-size)
+     ,step-size
+     ;; The following parameters are for the Boltzmann distribution
+     (cffi:foreign-slot-value
+      ,name 'simulated-annealing-parameters 'k)
+     ,k
+     (cffi:foreign-slot-value
+      ,name 'simulated-annealing-parameters 't-initial)
+     ,t-initial
+     (cffi:foreign-slot-value
+      ,name 'simulated-annealing-parameters 'mu-t)
+     ,mu-t
+     (cffi:foreign-slot-value
+      ,name 'simulated-annealing-parameters 't-min)
+     ,t-min)
+    ,@body))
 
 (defun-gsl simulated-annealing
     (generator x0-p
@@ -84,95 +108,83 @@
    The simulated annealing routines require several user-specified
    functions to define the configuration space and energy function.")
 
-;; cribbed from def-gsl-function; unify?
-(export 'def-sa-function)
-(defmacro def-sa-function (name arg &body body)
-  "Define a GSL (C) function of either one argument of type
-   double (if arg is a symbol), or a C array of doubles
-   (if arg is a list), for GSL simulated annealing functions."
-  (let ((argvec (gensym "MCARG")))
+(defmacro def-energy-function (name)
+  "Define an energy or distance fuction for simulated annealing."
+  `(def-scalar-function ,name :double :pointer nil))
+
+(defmacro def-step-function (name)
+  "Define a step fuction for simulated annealing."
+  (let ((generator (gensym "GEN"))
+	(arguments (gensym "ARGS"))
+	(step-size (gensym "SS")))
+    `(cffi:defcallback ,name :void
+      ((,generator :pointer) (,arguments :pointer) (,step-size :double))
+      (,name ,generator ,arguments ,step-size))))
+
+(defmacro def-distance-function (name)
+  "Define a metric distance fuction for simulated annealing."
+  (let ((x (gensym "X"))
+	(y (gensym "Y")))
     `(cffi:defcallback ,name :double
-      (,(if (listp arg)
-	    `(,argvec :pointer)
-	    `(,arg :double)))
-      ,@(if (listp arg)
-	    `((symbol-macrolet
-		    ,(loop for i from 0 for a in arg
-			   collect `(,a (cffi:mem-aref ,argvec :double ,i)))
-		  ,@body))
-	    body))))
+      ((,x :pointer) (,y :pointer))
+      (,name ,x ,y))))
 
-(defparameter *sa-function-calls* 0)
+(defmacro def-print-function (name)
+  "Define a print function for simulated annealing."
+  `(def-scalar-function ,name :int :pointer nil))
 
-(defcallback e1 :double ((xp :pointer))
-  (incf *sa-function-calls*)
-  (when (> *sa-function-calls* 100000000)
-    (error "too much"))
-  (let ((x (cffi:mem-aref xp :double)))
+;;;;****************************************************************************
+;;;; Example
+;;;;****************************************************************************
+
+;;; Trivial example, Sec. 24.3.1
+;;; This does not work.
+
+(defun M2 (cx cy)
+  (with-c-double (cx x)
+    (with-c-double (cy y)
+      (abs (- x y)))))
+
+(defun E2 (arg)
+  (with-c-double (arg x)
+    (incf *sa-function-calls*)
+    (when (> *sa-function-calls* 100)
+      (error "too much"))
     (* (exp (- (expt (1- x) 2))) (sin (* 8 x)))))
 
-(cffi:defcallback s1 :pointer
-    ((generator :pointer) (parameters :pointer) (ss :double))
-  (declare (ignore ss))
-  (let ((step-size 10.0d0))
-    (let ((rand (uniform generator)))
-      (setf (cffi:mem-aref parameters :double)
-	    (+ (cffi:mem-aref parameters :double)
-	       (- (* 2 rand step-size) step-size))))
-    (cffi:null-pointer)))
+(defun S2 (generator parameters step-size)
+  (with-c-double (parameters x)
+    ;;(format t "~&~d ~d" x step-size)
+    (let ((step-size 10.0d0))		; this is coming in wrong, so we fix it
+      (let ((rand (uniform generator)))
+	(setf x (+ x (- (* 2 rand step-size) step-size)))))))
 
-(def-sa-function M1 (x y) (abs (- x y)))
+(defparameter *sa-example-print* nil)
 
-(defcallback P1 :void ((xp :pointer))
-  (let ((x (cffi:mem-aref xp :double)))
-    (FORMAT T "~&from P1: ~a" X)))
+;;; Print functions are a problem because it is likely that the C
+;;; stdout and the CL *standard-output* are not the same stream.
+;;; Also, it seems to ignore that a function is supplied, and avoids
+;;; printing anything.
+(defun P2 (arg)
+  (with-c-double (arg x)
+    (when *sa-example-print*
+      (format T "~&from P2: ~a" x))))
+
+(def-energy-function E2)
+(def-distance-function M2)
+(def-step-function S2)
+(def-print-function P2)
 
 (defun simulated-annealing-example ()
-  (cffi:with-foreign-object (initial :double)
-    (setf (cffi:mem-aref initial :double) 15.0d0)
-    (cffi:with-foreign-object (params 'simulated-annealing-parameters)
-      (setf
-       (cffi:foreign-slot-value
-	params 'simulated-annealing-parameters 'n-tries)
-       200
-       (cffi:foreign-slot-value
-	params 'simulated-annealing-parameters 'iterations-fixed-T)
-       10
-       (cffi:foreign-slot-value
-	params 'simulated-annealing-parameters 'step-size)
-       10.0d0
-       ;; The following parameters are for the Boltzmann distribution
-       (cffi:foreign-slot-value
-	params 'simulated-annealing-parameters 'k)
-       1.0d0
-       (cffi:foreign-slot-value
-	params 'simulated-annealing-parameters 't-initial)
-       0.002d0
-       (cffi:foreign-slot-value
-	params 'simulated-annealing-parameters 'mu-t)
-       1.005d0
-       (cffi:foreign-slot-value
-	params 'simulated-annealing-parameters 't-min)
-       2.0d-6)
-      (simulated-annealing
-       *rng-mt19937* initial
-       'E1 'S1 'M1 'P1
-       (cffi:foreign-type-size :double)
-       params))))
-
-#|
-@deftypefun void
-gsl_siman_solve
-(const gsl_rng * @var{r},
-       void * @var{x0_p},
-       gsl_siman_Efunc_t @var{Ef},
-       gsl_siman_step_t @var{take_step},
-       gsl_siman_metric_t @var{distance},
-       gsl_siman_print_t @var{print_position},
-       gsl_siman_copy_t @var{copyfunc},
-       gsl_siman_copy_construct_t @var{copy_constructor},
-       gsl_siman_destroy_t @var{destructor},
-       size_t @var{element_size},
-       gsl_siman_params_t @var{params})
-|#
+  (let ((*sa-function-calls* 0))
+    (rng-environment-setup)
+    (cffi:with-foreign-object (initial :double)
+      (setf (double-to-cl initial) 15.5d0)
+      (with-simulated-annealing-parameters
+	  (params 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6)
+	(simulated-annealing
+	 (make-random-number-generator) initial
+	 'E2 'S2 'M2 'P2
+	 (cffi:foreign-type-size :double)
+	 params)))))
 

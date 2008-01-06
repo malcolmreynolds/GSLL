@@ -3,7 +3,7 @@
 ; description: Monte Carlo Integration                   
 ; date:        Sat Feb  3 2007 - 17:42                   
 ; author:      Liam Healy                                
-; modified:    Sun Dec 30 2007 - 15:45
+; modified:    Sat Jan  5 2008 - 21:20
 ;********************************************************
 ;;; $Id: $
 
@@ -297,17 +297,9 @@
   (parameters :pointer))
 
 (export 'def-mc-function)
-(defmacro def-mc-function (name arg dimensions)
-  `(progn
-    (cffi:defcallback ,name :double
-	((,arg :pointer) (params :pointer))
-      (declare (ignore params))
-      (,name ,arg))
-    ;; Assume that defcallback does not bind the variable 'name.
-    (defparameter ,name (cffi:foreign-alloc 'monte-function))
-    (set-slot-function ,name 'monte-function 'function ',name)
-    (set-structure-slot ,name 'monte-function 'dimensions ,dimensions)
-    (set-parameters ,name 'monte-function)))
+(defmacro def-mc-function (name dimensions)
+  `(def-scalar-function ,name :double :pointer monte-function
+    ((dimensions ,dimensions))))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -317,11 +309,11 @@
 ;;; This is a function that occurs in random walk studies.
 
 (defun monte-carlo-g (arg)
-  (with-c-vector (arg x y z)
+  (with-c-double (arg x y z)
     (* (/ (expt pi 3))
        (/ (- 1 (* (cos x) (cos y) (cos z)))))))
 
-(def-mc-function monte-carlo-g arg 3)
+(def-mc-function monte-carlo-g 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (with-monte-carlo-plain (ws 3)

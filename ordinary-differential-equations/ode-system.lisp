@@ -3,7 +3,7 @@
 ; description: ODE system setup
 ; date:        Sun Apr 15 2007 - 14:19                   
 ; author:      Liam Healy                                
-; modified:    Sun Sep 30 2007 - 15:47
+; modified:    Sat Jan  5 2008 - 21:39
 ;********************************************************
 ;;; $Id: $
 
@@ -17,54 +17,78 @@
   (dimension :size)
   (parameters :pointer))
 
-(export '(def-ode-function def-jacobian-function))
+(export '(def-ode-functions with-ode-integration))
 
-(defmacro def-ode-function (name (time dependent derivatives) &body body)
-  "Define a function that will evaluate the right-hand sides (derivatives)
-   defining a set of ordinary differential equations (ODE).
-   The function should take as input the time (a double-float) and
-   dependent variables (a vector of double-floats) and fill the
-   derivatives vector with double-floats.  It may refer to elements
-   of these vectors (arrays) using the macro double-to-cl.
-   This function may be passed to the GSL ODE integrators.
-   Parameters (non integration variables) may be passed by
-   using a lexical closure."
-  `(cffi:defcallback ,name :int
-    ((,time :double)
-     (,dependent :pointer)
-     (,derivatives :pointer)
-     (params :pointer))
-    (declare (ignore params) (ignorable ,time))
-    ,@body
-    ;; Any errors or warnings should be signalled on the CL side;
-    ;; if the function completes, we will always return success.
-    (cffi:foreign-enum-value 'gsl-errorno :SUCCESS)))
+(defmacro def-ode-functions (name jacobian dimension)
+  "Setup functions for ODE integrators.
+   The CL functions name and jacobian should be defined previously
+   with defuns."
+  ;; The function should take three arguments: time, dependent, derivatives
+  ;; The latter two will be C arrays.  To reference them, use #'with-c-vector.
+  ;; To make this more transparent using a normal CL function
+  ;; would require transferring numbers back and forth between C and CL arrays,
+  ;; which could be inefficient.
+  (let ((time (make-symbol "TIME"))
+	(dependent (make-symbol "DEP"))
+	(derivatives (make-symbol "DERIV"))
+	(dfdy (make-symbol "DFDY"))
+	(dfdt (make-symbol "DFDT"))
+	(params (make-symbol "PARAMS")))
+    `(progn
+      (cffi:defcallback ,name :int
+	  ((,time :double)
+	   (,dependent :pointer)
+	   (,derivatives :pointer)
+	   (,params :pointer))
+	(declare (ignore ,params))
+	(,name ,time ,dependent ,derivatives)
+	(cffi:foreign-enum-value 'gsl-errorno :SUCCESS))
+      ;; The function should take four arguments: time, dependent, dfdy, dfdt
+      ;; The last three will be arrays.
+      (cffi:defcallback ,jacobian :int
+	  ((,time :double)
+	   (,dependent :pointer)
+	   (,dfdy :pointer)
+	   (,dfdt :pointer)
+	   (,params :pointer))	
+	(declare (ignore ,params))
+	(,name ,time ,dependent ,dfdy ,dfdt)
+	(cffi:foreign-enum-value 'gsl-errorno :SUCCESS))
+      ;; Assume that defcallback does not bind the variable 'name.
+      (defparameter ,name (cffi:foreign-alloc 'ode-system))
+      (set-slot-function ,name 'ode-system 'function ',name)
+      (set-slot-function ,name 'ode-system 'jacobian ',jacobian)
+      (set-structure-slot ,name 'ode-system 'dimension ,dimension)
+      (set-parameters ,name 'ode-system))))
 
-#|
-(def-ode-function foo time y dydt
-  (setf (double-to-cl dydt 0) (- (double-to-cl y 1))
-	(double-to-cl dydt 1) (double-to-cl y 0)))
-|#
+(defmacro with-ode-integration
+    ((time step-size dependent dimensions &optional (stepper '*step-rk8pd*)
+	   (absolute-error 1.0d-6) (relative-error 0.0d0))
+     &body body)
+  "Environment for integration of ordinary differential equations.
+   The variables time and step-size will become C doubles in the body;
+   to convert back, use double-to-cl.  The dependent variable may
+   be specified as a list being the same as the first argument to
+   with-c-double."
+  (let ((ctime (make-symbol "CTIME"))
+	(cstep (make-symbol "CSTEP")))
+    `(let ((stepper (step-allocate ,stepper ,dimensions))
+	   (control (new-y-control ,absolute-error ,relative-error))
+	   (evolve (allocate-evolution ,dimensions)))
+      (unwind-protect
+	   (cffi:with-foreign-objects
+	       ((,(if (listp dependent) (first dependent) dependent)
+		  :double ,dimensions) (,ctime :double) (,cstep :double))
+	     (setf
+	      (double-to-cl ,cstep) ,step-size
+	      (double-to-cl ,ctime) ,time)
+	     ,(if (listp dependent)
+		  `(with-c-double ,dependent
+		    (symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
+		    ,@body))
+		  `(symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
+		    ,@body)))
+	(free-evolution evolve)
+	(free-control control)
+	(step-free stepper)))))
 
-(defmacro def-jacobian-function (name (time dependent dfdy dfdt) &body body)
-  "Define a function that will evaluate the Jacobian (partial derivative)
-   of the set of ordinary differential equations (ODE).
-   The function should take as input the time (a double-float) and
-   dependent variables (a vector of double-floats) and fill the
-   dfdy matrix and dfdt vector with double-floats.
-   It may refer to elements
-   of these vectors (arrays) using the macro double-to-cl.
-   This function may be passed to the GSL ODE integrators.
-   Parameters (non integration variables) may be passed by
-   using a lexical closure."
-  `(cffi:defcallback ,name :int
-    ((,time :double)
-     (,dependent :pointer)
-     (,dfdy :pointer)		; This is a vector but should be CL array
-     (,dfdt :pointer)
-     (params :pointer))
-    (declare (ignore params) (ignorable ,time))
-    ,@body
-    ;; Any errors or warnings should be signalled on the CL side;
-    ;; if the function completes, we will always return success.
-    (cffi:foreign-enum-value 'gsl-errorno :SUCCESS)))
