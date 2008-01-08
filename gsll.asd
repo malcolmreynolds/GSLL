@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Sun Dec 30 2007 - 15:46
+; modified:    Mon Jan  7 2008 - 00:13
 ;********************************************************
 ;;; $Id: $
 
@@ -175,4 +175,5 @@
    (:file "chebyshev" :depends-on (init general))
    (:file "series-acceleration" :depends-on (init))
    (:file "wavelet" :depends-on (init data))
-   (:file "hankel" :depends-on (init data))))
+   (:file "hankel" :depends-on (init data))
+   (:file "roots-one" :depends-on (init))))

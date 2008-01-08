@@ -3,7 +3,7 @@
 ; description: Foreign callback functions.               
 ; date:        Sun Dec  9 2007 - 22:08                   
 ; author:      Liam Healy                                
-; modified:    Sat Jan  5 2008 - 21:30
+; modified:    Sun Jan  6 2008 - 12:46
 ;********************************************************
 ;;; $Id: $
 
@@ -129,12 +129,13 @@
 	   collect `(,a (double-to-cl ,c-vector ,i)))
     ,@body))
 
-(defmacro with-c-doubles ((&rest cvector-names) &body body)
-  "Provide named access to each element of a set of C arrays of doubles,
-   for either reading or setting."
-  (if (null (rest cvector-names))
-      `(with-c-double ,(first cvector-names)
-	,@body)
-      `(with-c-double ,(first cvector-names)
-	(with-c-doubles ,(rest cvector-names)
-	  ,@body))))
+(defmacro with-c-doubles
+    ((&rest cvector-names) &body body)
+  "Provide named access to each element of a C array of doubles, for either
+   reading or setting."
+  `(symbol-macrolet
+    ,(loop for (c-vector . element-names) in cvector-names
+	   append
+	   (loop for i from 0 for a in element-names
+		 collect `(,a (double-to-cl ,c-vector ,i))))
+    ,@body))

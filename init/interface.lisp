@@ -3,7 +3,7 @@
 ; description: Macros to interface GSL functions.
 ; date:        Mon Mar  6 2006 - 22:35                   
 ; author:      Liam M. Healy
-; modified:    Sun Dec  9 2007 - 17:51
+; modified:    Sun Jan  6 2008 - 13:48
 ;********************************************************
 
 (in-package :gsl)
@@ -99,12 +99,17 @@
   ;; More general, to allow :CONTINUE
   (not (minusp value)))
 
+(defun success-continue (value)
+  "If status indicates success, return T, othewise return NIL."
+  (eql value (cffi:foreign-enum-value 'gsl-errorno :SUCCESS)))
+
 ;;;;****************************************************************************
 ;;;; Macro defun-gsl 
 ;;;;****************************************************************************
 
 (defvar *special-c-return*
-  '(:error-code :number-of-answers :success-failure :true-false :enumerate))
+  '(:error-code :number-of-answers :success-failure :success-continue
+    :true-false :enumerate))
 
 ;;; arglist    List of CL arguments.
 ;;; gsl-name   Name of the GSL C function, as a quoted string.
@@ -201,9 +206,15 @@
 		       (:success-failure
 			(if (equal clret invalidate)
 			    ;; success-failure more important than passed-in
-			    `((success-failure ,cret-name) ,@clret)
+			    `(success-failure ,@clret)
 			    (remove cret-name ; don't return c-return itself
 				    `(,@clret (success-failure ,cret-name)))))
+		       (:success-continue
+			(if (equal clret invalidate)
+			    ;; success-failure more important than passed-in
+			    `(success-continue ,@clret)
+			    (remove cret-name ; don't return c-return itself
+				    `(,@clret (success-continue ,cret-name)))))
 		       (:true-false
 			`((not (zerop ,cret-name))))
 		       (:enumerate
