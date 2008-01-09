@@ -3,7 +3,7 @@
 ; description: One-dimensional root solver.              
 ; date:        Sun Dec  9 2007 - 15:47                   
 ; author:      Liam Healy                                
-; modified:    Mon Jan  7 2008 - 22:25
+; modified:    Tue Jan  8 2008 - 22:53
 ;********************************************************
 ;;; $Id: $
 
@@ -204,7 +204,7 @@
 ;;;; Search stopping conditions
 ;;;;****************************************************************************
 
-(defun-gsl test-interval (lower upper absolute-error relative-error)
+(defun-gsl root-test-interval (lower upper absolute-error relative-error)
   "gsl_root_test_interval"
   ((lower :double) (upper :double)
    (absolute-error :double) (relative-error :double))
@@ -227,7 +227,7 @@
    |r - r^*| < epsabs + epsrel r^*
    assuming that the true root @math{r^*} is contained within the interval.")
 
-(defun-gsl test-delta (x1 x0 absolute-error relative-error)
+(defun-gsl root-test-delta (x1 x0 absolute-error relative-error)
   "gsl_root_test_delta"
   ((x1 :double) (x0 :double)
    (absolute-error :double) (relative-error :double))
@@ -240,7 +240,7 @@
    |x_1 - x_0| < epsabs + epsrel |x_1|
    and returns NIL otherwise.")
 
-(defun-gsl test-residual (f absolute-error)
+(defun-gsl root-test-residual (f absolute-error)
   "gsl_root_test_residual"
   ((f :double) (absolute-error :double))
   :c-return :success-failure
@@ -258,7 +258,7 @@
 ;;;; Root bracketing algorithms
 ;;;;****************************************************************************
 
-(defvariable bisection-fsolver "gsl_root_fsolver_bisection"
+(defvariable *bisection-fsolver* "gsl_root_fsolver_bisection"
   "The bisection algorithm is the simplest method of bracketing the
    roots of a function.   It is the slowest algorithm provided by
    the library, with linear convergence.
@@ -273,7 +273,7 @@
    At any time the current estimate of the root is taken as the midpoint of
    the interval.")
 
-(defvariable false-position-fsolver "gsl_root_fsolver_falsepos"
+(defvariable *false-position-fsolver* "gsl_root_fsolver_falsepos"
   "The false position algorithm is a method of finding roots based on
    linear interpolation.  Its convergence is linear, but it is usually
    faster than bisection.
@@ -289,7 +289,7 @@
    The best estimate of the root is taken from the linear interpolation of
    the interval on the current iteration.")
 
-(defvariable brent-fsolver "gsl_root_fsolver_brent"
+(defvariable *brent-fsolver* "gsl_root_fsolver_brent"
   "The Brent-Dekker method (referred to here as Brent's method)
    combines an interpolation strategy with the bisection algorithm.  This
    produces a fast algorithm which is still robust.
@@ -312,7 +312,7 @@
 ;;;; Root finding algorithms using derivatives
 ;;;;****************************************************************************
 
-(defvariable newton-fdfsolver "gsl_root_fdfsolver_newton"
+(defvariable *newton-fdfsolver* "gsl_root_fdfsolver_newton"
   "Newton's Method is the standard root-polishing algorithm.  The algorithm
    begins with an initial guess for the location of the root.  On each
    iteration, a line tangent to the function @math{f} is drawn at that
@@ -322,7 +322,7 @@
    Newton's method converges quadratically for single roots, and linearly
    for multiple roots.")
 
-(defvariable secant-fdfsolver "gsl_root_fdfsolver_secant"
+(defvariable *secant-fdfsolver* "gsl_root_fdfsolver_secant"
   "The secant method is a simplified version of Newton's method which does
    not require the computation of the derivative on every step.
    On its first iteration the algorithm begins with Newton's method, using
@@ -346,7 +346,7 @@
    5)/2 (approximately 1.62).  It converges linearly for multiple
    roots.")
 
-(defvariable steffenson-fdfsolver "gsl_root_fdfsolver_steffenson"
+(defvariable *steffenson-fdfsolver* "gsl_root_fdfsolver_steffenson"
   "The Steffenson method provides the fastest convergence of all the
    routines.  It combines the basic Newton algorithm with an Aitken
    ``delta-squared'' acceleration.  If the Newton iterates are x_i
@@ -383,7 +383,7 @@
 (defun roots-one-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50))
-    (with-fsolver (solver brent-fsolver quadratic 0.0d0 5.0d0)
+    (with-fsolver (solver *brent-fsolver* quadratic 0.0d0 5.0d0)
       (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
       (loop for iter from 0
 	    for root = (fsolver-root solver)
@@ -391,7 +391,7 @@
 	    for upper = (fsolver-upper solver)
 	    do (iterate-fsolver solver)
 	    while  (and (< iter max-iter)
-			(not (test-interval lower upper 0.0d0 0.001d0)))
+			(not (root-test-interval lower upper 0.0d0 0.001d0)))
 	    do
 	    (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
 		    iter lower upper
@@ -416,14 +416,14 @@
   (let ((max-iter 100)
 	(initial 5.0d0))
     (with-fdfsolver
-	(solver newton-fdfsolver *quadratic* initial)
+	(solver *newton-fdfsolver* *quadratic* initial)
       (format t "~&iter ~6t ~36troot ~44terr ~54terr(est)")
       (loop for iter from 0
 	    for oldroot = initial then root
 	    for root = (fdfsolver-root solver)
 	    do (iterate-fdfsolver solver)
 	    while (and (< iter max-iter)
-		       (not (test-delta root oldroot 0.0d0 1.0d-3)))
+		       (not (root-test-delta root oldroot 0.0d0 1.0d-3)))
 	    do
 	    (format t "~&~d~6t~g ~18t~10,4g ~10,4g"
 		    iter root (- root (sqrt 5.0d0)) (- root oldroot))))))

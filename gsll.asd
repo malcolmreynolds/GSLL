@@ -3,7 +3,7 @@
 ; description: Definition of GSLL system 
 ; date:        
 ; author:      Liam Healy
-; modified:    Mon Jan  7 2008 - 00:13
+; modified:    Tue Jan  8 2008 - 22:52
 ;********************************************************
 ;;; $Id: $
 
@@ -168,12 +168,10 @@
 	     (:file "types")
 	     (:file "lookup")
 	     (:file "evaluation")))
-   ;; Once common callback definitions are moved out of
-   ;; numerical-integration to something in init, the
-   ;; numerical-integration dependency won't be necessary.
    (:file "numerical-differentiation" :depends-on (init general))
    (:file "chebyshev" :depends-on (init general))
    (:file "series-acceleration" :depends-on (init))
    (:file "wavelet" :depends-on (init data))
    (:file "hankel" :depends-on (init data))
-   (:file "roots-one" :depends-on (init))))
+   (:file "roots-one" :depends-on (init general))
+   (:file "minimization-one" :depends-on (init general))))
