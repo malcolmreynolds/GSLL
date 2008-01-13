@@ -3,7 +3,7 @@
 ; description: One-dimensional root solver.              
 ; date:        Sun Dec  9 2007 - 15:47                   
 ; author:      Liam Healy                                
-; modified:    Tue Jan  8 2008 - 22:53
+; modified:    Sat Jan 12 2008 - 21:50
 ;********************************************************
 ;;; $Id: $
 
@@ -24,10 +24,8 @@
   (fdf :pointer)
   (parameters :pointer))
 
-;;; Temporarily added a name argument to debug.  Once solved that can
-;;; probably be removed.
 (export 'def-solver-functions)
-(defmacro def-solver-functions (name function df fdf)
+(defmacro def-solver-functions (function df fdf)
   "Setup functions for solvers.
    The CL functions name and derivative should be defined previously
    with defuns."
@@ -48,17 +46,17 @@
 	(,df ,arg))
       (cffi:defcallback ,fdf :pointer
 	  ((,arg :double)
+	   (,params :pointer)
 	   (,func :pointer)
-	   (,deriv :pointer)
-	   (,params :pointer))
+	   (,deriv :pointer))
 	(declare (ignore ,params))
 	(,fdf ,arg ,func ,deriv)
 	(cffi:null-pointer))
-      (defparameter ,name (cffi:foreign-alloc 'gsl-function-fdf))
-      (set-slot-function ,name 'gsl-function-fdf 'function ',function)
-      (set-slot-function ,name 'gsl-function-fdf 'df ',df)
-      (set-slot-function ,name 'gsl-function-fdf 'fdf ',fdf)
-      (set-parameters ,name 'gsl-function-fdf))))
+      (defparameter ,function (cffi:foreign-alloc 'gsl-function-fdf))
+      (set-slot-function ,function 'gsl-function-fdf 'function ',function)
+      (set-slot-function ,function 'gsl-function-fdf 'df ',df)
+      (set-slot-function ,function 'gsl-function-fdf 'fdf ',fdf)
+      (set-parameters ,function 'gsl-function-fdf))))
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -72,7 +70,7 @@
   "Allocate an instance of a solver of the given type.")
 
 (defun-gsl allocate-fdfsolver (type)
-  "gsl_root_fsolver_alloc"
+  "gsl_root_fdfsolver_alloc"
   ((type :pointer))
   :c-return :pointer
   :documentation
@@ -152,7 +150,6 @@
 (defun-gsl iterate-fsolver (solver)
   "gsl_root_fsolver_iterate"
   ((solver :pointer))
-  :c-return :success-continue
   :documentation
   "Perform a single iteration of the solver.  The following
    errors may be signalled: :EBADFUNC,
@@ -370,9 +367,9 @@
 
 (let ((a 1.0d0) (b 0.0d0) (c -5.0d0))
   (defun quadratic (x)
-    (print (+ (* (+ (* a x) b) x) c)))
+    (+ (* (+ (* a x) b) x) c))
   (defun quadratic-derivative (x)
-    (print (+ (* 2 a x) b)))
+    (+ (* 2 a x) b))
   (defun quadratic-and-derivative (x cy cdy)
     (with-c-doubles ((cy y) (cdy dy))
       (setf y (+ (* (+ (* a x) b) x) c)
@@ -405,11 +402,7 @@
   (setf (fdefinition 'quadratic-df) #'quadratic))
 
 (def-solver-functions
-    *quadratic* quadratic quadratic-derivative quadratic-and-derivative)
-
-;;; This fails with memory fault:
-;;; (set-fdfsolver (allocate-fdfsolver newton-fdfsolver) *quadratic* 5.0d0)
-;;; I don't know why.  Thus the example does not work either.
+    quadratic-df quadratic-derivative quadratic-and-derivative)
 
 (defun roots-one-fdf-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
@@ -417,13 +410,13 @@
 	(initial 5.0d0))
     (with-fdfsolver
 	(solver *newton-fdfsolver* *quadratic* initial)
-      (format t "~&iter ~6t ~36troot ~44terr ~54terr(est)")
+      (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
       (loop for iter from 0
+	    for itres = (iterate-fdfsolver solver)
 	    for oldroot = initial then root
 	    for root = (fdfsolver-root solver)
-	    do (iterate-fdfsolver solver)
 	    while (and (< iter max-iter)
-		       (not (root-test-delta root oldroot 0.0d0 1.0d-3)))
+		       (not (root-test-delta root oldroot 0.0d0 1.0d-5)))
 	    do
-	    (format t "~&~d~6t~g ~18t~10,4g ~10,4g"
+	    (format t "~&~d~6t~10,8g ~18t~10,6g~34t~10,6g"
 		    iter root (- root (sqrt 5.0d0)) (- root oldroot))))))
