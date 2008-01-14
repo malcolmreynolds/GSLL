@@ -3,7 +3,7 @@
 ; description: Foreign callback functions.               
 ; date:        Sun Dec  9 2007 - 22:08                   
 ; author:      Liam Healy                                
-; modified:    Sun Jan  6 2008 - 12:46
+; modified:    Sun Jan 13 2008 - 13:26
 ;********************************************************
 ;;; $Id: $
 
@@ -74,16 +74,23 @@
     (name
      &optional (return-type :double) (argument-type :double)
      (structure 'gsl-function)
-     additional-slots)
-  "Define the variable given by name
-   as a foreign gsl-function that contains the callback
-   of a CL function of the same name."
+     additional-slots
+     additional-arguments)
+  "Define a callback and optionally a related C struct used by GSL.
+   This struct is bound to a CL special with the specified name.
+   This macro can be used whenever a callback is defined and
+   placed in a struct that has no other functions defined."
   (let ((argument (gensym "CB")))
     `(progn
-      (cffi:defcallback ,name ,return-type
-	  ((,argument ,argument-type) (params :pointer))
+      (cffi:defcallback ,name
+	  ,(if (eq return-type :success-failure) :int return-type)
+	  ((,argument ,argument-type) (params :pointer) ,@additional-arguments)
 	(declare (ignore params))
-	(,name ,argument))
+	(,name ,argument ,@(mapcar #'first additional-arguments))
+	,@(when (eq return-type :success-failure)
+		;; We always return success, because if there was a
+		;; problem, a CL error would be signalled.
+		'((cffi:foreign-enum-value 'gsl-errorno :SUCCESS))))
       ,@(when
 	 structure
 	 ;; Assume that defcallback does not bind the variable 'name.

@@ -3,7 +3,7 @@
 ; description: Using GSL storage.                        
 ; date:        Sun Mar 26 2006 - 16:32                   
 ; author:      Liam M. Healy                             
-; modified:    Sun Dec 31 2006 - 17:34
+; modified:    Sun Jan 13 2008 - 22:49
 ;********************************************************
 ;;; $Id: $
 
@@ -233,6 +233,14 @@
     (unwind-protect 
 	 (progn ,@body)
       (free ,symbol))))
+
+(defun make-data-from-pointer (pointer &optional (class 'gsl-vector-double) size)
+  "Given a C pointer to a GSL data type, make the CL object."
+  (make-instance
+   class
+   :pointer pointer
+   :storage-size
+   (or size (cffi:foreign-slot-value pointer 'gsl-vector-c 'size))))
 
 ;;;;****************************************************************************
 ;;;; Getting values into CL

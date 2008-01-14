@@ -3,7 +3,7 @@
 ; description: Vectors
 ; date:        Sun Mar 26 2006 - 11:51                   
 ; author:      Liam M. Healy                             
-; modified:    Mon Nov 26 2007 - 23:30
+; modified:    Sun Jan 13 2008 - 22:40
 ;********************************************************
 ;;; $Id: $
 
@@ -78,6 +78,11 @@ deallocated with the vector.
 
 (defmethod gsl-array ((object gsl-vector))
   (cffi:foreign-slot-value (pointer object) 'gsl-vector-c 'data))
+
+(defun gsl-array-p (pointer)
+  "A pointer to the GSL array with the data contents, from the
+   sruct pointer."
+  (cffi:foreign-slot-value pointer 'gsl-vector-c 'data))
 
 ;;;;****************************************************************************
 ;;;; Getting values
