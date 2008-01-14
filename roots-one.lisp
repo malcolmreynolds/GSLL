@@ -3,12 +3,12 @@
 ; description: One-dimensional root solver.              
 ; date:        Sun Dec  9 2007 - 15:47                   
 ; author:      Liam Healy                                
-; modified:    Sat Jan 12 2008 - 21:50
+; modified:    Sun Jan 13 2008 - 17:00
 ;********************************************************
+;;; Time-stamp: <2008-01-13 17:00:49 liam roots-one.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
-
 
 ;;;;****************************************************************************
 ;;;; Function definition
@@ -205,7 +205,7 @@
   "gsl_root_test_interval"
   ((lower :double) (upper :double)
    (absolute-error :double) (relative-error :double))
-  :c-return :success-failure
+  :c-return :success-continue	 ; GSL documentation not clear on this
   :documentation
   "Test for the convergence of the interval [lower,upper]
    with absolute error absolute-error and relative error
@@ -228,7 +228,7 @@
   "gsl_root_test_delta"
   ((x1 :double) (x0 :double)
    (absolute-error :double) (relative-error :double))
-  :c-return :success-failure
+  :c-return :success-continue
   :documentation
   "Test for the convergence of the sequence ... x0, x1
    with absolute error absolute-error and relative error
@@ -240,7 +240,7 @@
 (defun-gsl root-test-residual (f absolute-error)
   "gsl_root_test_residual"
   ((f :double) (absolute-error :double))
-  :c-return :success-failure
+  :c-return :success-continue
   :documentation
   "Tests the residual value f against the absolute
    error bound absolute-error.  The test returns T if the
@@ -409,7 +409,7 @@
   (let ((max-iter 100)
 	(initial 5.0d0))
     (with-fdfsolver
-	(solver *newton-fdfsolver* *quadratic* initial)
+	(solver *newton-fdfsolver* quadratic-df initial)
       (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
       (loop for iter from 0
 	    for itres = (iterate-fdfsolver solver)
