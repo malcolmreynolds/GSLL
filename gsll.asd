@@ -174,4 +174,5 @@
    (:file "wavelet" :depends-on (init data))
    (:file "hankel" :depends-on (init data))
    (:file "roots-one" :depends-on (init general))
-   (:file "minimization-one" :depends-on (init general))))
+   (:file "minimization-one" :depends-on (init general))
+   (:file "roots-multi" :depends-on (init general))))
