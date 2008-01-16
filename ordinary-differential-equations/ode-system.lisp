@@ -1,11 +1,7 @@
-;********************************************************
-; file:        ode-system.lisp      
-; description: ODE system setup
-; date:        Sun Apr 15 2007 - 14:19                   
-; author:      Liam Healy                                
-; modified:    Sat Jan  5 2008 - 21:39
-;********************************************************
-;;; $Id: $
+;; ODE system setup
+;; Liam Healy, Sun Apr 15 2007 - 14:19
+;; Time-stamp: <2008-01-14 22:58:19 liam ode-system.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -42,7 +38,7 @@
 	   (,params :pointer))
 	(declare (ignore ,params))
 	(,name ,time ,dependent ,derivatives)
-	(cffi:foreign-enum-value 'gsl-errorno :SUCCESS))
+	success)
       ;; The function should take four arguments: time, dependent, dfdy, dfdt
       ;; The last three will be arrays.
       (cffi:defcallback ,jacobian :int
@@ -53,7 +49,7 @@
 	   (,params :pointer))	
 	(declare (ignore ,params))
 	(,name ,time ,dependent ,dfdy ,dfdt)
-	(cffi:foreign-enum-value 'gsl-errorno :SUCCESS))
+	success)
       ;; Assume that defcallback does not bind the variable 'name.
       (defparameter ,name (cffi:foreign-alloc 'ode-system))
       (set-slot-function ,name 'ode-system 'function ',name)

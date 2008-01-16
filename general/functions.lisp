@@ -1,11 +1,7 @@
-;********************************************************
-; file:        functions.lisp                            
-; description: Foreign callback functions.               
-; date:        Sun Dec  9 2007 - 22:08                   
-; author:      Liam Healy                                
-; modified:    Sun Jan 13 2008 - 13:26
-;********************************************************
-;;; $Id: $
+;; Foreign callback functions.               
+;; Liam Healy 
+;; Time-stamp: <2008-01-14 22:56:45 liam functions.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -90,7 +86,7 @@
 	,@(when (eq return-type :success-failure)
 		;; We always return success, because if there was a
 		;; problem, a CL error would be signalled.
-		'((cffi:foreign-enum-value 'gsl-errorno :SUCCESS))))
+		'(success)))
       ,@(when
 	 structure
 	 ;; Assume that defcallback does not bind the variable 'name.

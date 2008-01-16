@@ -1,11 +1,7 @@
-;********************************************************
-; file:        vector.lisp                        
-; description: Vectors
-; date:        Sun Mar 26 2006 - 11:51                   
-; author:      Liam M. Healy                             
-; modified:    Sun Jan 13 2008 - 22:40
-;********************************************************
-;;; $Id: $
+;; Vectors
+;; Liam Healy, Sun Mar 26 2006 - 11:51
+;; Time-stamp: <2008-01-15 19:01:37 liam vector.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -79,7 +75,16 @@ deallocated with the vector.
 (defmethod gsl-array ((object gsl-vector))
   (cffi:foreign-slot-value (pointer object) 'gsl-vector-c 'data))
 
-(defun gsl-array-p (pointer)
+(defun make-data-from-pointer (pointer &optional (class 'gsl-vector-double) size)
+  "Given a C pointer to a GSL data type, make the CL object."
+  (make-instance
+   class
+   :pointer pointer
+   :storage-size
+   (or size (cffi:foreign-slot-value pointer 'gsl-vector-c 'size))))
+
+(export 'vector-data)
+(defun vector-data (pointer)
   "A pointer to the GSL array with the data contents, from the
    sruct pointer."
   (cffi:foreign-slot-value pointer 'gsl-vector-c 'data))
@@ -94,6 +99,13 @@ deallocated with the vector.
   :c-return :c-base-type
   :documentation "The ith element of the vector.")
 
+(defun-gsl vref (pointer index)
+  "gsl_vector_get"
+  ((pointer :pointer) (index :size))
+  :c-return :double
+  :index nil
+  :documentation "An element of the vector of doubles, computed from the pointer.")
+
 (defun-gsl gsl-vector-ptr (vector i)
   "gsl_vector_ptr" (((pointer vector) :pointer) (i :size))
   :c-return :pointer
@@ -107,7 +119,14 @@ deallocated with the vector.
   "gsl_vector_set"
   (((pointer vector) :pointer) ((first indices) :size) (value :c-base-type))
   :c-return :void
-  :documentation "Set the ith element of the vector.")
+  :documentation "Set an element of the vector.")
+
+(defun-gsl (setf vref) (value pointer index)
+  "gsl_vector_set"
+  ((pointer :pointer) (index :size) (value :double))
+  :c-return :void
+  :index nil
+  :documentation "Set an element of the vector of doubles, using its pointer.")
 
 (defun-gsl-vdsfc set-all ((object gsl-vector) value)
   "gsl_vector_set_all"

@@ -1,11 +1,15 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-01-13 22:51:02 liam roots-multi.lisp>
+;;; Time-stamp: <2008-01-15 22:44:27 liam roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
 
-;;; I don't like using make-data-from-pointer.
+;;; I don't like using make-data-from-pointer, but it's the only way
+;;; to have access to the GSL functions when given a pointer.
+;;; Alternatively, I could provide the GSL pointer and then the only
+;;; thing the user could use is vref, or, of course
+;;; make-data-from-pointer.
 
 ;;;;****************************************************************************
 ;;;; Function definition
@@ -24,6 +28,16 @@
   `(def-scalar-function ,name :success-failure :pointer gsl-mfunction
     ((dimensions ,dimensions))
     ((returned-value gsl-vector-c))))
+
+(cffi:defcstruct gsl-mfunction-fdf
+  ;; See /usr/include/gsl/gsl_multiroots.h
+  "The definition of a function and its derivatives for multiroot
+   finding in GSL."
+  (function :pointer)
+  (df :pointer)
+  (fdf :pointer)
+  (dimensions :size)
+  (parameters :pointer))
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -55,7 +69,7 @@
 (defun-gsl set-mfdfsolver (solver function-derivative initial)
   "gsl_multiroot_fdfsolver_set"
   ((solver :pointer) (function-derivative :pointer)
-   ((gsl-array initial) :pointer))
+   ((pointer initial) :pointer))
   :documentation
   "Set or reset an existing solver to use the function and derivative
    (fdf) and the initial guess.")
@@ -383,12 +397,21 @@
 (defparameter *gsl-vector*
   (make-instance 'gsl-vector-double :pointer nil :storage-size nil))
 
+;;; One alternative way of writing the function, not recommended.
 (defun rosenbrock (argument return)
   "Rosenbrock test function."
-  (with-c-doubles (((gsl-array-p argument) x0 x1)
-		   ((gsl-array-p return) f0 f1))
+  (with-c-doubles (((vector-data argument) x0 x1)
+		   ((vector-data return) f0 f1))
     (setf f0 (* *rosenbrock-a* (- 1 x0))
 	  f1 (* *rosenbrock-b* (- x1 (expt x0 2))))))
+
+;;; The recommended alternative
+(defun rosenbrock (argument return)
+  "Rosenbrock test function."
+  (setf (vref return 0)
+	(* *rosenbrock-a* (- 1 (vref argument 0)))
+	(vref return 1)
+	(* *rosenbrock-b* (- (vref argument 1) (expt (vref argument 0) 2)))))
 
 (def-mfunction rosenbrock 2)
 
@@ -416,3 +439,51 @@
 				  (gsl-aref argval 1)
 				  (gsl-aref fnval 0)
 				  (gsl-aref fnval 1)))))))))
+
+(defun rosenbrock-df (argument jacobian)
+  "The partial derivatives of the Rosenbrock functions."
+  (setf (mref jacobian 0 0) (- *rosenbrock-a*)
+	(mref jacobian 0 1) 0.0d0
+	(mref jacobian 1 0) (* -2 *rosenbrock-b* (vref argument 0))
+	(mref jacobian 1 1) *rosenbrock-b*))
+
+(defun rosenbrock-fdf (argument value jacobian)
+  (rosenbrock argument value)
+  (rosenbrock-df argument jacobian))
+
+;;; Because def-solver-functions and def-scalar-function bind a symbol
+;;; of the same name as the first function, and we want both to run,
+;;; we'll make an alias function so we can use both.  
+(eval-when (:load-toplevel :execute)
+  (setf (fdefinition 'rosenbrock-f) #'rosenbrock))
+
+(def-solver-functions rosenbrock-f rosenbrock-df rosenbrock-fdf 2)
+
+(defun roots-multi-example-df ()
+  "Solving Rosenbrock with derivatives, the example given in Sec. 34.8
+   of the GSL manual."
+  (flet ((print-state (iter argval fnval)
+	   (format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
+		   iter
+		   (gsl-aref argval 0)
+		   (gsl-aref argval 1)
+		   (gsl-aref fnval 0)
+		   (gsl-aref fnval 1))))
+    (let ((max-iter 1000))
+      (with-data (vect vector-double 2)
+	(setf (data vect) #(-10.0d0 -5.0d0))
+	(with-mfdfsolver (solver *gnewton-mfdfsolver* rosenbrock-f vect)
+	  (let ((fnval (mfdfsolver-f solver))
+		(argval (mfdfsolver-root solver)))
+	    (loop for iter from 0
+		  while (and (< iter max-iter)
+			     (not (multiroot-test-residual solver 1.0d-7)))
+		  initially (print-state iter argval fnval)
+		  do
+		  (iterate-mfdfsolver solver)
+		  (print-state iter argval fnval)
+		  finally (return
+			    (values (gsl-aref argval 0)
+				    (gsl-aref argval 1)
+				    (gsl-aref fnval 0)
+				    (gsl-aref fnval 1))))))))))

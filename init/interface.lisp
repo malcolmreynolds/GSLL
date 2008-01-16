@@ -1,10 +1,7 @@
-;********************************************************
-; file:        interface.lisp                            
-; description: Macros to interface GSL functions.
-; date:        Mon Mar  6 2006 - 22:35                   
-; author:      Liam M. Healy
-; modified:    Sun Jan  6 2008 - 13:48
-;********************************************************
+;; Macros to interface GSL functions.
+;; Liam Healy 
+;; Time-stamp: <2008-01-15 18:55:45 liam interface.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -101,7 +98,7 @@
 
 (defun success-continue (value)
   "If status indicates success, return T, othewise return NIL."
-  (eql value (cffi:foreign-enum-value 'gsl-errorno :SUCCESS)))
+  (eql value success))
 
 ;;;;****************************************************************************
 ;;;; Macro defun-gsl 
@@ -125,7 +122,8 @@
 ;;;            or its derivatives.
 ;;;            Default are allocated quantities in c-arguments, or :c-return if none.
 ;;; type       :function or :method
-;;; index      Name under which this function should be cross-referenced
+;;; index      Name under which this function should be cross-referenced; t
+;;;            to use name, nil to not index.
 ;;; export     Whether to export the symbol.
 ;;; null-pointer-info Return value if C function returns a null pointer.
 ;;; documentation
@@ -136,7 +134,7 @@
     (name arglist gsl-name c-arguments
      &key (c-return :error-code)
      (return nil return-supplied-p)
-     (type :function) index (export (not (eq type :method)))
+     (type :function) (index t) (export (not (eq type :method)))
      null-pointer-info documentation invalidate after enumeration)
   (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
 	 (carg-symbs
@@ -164,69 +162,69 @@
 		    (unless (eq c-return :void)
 		      (list cret-name)))))
     `(progn
-       (,(if (eq type :function) 'defun 'defmethod)
-	 ,name
-	 ,(if (member :mode c-arguments)
-	      `(,@clargs &optional (mode :double-prec))
-	      `(,@clargs))
-	 ,@(when documentation (list documentation))
-	 (,@(if allocated
-		`(cffi:with-foreign-objects
-		     ,(mapcar #'wfo-declare allocated-decl))
-		'(let ()))
-	    (let ((,cret-name
-		   (cffi:foreign-funcall
-		    ,gsl-name
-		    ,@(mapcan
-		       (lambda (arg)
-			 (list (if (member (st-symbol arg) allocated)
-				   :pointer
-				   (st-type arg))
-			       (st-symbol arg)))
-		       cargs)
-		    ,cret-type)))
-	      ,@(case c-return
-		      (:void `((declare (ignore ,cret-name))))
-		      (:error-code	; fill in arguments
-		       `((check-gsl-status ,cret-name ',name))))
-	      ,@(when invalidate `((cl-invalidate ,@invalidate)))
-	      ,@(when (or null-pointer-info (eq c-return :pointer))
-		      `((check-null-pointer ,cret-name
-					    ,@(or null-pointer-info
-						  '(:ENOMEM "No memory allocated")))))
-	      ,@after
-	      (values
-	       ,@(case c-return
-		       (:number-of-answers
-			(mapcan
-			 (lambda (vbl seq)
-			   `((when (> ,cret-name ,seq) ,vbl)))
-			 clret
-			 (loop for i below (length clret) collect i)))
-		       (:success-failure
-			(if (equal clret invalidate)
-			    ;; success-failure more important than passed-in
-			    `(success-failure ,@clret)
-			    (remove cret-name ; don't return c-return itself
-				    `(,@clret (success-failure ,cret-name)))))
-		       (:success-continue
-			(if (equal clret invalidate)
-			    ;; success-failure more important than passed-in
-			    `(success-continue ,@clret)
-			    (remove cret-name ; don't return c-return itself
-				    `(,@clret (success-continue ,cret-name)))))
-		       (:true-false
-			`((not (zerop ,cret-name))))
-		       (:enumerate
-			`((cffi:foreign-enum-keyword ',enumeration ,cret-name)))
-		       (t (unless
-			      (or
-			       (and (eq c-return :error-code)
-				    (not allocated))
-			       (and (null return) return-supplied-p))
-			    clret)))))))
-       (map-name ',(or index name) ,gsl-name)
-       ,@(when export `((export ',name))))))
+      (,(if (eq type :function) 'defun 'defmethod)
+       ,name
+       ,(if (member :mode c-arguments)
+	    `(,@clargs &optional (mode :double-prec))
+	    `(,@clargs))
+       ,@(when documentation (list documentation))
+       (,@(if allocated
+	      `(cffi:with-foreign-objects
+		,(mapcar #'wfo-declare allocated-decl))
+	      '(let ()))
+	(let ((,cret-name
+	       (cffi:foreign-funcall
+		,gsl-name
+		,@(mapcan
+		   (lambda (arg)
+		     (list (if (member (st-symbol arg) allocated)
+			       :pointer
+			       (st-type arg))
+			   (st-symbol arg)))
+		   cargs)
+		,cret-type)))
+	  ,@(case c-return
+		  (:void `((declare (ignore ,cret-name))))
+		  (:error-code		; fill in arguments
+		   `((check-gsl-status ,cret-name ',name))))
+	  ,@(when invalidate `((cl-invalidate ,@invalidate)))
+	  ,@(when (or null-pointer-info (eq c-return :pointer))
+		  `((check-null-pointer ,cret-name
+		     ,@(or null-pointer-info
+			   '(:ENOMEM "No memory allocated")))))
+	  ,@after
+	  (values
+	   ,@(case c-return
+		   (:number-of-answers
+		    (mapcan
+		     (lambda (vbl seq)
+		       `((when (> ,cret-name ,seq) ,vbl)))
+		     clret
+		     (loop for i below (length clret) collect i)))
+		   (:success-failure
+		    (if (equal clret invalidate)
+			;; success-failure more important than passed-in
+			`(success-failure ,@clret)
+			(remove cret-name ; don't return c-return itself
+				`(,@clret (success-failure ,cret-name)))))
+		   (:success-continue
+		    (if (equal clret invalidate)
+			;; success-failure more important than passed-in
+			`(success-continue ,@clret)
+			(remove cret-name ; don't return c-return itself
+				`(,@clret (success-continue ,cret-name)))))
+		   (:true-false
+		    `((not (zerop ,cret-name))))
+		   (:enumerate
+		    `((cffi:foreign-enum-keyword ',enumeration ,cret-name)))
+		   (t (unless
+			  (or
+			   (and (eq c-return :error-code)
+				(not allocated))
+			   (and (null return) return-supplied-p))
+			clret)))))))
+      ,@(when index `((map-name ',(if (eql index t) name index) ,gsl-name)))
+      ,@(when export `((export ',name))))))
 
 (defmacro defun-optionals
     (name arglist no-optional optionals &optional documentation)

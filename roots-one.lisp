@@ -1,12 +1,7 @@
-;********************************************************
-; file:        roots-one.lisp                           
-; description: One-dimensional root solver.              
-; date:        Sun Dec  9 2007 - 15:47                   
-; author:      Liam Healy                                
-; modified:    Sun Jan 13 2008 - 17:00
-;********************************************************
-;;; Time-stamp: <2008-01-13 17:00:49 liam roots-one.lisp>
-;;; $Id: $
+;; One-dimensional root solver.
+;; Liam Healy 
+;; Time-stamp: <2008-01-15 22:57:11 liam roots-one.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -25,38 +20,51 @@
   (parameters :pointer))
 
 (export 'def-solver-functions)
-(defmacro def-solver-functions (function df fdf)
+(defmacro def-solver-functions (function df fdf &optional dimensions)
   "Setup functions for solvers.
    The CL functions name and derivative should be defined previously
-   with defuns."
+   with defuns.  If dimensions is non-nil, set multiroot solver
+   functions."
   (let ((arg (make-symbol "ARG"))
 	(params (make-symbol "PARAMS"))
 	(func (make-symbol "F"))
-	(deriv (make-symbol "DF")))
+	(deriv (make-symbol "DF"))
+	(struct (if dimensions 'gsl-mfunction-fdf 'gsl-function-fdf))
+	(argtype (if dimensions :pointer :double))
+	(rettype (if dimensions :int :double)))
     `(progn
-      (cffi:defcallback ,function :double
-	  ((,arg :double)
-	   (,params :pointer))
+      (cffi:defcallback ,function ,rettype
+	  ((,arg ,argtype)
+	   (,params :pointer)
+	   ,@(when dimensions `((,func :pointer))))
 	(declare (ignore ,params))
-	(,function ,arg))
-      (cffi:defcallback ,df :double
-	  ((,arg :double)
-	   (,params :pointer))
+	(,function ,arg ,@(when dimensions `(,func)))
+	,@(when dimensions '(success)))
+      (cffi:defcallback ,df ,rettype
+	  ((,arg ,argtype)
+	   (,params :pointer)
+	   ,@(when dimensions `((,deriv :pointer))))
 	(declare (ignore ,params))
-	(,df ,arg))
-      (cffi:defcallback ,fdf :pointer
-	  ((,arg :double)
+	(,df ,arg ,@(when dimensions `(,deriv)))
+	,@(when dimensions '(success)))
+      (cffi:defcallback ,fdf ,(if dimensions :int :pointer)
+	  ((,arg ,argtype)
 	   (,params :pointer)
 	   (,func :pointer)
 	   (,deriv :pointer))
 	(declare (ignore ,params))
 	(,fdf ,arg ,func ,deriv)
-	(cffi:null-pointer))
-      (defparameter ,function (cffi:foreign-alloc 'gsl-function-fdf))
-      (set-slot-function ,function 'gsl-function-fdf 'function ',function)
-      (set-slot-function ,function 'gsl-function-fdf 'df ',df)
-      (set-slot-function ,function 'gsl-function-fdf 'fdf ',fdf)
-      (set-parameters ,function 'gsl-function-fdf))))
+	;; fdf function returns sucess code in multivariate case, void
+	;; pointer in univariate
+	,(if dimensions 'success
+	     '(cffi:null-pointer)))
+      (defparameter ,function (cffi:foreign-alloc ',struct))
+      (set-slot-function ,function ',struct 'function ',function)
+      (set-slot-function ,function ',struct 'df ',df)
+      (set-slot-function ,function ',struct 'fdf ',fdf)
+      ,@(when dimensions
+	      `((set-structure-slot ,function ',struct 'dimensions ,dimensions)))
+      (set-parameters ,function ',struct))))
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -395,7 +403,7 @@
 		    root (- root (sqrt 5.0d0))
 		    (- upper lower))))))
 
-;;; Because def-solver-functions and def-scalar-fucntion bind a symbol
+;;; Because def-solver-functions and def-scalar-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
 ;;; we'll make an alias function so we can use both.  
 (eval-when (:load-toplevel :execute)
@@ -420,3 +428,4 @@
 	    do
 	    (format t "~&~d~6t~10,8g ~18t~10,6g~34t~10,6g"
 		    iter root (- root (sqrt 5.0d0)) (- root oldroot))))))
+

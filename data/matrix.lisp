@@ -1,11 +1,7 @@
-;********************************************************
-; file:        matrix.lisp                        
-; description: Matrices
-; date:        Sun Mar 26 2006 - 11:51                   
-; author:      Liam M. Healy                             
-; modified:    Sun Dec  3 2006 - 18:53
-;********************************************************
-;;; $Id: $
+;; Matrices
+;; Liam Healy, Sun Mar 26 2006 - 11:51
+;; Time-stamp: <2008-01-15 19:34:56 liam matrix.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -51,6 +47,12 @@
 (defmethod gsl-array ((object gsl-matrix))
   (foreign-slot-value (pointer object) 'gsl-matrix-c 'data))
 
+(export 'matrix-data)
+(defun matrix-data (pointer)
+  "A pointer to the GSL array with the data contents, from the
+   sruct pointer."
+  (cffi:foreign-slot-value pointer 'gsl-matrix-c 'data))
+
 ;;;;****************************************************************************
 ;;;; Getting values
 ;;;;****************************************************************************
@@ -62,6 +64,13 @@
    ((second indices) :size))
   :c-return :c-base-type
   :documentation "The (i,j)-th element of the matrix.")
+
+(defun-gsl mref (pointer index0 index1)
+  "gsl_matrix_get"
+  ((pointer :pointer) (index0 :size) (index1 :size))
+  :c-return :double
+  :index nil
+  :documentation "An element of the matrix of doubles, computed from the pointer.")
 
 (defun-gsl-mdsfc gsl-matrix-ptr ((matrix gsl-matrix) i j)
   "gsl_matrix_ptr" (((pointer matrix) :pointer) (i :size) (j :size))
@@ -95,6 +104,13 @@
    (value :c-base-type))
   :c-return :void
   :documentation "Set the (i,j)-th element of the matrix.")
+
+(defun-gsl (setf mref) (value pointer index0 index1)
+  "gsl_matrix_set"
+  ((pointer :pointer) (index0 :size) (index1 :size) (value :double))
+  :c-return :void
+  :index nil
+  :documentation "Set an element of the matrix of doubles, using its pointer.")
 
 (defmethod (setf data) (array (object gsl-matrix))
   (loop for i from 0

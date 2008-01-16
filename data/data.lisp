@@ -1,11 +1,7 @@
-;********************************************************
-; file:        data.lisp                                 
-; description: Using GSL storage.                        
-; date:        Sun Mar 26 2006 - 16:32                   
-; author:      Liam M. Healy                             
-; modified:    Sun Jan 13 2008 - 22:49
-;********************************************************
-;;; $Id: $
+;; Using GSL storage.
+;; Liam Healy, Sun Mar 26 2006 - 16:32
+;; Time-stamp: <2008-01-14 21:09:15 liam data.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -233,14 +229,6 @@
     (unwind-protect 
 	 (progn ,@body)
       (free ,symbol))))
-
-(defun make-data-from-pointer (pointer &optional (class 'gsl-vector-double) size)
-  "Given a C pointer to a GSL data type, make the CL object."
-  (make-instance
-   class
-   :pointer pointer
-   :storage-size
-   (or size (cffi:foreign-slot-value pointer 'gsl-vector-c 'size))))
 
 ;;;;****************************************************************************
 ;;;; Getting values into CL

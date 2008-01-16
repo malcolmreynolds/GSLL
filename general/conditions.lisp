@@ -1,10 +1,7 @@
-;********************************************************
-; file:        conditions.lisp
-; description: GSL errors                                
-; date:        Sat Mar  4 2006 - 18:33                   
-; author:      Liam M. Healy
-; modified:    Sun Apr  2 2006 - 15:56
-;********************************************************
+;; GSL errors                                
+;; Liam Healy Sat Mar  4 2006 - 18:33
+;; Time-stamp: <2008-01-14 22:22:55 liam conditions.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -98,3 +95,11 @@
 (cffi:foreign-funcall
  "gsl_set_error_handler"
  :pointer (cffi:callback gsl-error))
+
+
+(defmacro gsl-errorno-sm (keyword)
+  `(define-symbol-macro
+    ,(intern (symbol-name keyword) (find-package :gsl))
+    (cffi:foreign-enum-value 'gsl-errorno ,keyword)))
+
+(gsl-errorno-sm :success)
