@@ -1,10 +1,7 @@
-;********************************************************
-; file:        init.lisp                              
-; description: Load GSL                                  
-; date:        Sat Mar  4 2006 - 18:53                   
-; author:      Liam M. Healy
-; modified:    Sat Sep 15 2007 - 18:59
-;********************************************************
+;; Load GSL
+;; Liam Healy Sat Mar  4 2006 - 18:53
+;; Time-stamp: <2008-01-16 18:50:15 liam init.lisp>
+;; $Id: $
 
 (defpackage gsll
   (:nicknames :gsl)
@@ -22,5 +19,15 @@
    
 (cffi:use-foreign-library libgsl)
 
-;;; If cffi-unix is unavailable, uncomment the following line:
-;;; (cffi:defctype :size :unsigned-long)
+;;; The following define :size, from cffi-unix which became cffi-net,
+;;; which is apparently turning into something even bigger and more
+;;; irrelevant.
+
+(cffi:defctype :uint32 :unsigned-int)
+(cffi:defctype :uint64 :unsigned-long)
+(cffi:defctype :size
+   #-cffi-features:no-long-long :uint64
+   #+cffi-features:no-long-long
+   #.(progn (cerror "Use :uint32 instead."
+   "This platform does not support long long types.")
+   :uint32))

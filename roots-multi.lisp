@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-01-15 22:44:27 liam roots-multi.lisp>
+;;; Time-stamp: <2008-01-16 19:31:03EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -397,6 +397,7 @@
 (defparameter *gsl-vector*
   (make-instance 'gsl-vector-double :pointer nil :storage-size nil))
 
+#|
 ;;; One alternative way of writing the function, not recommended.
 (defun rosenbrock (argument return)
   "Rosenbrock test function."
@@ -404,6 +405,7 @@
 		   ((vector-data return) f0 f1))
     (setf f0 (* *rosenbrock-a* (- 1 x0))
 	  f1 (* *rosenbrock-b* (- x1 (expt x0 2))))))
+|#
 
 ;;; The recommended alternative
 (defun rosenbrock (argument return)

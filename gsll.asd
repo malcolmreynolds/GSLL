@@ -12,23 +12,23 @@
   :description "GNU Scientific Library for Lisp."
   :version "0"
   :author "Liam M. Healy"
-  :licence "GPL"
-  :depends-on (cffi cffi-unix)	      ; http://www.cliki.net/cffi-unix
+  :licence "GPL v3"
+  :depends-on (cffi)
   :components
   ((:module init
 	    :components
 	    ((:file "init")
+	     (:file "conditions" :depends-on (init))
 	     (:file "utility" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
-	     (:file "interface" :depends-on (init number-conversion))
+	     (:file "interface" :depends-on (conditions init number-conversion))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
 	     (:file "tests" :depends-on (init lisp-unit))))
    (:module general
 	    :depends-on (init)
 	    :components
-	    ((:file "conditions")
-	     (:file "mathematical")
+	    ((:file "mathematical")
 	     (:file "functions")))
    ;; complex numbers not necessary?  Just make a struct.
    (:module data
