@@ -39,7 +39,7 @@
  
  <h3>Examples</h3>
  <div class="content">
- <p>The Jacobian elliptic functions <i>sn</i>, <i>cn</i>, and
+ <p>The <a href="http://www.gnu.org/software/gsl/manual/html_node/Elliptic-Functions-_0028Jacobi_0029.html">Jacobian elliptic functions</a> <i>sn</i>, <i>cn</i>, and
  <i>dn</i> are special functions (Chapter 7):</p> 
 <pre>
 (jacobian-elliptic-functions 0.2d0 0.81d0)
@@ -76,7 +76,7 @@ debugger invoked on a GSL-ERROR in thread #<THREAD "initial thread" {10032258C1}
 (gsl-lookup "gsl_sf_elljac_e")
 ((JACOBIAN-ELLIPTIC-FUNCTIONS . "gsl_sf_elljac_e"))
 </pre>
-to find that the Lisp function name is #'JACOBIAN-ELLIPTIC-FUNCTIONS.  
+to find that the Lisp function name is <code>#'jacobian-elliptic-functions</code>.  
   </li>
  <li>Look at the documentation for that Lisp function, e.g.
    <pre>(documentation #'jacobian-elliptic-functions 'function)
@@ -87,7 +87,9 @@ to find that the Lisp function name is #'JACOBIAN-ELLIPTIC-FUNCTIONS.
    to get an explanation of the arguments etc.
  </li>
  <li>Look at the end of the Lisp source file, or in an "example" file
- in the same directory, for examples.</li>
+ in the same directory, for examples.  Often, the examples are placed
+ in a <code>lisp-unit:define-test</code> form, and therefore show the answer
+ expected.</li>
  </ul>
  </div>
 
@@ -104,13 +106,17 @@ to find that the Lisp function name is #'JACOBIAN-ELLIPTIC-FUNCTIONS.
 	<li><a href="http://www.cliki.net/asdf">ASDF</a>
 	  </ul>
       <p>
-	If you are running Debian, the following should work:</p>
+	In <a href="http://www.debian.org">Debian</a>,
+	the following should work:</p>
       <blockquote><pre>apt-get install libgsl0 cl-cffi</pre></blockquote>
       (asdf is automatically installed with your CL implementation).
       <p>Once your CL implementation is running, do</p>
       <blockquote><pre>(asdf:operate 'asdf:compile-op :gsll)
       </pre></blockquote>
-      <p>or, if using Debian with the common-lisp-controller,</p>
+      <p>or, if using Debian with the
+      <a
+      href="http://packages.debian.org/common-lisp-controller">
+      common-lisp-controller</a>,</p>
       <blockquote><pre>(clc:clc-require :gsll)</pre></blockquote>
   <p>GSLL has been tested with SBCL on Debian i386 and amd64.</p>
  </div>
@@ -124,8 +130,7 @@ to find that the Lisp function name is #'JACOBIAN-ELLIPTIC-FUNCTIONS.
 	  example, 
 	   </p>
 	<pre>svn list svn://common-lisp.net/project/gsll/subversion/trunk
-svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
-	You can also get a tgz file <a href="gsll.tgz">here</a>.</p>
+svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>.</p>
  </div>
  
  <h3>Project Development</h3>
@@ -144,14 +149,6 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
    do input and output to files, the remainder of the necessary
    file-related operations must also be performed in C; no CL
    interface is yet provided.</p>
-   <p>Regression tests using <a
-   href="http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html">lisp-unit</a>
-   (provided) are given for many of the functions defined.  These
-   also serve as examples.  The judgement of floating point numbers as
-   equivalent is a hack, and needs to be replaced; I am looking for
-   good ideas.  Note that most of the result have not been verified
-   with an independent source; the values given are from previous
-   tests.</p>
   <p>A Trac web page will soon be set up for those interested in
   development, and for reporting bugs.  In the meantime, send email to
   me at this address: <code>lhealy</code> -at-
@@ -338,8 +335,24 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
     </table>
  </div>
 
+<h3>Regression Tests</h3>
+  <div class="content">
+   <p>Regression tests using <a
+   href="http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html">lisp-unit</a>
+   (provided) are given for many of the functions defined.  These
+   also serve as examples.  The judgement of floating point numbers as
+   equivalent is a hack, and needs to be replaced; I am looking for
+   good ideas.  Note that most of the result have not been verified
+   with an independent source; the values given are from previous
+   tests.  To run the tests,
+<pre>
+(lisp-unit:run-tests)
+</pre>
+and expect a few failures on amd64 (four), none? on i386.  Often, the
+   failures aren't really failures, just floating point numbers that
+   aren't close enough to pass.
+</p>
 
- 
  <h3>Related projects from others</h3>
   <div class="content">
   A partial automatically-generated interface to GSL is provided in <a
@@ -357,7 +370,7 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-01-15 22:37:31 liam index.html>
+       Time-stamp: <2008-01-19 14:11:28EST index.html>
        </small>
 <!-- hhmts end -->
  </div>

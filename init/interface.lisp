@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-15 18:55:45 liam interface.lisp>
+;; Time-stamp: <2008-01-19 17:28:28EST interface.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -204,13 +204,13 @@
 		   (:success-failure
 		    (if (equal clret invalidate)
 			;; success-failure more important than passed-in
-			`(success-failure ,@clret)
+			`((success-failure ,@clret))
 			(remove cret-name ; don't return c-return itself
 				`(,@clret (success-failure ,cret-name)))))
 		   (:success-continue
 		    (if (equal clret invalidate)
 			;; success-failure more important than passed-in
-			`(success-continue ,@clret)
+			`((success-continue ,@clret))
 			(remove cret-name ; don't return c-return itself
 				`(,@clret (success-continue ,cret-name)))))
 		   (:true-false
@@ -250,6 +250,7 @@
 (defmacro defvariable (cl-symbol gsl-symbol documentation)
   "Define a library variable pointer."
   `(progn
-    (cffi:defcvar (,gsl-symbol ,cl-symbol) :pointer :read-only t)
+    (cffi:defcvar (,gsl-symbol ,cl-symbol :read-only t) :pointer
+      ,documentation)
     (map-name ',cl-symbol ,gsl-symbol)
-    (setf (documentation ',cl-symbol 'variable) ,documentation)))
+    (export ',cl-symbol)))

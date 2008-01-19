@@ -1,11 +1,7 @@
-;********************************************************
-; file:        rng-types.lisp                               
-; description: Random number generation                  
-; date:        Tue Jul 11 2006 - 23:39                   
-; author:      Liam M. Healy                             
-; modified:    Sun Feb  4 2007 - 15:51
-;********************************************************
-;;; $Id: $
+;; Random number generation
+;; Liam Healy, Tue Jul 11 2006 - 23:39
+;; Time-stamp: <2008-01-19 17:45:53EST rng-types.lisp>
+;; $Id: $
 
 ;;; Random number generator types and information functions.
 
@@ -64,11 +60,7 @@
 		     (substitute
 		      #\_ #\- 
 		      (format nil "gsl_rng_~(~a~)" lisp-name))))))
-    `(progn
-       (cffi:defcvar (,cname ,lisp-name) :pointer :read-only t)
-       (setf (documentation ',lisp-name 'variable) ,documentation)
-       (map-name ',lisp-name ,cname)
-       (export ',lisp-name))))
+    `(defvariable ,lisp-name ,cname ,documentation)))
 
 (def-rng-type *default-type*
     "The default random number generator type,
