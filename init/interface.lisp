@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-19 17:28:28EST interface.lisp>
+;; Time-stamp: <2008-01-19 18:58:42EST interface.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -101,8 +101,37 @@
   (eql value success))
 
 ;;;;****************************************************************************
+;;;; Argument check
+;;;;****************************************************************************
+
+
+#+example
+(cl-argument-types
+ '(U M) 
+ '((U :DOUBLE) (M :DOUBLE) (SN SF-RESULT) (CN SF-RESULT) (DN SF-RESULT)) 
+)
+
+(defparameter *c-to-cl-types*
+  '((:double . double-float) (:float . single-float) (:int . fixnum)
+    (:size . (fixnum 0))))
+
+(defun cl-argument-types (cl-arguments c-arguments-types)
+  "Create CL argument and types from the C arguments."
+  (loop for sd in c-arguments-types
+	for cl-type = (rest (assoc (second sd) *c-to-cl-types*))
+	append
+	(when (and cl-type (member (first sd) cl-arguments))
+	  (list (list (first sd) cl-type)))))
+
+(defun declaration-form (cl-argument-types)
+  (cons 'declare
+	(mapcar (lambda (v) (cons 'type (reverse v))) cl-argument-types)))
+
+
+;;;;****************************************************************************
 ;;;; Macro defun-gsl 
 ;;;;****************************************************************************
+
 
 (defvar *special-c-return*
   '(:error-code :number-of-answers :success-failure :success-continue
@@ -160,13 +189,15 @@
 		    (mapcan #'cl-convert-form allocated-decl)
 		    invalidate
 		    (unless (eq c-return :void)
-		      (list cret-name)))))
+		      (list cret-name))))
+	 (clargs-types (cl-argument-types clargs cargs)))
     `(progn
       (,(if (eq type :function) 'defun 'defmethod)
        ,name
        ,(if (member :mode c-arguments)
 	    `(,@clargs &optional (mode :double-prec))
 	    `(,@clargs))
+       ,(declaration-form clargs-types)
        ,@(when documentation (list documentation))
        (,@(if allocated
 	      `(cffi:with-foreign-objects
