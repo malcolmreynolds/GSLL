@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2008-01-20 18:12:42EST functions.lisp>
+;; Time-stamp: <2008-01-20 22:34:41EST functions.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -14,7 +14,7 @@
 ;;; numerical-integration, numerical-differentiation, chebyshev and
 ;;; definitions to aid in creating and using them are provided here.
 ;;; The idea behind the definitions is that the boundary between the CL
-;;; and C functions is a narrow as possible; #'defun-scalar is
+;;; and C functions is a narrow as possible; #'defun-single is
 ;;; macro that allows one to define a function in Lisp and make
 ;;; use it in these GSL tasks.
 
@@ -29,7 +29,7 @@
 ;;; #'with-c-double is provided to give named access to the elements.
 
 (export
- '(def-scalar-function undef-scalar-function defun-scalar
+ '(def-single-function undef-cbstruct defun-single
    with-c-double with-c-doubles))
 
 ;;;;****************************************************************************
@@ -135,7 +135,14 @@
 	      `(set-structure-slot
 		,name ',structure ',(first slot) ,(second slot))))))
 
-(defmacro def-scalar-function
+(defun undef-cbstruct (name)
+  "Free foreign callback function.  It is not necessary to do this; think
+   of the memory taken by an unused foreign function as much
+   less than that used by an unused defun."
+  (cffi:foreign-free (symbol-value name))
+  (makunbound name))
+
+(defmacro def-single-function
     (name
      &optional (return-type :double) (argument-type :double)
      (structure 'gsl-function)
@@ -151,20 +158,13 @@
        structure
        `((defcbstruct ,name ,structure ,additional-slots)))))
 
-(defun undef-scalar-function (name)
-  "Free foreign callback function.  It is not necessary to do this; think
-   of the memory taken by an unused foreign function as much
-   less than that used by an unused defun."
-  (cffi:foreign-free (symbol-value name))
-  (makunbound name))
-
-;;; Combine a defun and def-scalar-function in one:
-(defmacro defun-scalar (name arglist &body body)
+;;; Combine a defun and def-single-function in one:
+(defmacro defun-single (name arglist &body body)
   "Define a function of a scalar double-float argument returning
    a double-float in CL and C."
   `(progn
     (defun ,name ,arglist ,@body)
-    (def-scalar-function ,name)))
+    (def-single-function ,name)))
 
 ;;;;****************************************************************************
 ;;;; Vector of doubles

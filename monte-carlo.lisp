@@ -1,11 +1,7 @@
-;********************************************************
-; file:        monte-carlo.lisp                          
-; description: Monte Carlo Integration                   
-; date:        Sat Feb  3 2007 - 17:42                   
-; author:      Liam Healy                                
-; modified:    Sat Jan  5 2008 - 21:20
-;********************************************************
-;;; $Id: $
+;; Monte Carlo Integration
+;; Liam Healy Sat Feb  3 2007 - 17:42
+;; Time-stamp: <2008-01-20 22:39:10EST monte-carlo.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -298,7 +294,7 @@
 
 (export 'def-mc-function)
 (defmacro def-mc-function (name dimensions)
-  `(def-scalar-function ,name :double :pointer monte-function
+  `(def-single-function ,name :double :pointer monte-function
     ((dimensions ,dimensions))))
 
 ;;;;****************************************************************************

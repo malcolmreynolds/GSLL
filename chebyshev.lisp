@@ -1,11 +1,7 @@
-;********************************************************
-; file:        chebyshev.lisp                            
-; description: Chebyshev Approximations                  
-; date:        Sat Nov 17 2007 - 20:36                   
-; author:      Liam Healy                                
-; modified:    Sun Dec 30 2007 - 16:05
-;********************************************************
-;;; $Id: $
+;; Chebyshev Approximations
+;; Liam Healy Sat Nov 17 2007 - 20:36
+;; Time-stamp: <2008-01-20 22:37:14EST chebyshev.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -119,7 +115,7 @@
 ;;; From Chap. 28.5, except I have set steps = 100 instead of 10000
 ;;; to keep things sane.
 
-(defun-scalar chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
+(defun-single chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
 
 (defun chebyshev-table-example ()
   (let ((cheb (allocate-chebyshev 40))

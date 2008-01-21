@@ -1,11 +1,7 @@
-;********************************************************
-; file:        simulated-annealing.lisp                  
-; description: Simulated Annealing                       
-; date:        Sun Feb 11 2007 - 17:23                   
-; author:      Liam Healy                                
-; modified:    Sat Jan  5 2008 - 21:20
-;********************************************************
-;;; $Id: $
+;; Simulated Annealing
+;; Liam Healy Sun Feb 11 2007 - 17:23
+;; Time-stamp: <2008-01-20 22:37:12EST simulated-annealing.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -110,7 +106,7 @@
 
 (defmacro def-energy-function (name)
   "Define an energy or distance fuction for simulated annealing."
-  `(def-scalar-function ,name :double :pointer nil))
+  `(def-single-function ,name :double :pointer nil))
 
 (defmacro def-step-function (name)
   "Define a step fuction for simulated annealing."
@@ -131,7 +127,7 @@
 
 (defmacro def-print-function (name)
   "Define a print function for simulated annealing."
-  `(def-scalar-function ,name :int :pointer nil))
+  `(def-single-function ,name :int :pointer nil))
 
 ;;;;****************************************************************************
 ;;;; Example

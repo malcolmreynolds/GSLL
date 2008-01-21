@@ -1,11 +1,7 @@
-;********************************************************
-; file:        numerical-integration.lisp                
-; description: Numerical integration                     
-; date:        Wed Jul  5 2006 - 23:14                   
-; author:      Liam M. Healy                             
-; modified:    Sun Dec 30 2007 - 14:19
-;********************************************************
-;;; $Id: $
+;; Numerical integration
+;; Liam Healy, Wed Jul  5 2006 - 23:14
+;; Time-stamp: <2008-01-20 22:39:09EST numerical-integration.lisp>
+;; $Id: $
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
 
@@ -219,12 +215,11 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-;;; defun-scalar is a combination of defun and def-scalar-function:
-(defun-scalar one-sine (x) (sin x))
+(defun-single one-sine (x) (sin x))
 
 ;;; Parameters may be defined through the lexical environment:
 (let ((mult 2.0d0))
-  (defun-scalar two-sine (x) (sin (* mult x))))
+  (defun-single two-sine (x) (sin (* mult x))))
 
 (lisp-unit:define-test numerical-integration
   (lisp-unit:assert-first-fp-equal

@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-01-20 17:02:12EST minimization-one.lisp>
+;; Time-stamp: <2008-01-20 22:40:18EST minimization-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -193,7 +193,7 @@
 ;;; This is the example given in Sec. 33.8.  The results are different
 ;;; than given there.
 
-(defun-scalar minimization-one-fn (x)
+(defun-single minimization-one-fn (x)
   (1+ (cos x)))
 
 (defun minimization-one-example ()

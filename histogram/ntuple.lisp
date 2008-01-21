@@ -1,11 +1,7 @@
-;********************************************************
-; file:        ntuple.lisp                               
-; description: N-tuples                                  
-; date:        Sat Feb  3 2007 - 12:53                   
-; author:      Liam Healy                                
-; modified:    Sun Dec 30 2007 - 16:33
-;********************************************************
-;;; $Id: $
+;; N-tuples
+;; Liam Healy Sat Feb  3 2007 - 12:53
+;; Time-stamp: <2008-01-20 22:37:47EST ntuple.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -90,10 +86,10 @@
    for histogramming. The struct component function should return a
    non-zero value for each ntuple row that is to be included in the
    histogram. "
-  `(def-scalar-function ,name ,arg :int :pointer))
+  `(def-single-function ,name ,arg :int :pointer))
 
 (defmacro def-ntuple-value-function (name arg)
   "The value function computes scalar values for those ntuple rows
    selected by the selection function which should return the value
    to be added to the histogram."
-  `(def-scalar-function ,name ,arg :double :pointer))
+  `(def-single-function ,name ,arg :double :pointer))

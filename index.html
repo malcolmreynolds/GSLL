@@ -70,7 +70,7 @@ debugger invoked on a GSL-ERROR in thread #<THREAD "initial thread" {10032258C1}
  <li>Find the appropriate function(s) in the <a
  href="http://www.gnu.org/software/gsl/manual/">GSL
  documentation</a>.</li>
- <li>Use the GSLL function gsl-lookup
+ <li>Use the GSLL function <code>gsl-lookup</code>
   to find the equivalent GSLL function, for example
 <pre>
 (gsl-lookup "gsl_sf_elljac_e")
@@ -91,6 +91,10 @@ to find that the Lisp function name is <code>#'jacobian-elliptic-functions</code
  in a <code>lisp-unit:define-test</code> form, and therefore show the answer
  expected.</li>
  </ul>
+ It is advisable to look at the examples first for calculations that
+ require more complex setup (generally, the later chapters in the GSL
+ manual) because often there are convenience macros defined to make
+ the setup simpler.
  </div>
 
  <h3>Requirements and Platforms</h3>
@@ -370,7 +374,7 @@ and expect a few failures on amd64 (four), none? on i386.  Often, the
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-01-20 21:01:45EST index.html>
+       Time-stamp: <2008-01-20 21:29:20EST index.html>
        </small>
 <!-- hhmts end -->
  </div>

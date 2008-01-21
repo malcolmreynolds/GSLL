@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-01-20 17:18:39EST roots-multi.lisp>
+;;; Time-stamp: <2008-01-20 22:40:18EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -25,7 +25,7 @@
 (export 'def-mfunction)
 (defmacro def-mfunction (name dimensions)
   "Define a function for multivariate root solving."
-  `(def-scalar-function ,name :success-failure :pointer gsl-mfunction
+  `(def-single-function ,name :success-failure :pointer gsl-mfunction
     ((dimensions ,dimensions))
     (gsl-vector-c)))
 
@@ -453,7 +453,7 @@
   (rosenbrock argument value)
   (rosenbrock-df argument jacobian))
 
-;;; Because def-solver-functions and def-scalar-function bind a symbol
+;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
 ;;; we'll make an alias function so we can use both.  
 (eval-when (:load-toplevel :execute)

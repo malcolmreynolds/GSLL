@@ -1,11 +1,7 @@
-;********************************************************
-; file:        numerical-differentiation.lisp            
-; description: Numerical differentiation.                
-; date:        Mon Nov 12 2007 - 22:07                   
-; author:      Liam Healy                                
-; modified:    Sun Dec 30 2007 - 14:25
-;********************************************************
-;;; $Id: $
+;; Numerical differentiation.                
+;; Liam Healy Mon Nov 12 2007 - 22:07
+;; Time-stamp: <2008-01-20 22:35:42EST numerical-differentiation.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -74,7 +70,7 @@
 ;;;; Examples and unit test
 
 ;;; This is the example given in the GSL manual, Sec. 27.2.
-(defun-scalar 3/2-power (x) (expt x 3/2))
+(defun-single 3/2-power (x) (expt x 3/2))
 ;;; (3/2-power 2.0d0)
 
 (lisp-unit:define-test numerical-differentiation

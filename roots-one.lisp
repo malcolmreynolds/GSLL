@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-20 17:24:01EST roots-one.lisp>
+;; Time-stamp: <2008-01-20 22:40:19EST roots-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -357,7 +357,7 @@
       (setf y (+ (* (+ (* a x) b) x) c)
 	    dy (+ (* 2 a x) b)))))
 
-(def-scalar-function quadratic)
+(def-single-function quadratic)
 
 (defun roots-one-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
@@ -377,7 +377,7 @@
 		    root (- root (sqrt 5.0d0))
 		    (- upper lower))))))
 
-;;; Because def-solver-functions and def-scalar-function bind a symbol
+;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
 ;;; we'll make an alias function so we can use both.  
 (eval-when (:load-toplevel :execute)
