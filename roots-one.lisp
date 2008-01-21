@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-20 22:40:19EST roots-one.lisp>
+;; Time-stamp: <2008-01-20 23:14:27EST roots-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -37,7 +37,7 @@
       (defmcallback
 	  ,fdf ,(if dimensions :success-failure :pointer)
 	,argtype (:pointer :pointer))
-      (defcbstruct (,function 'function ,df 'df ,fdf 'fdf) ,struct
+      (defcbstruct (,function function ,df df ,fdf fdf) ,struct
 	,(when dimensions `((dimensions ,dimensions)))))))
 
 ;;;;****************************************************************************
