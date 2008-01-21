@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2008-01-14 22:58:19 liam ode-system.lisp>
+;; Time-stamp: <2008-01-20 18:06:12EST ode-system.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -20,42 +20,15 @@
    The CL functions name and jacobian should be defined previously
    with defuns."
   ;; The function should take three arguments: time, dependent, derivatives
-  ;; The latter two will be C arrays.  To reference them, use #'with-c-vector.
+  ;; The latter two will be C arrays.  To reference them, use #'with-c-doubles.
   ;; To make this more transparent using a normal CL function
   ;; would require transferring numbers back and forth between C and CL arrays,
   ;; which could be inefficient.
-  (let ((time (make-symbol "TIME"))
-	(dependent (make-symbol "DEP"))
-	(derivatives (make-symbol "DERIV"))
-	(dfdy (make-symbol "DFDY"))
-	(dfdt (make-symbol "DFDT"))
-	(params (make-symbol "PARAMS")))
-    `(progn
-      (cffi:defcallback ,name :int
-	  ((,time :double)
-	   (,dependent :pointer)
-	   (,derivatives :pointer)
-	   (,params :pointer))
-	(declare (ignore ,params))
-	(,name ,time ,dependent ,derivatives)
-	success)
-      ;; The function should take four arguments: time, dependent, dfdy, dfdt
-      ;; The last three will be arrays.
-      (cffi:defcallback ,jacobian :int
-	  ((,time :double)
-	   (,dependent :pointer)
-	   (,dfdy :pointer)
-	   (,dfdt :pointer)
-	   (,params :pointer))	
-	(declare (ignore ,params))
-	(,name ,time ,dependent ,dfdy ,dfdt)
-	success)
-      ;; Assume that defcallback does not bind the variable 'name.
-      (defparameter ,name (cffi:foreign-alloc 'ode-system))
-      (set-slot-function ,name 'ode-system 'function ',name)
-      (set-slot-function ,name 'ode-system 'jacobian ',jacobian)
-      (set-structure-slot ,name 'ode-system 'dimension ,dimension)
-      (set-parameters ,name 'ode-system))))
+  `(progn
+    (defmcallback ,name :success-failure (:double :pointer :pointer))
+    (defmcallback ,jacobian :success-failure (:double :pointer :pointer :pointer))
+    (defcbstruct (,name function ,jacobian jacobian) ode-system
+      ((dimension ,dimension)))))
 
 (defmacro with-ode-integration
     ((time step-size dependent dimensions &optional (stepper '*step-rk8pd*)

@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2008-01-14 22:56:45 liam functions.lisp>
+;; Time-stamp: <2008-01-20 18:12:42EST functions.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -61,42 +61,95 @@
   (parameters :pointer))
 
 ;;;;****************************************************************************
-;;;; A function of a scalar double
+;;;; Macros for defining a callback and placing in a structure
 ;;;;****************************************************************************
 
-;;; Used by numerical-integration, numerical-differentiation, chebyshev, ntuple.
+;;; Usage example for scalar function (e.g. numerical-integration,
+;;; numerical-differentiation, chebyshev, ntuple).  
+;;; (defmcallback myfn :double :double)
+;;; Usage example for gsl-vector function (e.g. roots-multi)
+;;; (defmcallback myfn :pointer :int (:pointer))
+;;; Usage example for function and derivative
+;;; (defmcallback fdf :pointer :double (:pointer :pointer))
+;;; (defmcallback fdf :success-failure :int (:pointer :pointer))
+
+(defmacro defmcallback
+    (name &optional (return-type :double) (argument-types :double)
+     additional-argument-types)
+  "Define a callback function used by GSL; the GSL function will call
+   it with an additional `parameters' argument that is ignored.  the
+   argument-types is a single type or list of types of the argument(s)
+   that appear before parameters, and the additional-argument-types
+   (default none) is a single type or list of types of the argument(s)
+   that appear after parameters.  The return-type is the type that
+   should be returned to GSL.  If :success-failure, a GSL_SUCCESS
+   code (0) is always returned; if :pointer, a null pointer is
+   returned."
+  (flet ((arg-type (types)
+	   (when types
+	     (mapcar (lambda (type) (list (gensym "ARG") type))
+		     (if (listp types) types (list types))))))
+    (let ((arguments (arg-type argument-types))
+	  (additional-arguments (arg-type additional-argument-types)))
+      `(cffi:defcallback ,name
+	,(if (eq return-type :success-failure) :int return-type)
+	(,@arguments (params :pointer) ,@additional-arguments)
+	;; Parameters as C argument are always ignored, because we have
+	;; CL specials to do the same job.
+	(declare (ignore params))
+	(,name ,@(mapcar #'first (append arguments additional-arguments)))
+	,@(case
+	   return-type
+	   (:success-failure
+	    ;; We always return success, because if there was a
+	    ;; problem, a CL error would be signalled.
+	    '(success))
+	   (:pointer
+	    ;; For unclear reasons, some GSL functions want callbacks
+	    ;; to return a void pointer which is apparently meaningless.
+	    '((cffi:null-pointer))))))))
+
+(defmacro defcbstruct
+    (functions &optional (structure 'gsl-function) additional-slots)
+  "Define a callback-related C struct used by GSL.
+   This struct is bound to a CL special with the specified name.
+   This macro can be used whenever a callback is defined and
+   placed in a struct that has no other functions defined."
+  (let ((name
+	 ;; Bind a CL special under this name to the C structure.
+	 (if (listp functions) (first functions) functions))
+	(fnlist
+	 ;; Make a list of (function slot-name ...) for each function.
+	 (if (listp functions) functions (list `,functions 'function))))
+    `(progn
+      ;; Create the C structure and bind CL variable to it.
+      (defparameter ,name (cffi:foreign-alloc ',structure))
+      ;; Set all the function slots.
+      ,@(loop for (fn slot-name) on fnlist by #'cddr collect
+	      `(set-slot-function ,name ',structure ',slot-name ',fn))
+      ;; Set the parameters.
+      (set-parameters ,name ',structure)
+      ;; Set any additional slots.
+      ,@(loop for slot in additional-slots
+	      collect
+	      `(set-structure-slot
+		,name ',structure ',(first slot) ,(second slot))))))
 
 (defmacro def-scalar-function
     (name
      &optional (return-type :double) (argument-type :double)
      (structure 'gsl-function)
      additional-slots
-     additional-arguments)
+     additional-argument-types)
   "Define a callback and optionally a related C struct used by GSL.
    This struct is bound to a CL special with the specified name.
    This macro can be used whenever a callback is defined and
    placed in a struct that has no other functions defined."
-  (let ((argument (gensym "CB")))
-    `(progn
-      (cffi:defcallback ,name
-	  ,(if (eq return-type :success-failure) :int return-type)
-	  ((,argument ,argument-type) (params :pointer) ,@additional-arguments)
-	(declare (ignore params))
-	(,name ,argument ,@(mapcar #'first additional-arguments))
-	,@(when (eq return-type :success-failure)
-		;; We always return success, because if there was a
-		;; problem, a CL error would be signalled.
-		'(success)))
-      ,@(when
-	 structure
-	 ;; Assume that defcallback does not bind the variable 'name.
-	 `((defparameter ,name (cffi:foreign-alloc ',structure))
-	   (set-slot-function ,name ',structure 'function ',name)
-	   (set-parameters ,name ',structure)
-	   ,@(loop for slot in additional-slots
-		   collect
-		   `(set-structure-slot
-		     ,name ',structure ',(first slot) ,(second slot))))))))
+  `(progn
+    (defmcallback ,name ,return-type ,argument-type ,additional-argument-types)
+    ,@(when
+       structure
+       `((defcbstruct ,name ,structure ,additional-slots)))))
 
 (defun undef-scalar-function (name)
   "Free foreign callback function.  It is not necessary to do this; think

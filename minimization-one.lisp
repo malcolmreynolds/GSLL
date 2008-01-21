@@ -1,11 +1,7 @@
-;********************************************************
-; file:        minimization-one.lisp                     
-; description: Univariate minimization                   
-; date:        Tue Jan  8 2008 - 21:02                   
-; author:      Liam Healy                                
-; modified:    Tue Jan  8 2008 - 22:50
-;********************************************************
-;;; $Id: $
+;; Univariate minimization
+;; Liam Healy Tue Jan  8 2008 - 21:02
+;; Time-stamp: <2008-01-20 17:02:12EST minimization-one.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -85,7 +81,7 @@
    bounding interval.")
 
 (defun-gsl fminimizer-x-minimum (minimizer)
-  "gsl_min_fminimizer_x_lower"
+  "gsl_min_fminimizer_x_minimum"
   ((minimizer :pointer))
   :c-return :double
   :documentation
@@ -137,7 +133,7 @@
   "gsl_min_test_interval"
   ((lower :double) (upper :double)
    (absolute-error :double) (relative-error :double))
-  :c-return :success-failure
+  :c-return :success-continue		; guess that this is s-c, not s-f
   :documentation
   "Test for the convergence of the interval [lower,upper]
    with absolute error and relative error specified.

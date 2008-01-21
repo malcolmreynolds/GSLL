@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-15 22:57:11 liam roots-one.lisp>
+;; Time-stamp: <2008-01-20 17:24:01EST roots-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -20,51 +20,25 @@
   (parameters :pointer))
 
 (export 'def-solver-functions)
+
 (defmacro def-solver-functions (function df fdf &optional dimensions)
   "Setup functions for solvers.
    The CL functions name and derivative should be defined previously
    with defuns.  If dimensions is non-nil, set multiroot solver
    functions."
-  (let ((arg (make-symbol "ARG"))
-	(params (make-symbol "PARAMS"))
-	(func (make-symbol "F"))
-	(deriv (make-symbol "DF"))
-	(struct (if dimensions 'gsl-mfunction-fdf 'gsl-function-fdf))
+  (let ((struct (if dimensions 'gsl-mfunction-fdf 'gsl-function-fdf))
 	(argtype (if dimensions :pointer :double))
-	(rettype (if dimensions :int :double)))
+	(rettype (if dimensions :success-failure :double)))
     `(progn
-      (cffi:defcallback ,function ,rettype
-	  ((,arg ,argtype)
-	   (,params :pointer)
-	   ,@(when dimensions `((,func :pointer))))
-	(declare (ignore ,params))
-	(,function ,arg ,@(when dimensions `(,func)))
-	,@(when dimensions '(success)))
-      (cffi:defcallback ,df ,rettype
-	  ((,arg ,argtype)
-	   (,params :pointer)
-	   ,@(when dimensions `((,deriv :pointer))))
-	(declare (ignore ,params))
-	(,df ,arg ,@(when dimensions `(,deriv)))
-	,@(when dimensions '(success)))
-      (cffi:defcallback ,fdf ,(if dimensions :int :pointer)
-	  ((,arg ,argtype)
-	   (,params :pointer)
-	   (,func :pointer)
-	   (,deriv :pointer))
-	(declare (ignore ,params))
-	(,fdf ,arg ,func ,deriv)
-	;; fdf function returns sucess code in multivariate case, void
-	;; pointer in univariate
-	,(if dimensions 'success
-	     '(cffi:null-pointer)))
-      (defparameter ,function (cffi:foreign-alloc ',struct))
-      (set-slot-function ,function ',struct 'function ',function)
-      (set-slot-function ,function ',struct 'df ',df)
-      (set-slot-function ,function ',struct 'fdf ',fdf)
-      ,@(when dimensions
-	      `((set-structure-slot ,function ',struct 'dimensions ,dimensions)))
-      (set-parameters ,function ',struct))))
+      (defmcallback ,function ,rettype ,argtype
+		    ,(when dimensions '(:pointer)))
+      (defmcallback ,df ,rettype ,argtype
+		    ,(when dimensions '(:pointer)))
+      (defmcallback
+	  ,fdf ,(if dimensions :success-failure :pointer)
+	,argtype (:pointer :pointer))
+      (defcbstruct (,function 'function ,df 'df ,fdf 'fdf) ,struct
+	,(when dimensions `((dimensions ,dimensions)))))))
 
 ;;;;****************************************************************************
 ;;;; Initialization

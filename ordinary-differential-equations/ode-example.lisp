@@ -1,11 +1,7 @@
-;********************************************************
-; file:        ode-example.lisp                          
-; description: Example ODE                               
-; date:        Sat Sep 29 2007 - 17:49                   
-; author:      Liam Healy                                
-; modified:    Sat Jan  5 2008 - 21:41
-;********************************************************
-;;; $Id: $
+;; Example ODE                               
+;; Liam Healy Sat Sep 29 2007 - 17:49
+;; Time-stamp: <2008-01-20 17:40:48EST ode-example.lisp>
+;; $Id: $
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
 ;;; reproduce that example, (integrate-vanderpol 100.0d0)

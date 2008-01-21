@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-19 18:58:42EST interface.lisp>
+;; Time-stamp: <2008-01-19 19:54:09EST interface.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -112,8 +112,8 @@
 )
 
 (defparameter *c-to-cl-types*
-  '((:double . double-float) (:float . single-float) (:int . fixnum)
-    (:size . (fixnum 0))))
+  `((:double . double-float) (:float . single-float) (:int . fixnum)
+    (:size . (integer 0 ,most-positive-fixnum))))
 
 (defun cl-argument-types (cl-arguments c-arguments-types)
   "Create CL argument and types from the C arguments."

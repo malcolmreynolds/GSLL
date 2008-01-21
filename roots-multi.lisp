@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-01-16 19:31:03EST roots-multi.lisp>
+;;; Time-stamp: <2008-01-20 17:18:39EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -27,7 +27,7 @@
   "Define a function for multivariate root solving."
   `(def-scalar-function ,name :success-failure :pointer gsl-mfunction
     ((dimensions ,dimensions))
-    ((returned-value gsl-vector-c))))
+    (gsl-vector-c)))
 
 (cffi:defcstruct gsl-mfunction-fdf
   ;; See /usr/include/gsl/gsl_multiroots.h

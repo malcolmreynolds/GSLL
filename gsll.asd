@@ -1,18 +1,14 @@
-;********************************************************
-; file:        gsll.asd                              
-; description: Definition of GSLL system 
-; date:        
-; author:      Liam Healy
-; modified:    Tue Jan  8 2008 - 22:52
-;********************************************************
-;;; $Id: $
+;; Definition of GSLL system 
+;; Liam Healy
+;; Time-stamp: <2008-01-20 21:12:57EST gsll.asd>
+;; $Id: $
 
 (asdf:defsystem "gsll"
   :name "gsll"
   :description "GNU Scientific Library for Lisp."
   :version "0"
   :author "Liam M. Healy"
-  :licence "GPL v3"
+  :licence "GPL v3, FDL"
   :depends-on (cffi)
   :components
   ((:module init
@@ -175,4 +171,5 @@
    (:file "hankel" :depends-on (init data))
    (:file "roots-one" :depends-on (init general))
    (:file "minimization-one" :depends-on (init general))
-   (:file "roots-multi" :depends-on (init general))))
+   (:file "roots-multi" :depends-on (init general))
+   (:file "minimization-multi" :depends-on (init general))))
