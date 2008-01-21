@@ -1,11 +1,7 @@
-;********************************************************
-; file:        generators.lisp                           
-; description: Generators of random numbers.             
-; date:        Sat Jul 15 2006 - 14:43                   
-; author:      Liam M. Healy                             
-; modified:    Sat Feb 17 2007 - 21:56
-;********************************************************
-;;; $Id: $
+;; Generators of random numbers.
+;; Liam Healy, Sat Jul 15 2006 - 14:43
+;; Time-stamp: <2008-01-21 11:47:49EST generators.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -143,11 +139,15 @@
 ;;;; Information functions about instances
 ;;;;****************************************************************************
 
+(export 'rng-name)
+(defgeneric rng-name (rng-instance)
+  (:documentation			; FDL
+   "The name of the random number generator."))
+
 (defun-gsl rng-name ((rng-instance random-number-generator))
   "gsl_rng_name" (((generator rng-instance) :pointer))
   :type :method
-  :c-return :string
-  :documentation "The name of the random number generator.")
+  :c-return :string)
 
 (defun-gsl rng-max (rng-instance)
   "gsl_rng_max" (((generator rng-instance) :pointer))
@@ -163,21 +163,27 @@
    algorithms that cannot return zero, and for these generators the minimum
    value is 1.")
 
+(export 'rng-state)
+(defgeneric rng-state (rng-instance)
+  (:documentation			; FDL
+   "A pointer to the state of generator."))
+
 (defun-gsl rng-state ((rng-instance random-number-generator))
   "gsl_rng_state" (((generator rng-instance) :pointer))
   :c-return :pointer
   :type :method
-  :export nil
-  :index gsl-random-state
-  :documentation "A pointer to the state of generator.")
+  :index gsl-random-state)
+
+(export 'rng-size)
+(defgeneric rng-size (rng-instance)
+  (:documentation			; FDL
+   "The size of the generator."))
 
 (defun-gsl rng-size ((rng-instance random-number-generator))
   "gsl_rng_size" (((generator rng-instance) :pointer))
   :c-return :size
   :type :method
-  :export nil
-  :index gsl-random-state
-  :documentation "The size of the generator.")
+  :index gsl-random-state)
 
 (export 'gsl-random-state)
 (defun gsl-random-state (rng-instance)
@@ -202,19 +208,22 @@
   "gsl_rng_memcpy"
   (((generator destination) :pointer) ((generator source) :pointer))
   :type :method
-  :documentation
-  "Copy the random number generator @var{source} into the
-   pre-existing generator @var{destination},
-   making @var{destination} into an exact copy
-   of @var{source}.  The two generators must be of the same type.")
+  :documentation			; FDL
+  "Copy the random number generator source into the
+   pre-existing generator destination,
+   making destination into an exact copy
+   of source.  The two generators must be of the same type.")
+
+(export 'clone-generator)
+(defgeneric clone-generator (instance)
+  (:documentation			; FDL
+   "Create a new generator which is an exact copy of the original.
+   Don't use; use #'make-random-number-generator, #'copy instead."))
 
 (defun-gsl clone-generator ((instance random-number-generator))
   "gsl_rng_clone" (((generator instance) :pointer))
   :c-return :pointer
-  :type :method
-  :documentation
-  "Create a new generator which is an exact copy of the original.
-   Don't use; use #'make-random-number-generator, #'copy instead.")
+  :type :method)
 
 (defun-gsl write-binary
     ((object random-number-generator) stream)

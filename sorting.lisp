@@ -1,11 +1,7 @@
-;********************************************************
-; file:        sorting.lisp                              
-; description: Sorting                                   
-; date:        Fri Apr 14 2006 - 20:20                   
-; author:      Liam M. Healy                             
-; modified:    Sun Mar  4 2007 - 10:06
-;********************************************************
-;;; $Id: $
+;; Sorting
+;; Liam Healy, Fri Apr 14 2006 - 20:20
+;; Time-stamp: <2008-01-21 11:22:27EST sorting.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -26,14 +22,14 @@
     ,body))
 
 (defun-gsl heapsort (array count size function)
-  "gsl_heapsort"
+  "gsl_heapsort"			; FDL
   ((array :pointer) (count :size) (size :size) (function :pointer))
   :documentation
-  "Sort the @var{count} elements of the array @var{array},
-   each of size @var{size}, into ascending order using the comparison
-   function @var{compare}.  The type of the comparison function is defined by,
+  "Sort the count elements of the array of size specified
+   into ascending order using the comparison
+   function.  The type of the comparison function is defined by,
    A comparison function should return a negative integer if the first
-   argument is less than the second argument, @code{0} if the two arguments
+   argument is less than the second argument, zero if the two arguments
    are equal and a positive integer if the first argument is greater than
    the second argument."
   :c-return :void)
@@ -41,16 +37,16 @@
 (defun-gsl heapsort-index (p array count size function)
   "gsl_heapsort_index"
   ((p :size) (array :pointer) (count :size) (size :size) (function :pointer))
-  :documentation
-  "Indirectly sort the @var{count} elements of the array
-   @var{array}, each of size @var{size}, into ascending order using the
-   comparison function @var{compare}.  The resulting permutation is stored
-   in @var{p}, an array of length @var{n}.  The elements of @var{p} give the
+  :documentation			; FDL
+  "Indirectly sort the count elements of the array
+   array, each of size given, into ascending order using the
+   comparison function.  The resulting permutation is stored
+   in p, an array of length n.  The elements of p give the
    index of the array element which would have been stored in that position
-   if the array had been sorted in place.  The first element of @var{p}
-   gives the index of the least element in @var{array}, and the last
-   element of @var{p} gives the index of the greatest element in
-   @var{array}.  The array itself is not changed.")
+   if the array had been sorted in place.  The first element of p
+   gives the index of the least element in array, and the last
+   element of p gives the index of the greatest element in
+   array.  The array itself is not changed.")
 
 ;;;;****************************************************************************
 ;;;; Vector sort
@@ -58,68 +54,86 @@
 
 ;;; Port only _vector_ sort functions?
 
+(export 'sort-vector)
+(defgeneric sort-vector (vector)
+  (:documentation			; FDL
+   "Sort the elements of the vector into ascending numerical order."))
+
 (defun-gsl-vdsf sort-vector ((vector gsl-vector))
   "gsl_sort_vector" (((pointer vector) gsl-vector-c))
-  :documentation
-  "Sort the elements of the vector into ascending numerical order."
   :c-return :void)
+
+(export 'sort-vector-index)
+(defgeneric sort-vector-index (permutation vector)
+  (:documentation			; FDL
+   "Indirectly sort the elements of the vector v into
+   ascending order, storing the resulting permutation in p.  The
+   elements of p give the index of the vector element which would
+   have been stored in that position if the vector had been sorted in
+   place.  The first element of p gives the index of the least element
+   in v and the last element of p gives the index of the
+   greatest element in v.  The vector v is not changed."))
 
 (defun-gsl-vdsf sort-vector-index (permutation (vector gsl-vector))
   "gsl_sort_vector_index"
   (((pointer permutation) gsl-permutation-c)
-   ((pointer vector) gsl-vector-c))
-  :documentation
-  "Indirectly sort the elements of the vector @var{v} into
-   ascending order, storing the resulting permutation in @var{p}.  The
-   elements of @var{p} give the index of the vector element which would
-   have been stored in that position if the vector had been sorted in
-   place.  The first element of @var{p} gives the index of the least element
-   in @var{v}, and the last element of @var{p} gives the index of the
-   greatest element in @var{v}.  The vector @var{v} is not changed.")
+   ((pointer vector) gsl-vector-c)))
+
+(export 'sort-vector-smallest)
+(defgeneric sort-vector-smallest (destination vector)
+  (:documentation			; FDL
+   "Find the smallest elements of the vector v and put them into dest,
+   which must be shorter than v."))
 
 (defun-gsl-vdsf sort-vector-smallest (dest (v gsl-vector))
   "gsl_sort_vector_smallest"
   (((gsl-array dest) :pointer) ((dim0 dest) :size)
    ((pointer v) gsl-vector-c))
-  :documentation
-  "Find the smallest elements of the vector @var{v} and put them into dest,
-   which must be shorter than v."
   :c-return :void
   :invalidate (dest))
 
 ;;; p should be gsl-vector-unsigned-fixnum, if that can be made to
 ;;; work (see vector.lisp).
+(export 'sort-vector-smallest-index)
+(defgeneric sort-vector-smallest-index (p vector)
+  (:documentation			; FDL
+   "The indices of the smallest elements of the vector stored
+   in the array p."))
+
 (defun-gsl-vdsf sort-vector-smallest-index
     ((p gsl-vector-fixnum) (v gsl-vector))
   "gsl_sort_vector_smallest_index"
   (((gsl-array p) :pointer) ((dim0 p) :size)
    ((pointer v) gsl-vector-c))
-  :documentation
-  "The indices of the smallest elements of the vector @var{v} stored
-   in the array @var{p}."
   :c-return :void
   :invalidate (p))
+
+(export 'sort-vector-largest)
+(defgeneric sort-vector-largest (dest vector)
+  (:documentation			; FDL
+  "Find the largest elements of the vector and put them into dest,
+   which must be shorter than the vector."))
 
 (defun-gsl-vdsf sort-vector-largest (dest (v gsl-vector))
   "gsl_sort_vector_largest"
   (((gsl-array dest) :pointer) ((dim0 dest) :size)
    ((pointer v) gsl-vector-c))
-  :documentation
-  "Find the largest elements of the vector @var{v} and put them into dest,
-   which must be shorter than v."
   :c-return :void
   :invalidate (dest))
 
+(export 'sort-vector-largest-index)
 ;;; p should be gsl-vector-unsigned-fixnum, if that can be made to
 ;;; work (see vector.lisp).
+(defgeneric sort-vector-largest-index (p vector)
+  (:documentation			; FDL
+   "The indices of the largest elements of the vector stored
+   in the array p."))
+
 (defun-gsl-vdsf sort-vector-largest-index
     ((p gsl-vector-fixnum) (v gsl-vector))
   "gsl_sort_vector_largest_index"
   (((gsl-array p) :pointer) ((dim0 p) :size)
    ((pointer v) gsl-vector-c))
-  :documentation
-  "The indices of the largest elements of the vector @var{v} stored
-   in the array @var{p}."
   :c-return :void
   :invalidate (p))
 

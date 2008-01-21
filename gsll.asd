@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-01-20 23:18:16EST gsll.asd>
+;; Time-stamp: <2008-01-21 17:58:44EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -92,7 +92,7 @@
 	    :components
 	    ((:file "rng-types")
 	     (:file "generators" :depends-on (rng-types))
-	     (:file "quasi" :depends-on (rng-types))
+	     (:file "quasi" :depends-on (rng-types generators))
 	     (:file "gaussian" :depends-on (rng-types))
 	     (:file "gaussian-tail" :depends-on (rng-types))
 	     (:file "gaussian-bivariate" :depends-on (rng-types))
@@ -172,4 +172,5 @@
    (:file "roots-one" :depends-on (init general))
    (:file "minimization-one" :depends-on (init general))
    (:file "roots-multi" :depends-on (init general data))
-   (:file "minimization-multi" :depends-on (init general data))))
+   (:file "minimization-multi" :depends-on (init general data))
+   (:file "linear-least-squares" :depends-on (init general data))))

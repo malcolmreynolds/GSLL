@@ -1,10 +1,7 @@
-;********************************************************
-; file:        mathematical.lisp                         
-; description: Mathematical functions                    
-; date:        Wed Mar  8 2006 - 22:09                   
-; author:      Liam M. Healy
-; modified:    Mon May 29 2006 - 23:06
-;********************************************************
+;; Mathematical functions
+;; Liam Healy, Wed Mar  8 2006 - 22:09
+;; Time-stamp: <2008-01-21 18:01:09EST mathematical.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -83,11 +80,13 @@
   :documentation
   "exp(x)-1, computed in a way that is accurate for small x.")
 
-(defun-gsl hypotenuse (x y)
+(defun-gsl hypotenuse* (x y)
+  ;; This is redundant; there is "gsl_sf_hypot_e" defined as
+  ;; #'hyptoenuse.
   "gsl_hypot" ((x :double) (y :double))
   :c-return :double
   :documentation
-  "sqrt{x^2 + y^2} computed in a way that avoids overflow.")
+  "The hypotenuse sqrt{x^2 + y^2} computed in a way that avoids overflow.")
 
 ;; Not clear why this function exists
 (defun-gsl gsl-asinh (x)

@@ -1,6 +1,6 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2008-01-16 18:50:15 liam init.lisp>
+;; Time-stamp: <2008-01-21 12:33:11EST init.lisp>
 ;; $Id: $
 
 (defpackage gsll
@@ -21,7 +21,9 @@
 
 ;;; The following define :size, from cffi-unix which became cffi-net,
 ;;; which is apparently turning into something even bigger and more
-;;; irrelevant.
+;;; irrelevant.  All we need is the definition of :size.  This should
+;;; be changed to something outside the keyword package to suppress
+;;; warnings from CFFI.
 
 (cffi:defctype :uint32 :unsigned-int)
 (cffi:defctype :uint64 :unsigned-long)

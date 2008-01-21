@@ -1,11 +1,7 @@
-;********************************************************
-; file:        probability-distribution.lisp             
-; description: Histogram probability distribution.       
-; date:        Mon Jan  1 2007 - 17:51                   
-; author:      Liam M. Healy                             
-; modified:    Mon Jan  1 2007 - 22:22
-;********************************************************
-;;; $Id: $
+;; Histogram probability distribution.
+;; Liam Healy, Mon Jan  1 2007 - 17:51
+;; Time-stamp: <2008-01-21 18:02:00EST probability-distribution.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -116,6 +112,3 @@
    @math{sum[i] <=  r < sum[i+1]} and @math{delta} is 
    @math{(r - sum[i])/(sum[i+1] - sum[i])}.")
 
-(export 'sample)
-(defun sample (pdf value)
-  (histo-1d2d pdf sample (value)))

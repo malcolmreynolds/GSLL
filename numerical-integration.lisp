@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-01-20 22:39:09EST numerical-integration.lisp>
+;; Time-stamp: <2008-01-21 12:34:03EST numerical-integration.lisp>
 ;; $Id: $
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -217,9 +217,11 @@
 
 (defun-single one-sine (x) (sin x))
 
+#|
 ;;; Parameters may be defined through the lexical environment:
 (let ((mult 2.0d0))
   (defun-single two-sine (x) (sin (* mult x))))
+|#
 
 (lisp-unit:define-test numerical-integration
   (lisp-unit:assert-first-fp-equal

@@ -1,11 +1,7 @@
-;********************************************************
-; file:        eigensystems.lisp
-; description: Eigenvectors and eigenvalues
-; date:        Sun May 21 2006 - 19:52                   
-; author:      Liam M. Healy                             
-; modified:    Tue Jul  4 2006 - 23:09
-;********************************************************
-;;; $Id: $
+;; Eigenvectors and eigenvalues
+;; Liam Healy, Sun May 21 2006 - 19:52
+;; Time-stamp: <2008-01-21 11:30:57EST eigensystems.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -45,33 +41,38 @@
 
 (defun-gsl eigen-symm-alloc (n)
   "gsl_eigen_symm_alloc" ((n :size))
-  :documentation "Allocate a workspace for computing eigenvalues of
-  @var{n}-by-@var{n} real symmetric matrices.  The size of the workspace
-  is @math{O(2n)}."
+  :documentation			; FDL
+  "Allocate a workspace for computing eigenvalues of
+  n-by-n real symmetric matrices.  The size of the workspace
+  is O(2n)."
   :c-return :pointer)
 
 (defun-gsl eigen-symm-free (w)
   "gsl_eigen_symm_free" ((w :pointer))
   :c-return :void
-  :documentation "Free the memory associated with the workspace @var{w}.")
+  :documentation			; FDL
+  "Free the memory associated with the workspace w.")
 
 (defun-gsl eigen-symmv-alloc (n)
   "gsl_eigen_symmv_alloc" ((n :size))
-  :documentation "Allocate a workspace for computing eigenvalues and
-  eigenvectors of @var{n}-by-@var{n} real symmetric matrices.  The size of
-  the workspace is @math{O(4n)}."
+  :documentation			; FDL
+  "Allocate a workspace for computing eigenvalues and
+  eigenvectors of n-by-n real symmetric matrices.  The size of
+  the workspace is O(4n)."
   :c-return :pointer)
 
 (defun-gsl eigen-symmv-free (w)
   "gsl_eigen_symmv_free" ((w :pointer))
   :c-return :void
-  :documentation "Free the memory associated with the workspace @var{w}.")
+  :documentation			; FDL
+  "Free the memory associated with the workspace w.")
 
 (defun-gsl eigenvalues-symmetric (A eval ws)
   "gsl_eigen_symm" ((A gsl-matrix-c) (eval gsl-vector-c) (ws :pointer))
-  :documentation "Eigenvalues of the real symmetric matrix
-  @var{A}.  Additional workspace of the appropriate size must be provided
-  in @var{w}.  The diagonal and lower triangular part of @var{A} are
+  :documentation			; FDL
+  "Eigenvalues of the real symmetric matrix
+  A.  Additional workspace of the appropriate size must be provided
+  in w.  The diagonal and lower triangular part of A are
   destroyed during the computation, but the strict upper triangular part
   is not referenced.  The eigenvalues are stored in the vector @var{eval}
   and are unordered."
@@ -81,13 +82,14 @@
 (defun-gsl eigenvalues-eigenvectors-symmetric (A eval evec ws)
   "gsl_eigen_symmv"
   ((A gsl-matrix-c) (eval gsl-vector-c) (evec gsl-matrix-c) (ws :pointer))
-  :documentation "The eigenvalues and eigenvectors of the real
-  symmetric matrix @var{A}.  Additional workspace of the appropriate size
-  must be provided in @var{w}.  The diagonal and lower triangular part of
-  @var{A} are destroyed during the computation, but the strict upper
+  :documentation			; FDL
+  "The eigenvalues and eigenvectors of the real
+  symmetric matrix A.  Additional workspace of the appropriate size
+  must be provided in w.  The diagonal and lower triangular part of
+  A are destroyed during the computation, but the strict upper
   triangular part is not referenced.  The eigenvalues are stored in the
-  vector @var{eval} and are unordered.  The corresponding eigenvectors are
-  stored in the columns of the matrix @var{evec}.  For example, the
+  vector eval and are unordered.  The corresponding eigenvectors are
+  stored in the columns of the matrix evec.  For example, the
   eigenvector in the first column corresponds to the first eigenvalue.
   The eigenvectors are guaranteed to be mutually orthogonal and normalised
   to unit magnitude."
@@ -100,23 +102,25 @@
 
 (defun-gsl eigen-herm-alloc (n)
   "gsl_eigen_herm_alloc" ((n :size))
-  :documentation "Allocate a workspace for computing eigenvalues of
-  @var{n}-by-@var{n} complex hermitian matrices.  The size of the workspace
-  is @math{O(3n)}."
+  :documentation			; FDL
+  "Allocate a workspace for computing eigenvalues of
+  n-by-n complex hermitian matrices.  The size of the workspace
+  is O(3n)."
   :c-return :pointer)
 
 (defun-gsl eigen-herm-free (w)
   "gsl_eigen_herm_free" ((w :pointer))
   :c-return :void
-  :documentation "Free the memory associated with the workspace @var{w}.")
+  :documentation			; FDL
+  "Free the memory associated with the workspace w.")
 
 (defun-gsl eigenvalues-hermitian (A eval w)
   "gsl_eigen_herm"
   (((pointer A) gsl-matrix-c) ((pointer eval) gsl-vector-c) (w :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the eigenvalues of the complex hermitian matrix
-   @var{A}.  Additional workspace of the appropriate size must be provided
-   in @var{w}.  The diagonal and lower triangular part of @var{A} are
+   A.  Additional workspace of the appropriate size must be provided
+   in w.  The diagonal and lower triangular part of A are
    destroyed during the computation, but the strict upper triangular part
    is not referenced.  The imaginary parts of the diagonal are assumed to be
    zero and are not referenced. The eigenvalues are stored in the vector
@@ -126,29 +130,31 @@
 
 (defun-gsl eigen-hermv-alloc (n)
   "gsl_eigen_hermv_alloc" ((n :size))
-  :documentation "Allocate a workspace for computing eigenvalues and
-  eigenvectors of @var{n}-by-@var{n} complex hermitian matrices.  The size of
-  the workspace is @math{O(5n)}."
+  :documentation			; FDL
+  "Allocate a workspace for computing eigenvalues and
+  eigenvectors of n-by-n complex hermitian matrices.  The size of
+  the workspace is O(5n)."
   :c-return :pointer)
 
 (defun-gsl eigen-hermv-free (w)
   "gsl_eigen_hermv_free" ((w :pointer))
   :c-return :void
-  :documentation "Free the memory associated with the workspace @var{w}.")
+  :documentation			; FDL
+  "Free the memory associated with the workspace w.")
 
 (defun-gsl eigenvalues-eigenvectors-hermitian (A eval evec w)
   "gsl_eigen_hermv"
   (((pointer A) gsl-matrix-c) ((pointer eval) gsl-vector-c)
    ((pointer evec) gsl-matrix-c) (w :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the eigenvalues and eigenvectors of the complex
-  hermitian matrix @var{A}.  Additional workspace of the appropriate size
-  must be provided in @var{w}.  The diagonal and lower triangular part of
-  @var{A} are destroyed during the computation, but the strict upper
+  hermitian matrix A.  Additional workspace of the appropriate size
+  must be provided in w.  The diagonal and lower triangular part of
+  A are destroyed during the computation, but the strict upper
   triangular part is not referenced. The imaginary parts of the diagonal
   are assumed to be zero and are not referenced.  The eigenvalues are
-  stored in the vector @var{eval} and are unordered.  The corresponding
-  complex eigenvectors are stored in the columns of the matrix @var{evec}.
+  stored in the vector eval and are unordered.  The corresponding
+  complex eigenvectors are stored in the columns of the matrix evec.
   For example, the eigenvector in the first column corresponds to the
   first eigenvalue.  The eigenvectors are guaranteed to be mutually
   orthogonal and normalised to unit magnitude."
@@ -163,15 +169,19 @@
   "gsl_eigen_sort_t from /usr/include/gsl/gsl_eigen.h."
   :value-ascending :value-descending :absolute-ascending :absolute-descending)
 
+(export 'sort-eigenvalues-eigenvectors)
+(defgeneric sort-eigenvalues-eigenvectors (eval evec sort-type)
+  (:documentation			; FDL
+   "Simultaneously sort the eigenvalues stored in the vector
+  eval and the corresponding real eigenvectors stored in the columns
+  of the matrix evec into ascending or descending order according to
+  the value of the parameter sort-type: :value-ascending,
+  :value-descending, :absolute-ascending, :absolute-descending."))
+
 (defun-gsl sort-eigenvalues-eigenvectors
     ((eval gsl-vector-double) evec sort-type)
   "gsl_eigen_symmv_sort"
   ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
-  :documentation "Simultaneously sort the eigenvalues stored in the vector
-  @var{eval} and the corresponding real eigenvectors stored in the columns
-  of the matrix @var{evec} into ascending or descending order according to
-  the value of the parameter @var{sort_type}, :value-ascending,
-  :value-descending, :absolute-ascending, :absolute-descending."
   :type :method
   :invalidate (eval evec))
 
@@ -179,10 +189,6 @@
     ((eval gsl-vector-complex) evec sort-type)
   "gsl_eigen_hermv_sort"
   ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
-  :documentation "Simultaneously sort the eigenvalues stored in the vector
-  @var{eval} and the corresponding complex eigenvectors stored in the
-  columns of the matrix @var{evec} into ascending or descending order
-  according to the value of the parameter @var{sort_type}."
   :type :method
   :invalidate (eval evec))
 
