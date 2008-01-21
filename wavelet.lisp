@@ -249,7 +249,7 @@
   "Compute the two-dimensional in-place wavelet transform on a matrix.")
 
 (defun-gsl wavelet-2d-nonstandard-transform (wavelet data tda direction workspace)
-  "gsl_wavelet2d_ntransform"
+  "gsl_wavelet2d_nstransform"
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (tda :size) ((dim0 data) :size) ((dim1 data) :size) (direction :int)
    (workspace :pointer))
@@ -257,7 +257,7 @@
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-forward (wavelet data tda workspace)
-  "gsl_wavelet2d_ntransform_forward"
+  "gsl_wavelet2d_nstransform_forward"
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (tda :size) ((dim0 data) :size) ((dim1 data) :size)
    (workspace :pointer))
@@ -265,7 +265,7 @@
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-inverse (wavelet data tda workspace)
-  "gsl_wavelet2d_ntransform_inverse"
+  "gsl_wavelet2d_nstransform_inverse"
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (tda :size) ((dim0 data) :size) ((dim1 data) :size)
    (workspace :pointer))
@@ -273,7 +273,7 @@
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-matrix (wavelet data direction workspace)
-  "gsl_wavelet2d_ntransform_matrix"
+  "gsl_wavelet2d_nstransform_matrix"
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (direction :int) (workspace :pointer))
   :documentation
@@ -281,14 +281,14 @@
    transform on a matrix.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-matrix-forward (wavelet data workspace)
-  "gsl_wavelet2d_ntransform_matrix_forward"
+  "gsl_wavelet2d_nstransform_matrix_forward"
   ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
   :documentation
   "Compute the non-standard form of the two-dimensional in-place wavelet
    transform on a matrix.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-matrix-inverse (wavelet data workspace)
-  "gsl_wavelet2d_ntransform_matrix_inverse"
+  "gsl_wavelet2d_nstransform_matrix_inverse"
   ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
   :documentation
   "Compute the non-standard form of the two-dimensional in-place wavelet

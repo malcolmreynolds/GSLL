@@ -1,11 +1,7 @@
-;********************************************************
-; file:        mean-variance.lisp                        
-; description: Mean, standard deviation, and variance    
-; date:        Sat Dec  2 2006 - 22:15                   
-; author:      Liam M. Healy                             
-; modified:    Mon Oct  8 2007 - 10:34
-;********************************************************
-;;; $Id: $
+;; Mean, standard deviation, and variance    
+;; Liam Healy, Sat Dec  2 2006 - 22:15
+;; Time-stamp: <2008-01-20 23:34:13EST mean-variance.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -19,6 +15,15 @@
       '(double single fixnum)
       ;;'(:double :float :int :long-double)
       '(:double :float :int)
+    "stats"
+    'gsl-vector
+    args))
+
+(defmacro defun-gsl-stats-ds (&rest args)
+  "A defun-gsl for stats of double and single."
+  (defun-gsl-all
+      '(double single)
+      '(:double :float)
     "stats"
     'gsl-vector
     args))
@@ -44,7 +49,7 @@
     The weighted mean is defined as
     \Hat\mu = (\sum w_i x_i) / (\sum w_i)."))
 
-(defun-gsl-stats weighted-mean ((vector gsl-vector) weights)
+(defun-gsl-stats-ds weighted-mean ((vector gsl-vector) weights)
   "gsl_stats_wmean"
   (((gsl-array weights) :pointer) (1 :int)
     ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
@@ -108,7 +113,7 @@
 (defgeneric weighted-variance-nom (gsl-vector weights)
    (:documentation "Compute the weighted variance with the mean unknown."))
 
-(defun-gsl-stats weighted-variance-nom ((vector gsl-vector) weights)
+(defun-gsl-stats-ds weighted-variance-nom ((vector gsl-vector) weights)
   "gsl_stats_wvariance"
   (((gsl-array weights) :pointer) (1 :int)
     ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
@@ -120,7 +125,7 @@
   (:documentation "Compute the weighted variance with the mean known to
    avoid its recomputation."))
 
-(defun-gsl-stats weighted-variance-m ((vector gsl-vector) weights mean)
+(defun-gsl-stats-ds weighted-variance-m ((vector gsl-vector) weights mean)
   "gsl_stats_wvariance_m"
   (((gsl-array weights) :pointer) (1 :int)
    ((gsl-array vector) :pointer) (1 :int)
@@ -175,7 +180,7 @@
 
 (defgeneric weighted-standard-deviation-nom (gsl-vector weights))
 
-(defun-gsl-stats weighted-standard-deviation-nom
+(defun-gsl-stats-ds weighted-standard-deviation-nom
     ((vector gsl-vector) weights)
   "gsl_stats_wsd"
   (((gsl-array weights) :pointer) (1 :int)
@@ -186,7 +191,7 @@
 
 (defgeneric weighted-standard-deviation-m (gsl-vector weights mean))
 
-(defun-gsl-stats weighted-standard-deviation-m
+(defun-gsl-stats-ds weighted-standard-deviation-m
     ((vector gsl-vector) weights mean)
   "gsl_stats_wsd_m"
   (((gsl-array weights) :pointer) (1 :int)
@@ -244,7 +249,7 @@
     population mean @math{\mu},
     \Hat\sigma^2 = (\sum w_i (x_i - \mu)^2) / (\sum w_i)."))
 
-(defun-gsl-stats weighted-variance-with-fixed-mean
+(defun-gsl-stats-ds weighted-variance-with-fixed-mean
     ((vector gsl-vector) weights mean)
   "gsl_stats_wvariance_with_fixed_mean"
   (((gsl-array weights) :pointer) (1 :int)
@@ -258,7 +263,7 @@
    "The square root of the corresponding variance
    function #'weighted-variance-with-fixed-mean."))
 
-(defun-gsl-stats weighted-standard-deviation-with-fixed-mean
+(defun-gsl-stats-ds weighted-standard-deviation-with-fixed-mean
     ((vector gsl-vector) weights mean)
   "gsl_stats_wsd_with_fixed_mean"
   (((gsl-array weights) :pointer) (1 :int)
