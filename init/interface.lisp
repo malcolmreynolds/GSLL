@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-19 19:54:09EST interface.lisp>
+;; Time-stamp: <2008-01-26 21:33:48EST interface.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -185,7 +185,7 @@
 	  (mapcar
 	   (lambda (s) (find s cargs :key #'st-symbol))
 	   allocated))
-	 (clret (or (substitute cret-name :c-return return)
+	 (clret (or (substitute cret-name :c-return return) ; better as a symbol macro
 		    (mapcan #'cl-convert-form allocated-decl)
 		    invalidate
 		    (unless (eq c-return :void)
@@ -251,7 +251,8 @@
 		   (t (unless
 			  (or
 			   (and (eq c-return :error-code)
-				(not allocated))
+				(not allocated)
+				(not return-supplied-p))
 			   (and (null return) return-supplied-p))
 			clret)))))))
       ,@(when index `((map-name ',(if (eql index t) name index) ,gsl-name)))
