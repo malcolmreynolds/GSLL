@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-01-21 17:55:19EST linear-least-squares.lisp>
+;; Time-stamp: <2008-01-26 19:48:03EST linear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -125,16 +125,7 @@
 ;;;; Multiparameter fitting
 ;;;;****************************************************************************
 
-(export 'with-fit-workspace)
-(defmacro with-fit-workspace ((ws number-of-observations number-of-parameters)
-     &body body)
-  "Create and initialize an linear least squares workspace,
-   and clean up afterwards."
-  `(let ((,ws
-	  (allocate-fit-workspace ,number-of-observations ,number-of-parameters)))
-    (unwind-protect
-	 (progn ,@body)
-      (free-fit-workspace ,ws))))
+(set-asf fit-workspace allocate-fit-workspace free-fit-workspace nil 2)
 
 (defun-gsl allocate-fit-workspace (number-of-observations number-of-parameters)
   "gsl_multifit_linear_alloc"
@@ -319,7 +310,7 @@
 			  (gsl-aref X i 2) (expt (first row) 2)
 			  (gsl-aref y i) (second row)
 			  (gsl-aref w i) (/ (expt (third row) 2))))
-	      (with-fit-workspace (ws n 3)
+	      (with-gsl-objects ((fit-workspace ws n 3))
 		(setf chisq
 		      (weighted-linear-mfit X w y c cov ws)))
 	      (format t "~&Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2"

@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-01-20 22:39:10EST monte-carlo.lisp>
+;; Time-stamp: <2008-01-26 17:20:19EST monte-carlo.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -13,12 +13,14 @@
   (dim :size)
   (x :pointer))
 
+(set-asf monte-carlo-plain monte-carlo-plain-alloc monte-carlo-plain-free)
+
 (defun-gsl monte-carlo-plain-alloc (dim)
   "gsl_monte_plain_alloc"
   ((dim :size))
   :c-return :pointer
   :export nil
-  :index with-monte-carlo-plain
+  :index (with-gsl-objects monte-carlo-plain)
   :documentation
   "Allocate and initialize a workspace for Monte Carlo
    integration in @var{dim} dimensions.")
@@ -36,17 +38,9 @@
   ((integrator-state :pointer))
   :c-return :void
   :export nil
-  :index with-monte-carlo-plain
+  :index (with-gsl-objects monte-carlo-plain)
   :documentation
   "Frees the memory associated with the integrator.")
-
-(export 'with-monte-carlo-plain)
-(defmacro with-monte-carlo-plain ((workspace size) &body body)
-  `(let ((,workspace (monte-carlo-plain-alloc ,size)))
-    (unwind-protect
-	 (progn
-	   ,@body)
-      (monte-carlo-plain-free ,workspace))))
 
 (defun-gsl monte-carlo-integrate-plain
     (function lower-limits upper-limits calls generator state)
@@ -102,12 +96,14 @@
   (hits-l :pointer)
   (hits-r :pointer))
 
+(set-asf monte-carlo-miser monte-carlo-miser-alloc monte-carlo-miser-free)
+
 (defun-gsl monte-carlo-miser-alloc (dim)
   "gsl_monte_miser_alloc"
   ((dim :size))
   :c-return :pointer
   :export nil
-  :index with-monte-carlo-miser
+  :index (with-gsl-objects monte-carlo-miser)
   :documentation
   "Allocate and initialize a workspace for Monte Carlo integration in
    @var{dim} dimensions.  The workspace is used to maintain
@@ -126,20 +122,9 @@
   ((integrator-state :pointer))
   :c-return :void
   :export nil
-  :index with-monte-carlo-miser
+  :index (with-gsl-objects monte-carlo-miser)
   :documentation
   "Frees the memory associated with the integrator.")
-
-(export 'with-monte-carlo-miser)
-(defmacro with-monte-carlo-miser ((workspace size) &body body)
-  "Allocate and use the workspace for the MISER algorithm.
-   Parameters can be set by changing values in the structure
-   pointed to by the workspace variable."
-  `(let ((,workspace (monte-carlo-miser-alloc ,size)))
-    (unwind-protect
-	 (progn
-	   ,@body)
-      (monte-carlo-miser-free ,workspace))))
 
 (export 'miser-parameter)
 (defmacro miser-parameter (workspace parameter)
@@ -213,12 +198,14 @@
   (calls-per-box :uint)
   (ostream :pointer))
 
+(set-asf monte-carlo-vegas monte-carlo-vegas-alloc monte-carlo-vegas-free)
+
 (defun-gsl monte-carlo-vegas-alloc (dim)
   "gsl_monte_vegas_alloc"
   ((dim :size))
   :c-return :pointer
   :export nil
-  :index with-monte-carlo-vegas
+  :index (with-gsl-objects monte-carlo-vegas)
   :documentation
   "Allocate and initialize a workspace for Monte Carlo integration in
    @var{dim} dimensions.  The workspace is used to maintain
@@ -237,20 +224,9 @@
   ((integrator-state :pointer))
   :c-return :void
   :export nil
-  :index with-monte-carlo-vegas
+  :index (with-gsl-objects monte-carlo-vegas)
   :documentation
   "Frees the memory associated with the integrator.")
-
-(export 'with-monte-carlo-vegas)
-(defmacro with-monte-carlo-vegas ((workspace size) &body body)
-  "Allocate and use the workspace for the VEGAS algorithm.
-   Parameters can be set by changing values in the structure
-   pointed to by the workspace variable."
-  `(let ((,workspace (monte-carlo-vegas-alloc ,size)))
-    (unwind-protect
-	 (progn
-	   ,@body)
-      (monte-carlo-vegas-free ,workspace))))
 
 (export 'vegas-parameter)
 (defmacro vegas-parameter (workspace parameter)
@@ -312,7 +288,7 @@
 (def-mc-function monte-carlo-g 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
-  (with-monte-carlo-plain (ws 3)
+  (with-gsl-objects ((monte-carlo-plain ws 3))
     (with-data (lower vector-double 3)
       (with-data (upper vector-double 3)
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
@@ -326,7 +302,7 @@
 	 ws)))))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
-  (with-monte-carlo-miser (ws 3)
+  (with-gsl-objects ((monte-carlo-miser ws 3))
     (with-data (lower vector-double 3)
       (with-data (upper vector-double 3)
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
@@ -340,7 +316,7 @@
 	 ws)))))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
-  (with-monte-carlo-vegas (ws 3)
+  (with-gsl-objects ((monte-carlo-vegas ws 3))
     (with-data (lower vector-double 3)
       (with-data (upper vector-double 3)
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)

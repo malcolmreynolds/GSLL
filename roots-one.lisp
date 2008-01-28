@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-20 23:14:27EST roots-one.lisp>
+;; Time-stamp: <2008-01-26 19:07:22EST roots-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -44,10 +44,15 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
+(set-asf fsolver allocate-fsolver free-fsolver set-fsolver)
+(set-asf fdfsolver allocate-fdfsolver free-fdfsolver set-fdfsolver)
+
 (defun-gsl allocate-fsolver (type)
   "gsl_root_fsolver_alloc"
   ((type :pointer))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects fsolver)
   :documentation
   "Allocate an instance of a solver of the given type.")
 
@@ -55,6 +60,8 @@
   "gsl_root_fdfsolver_alloc"
   ((type :pointer))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects fdfsolver)
   :documentation
   "Allocate an instance of a derivative-based solver of the given type.")
 
@@ -62,6 +69,8 @@
   "gsl_root_fsolver_set"
   ((solver :pointer) (function :pointer)
    (lower :double) (upper :double))
+  :export nil
+  :index (with-gsl-objects fsolver)
   :documentation
   "Initialize or reinitialize an existing solver
    to use the function and the initial search interval
@@ -70,6 +79,8 @@
 (defun-gsl set-fdfsolver (solver function-derivative root-guess)
   "gsl_root_fdfsolver_set"
   ((solver :pointer) (function-derivative :pointer) (root-guess :double))
+  :export nil
+  :index (with-gsl-objects fdfsolver)
   :documentation
   "Initialize or reinitialize an existing solver.")
 
@@ -77,6 +88,8 @@
   "gsl_root_fsolver_free"
   ((solver :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects fsolver)
   :documentation
   "Free all the memory associated with the solver.")
 
@@ -84,6 +97,8 @@
   "gsl_root_fdfsolver_free"
   ((solver :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects fdfsolver)
   :documentation
   "Free all the memory associated with the solver.")
 
@@ -100,29 +115,6 @@
   :c-return :string
   :documentation
   "The name of the solver.")
-
-(export '(with-fsolver with-fdfsolver))
-(defmacro with-fsolver
-    ((solver solver-type function lower upper) &body body)
-  "Create and initialize an fsolver for one-dimensional problems,
-   and clean up afterwards."
-  `(let ((,solver (allocate-fsolver ,solver-type)))
-    (unwind-protect
-	 (progn
-	   (set-fsolver ,solver ,function ,lower ,upper)
-	   ,@body)
-      (free-fsolver ,solver))))
-
-(defmacro with-fdfsolver ((solver solver-type f-df-fdf root-guess)
-     &body body)
-  "Create and initialize an fdfsolver for one-dimensional problems,
-   and clean up afterwards."
-  `(let ((,solver (allocate-fdfsolver ,solver-type)))
-    (unwind-protect
-	 (progn
-	   (set-fdfsolver ,solver ,f-df-fdf ,root-guess)
-	   ,@body)
-      (free-fdfsolver ,solver))))
 
 ;;;;****************************************************************************
 ;;;; Iteration
@@ -362,7 +354,7 @@
 (defun roots-one-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50))
-    (with-fsolver (solver *brent-fsolver* quadratic 0.0d0 5.0d0)
+    (with-gsl-objects ((fsolver solver *brent-fsolver* quadratic 0.0d0 5.0d0))
       (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
       (loop for iter from 0
 	    for root = (fsolver-root solver)
@@ -390,8 +382,7 @@
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 100)
 	(initial 5.0d0))
-    (with-fdfsolver
-	(solver *newton-fdfsolver* quadratic-df initial)
+    (with-gsl-objects ((fdfsolver solver *newton-fdfsolver* quadratic-df initial))
       (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
       (loop for iter from 0
 	    for itres = (iterate-fdfsolver solver)

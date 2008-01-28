@@ -1,3 +1,9 @@
+TODO
+remove cffi-array
+rename defun-gsl, defvariable.
+Document with-gsl-objects
+
+
 Features:
 
 - Designed so that usage of GSL is as if GSL were written in CL:

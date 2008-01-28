@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-01-20 23:17:16EST minimization-multi.lisp>
+;; Time-stamp: <2008-01-27 22:55:36EST minimization-multi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -48,10 +48,16 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
+(set-asf mfminimizer allocate-mfminimizer free-mfminimizer set-mfminimizer 2)
+(set-asf
+ mfdfminimizer allocate-mfdfminimizer free-mfdfminimizer set-mfdfminimizer 2)
+
 (defun-gsl allocate-mfminimizer (type dimension)
   "gsl_multimin_fminimizer_alloc"
   ((type :pointer) (dimension :size))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects mfminimizer)
   :documentation			; FDL
   "Allocate an instance of a minimizer of the given for an
    function of the given dimensions.")
@@ -60,6 +66,8 @@
   "gsl_multimin_fdfminimizer_alloc"
   ((type :pointer) (dimension :size))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects mfdfminimizer)
   :documentation			; FDL
   "Allocate an instance of a derivative-based minimizer of the given for an
    function of the given dimensions.")
@@ -68,6 +76,8 @@
   "gsl_multimin_fminimizer_set"
   ((minimizer :pointer) (function :pointer)
    ((pointer initial) :pointer) ((pointer step-size) :pointer))
+  :export nil
+  :index (with-gsl-objects mfminimizer)
   :documentation			; FDL
   "Initialize the minimizer to minimize the function
    starting from the initial point.
@@ -81,6 +91,8 @@
   ((minimizer :pointer) (function-derivative :pointer)
    ((pointer initial) :pointer) (step-size :double)
    (tolerance :double))
+  :export nil
+  :index (with-gsl-objects mfdfminimizer)
   :documentation			; FDL
   "Initialize the minimizer to minimize the function
    starting from the initial point.  The size of the
@@ -95,6 +107,8 @@
   "gsl_multimin_fminimizer_free"
   ((minimizer :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects mfminimizer)
   :documentation			; FDL
   "Free all the memory associated with the minimizer.")
 
@@ -102,6 +116,8 @@
   "gsl_multimin_fdfminimizer_free"
   ((minimizer :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects mfdfminimizer)
   :documentation			; FDL
   "Free all the memory associated with the minimizer.")
 
@@ -118,31 +134,6 @@
   :c-return :string
   :documentation
   "The name of the minimizer.")
-
-(export '(with-mfdfminimizer with-mfminimizer))
-(defmacro with-mfminimizer
-    ((minimizer minimizer-type function initial step-size dimensions)
-     &body body)
-  "Create and initialize an fdfminimizer for multi-dimensional problems,
-   and clean up afterwards."
-  `(let ((,minimizer (allocate-mfminimizer ,minimizer-type ,dimensions)))
-    (unwind-protect
-	 (progn
-	   (set-mfminimizer ,minimizer ,function ,initial ,step-size)
-	   ,@body)
-      (free-mfminimizer ,minimizer))))
-
-(defmacro with-mfdfminimizer
-    ((minimizer minimizer-type fdf initial step-size tolerance dimensions)
-     &body body)
-  "Create and initialize an fdfminimizer for multi-dimensional problems,
-   and clean up afterwards."
-  `(let ((,minimizer (allocate-mfdfminimizer ,minimizer-type ,dimensions)))
-    (unwind-protect
-	 (progn
-	   (set-mfdfminimizer ,minimizer ,fdf ,initial ,step-size ,tolerance)
-	   ,@body)
-      (free-mfdfminimizer ,minimizer))))
 
 ;;;;****************************************************************************
 ;;;; Iteration
@@ -164,54 +155,54 @@
    encounters an unexpected problem then an error code will be
    returned.")
 
-(defun-gsl mfminimizer-x (solver)
+(defun-gsl mfminimizer-x (minimizer)
   "gsl_multimin_fminimizer_x"
-  ((solver :pointer))
+  ((minimizer :pointer))
   :c-return (canswer :pointer)
   :return ((make-data-from-pointer canswer))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
-(defun-gsl mfdfminimizer-x (solver)
+(defun-gsl mfdfminimizer-x (minimizer)
   "gsl_multimin_fdfminimizer_x"
-  ((solver :pointer))
+  ((minimizer :pointer))
   :c-return (canswer :pointer)
   :return ((make-data-from-pointer canswer))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
-(defun-gsl mfminimizer-minimum (solver)
+(defun-gsl mfminimizer-minimum (minimizer)
   "gsl_multimin_fminimizer_minimum"
-  ((solver :pointer))
+  ((minimizer :pointer))
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
-(defun-gsl mfdfminimizer-minimum (solver)
+(defun-gsl mfdfminimizer-minimum (minimizer)
   "gsl_multimin_fdfminimizer_minimum"
-  ((solver :pointer))
+  ((minimizer :pointer))
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
-(defun-gsl mfminimizer-size (solver)
+(defun-gsl mfminimizer-size (minimizer)
   "gsl_multimin_fminimizer_size"
-  ((solver :pointer))
+  ((minimizer :pointer))
   :c-return :double
   :documentation			; FDL
   "A minimizer-specific characteristic size for the minimizer.")
 
-(defun-gsl mfdfminimizer-gradient (solver)
+(defun-gsl mfdfminimizer-gradient (minimizer)
   "gsl_multimin_fdfminimizer_gradient"
-  ((solver :pointer))
+  ((minimizer :pointer))
   :c-return (canswer :pointer)
   :return ((make-data-from-pointer canswer))
   :documentation			; FDL
   "The current best estimate of the gradient for the minimizer.")
 
-(defun-gsl mfdfminimizer-restart (solver)
+(defun-gsl mfdfminimizer-restart (minimizer)
   "gsl_multimin_fdfminimizer_restart"
-  ((solver :pointer))
+  ((minimizer :pointer))
   :documentation			; FDL
   "Reset the minimizer to use the current point as a
    new starting point.")
@@ -344,9 +335,10 @@
 
 (defun parabaloid-and-derivative
     (arguments-gv-pointer fnval derivative-gv-pointer)
-  (setf fnval (parabaloid arguments-gv-pointer))
-  (parabaloid-derivative
-   arguments-gv-pointer derivative-gv-pointer))
+  (with-c-double (fnval fv)
+    (setf fv (parabaloid arguments-gv-pointer))
+    (parabaloid-derivative
+     arguments-gv-pointer derivative-gv-pointer)))
 
 (def-minimization-functions
     parabaloid 2 parabaloid-derivative parabaloid-and-derivative)
@@ -354,13 +346,14 @@
 (defun multimin-example-fletcher-reeves ()
   (with-data (initial vector-double 2)
     (setf (data initial) #(5.0d0 7.0d0))
-    (with-mfdfminimizer
-	(minimizer *conjugate-fletcher-reeves* parabaloid
-		   initial 0.01d0 1.0d-4 2)
+    (with-gsl-objects
+	((mfdfminimizer minimizer *conjugate-fletcher-reeves* 2 parabaloid
+		       initial 0.01d0 1.0d-4))
       (loop with status = T
 	    for iter from 0 below 100
 	    while status
-	    do (iterate-mfdfminimizer minimizer)
+	    do
+	    (iterate-mfdfminimizer minimizer)
 	    (setf status
 		  (not (min-test-gradient
 			(mfdfminimizer-gradient minimizer)
@@ -386,8 +379,9 @@
     (with-data (step-size vector-double 2)
       (setf (data initial) #(5.0d0 7.0d0))
       (set-all step-size 1.0d0)
-      (with-mfminimizer
-	  (minimizer *simplex-nelder-mead* parabaloid-f initial step-size 2)
+      (with-gsl-objects
+	  ((mfminimizer
+	    minimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size))
 	(loop with status = T and size
 	      for iter from 0 below 100
 	      while status

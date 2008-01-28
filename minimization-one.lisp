@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-01-20 22:40:18EST minimization-one.lisp>
+;; Time-stamp: <2008-01-26 19:33:45EST minimization-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,10 +9,14 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
+(set-asf fminimizer allocate-fminimizer free-fminimizer set-fminimizer)
+
 (defun-gsl allocate-fminimizer (type)
   "gsl_min_fminimizer_alloc"
   ((type :pointer))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects fminimizer)
   :documentation
   "Allocate an instance of a minimizer of the given type.")
 
@@ -20,11 +24,14 @@
   "gsl_min_fminimizer_set"
   ((minimizer :pointer) (function :pointer)
    (minimum :double) (lower :double) (upper :double))
+  :export nil
+  :index (with-gsl-objects fminimizer)
   :documentation
   "Set, or reset, an existing minimizer to use the
    function and the initial search interval [lower,
    upper], with a guess for the location of the minimum.")
 
+;;; Use this in with-gsl-objects macro in any way?
 (defun-gsl set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
 	       f-minimum f-lower f-upper)
@@ -42,6 +49,8 @@
   "gsl_min_fminimizer_free"
   ((minimizer :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects fminimizer)
   :documentation
   "Free all the memory associated with the minimizer.")
 
@@ -51,18 +60,6 @@
   :c-return :string
   :documentation
   "The name of the minimizer.")
-
-(export '(with-fminimizer))
-(defmacro with-fminimizer
-    ((minimizer minimizer-type function minimum lower upper) &body body)
-  "Create and initialize an fminimizer for one-dimensional problems,
-   and clean up afterwards."
-  `(let ((,minimizer (allocate-fminimizer ,minimizer-type)))
-    (unwind-protect
-	 (progn
-	   (set-fminimizer ,minimizer ,function ,minimum ,lower ,upper)
-	   ,@body)
-      (free-fminimizer ,minimizer))))
 
 ;;;;****************************************************************************
 ;;;; Iteration
@@ -199,8 +196,9 @@
 (defun minimization-one-example ()
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
   (let ((max-iter 100))
-    (with-fminimizer
-	(minimizer *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0)
+    (with-gsl-objects
+	((fminimizer
+	  minimizer *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0))
       (format t "~&iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower")
       (loop for iter from 0
 	    for min = (fminimizer-x-minimum minimizer)
@@ -215,3 +213,4 @@
 		    iter lower upper
 		    min (- min pi)
 		    (- upper lower))))))
+

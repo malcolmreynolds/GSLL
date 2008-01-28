@@ -1,30 +1,35 @@
-;********************************************************
-; file:        hankel.lisp                               
-; description: Discrete Hankel Transforms.               
-; date:        Sat Dec  8 2007 - 16:50                   
-; author:      Liam Healy                                
-; modified:    Sat Dec  8 2007 - 18:38
-;********************************************************
-;;; $Id: $
+;; Discrete Hankel Transforms.
+;; Liam Healy, Sat Dec  8 2007 - 16:50
+;; Time-stamp: <2008-01-26 18:36:00EST hankel.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
 ;;; Everything compiles, but not tested -- need example.
 
+(set-asf hankel allocate-hankel free-hankel init-hankel)
+
 (defun-gsl allocate-hankel (size)
   "gsl_dht_alloc"
   ((size :size))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects hankel)
   :documentation
   "Allocate a Discrete Hankel transform object of size @var{size}.")
 
 (defun-gsl init-hankel (hankel nu xmax)
   "gsl_dht_new"
   ((hankel :pointer) (nu :double) (xmax :double))
+  :export nil
+  :index (with-gsl-objects hankel)
   :documentation
   "Initialize the transform @var{t} for the given values of
    @var{nu} and @var{x}.")
 
+;; This seems redundant; does it effectively combine allocate-hankel
+;; and init-hankel?  In this case we don't really need, and shouldn't
+;; export it.
 (defun-gsl new-hankel (size nu xmax)
   "gsl_dht_new"
   ((size :size) (nu :double) (xmax :double))
@@ -38,6 +43,8 @@
   "gsl_dht_free"
   ((hankel :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects hankel)
   :documentation
   "Free the Hankel object.")
 

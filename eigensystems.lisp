@@ -1,68 +1,49 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-01-21 11:30:57EST eigensystems.lisp>
+;; Time-stamp: <2008-01-27 18:53:17EST eigensystems.lisp>
 ;; $Id: $
 
 (in-package :gsl)
-
-;;; Eventually make a with-* macro for the eigen-herm functions.
-
-;;;;****************************************************************************
-;;;; Workspace macro
-;;;;****************************************************************************
-
-(export 'with-eigensystem-workspace)
-(defmacro with-eigensystem-workspace
-    ((ws n &optional vectors hermitian) &body body)
-  "Create a workspace to use in finding eigenvalues and eigenvectors.
-   If eigenvectors are desired, set 'vectors to T."
-  `(let ((,ws ,(if vectors
-		   (if hermitian
-		       `(eigen-hermv-alloc ,n)
-		       `(eigen-symmv-alloc ,n))
-		   (if hermitian
-		       `(eigen-herm-alloc ,n)
-		       `(eigen-symm-alloc ,n)))))
-     (check-null-pointer ,ws :ENOMEM "workspace allocation failed")
-     (unwind-protect
-	  (progn ,@body)
-       ,(if vectors
-	    (if hermitian
-		`(eigen-hermv-free ,n)
-		`(eigen-symmv-free ,ws))
-	    (if hermitian
-		`(eigen-herm-free ,n)
-		`(eigen-symm-free ,ws))))))
-
 
 ;;;;****************************************************************************
 ;;;; Real Symmetric Matrices
 ;;;;****************************************************************************
 
+(set-asf eigen-symm eigen-symm-alloc eigen-symm-free)
+
 (defun-gsl eigen-symm-alloc (n)
   "gsl_eigen_symm_alloc" ((n :size))
+  :c-return :pointer
+  :export nil
+  :index '(with-gsl-objects eigen-symm)
   :documentation			; FDL
   "Allocate a workspace for computing eigenvalues of
   n-by-n real symmetric matrices.  The size of the workspace
-  is O(2n)."
-  :c-return :pointer)
+  is O(2n).")
 
 (defun-gsl eigen-symm-free (w)
   "gsl_eigen_symm_free" ((w :pointer))
   :c-return :void
+  :export nil
+  :index '(with-gsl-objects eigen-symm)
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
 
+(set-asf eigen-symmv eigen-symmv-alloc eigen-symmv-free)
+
 (defun-gsl eigen-symmv-alloc (n)
   "gsl_eigen_symmv_alloc" ((n :size))
+  :c-return :pointer
+  :export nil
+  :index '(with-gsl-objects eigen-symmv)
   :documentation			; FDL
   "Allocate a workspace for computing eigenvalues and
   eigenvectors of n-by-n real symmetric matrices.  The size of
-  the workspace is O(4n)."
-  :c-return :pointer)
+  the workspace is O(4n).")
 
 (defun-gsl eigen-symmv-free (w)
   "gsl_eigen_symmv_free" ((w :pointer))
+  :index '(with-gsl-objects eigen-symmv)
   :c-return :void
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
@@ -81,7 +62,8 @@
 
 (defun-gsl eigenvalues-eigenvectors-symmetric (A eval evec ws)
   "gsl_eigen_symmv"
-  ((A gsl-matrix-c) (eval gsl-vector-c) (evec gsl-matrix-c) (ws :pointer))
+  (((pointer A) :pointer) ((pointer eval) :pointer)
+   ((pointer evec) :pointer) (ws :pointer))
   :documentation			; FDL
   "The eigenvalues and eigenvectors of the real
   symmetric matrix A.  Additional workspace of the appropriate size
@@ -99,6 +81,8 @@
 ;;;;****************************************************************************
 ;;;; Complex Hermitian Matrices
 ;;;;****************************************************************************
+
+(set-asf eigen-herm eigen-herm-alloc eigen-herm-free)
 
 (defun-gsl eigen-herm-alloc (n)
   "gsl_eigen_herm_alloc" ((n :size))
@@ -127,6 +111,8 @@
    @var{eval} and are unordered."
   :invalidate (eval A)
   :return (eval))
+
+(set-asf eigen-hermv eigen-hermv-alloc eigen-hermv-free)
 
 (defun-gsl eigen-hermv-alloc (n)
   "gsl_eigen_hermv_alloc" ((n :size))
@@ -196,19 +182,23 @@
 ;;;; Example
 ;;;;****************************************************************************
  
+
+(defun eigenvalue-eigenvectors-example ()
+  (with-data (mat matrix-double (3 3))
+    (setf (data mat)
+	  #2A((20.0d0 -10.0d0 0.0d0)
+	      (-10.0d0 30.0d0 0.0d0)
+	      (0.0d0 0.0d0 40.0d0)))
+    (with-data (evecs matrix-double (3 3))
+      (with-data (evals vector-double 3)
+	(with-gsl-objects ((eigen-symmv ws 3))
+	  (eigenvalues-eigenvectors-symmetric mat evals evecs ws)
+	  (values (data evals) (data evecs)))))))
+
+
+
+
 #|
-
-(with-data (mat matrix (3 3))
-  (setf (data mat)
-	#2A((20.0d0 -10.0d0 0.0d0)
-	    (-10.0d0 30.0d0 0.0d0)
-	    (0.0d0 0.0d0 40.0d0)))
-  (with-data (evecs matrix (3 3))
-    (with-data (evals vector 3)
-      (with-eigensystem-workspace (ws 3 t)
-	(eigenvalues-eigenvectors-symmetric mat evals evecs ws)
-	(values (data evals) (data evecs))))))
-
 #(13.819660112501051d0 36.180339887498945d0 40.0d0)
 #2A((0.8506508083520399d0 -0.5257311121191336d0 0.0d0)
     (0.5257311121191336d0 0.8506508083520399d0 0.0d0)

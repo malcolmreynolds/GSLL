@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-01-21 12:34:03EST numerical-integration.lisp>
+;; Time-stamp: <2008-01-26 17:11:25EST numerical-integration.lisp>
 ;; $Id: $
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -36,24 +36,23 @@
 ;;;; QAG adaptive Gauss-Kronrod integration
 ;;;;****************************************************************************
 
+(set-asf
+ integration-workspace integration-workspace-alloc integration-workspace-free)
+
 (defun-gsl integration-workspace-alloc (size)
   "gsl_integration_workspace_alloc" ((size :size))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects integration-workspace)
   :documentation "Allocate a workspace sufficient to hold @var{n} double
   precision intervals, their integration results and error estimates.")
 
 (defun-gsl integration-workspace-free (pointer)
   "gsl_integration_workspace_free" ((pointer :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects integration-workspace)
   :documentation "Free the memory associated with the workspace @var{w}.")
-
-(export 'with-integration-workspace)
-(defmacro with-integration-workspace ((workspace size) &body body)
-  `(let ((,workspace (integration-workspace-alloc ,size)))
-    (unwind-protect
-	 (progn
-	   ,@body)
-      (integration-workspace-free ,workspace))))
 
 (cffi:defcenum integrate-method
   :gauss15 :gauss21 :gauss31
@@ -229,9 +228,9 @@
    (integration-qng one-sine 0.0d0 pi))
   (lisp-unit:assert-first-fp-equal
    "0.200000000000d+01"
-   (with-integration-workspace (ws 20)
+   (with-gsl-objects ((integration-workspace ws 20))
      (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws)))
   (lisp-unit:assert-error
    'gsl-error
-   (with-integration-workspace (ws 20)
+   (with-gsl-objects ((integration-workspace ws 20))
      (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws))))

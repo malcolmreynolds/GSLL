@@ -1,20 +1,22 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-01-20 22:37:14EST chebyshev.lisp>
+;; Time-stamp: <2008-01-26 18:17:32EST chebyshev.lisp>
 ;; $Id: $
 
 (in-package :gsl)
-
-;;; Needs with- macro to allocate, initialize, and free object.
 
 ;;;;****************************************************************************
 ;;;; Creation and calculation of Chebyshev series
 ;;;;****************************************************************************
 
+(set-asf chebyshev allocate-chebyshev free-chebyshev initialize-chebyshev)
+
 (defun-gsl allocate-chebyshev (order)
   "gsl_cheb_alloc"
   ((order :size))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects chebyshev)
   :documentation
   "Allocate a Chebyshev series of specified order
    and return a pointer to it.")
@@ -23,6 +25,8 @@
   "gsl_cheb_free"
   ((chebyshev :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects chebyshev)
   :documentation
   "Free a previously allocated Chebyshev series.")
 
@@ -30,6 +34,8 @@
   "gsl_cheb_init"
   ((chebyshev :pointer) (function :pointer)
    (lower-limit :double) (upper-limit :double))
+  :export nil
+  :index (with-gsl-objects chebyshev)
   :documentation
   "Compute the Chebyshev approximation for the function over the range
    (lower-limit, upper-limit) to the previously specified order.  The
@@ -118,34 +124,28 @@
 (defun-single chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
 
 (defun chebyshev-table-example ()
-  (let ((cheb (allocate-chebyshev 40))
-	(steps 100))
-    (initialize-chebyshev cheb chebyshev-step 0.0d0 1.0d0)
-    (dotimes (i steps)
-      (let ((x (coerce (/ i steps) 'double-float)))
-	(format t "~&~a ~a ~a ~a"
-		x
-		(chebyshev-step x)
-		(evaluate-chebyshev cheb x 10)
-		(evaluate-chebyshev cheb x))))
-    (free-chebyshev cheb)))
+  (let ((steps 100))
+    (with-gsl-objects ((chebyshev cheb 40 chebyshev-step 0.0d0 1.0d0))
+      (dotimes (i steps)
+	(let ((x (coerce (/ i steps) 'double-float)))
+	  (format t "~&~a ~a ~a ~a"
+		  x
+		  (chebyshev-step x)
+		  (evaluate-chebyshev cheb x 10)
+		  (evaluate-chebyshev cheb x)))))))
 
 (defun chebyshev-point-example (x)
   (check-type x double-float)
-  (let ((cheb (allocate-chebyshev 40))
-	(deriv (allocate-chebyshev 40))
-	(integ (allocate-chebyshev 40)))
-    (initialize-chebyshev cheb chebyshev-step 0.0d0 1.0d0)
+  (with-gsl-objects
+      ((chebyshev cheb 40 chebyshev-step 0.0d0 1.0d0)
+       (chebyshev deriv 40)
+       (chebyshev integ 40))
     (derivative-chebyshev deriv cheb)
     (integral-chebyshev integ cheb)
-    (prog1
-	(list
-	 (evaluate-chebyshev cheb x)
-	 (evaluate-chebyshev deriv x)
-	 (evaluate-chebyshev integ x))
-      (free-chebyshev cheb)
-      (free-chebyshev deriv)
-      (free-chebyshev integ))))
+    (list
+     (evaluate-chebyshev cheb x)
+     (evaluate-chebyshev deriv x)
+     (evaluate-chebyshev integ x))))
 
 (lisp-unit:define-test chebyshev
   (lisp-unit:assert-equal

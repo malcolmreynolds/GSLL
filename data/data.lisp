@@ -1,6 +1,6 @@
 ;; Using GSL storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-01-14 21:09:15 liam data.lisp>
+;; Time-stamp: <2008-01-27 18:50:53EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -198,6 +198,8 @@
 
 (export '(make-data with-data))
 
+(set-asf generic make-data free (setf data) 3)
+
 (defgeneric alloc (object)
   (:documentation "Allocate GSL data; used internally."))
 
@@ -214,9 +216,9 @@
    The user is responsible for calling #'free to free the foreign
    memory when done."
   (let ((obj
-	 (make-instance
-	  (make-symbol-from-strings *gsl-prefix* type)
-	  :storage-size size)))
+         (make-instance
+          (make-symbol-from-strings *gsl-prefix* type)
+          :storage-size size)))
     (if zero (calloc obj) (alloc obj))
     obj))
 
@@ -225,10 +227,33 @@
    and then deallocated it when done.  If zero is T, zero the
    contents when allocating."
   `(let ((,symbol
-	  (make-data ',type  ,zero ,@(if (listp size) size (list size)))))
+          (make-data ',type  ,zero ,@(if (listp size) size (list size)))))
+    (unwind-protect
+         (progn ,@body)
+      (free ,symbol))))
+
+#|
+(defun make-data (type zero size)
+  "Make the GSL data object, including the allocation of space.
+   The user is responsible for calling #'free to free the foreign
+   memory when done."
+  (let ((obj
+	 (make-instance
+	  (make-symbol-from-strings *gsl-prefix* type)
+	  :storage-size (if (listp size) size (list size)))))
+    (if zero (calloc obj) (alloc obj))
+    obj))
+
+(defmacro with-data ((symbol type size &optional zero) &body body)
+  "Allocate GSL data, bind to pointer,
+   and then deallocated it when done.  If zero is T, zero the
+   contents when allocating."
+  `(let ((,symbol
+	  (make-data ',type  ,zero ,size)))
     (unwind-protect 
 	 (progn ,@body)
       (free ,symbol))))
+|#
 
 ;;;;****************************************************************************
 ;;;; Getting values into CL

@@ -1,24 +1,24 @@
-;********************************************************
-; file:        interpolation.lisp                        
-; description: Interpolation allocation, initialization, 
-;              and freeing.                              
-; date:        Sun Nov  4 2007 - 17:24                   
-; author:      Liam Healy                                
-; modified:    Sun Nov  4 2007 - 19:00
-;********************************************************
-;;; $Id: $
+;; Interpolation allocation, initialization, and freeing.
+;; Liam Healy, Sun Nov  4 2007 - 17:24
+;; Time-stamp: <2008-01-26 17:40:04EST interpolation.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
 ;;; A spline is an interpolation that also stores the arrays xa and ya,
 ;;; so they need not be supplied on each call.
 
+(set-asf
+ interpolation allocate-interpolation free-interpolation
+ initialize-interpolation 2)
 
 ;;; Interpolation
 (defun-gsl allocate-interpolation (type size)
   "gsl_interp_alloc"
   ((type :pointer) (size :size))
   :c-return :pointer
+  :export nil
+  :index (with-gsl-objects interpolation)
   :documentation
   "Allocate an interpolation object of type for size data-points,
    and return the pointer to it.")
@@ -38,8 +38,12 @@
   "gsl_interp_free"
   ((interpolation :pointer))
   :c-return :void
+  :export nil
+  :index (with-gsl-objects interpolation)
   :documentation
   "Frees the interpolation object @var{interp}.")
+
+(set-asf spline allocate-spline free-spline intialize-spline 2)
 
 ;;; Spline
 (defun-gsl allocate-spline (type size)

@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-01-15 19:01:37 liam vector.lisp>
+;; Time-stamp: <2008-01-26 22:20:43EST vector.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -468,6 +468,14 @@ same length.")
 (with-data (vec vector-double 3)
   (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
   (data vec))
+
+(with-gsl-objects ((generic vec 'vector-double nil 3))
+  (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
+  (data vec))
+
+
+
+
 
 (with-data (vec vector 3) (set-basis vec 1)
 	   (format t "~&~a ~a ~a"
