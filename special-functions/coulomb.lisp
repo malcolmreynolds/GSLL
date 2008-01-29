@@ -42,7 +42,7 @@
    (exp-F :double) (exp-G :double))
   :return
   ((val F) (val Fp) (val G) (val Gp)
-   (double-to-cl exp-F) (double-to-cl exp-G)
+   (dcref exp-F) (dcref exp-G)
    (err F) (err Fp) (err G) (err Gp))
   :documentation
   "The Coulomb wave functions @math{F_L(\eta,x)},
@@ -65,7 +65,7 @@
   @math{L = Lmin \dots Lmin + kmax}, storing the results in @var{fc-array}.
   In the case of overflow the exponent is stored in the second value returned."
   :invalidate (fc-array)
-  :return (fc-array (double-to-cl F-exponent)))
+  :return (fc-array (dcref F-exponent)))
 
 (defun-gsl coulomb-wave-FG-array (L-min eta x fc-array gc-array)
   "gsl_sf_coulomb_wave_FG_array"
@@ -77,7 +77,7 @@
   @math{G_L(\eta,x)} for @math{L = Lmin \dots Lmin + kmax} storing the
   results in @var{fc_array} and @var{gc_array}.  In the case of overflow the
   exponents are stored in @var{F_exponent} and @var{G_exponent}."
-  :return (fc-array gc-array (double-to-cl F-exponent) (double-to-cl G-exponent)))
+  :return (fc-array gc-array (dcref F-exponent) (dcref G-exponent)))
 
 (defun-gsl coulomb-wave-FGp-array (L-min eta x fc-array fcp-array gc-array gcp-array)
   "gsl_sf_coulomb_wave_FGp_array"
@@ -94,7 +94,7 @@
   and @var{G_exponent}."
   :return
   (fc-array fcp-array gc-array gcp-array
-	    (double-to-cl F-exponent) (double-to-cl G-exponent)))
+	    (dcref F-exponent) (dcref G-exponent)))
 
 (defun-gsl coulomb-wave-sphF-array (L-min eta x fc-array)
   "gsl_sf_coulomb_wave_sphF_array"
@@ -107,7 +107,7 @@
    stored in @var{F_exponent}. This function reduces to spherical Bessel
    functions in the limit @math{\eta \to 0}."
   :invalidate (fc-array)
-  :return (fc-array (double-to-cl F-exponent)))
+  :return (fc-array (dcref F-exponent)))
 
 ;;;;****************************************************************************
 ;;;; Coulomb Wave Function Normalization Constant

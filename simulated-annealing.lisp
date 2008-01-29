@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2008-01-20 22:37:12EST simulated-annealing.lisp>
+;; Time-stamp: <2008-01-28 22:19:40EST simulated-annealing.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -175,7 +175,7 @@
   (let ((*sa-function-calls* 0))
     (rng-environment-setup)
     (cffi:with-foreign-object (initial :double)
-      (setf (double-to-cl initial) 15.5d0)
+      (setf (dcref initial) 15.5d0)
       (with-simulated-annealing-parameters
 	  (params 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6)
 	(simulated-annealing

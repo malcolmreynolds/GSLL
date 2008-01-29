@@ -1,11 +1,7 @@
-;********************************************************
-; file:        number-conversion.lisp
-; description: Conversion of numbers C->CL
-; date:        Sun May 28 2006 - 22:04                   
-; author:      Liam M. Healy                             
-; modified:    Sat Sep 15 2007 - 22:34
-;********************************************************
-;;; $Id: $
+;; Conversion of numbers C->CL
+;; Liam Healy, Sun May 28 2006 - 22:04
+;; Time-stamp: <2008-01-28 22:09:08EST number-conversion.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -13,24 +9,30 @@
 ;;;; Built-in numerical types
 ;;;;****************************************************************************
 
-(defmacro float-to-cl (float &optional (index 0))
+(export '(fcref dcref scref icref))
+
+(defmacro fcref (float &optional (index 0))
+  "Reference C float(s)."
   `(cffi:mem-aref ,float :float ,index))
 
-(defmacro double-to-cl (double &optional (index 0))
+(defmacro dcref (double &optional (index 0))
+  "Reference C double(s)."
   `(cffi:mem-aref ,double :double ,index))
 
-(defmacro size-to-cl (size &optional (index 0))
+(defmacro scref (size &optional (index 0))
+  "Reference C size(s)."
   `(cffi:mem-aref ,size :size ,index))
 
-(defmacro int-to-cl (integer &optional (index 0))
+(defmacro icref (integer &optional (index 0))
+  "Reference C integer(s)."
   `(cffi:mem-aref ,integer :int ,index))
 
 (defun cl-convert-function (type)
   (case type
-    (:float 'float-to-cl)
-    (:double 'double-to-cl)
-    (:size 'size-to-cl)
-    (:int 'int-to-cl)
+    (:float 'fcref)
+    (:double 'dcref)
+    (:size 'scref)
+    (:int 'icref)
     (gsl-complex 'complex-to-cl)))
 
 ;;;;****************************************************************************
@@ -49,8 +51,8 @@
 		gsl-complex
 		(* index (cffi:foreign-type-size 'gsl-complex)))
 	       'gsl-complex 'dat)))
-    (complex (double-to-cl carr 0)
-	     (double-to-cl carr 1))))
+    (complex (dcref carr 0)
+	     (dcref carr 1))))
 
 ;;;;****************************************************************************
 ;;;; Conversion form

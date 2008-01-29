@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-26 21:33:48EST interface.lisp>
+;; Time-stamp: <2008-01-28 22:36:32EST interface.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,24 +11,17 @@
 ;;;; Lookup table to find CL functions from C function names
 ;;;;****************************************************************************
 
-(defparameter *sf-name-mapping* nil
-  "An alist mapping the CL and GSL names of the special functions.
-   This will only be populated when macros are expanded.")
+(defparameter *gsl-symbol-equivalence*
+  (make-hash-table :test 'equal :size 1500))
 
 (defun map-name (cl-name gsl-name)
-  (setf *sf-name-mapping* (acons cl-name gsl-name *sf-name-mapping*)))
+  ;; Trust here that the library does not have two symbols that differ
+  ;; only by the case of one or more letters.
+  (setf (gethash (string-downcase gsl-name) *gsl-symbol-equivalence*) cl-name))
 
 (defun gsl-lookup (string)
-  "Find the CL function name given the GSL C special function function name.
-   If cl-ppcre (http://www.weitz.de/cl-ppcre/) is installed, the string
-   can be a regular expression; otherwise, it must match the C name exactly
-   except for case."
-  (remove string *sf-name-mapping*
-	  :key #'rest
-	  :test-not
-	  (if (find-package :ppcre)
-	      (symbol-function (intern "ALL-MATCHES" :ppcre))
-	      #'string-equal)))
+  "Find the GSLL (Lisp) equivalent of the GSL symbol."
+  (gethash (string-downcase string) *gsl-symbol-equivalence*))
 
 ;;;;****************************************************************************
 ;;;; Symbol-type declaration
@@ -235,13 +228,13 @@
 		   (:success-failure
 		    (if (equal clret invalidate)
 			;; success-failure more important than passed-in
-			`((success-failure ,@clret))
+			`((success-failure ,cret-name))
 			(remove cret-name ; don't return c-return itself
 				`(,@clret (success-failure ,cret-name)))))
 		   (:success-continue
 		    (if (equal clret invalidate)
 			;; success-failure more important than passed-in
-			`((success-continue ,@clret))
+			`((success-continue ,cret-name))
 			(remove cret-name ; don't return c-return itself
 				`(,@clret (success-continue ,cret-name)))))
 		   (:true-false

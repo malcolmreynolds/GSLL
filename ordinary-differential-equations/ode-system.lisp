@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2008-01-20 18:06:12EST ode-system.lisp>
+;; Time-stamp: <2008-01-28 22:21:08EST ode-system.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -36,7 +36,7 @@
      &body body)
   "Environment for integration of ordinary differential equations.
    The variables time and step-size will become C doubles in the body;
-   to convert back, use double-to-cl.  The dependent variable may
+   to convert back, use #'dcref  The dependent variable may
    be specified as a list being the same as the first argument to
    with-c-double."
   (let ((ctime (make-symbol "CTIME"))
@@ -49,8 +49,8 @@
 	       ((,(if (listp dependent) (first dependent) dependent)
 		  :double ,dimensions) (,ctime :double) (,cstep :double))
 	     (setf
-	      (double-to-cl ,cstep) ,step-size
-	      (double-to-cl ,ctime) ,time)
+	      (dcref ,cstep) ,step-size
+	      (dcref ,ctime) ,time)
 	     ,(if (listp dependent)
 		  `(with-c-double ,dependent
 		    (symbol-macrolet ((,time ,ctime) (,step-size ,cstep))

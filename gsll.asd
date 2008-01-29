@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-01-21 17:58:44EST gsll.asd>
+;; Time-stamp: <2008-01-28 22:24:15EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -171,6 +171,6 @@
    (:file "hankel" :depends-on (init data))
    (:file "roots-one" :depends-on (init general))
    (:file "minimization-one" :depends-on (init general))
-   (:file "roots-multi" :depends-on (init general data))
+   (:file "roots-multi" :depends-on (init general data roots-one))
    (:file "minimization-multi" :depends-on (init general data))
    (:file "linear-least-squares" :depends-on (init general data))))

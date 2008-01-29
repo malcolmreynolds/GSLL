@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-01-21 11:47:04EST matrix.lisp>
+;; Time-stamp: <2008-01-28 22:19:38EST matrix.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -526,7 +526,7 @@
    When there are several equal maximum elements then the lowest index is
    returned."
   :c-return :void
-  :return ((list (size-to-cl imax) (size-to-cl jmax))))
+  :return ((list (scref imax) (scref jmax))))
 
 (defun-gsl-mdsf gsl-min-index ((m gsl-matrix))
   "gsl_matrix_min_index"
@@ -536,7 +536,7 @@
   When there are several equal minimum elements then the
   lowest index is returned."
   :c-return :void
-  :return ((list (size-to-cl imin) (size-to-cl jmin))))
+  :return ((list (scref imin) (scref jmin))))
 
 (defun-gsl-mdsf gsl-minmax-index ((m gsl-matrix))
   "gsl_matrix_minmax_index"
@@ -547,8 +547,8 @@
   When there are several equal minimum elements then the lowest index is
   returned."
   :c-return :void
-  :return ((list (size-to-cl imin) (size-to-cl jmin))
-	   (list (size-to-cl imax) (size-to-cl jmax))))
+  :return ((list (scref imin) (scref jmin))
+	   (list (scref imax) (scref jmax))))
 
 ;;;;****************************************************************************
 ;;;; Properties

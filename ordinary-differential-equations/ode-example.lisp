@@ -1,6 +1,6 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
-;; Time-stamp: <2008-01-20 17:40:48EST ode-example.lisp>
+;; Time-stamp: <2008-01-28 22:21:07EST ode-example.lisp>
 ;; $Id: $
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
@@ -35,11 +35,11 @@
     (declare (special mu))
     (with-ode-integration (time step-size (dependent dep0 dep1) 2)
       (setf dep0 1.0d0 dep1 0.0d0)
-      (loop (when (or (>= (double-to-cl time) max-time) (> iter *max-iter*)) (return))
+      (loop (when (or (>= (dcref time) max-time) (> iter *max-iter*)) (return))
 	    (apply-evolution
 	     evolve control stepper vanderpol
 	     time max-time step-size dependent)
 	    (incf iter)
 	    (format t "~&~12,6f~10t~12,6f~24t~12,6f"
-		    (double-to-cl time) dep0 dep1)))))
+		    (dcref time) dep0 dep1)))))
 

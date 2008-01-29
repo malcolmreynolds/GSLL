@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-01-26 19:48:03EST linear-least-squares.lisp>
+;; Time-stamp: <2008-01-28 22:22:22EST linear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -218,7 +218,7 @@
    (rank :size)
    ((pointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
-  :return ((double-to-cl chisq) (size-to-cl rank))
+  :return ((dcref chisq) (scref rank))
   :documentation			; FDL
   "Compute the best-fit parameters c of the weighted
    model y = X c for the observations y and weights

@@ -41,7 +41,7 @@
   function is computed using the real Lanczos method.  The value of the
   gamma function can be reconstructed using the relation @math{\Gamma(x) =
   sgn * \exp(resultlg)}."
-  :return ((val ret) (double-to-cl sign) (err ret)))
+  :return ((val ret) (dcref sign) (err ret)))
 
 (defun-gsl gamma* (x)
   "gsl_sf_gammastar_e" ((x :double) (ret sf-result))
@@ -128,7 +128,7 @@
   \log(|(a)_x|)} and @math{sgn = \sgn((a)_x)} where @math{(a)_x :=
   \Gamma(a + x)/\Gamma(a)}, subject to @math{a}, @math{a+x} not being
   negative integers."
-  :return ((val ret) (double-to-cl sign) (err ret)))
+  :return ((val ret) (dcref sign) (err ret)))
 
 (defun-gsl relative-pochammer (a x)
   "gsl_sf_pochrel_e" ((a :double) (x :double) (ret sf-result))

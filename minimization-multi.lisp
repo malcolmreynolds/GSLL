@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-01-27 22:55:36EST minimization-multi.lisp>
+;; Time-stamp: <2008-01-28 22:42:05EST minimization-multi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -335,10 +335,9 @@
 
 (defun parabaloid-and-derivative
     (arguments-gv-pointer fnval derivative-gv-pointer)
-  (with-c-double (fnval fv)
-    (setf fv (parabaloid arguments-gv-pointer))
-    (parabaloid-derivative
-     arguments-gv-pointer derivative-gv-pointer)))
+  (setf (dcref fnval) (parabaloid arguments-gv-pointer))
+  (parabaloid-derivative
+   arguments-gv-pointer derivative-gv-pointer))
 
 (def-minimization-functions
     parabaloid 2 parabaloid-derivative parabaloid-and-derivative)

@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2008-01-20 22:34:41EST functions.lisp>
+;; Time-stamp: <2008-01-28 22:21:09EST functions.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -182,7 +182,7 @@
    reading or setting."
   `(symbol-macrolet
     ,(loop for i from 0 for a in element-names
-	   collect `(,a (double-to-cl ,c-vector ,i)))
+	   collect `(,a (dcref ,c-vector ,i)))
     ,@body))
 
 (defmacro with-c-doubles
@@ -193,5 +193,5 @@
     ,(loop for (c-vector . element-names) in cvector-names
 	   append
 	   (loop for i from 0 for a in element-names
-		 collect `(,a (double-to-cl ,c-vector ,i))))
+		 collect `(,a (dcref ,c-vector ,i))))
     ,@body))
