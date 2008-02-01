@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-01-21 11:47:49EST generators.lisp>
+;; Time-stamp: <2008-01-31 22:43:53EST generators.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -37,6 +37,8 @@
 	  :type type
 	  :generator generator)))
     (if (eq generator t) (alloc instance) instance)))
+
+(set-asf random-number-generator make-random-number-generator free rng-set 1)
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -248,18 +250,18 @@
 (lisp-unit:define-test random-number-generators
   (lisp-unit:assert-equal
    '(999 162 282 947 231 484 957 744 540 739 759)
-   (progn
-     (rng-set *rng-mt19937* 0)
+   (with-gsl-objects ((random-number-generator rng *mt19937* 0))
      (loop for i from 0 to 10
-	collect
-	(uniform-fixnum *rng-mt19937* 1000))))
+	   collect
+	   (uniform-fixnum rng 1000))))
   (lisp-unit:assert-equal
    '("0.111776229978d+00" "0.959166794996d+00" "0.841526801158d+00"
      "0.925403713680d+00" "0.275406984741d+00" "0.709304057392d+00"
      "0.554133304187d+00" "0.880695776958d+00" "0.597139396983d+00"
      "0.751874113340d+00" "0.931108462127d+00")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-cmrg* 0)
-      (loop for i from 0 to 10
-	 collect (uniform *rng-cmrg*))))))
+    (with-gsl-objects ((random-number-generator rng *cmrg* 0))
+      (loop for i from 0 to 10 collect (uniform rng))))))
+
+
+
