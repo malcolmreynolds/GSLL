@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-02-03 11:35:59EST monte-carlo.lisp>
+;; Time-stamp: <2008-02-03 13:25:30EST monte-carlo.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -13,7 +13,7 @@
   (dim :size)
   (x :pointer))
 
-(set-asf (monte-carlo-plain dim) monte-carlo-plain-alloc monte-carlo-plain-free)
+(defgo-s (monte-carlo-plain dim) monte-carlo-plain-alloc monte-carlo-plain-free)
 
 (defun-gsl monte-carlo-plain-alloc (dim)
   "gsl_monte_plain_alloc"
@@ -96,7 +96,7 @@
   (hits-l :pointer)
   (hits-r :pointer))
 
-(set-asf (monte-carlo-miser dim) monte-carlo-miser-alloc monte-carlo-miser-free)
+(defgo-s (monte-carlo-miser dim) monte-carlo-miser-alloc monte-carlo-miser-free)
 
 (defun-gsl monte-carlo-miser-alloc (dim)
   "gsl_monte_miser_alloc"
@@ -198,7 +198,7 @@
   (calls-per-box :uint)
   (ostream :pointer))
 
-(set-asf (monte-carlo-vegas dim) monte-carlo-vegas-alloc monte-carlo-vegas-free)
+(defgo-s (monte-carlo-vegas dim) monte-carlo-vegas-alloc monte-carlo-vegas-free)
 
 (defun-gsl monte-carlo-vegas-alloc (dim)
   "gsl_monte_vegas_alloc"
@@ -292,21 +292,21 @@
 	 (lower (vector-double #(0.0d0 0.0d0 0.0d0)))
 	 (upper (vector-double (vector pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-plain monte-carlo-g lower upper nsamples rng ws)))))
+    (monte-carlo-integrate-plain monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-miser 3))
 	 (lower (vector-double #(0.0d0 0.0d0 0.0d0)))
 	 (upper (vector-double (vector pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-miser monte-carlo-g lower upper nsamples rng ws)))))
+    (monte-carlo-integrate-miser monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-vegas 3))
 	 (lower (vector-double #(0.0d0 0.0d0 0.0d0)))
 	 (upper (vector-double (vector pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-vegas monte-carlo-g lower upper nsamples rng ws)))))
+    (monte-carlo-integrate-vegas monte-carlo-g lower upper nsamples rng ws)))
 
 (lisp-unit:define-test monte-carlo
   (lisp-unit:assert-first-fp-equal

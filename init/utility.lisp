@@ -1,6 +1,6 @@
 ;; Utility definitions
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-02-02 23:22:56EST utility.lisp>
+;; Time-stamp: <2008-02-03 13:31:47EST utility.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,7 +11,9 @@
 
 (defparameter *gsl-prefix* 'gsl)
 
-;;;;;;;;;;;; GSL objects
+;;;;****************************************************************************
+;;;; GSL objects
+;;;;****************************************************************************
 
 ;;; Each object has a defun named after it.  This function is used
 ;;; only internally by #'letm, but it is exported so that
@@ -23,6 +25,10 @@
 (defvar *not-for-users* nil)
 
 (defmacro letm (bindings &body body)
+  "A macro to bind variables to GSL objects, possibly setting
+   initial values, and freeing them when done.  The binding is as
+   in a let*; any bindings for non-GSL objects are done as in
+   a let*."
   (let* (setters			; save setting forms
 	 freers				; save freeing forms
 	 assigns			; save global assignements
@@ -65,7 +71,7 @@
 	   form)))
 
 ;;; General definition for object creation
-(defmacro defun-letm (symbol arglist &body body)
+(defmacro defgo (symbol arglist &body body)
   "Define a GSL object to be bound in a letm.
    The body should return a list of two to four values.
    The first is the allocation form, the second is
@@ -84,11 +90,11 @@
       ,@body)))
 
 ;;; Specific, simple and common types of object creation 
-(defmacro set-asf (form allocate free &optional set (num-alloc-args 1))
+(defmacro defgo-s (form allocate free &optional set (num-alloc-args 1))
   "Make an object usable in letm with the arglist is the allocate
    and set arglists appended."
   (let ((symb (gensym "SASF")))
-    `(defun-letm ,(first form)
+    `(defgo ,(first form)
       (,@(subseq (rest form) 0 num-alloc-args)
        &optional
        ,@(when set `((,(nth num-alloc-args (rest form))

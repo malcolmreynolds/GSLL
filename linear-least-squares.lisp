@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-02-03 11:31:47EST linear-least-squares.lisp>
+;; Time-stamp: <2008-02-03 13:23:36EST linear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -125,7 +125,7 @@
 ;;;; Multiparameter fitting
 ;;;;****************************************************************************
 
-(set-asf (fit-workspace number-of-observations number-of-parameters)
+(defgo-s (fit-workspace number-of-observations number-of-parameters)
 	 allocate-fit-workspace free-fit-workspace nil 2)
 
 (defun-gsl allocate-fit-workspace (number-of-observations number-of-parameters)

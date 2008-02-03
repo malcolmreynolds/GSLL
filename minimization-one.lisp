@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-02-02 21:12:20EST minimization-one.lisp>
+;; Time-stamp: <2008-02-03 13:22:51EST minimization-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,7 +9,7 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-(set-asf (fminimizer type function minimum lower upper)
+(defgo-s (fminimizer type function minimum lower upper)
 	 allocate-fminimizer free-fminimizer set-fminimizer)
 
 (defun-gsl allocate-fminimizer (type)

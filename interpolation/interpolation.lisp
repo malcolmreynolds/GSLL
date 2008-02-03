@@ -1,6 +1,6 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2008-02-02 22:22:59EST interpolation.lisp>
+;; Time-stamp: <2008-02-03 13:17:11EST interpolation.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -8,7 +8,7 @@
 ;;; A spline is an interpolation that also stores the arrays xa and ya,
 ;;; so they need not be supplied on each call.
 
-(defun-letm interpolation (type xa-or-size &optional ya)
+(defgo interpolation (type xa-or-size &optional ya)
   (list
    `(allocate-interpolation ,type ,(if ya `(dim0 ,ya) xa-or-size))
    'free-spline
@@ -47,7 +47,7 @@
   :documentation
   "Frees the interpolation object @var{interp}.")
 
-(defun-letm spline (type xa-or-size &optional ya)
+(defgo spline (type xa-or-size &optional ya)
   (list
    `(allocate-spline ,type ,(if ya `(dim0 ,ya) xa-or-size))
    'free-spline

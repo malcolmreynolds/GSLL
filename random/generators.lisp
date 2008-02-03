@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-02-03 11:36:39EST generators.lisp>
+;; Time-stamp: <2008-02-03 13:22:46EST generators.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -38,7 +38,7 @@
 	  :generator generator)))
     (if (eq generator t) (alloc instance) instance)))
 
-(set-asf (random-number-generator type value)
+(defgo-s (random-number-generator type value)
 	 make-random-number-generator free rng-set 1)
 
 ;;;;****************************************************************************

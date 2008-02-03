@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-02-02 19:29:21EST roots-one.lisp>
+;; Time-stamp: <2008-02-03 13:22:55EST roots-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -44,8 +44,8 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-(set-asf (fsolver type function lower upper) allocate-fsolver free-fsolver set-fsolver)
-(set-asf (fdfsolver type function-derivative root-guess)
+(defgo-s (fsolver type function lower upper) allocate-fsolver free-fsolver set-fsolver)
+(defgo-s (fdfsolver type function-derivative root-guess)
 	 allocate-fdfsolver free-fdfsolver set-fdfsolver)
 
 (defun-gsl allocate-fsolver (type)

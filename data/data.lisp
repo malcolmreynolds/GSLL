@@ -1,6 +1,6 @@
 ;; Using GSL storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-02-02 23:37:58EST data.lisp>
+;; Time-stamp: <2008-02-03 13:17:10EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -103,11 +103,11 @@
     ;;(LONG-DOUBLE . "_long_double")
     (COMPLEX . "_complex")))
 
-(defmacro data-letm (type size-spec-is-list)
+(defmacro data-go (type size-spec-is-list)
   "Define the letm function for data types."
   (let ((size-spec (if size-spec-is-list 'listp 'numberp))
 	(init-spec (if size-spec-is-list 'array-dimensions 'length)))
-    `(defun-letm ,type (size-or-initial &optional zero)
+    `(defgo ,type (size-or-initial &optional zero)
       (let ((argsymb (gensym "ARG")))
 	(list
 	 `(make-data ',',type ,zero
@@ -132,7 +132,7 @@
 			collect `((nth ,i (storage-size object)) :size)))
 	   (object-name (make-symbol-from-strings *gsl-prefix* cl-symbol)))
       `(progn
-	(data-letm ,cl-symbol ,(eq superclass 'gsl-matrix))
+	(data-go ,cl-symbol ,(eq superclass 'gsl-matrix))
 	(defclass ,object-name (,superclass)
 	  ((cl-base-type :initform ',cl-base-type :reader cl-base-type
 			 :allocation :class)))

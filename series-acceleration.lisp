@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-02-02 19:33:39EST series-acceleration.lisp>
+;; Time-stamp: <2008-02-03 13:22:57EST series-acceleration.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -21,7 +21,7 @@
   (dq-den :pointer)
   (dsum :pointer))
 
-(set-asf (levin order) allocate-levin free-levin)
+(defgo-s (levin order) allocate-levin free-levin)
 
 (defun-gsl allocate-levin (order)
   "gsl_sum_levin_u_alloc"
@@ -61,7 +61,7 @@
 ;;;; Acceleration with error estimation from truncation
 ;;;;****************************************************************************
 
-(set-asf (levin-truncated order) allocate-levin-truncated free-levin-truncated)
+(defgo-s (levin-truncated order) allocate-levin-truncated free-levin-truncated)
 
 (defun-gsl allocate-levin-truncated (order)
   "gsl_sum_levin_utrunc_alloc"

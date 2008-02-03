@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-02-02 19:13:03EST chebyshev.lisp>
+;; Time-stamp: <2008-02-03 13:22:58EST chebyshev.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,7 +9,7 @@
 ;;;; Creation and calculation of Chebyshev series
 ;;;;****************************************************************************
 
-(set-asf (chebyshev order function lower-limit upper-limit)
+(defgo-s (chebyshev order function lower-limit upper-limit)
 	 allocate-chebyshev free-chebyshev initialize-chebyshev)
 
 (defun-gsl allocate-chebyshev (order)

@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-02-02 22:01:47EST quasi.lisp>
+;; Time-stamp: <2008-02-03 13:22:46EST quasi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
 
 (defparameter *default-quasi-random-number-generator* nil)
 
-(set-asf (quasi-random-number-generator dimension type)
+(defgo-s (quasi-random-number-generator dimension type)
 	 make-quasi-random-number-generator free nil 2)
 
 (defun make-quasi-random-number-generator 

@@ -1,13 +1,13 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-02-02 19:24:27EST hankel.lisp>
+;; Time-stamp: <2008-02-03 13:22:56EST hankel.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
 ;;; Everything compiles, but not tested -- need example.
 
-(set-asf (hankel size nu xmax) allocate-hankel free-hankel init-hankel)
+(defgo-s (hankel size nu xmax) allocate-hankel free-hankel init-hankel)
 
 (defun-gsl allocate-hankel (size)
   "gsl_dht_alloc"

@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-02-03 10:58:16EST discrete.lisp>
+;; Time-stamp: <2008-02-03 13:22:45EST discrete.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
   (A :pointer)
   (F :pointer))
 
-(set-asf (discrete-random probabilities) discrete-preprocess discrete-free)
+(defgo-s (discrete-random probabilities) discrete-preprocess discrete-free)
 
 (defun-gsl discrete-preprocess (probabilities) 
   "gsl_ran_discrete_preproc"

@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-02-02 21:08:35EST eigensystems.lisp>
+;; Time-stamp: <2008-02-03 13:22:47EST eigensystems.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,7 +9,7 @@
 ;;;; Real Symmetric Matrices
 ;;;;****************************************************************************
 
-(set-asf (eigen-symm n) eigen-symm-alloc eigen-symm-free)
+(defgo-s (eigen-symm n) eigen-symm-alloc eigen-symm-free)
 
 (defun-gsl eigen-symm-alloc (n)
   "gsl_eigen_symm_alloc" ((n :size))
@@ -29,7 +29,7 @@
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
 
-(set-asf (eigen-symmv n) eigen-symmv-alloc eigen-symmv-free)
+(defgo-s (eigen-symmv n) eigen-symmv-alloc eigen-symmv-free)
 
 (defun-gsl eigen-symmv-alloc (n)
   "gsl_eigen_symmv_alloc" ((n :size))
@@ -82,7 +82,7 @@
 ;;;; Complex Hermitian Matrices
 ;;;;****************************************************************************
 
-(set-asf (eigen-herm n) eigen-herm-alloc eigen-herm-free)
+(defgo-s (eigen-herm n) eigen-herm-alloc eigen-herm-free)
 
 (defun-gsl eigen-herm-alloc (n)
   "gsl_eigen_herm_alloc" ((n :size))
@@ -112,7 +112,7 @@
   :invalidate (eval A)
   :return (eval))
 
-(set-asf (eigen-hermv n) eigen-hermv-alloc eigen-hermv-free)
+(defgo-s (eigen-hermv n) eigen-hermv-alloc eigen-hermv-free)
 
 (defun-gsl eigen-hermv-alloc (n)
   "gsl_eigen_hermv_alloc" ((n :size))

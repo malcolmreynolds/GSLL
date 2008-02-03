@@ -9,7 +9,7 @@
 
 (in-package :gsl)
 
-(set-asf (acceleration) allocate-acceleration free-acceleration nil 0)
+(defgo-s (acceleration) allocate-acceleration free-acceleration nil 0)
 
 (defun-gsl interpolation-search (x-array x low-index high-index)
   "gsl_interp_bsearch"

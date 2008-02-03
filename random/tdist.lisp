@@ -1,6 +1,6 @@
 ;; Tdist distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2008-02-03 11:27:51EST tdist.lisp>
+;; Time-stamp: <2008-02-03 13:27:31EST tdist.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -59,11 +59,12 @@
      "-0.160088628258d+01" "-0.170109355058d+01" "-0.437095974981d-01"
      "0.127611592766d+00" "-0.197312182555d-01" "-0.653466611720d+00"
      "0.203577132452d+00" "0.177650300478d+01")
-   (letm ((rng (random-number-generator *mt19937* 0)))
-     (rng-set rng 0)
-     (loop for i from 0 to 10
-	   collect
-	   (tdist rng 10.0d0)))))
+   (lisp-unit:fp-sequence
+    (letm ((rng (random-number-generator *mt19937* 0)))
+      (rng-set rng 0)
+      (loop for i from 0 to 10
+	    collect
+	    (tdist rng 10.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.254647908947d+00"
    (tdist-pdf 0.5d0 1.0d0))

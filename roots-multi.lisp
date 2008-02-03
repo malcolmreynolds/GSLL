@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-02-02 22:22:20EST roots-multi.lisp>
+;;; Time-stamp: <2008-02-03 13:17:08EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -43,14 +43,14 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-(defun-letm mfsolver (type function-derivative initial)
+(defgo mfsolver (type function-derivative initial)
   (list
    `(allocate-mfsolver ,type (dim0 ,initial))
    'free-mfsolver
    (lambda (symb)
      `(set-mfsolver ,symb ,function-derivative ,initial))))
 
-(defun-letm mfdfsolver (type function-derivative initial)
+(defgo mfdfsolver (type function-derivative initial)
   (list
    `(allocate-mfdfsolver ,type (dim0 ,initial))
    'free-mfdfsolver

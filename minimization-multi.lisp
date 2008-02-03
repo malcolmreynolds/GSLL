@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-02-02 21:17:03EST minimization-multi.lisp>
+;; Time-stamp: <2008-02-03 13:22:54EST minimization-multi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -49,9 +49,9 @@
 ;;;;****************************************************************************
 
 ;;; Could have one fewer argument: dimension=(dim0 initial)
-(set-asf (mfminimizer type dimension function intial step-size)
+(defgo-s (mfminimizer type dimension function intial step-size)
 	 allocate-mfminimizer free-mfminimizer set-mfminimizer 2)
-(set-asf (mfdfminimizer type dimension function-derivative intitial step-size tolerance)
+(defgo-s (mfdfminimizer type dimension function-derivative intitial step-size tolerance)
 	 allocate-mfdfminimizer free-mfdfminimizer set-mfdfminimizer 2)
 
 (defun-gsl allocate-mfminimizer (type dimension)

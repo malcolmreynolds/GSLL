@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-02-02 21:12:08EST wavelet.lisp>
+;; Time-stamp: <2008-02-03 13:22:53EST wavelet.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
 ;;;; Allocation of wavelets
 ;;;;****************************************************************************
 
-(set-asf (wavelet type member) allocate-wavelet free-wavelet nil 2)
+(defgo-s (wavelet type member) allocate-wavelet free-wavelet nil 2)
 
 (defun-gsl allocate-wavelet (type member)
   "gsl_wavelet_alloc"
@@ -69,7 +69,7 @@
   :documentation
   "The name of the wavelet family.")
 
-(set-asf (wavelet-workspace size) allocate-wavelet-workspace free-wavelet-workspace)
+(defgo-s (wavelet-workspace size) allocate-wavelet-workspace free-wavelet-workspace)
 
 (defun-gsl allocate-wavelet-workspace (size)
   "gsl_wavelet_workspace_alloc"

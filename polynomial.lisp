@@ -130,7 +130,7 @@
 ;;;; General Polynomial Equations
 ;;;;****************************************************************************
 
-(set-asf (complex-workspace n)
+(defgo-s (complex-workspace n)
 	 allocate-complex-workspace free-complex-workspace)
 
 (defun-gsl allocate-complex-workspace (n)

@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-02-02 21:06:00EST numerical-integration.lisp>
+;; Time-stamp: <2008-02-03 13:22:48EST numerical-integration.lisp>
 ;; $Id: $
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -36,7 +36,7 @@
 ;;;; QAG adaptive Gauss-Kronrod integration
 ;;;;****************************************************************************
 
-(set-asf (integration-workspace size)
+(defgo-s (integration-workspace size)
 	 integration-workspace-alloc integration-workspace-free)
 
 (defun-gsl integration-workspace-alloc (size)
