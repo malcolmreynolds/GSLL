@@ -1,6 +1,6 @@
 ;; Beta distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-02-02 23:04:13EST beta.lisp>
+;; Time-stamp: <2008-02-03 09:52:01EST beta.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -10,42 +10,46 @@
   "gsl_ran_beta"
   (((generator generator) :pointer) (a :double) (b :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "A random variate from the beta distribution.  The distribution function is
    p(x) dx = {\Gamma(a+b) \over \Gamma(a) \Gamma(b)} x^{a-1} (1-x)^{b-1} dx
-   @math{0 <= x <= 1}.")
+   0 <= x <= 1.")
 
 (defun-gsl beta-pdf (x a b)
   "gsl_ran_beta_pdf" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation
-  "The probability density @math{p(x)} at @var{x}
-   for a beta distribution with parameters @var{a} and @var{b}, using the
+  :documentation			; FDL
+  "The probability density p(x) at x
+   for a beta distribution with parameters a and b, using the
    formula given in #'beta.")
 
 (defun-gsl beta-P (x a b)
   "gsl_cdf_beta_P" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{P(x)} for the beta distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  P(x) for the beta distribution with parameters a and b.")
 
 (defun-gsl beta-Q (x a b)
   "gsl_cdf_beta_Q" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{Q(x)} for the beta distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  Q(x) for the beta distribution with parameters a and b.")
 
 (defun-gsl beta-Pinv (P a b)
   "gsl_cdf_beta_Pinv" ((P :double) (a :double) (b :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-  @math{P(x)} for the beta distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+  P(x) for the beta distribution with parameters a and b.")
 
 (defun-gsl beta-Qinv (Q a b)
   "gsl_cdf_beta_Qinv" ((Q :double) (a :double) (b :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-   @math{Q(x)} for the beta distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+   Q(x) for the beta distribution with parameters a and b.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test beta

@@ -1,11 +1,7 @@
-;********************************************************
-; file:        gamma.lisp                          
-; description: Gamma distribution                  
-; date:        Sat Sep 30 2006
-; author:      Liam M. Healy                             
-; modified:    Sat Oct  7 2006 - 11:53
-;********************************************************
-;;; $Id: $
+;; Gamma distribution
+;; Liam Healy, Sat Sep 30 2006
+;; Time-stamp: <2008-02-03 10:43:54EST gamma.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -14,11 +10,11 @@
   "gsl_ran_gamma"
   (((generator generator) :pointer) (a :double) (b :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "A random variate from the gamma distribution.
    The distribution function is
    p(x) dx = {1 \over \Gamma(a) b^a} x^{a-1} e^{-x/b} dx
-   for @math{x > 0}. The gamma distribution with an integer parameter @var{a}
+   for x > 0. The gamma distribution with an integer parameter a
    is known as the Erlang distribution.  The variates are computed using
    the algorithms from Knuth (vol 2).")
 
@@ -26,40 +22,44 @@
   "gsl_ran_gamma_mt"
   (((generator generator) :pointer) (a :double) (b :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "A gamma variate using the Marsaglia-Tsang fast gamma method.")
 
 (defun-gsl gamma-pdf (x a b)
   "gsl_ran_gamma_pdf" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation
-  "The probability density @math{p(x)} at @var{x}
-   for a gamma distribution with parameters @var{a} and @var{b}, using the
+  :documentation			; FDL
+  "The probability density p(x) at x
+   for a gamma distribution with parameters a and b, using the
    formula given in #'gamma.")
 
 (defun-gsl gamma-P (x a b)
   "gsl_cdf_gamma_P" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{P(x)} for the Gamma distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  P(x) for the Gamma distribution with parameters a and b.")
 
 (defun-gsl gamma-Q (x a b)
   "gsl_cdf_gamma_Q" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{Q(x)} for the Gamma distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  Q(x) for the Gamma distribution with parameters a and b.")
 
 (defun-gsl gamma-Pinv (P a b)
   "gsl_cdf_gamma_Pinv" ((P :double) (a :double) (b :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-  @math{P(x)} for the Gamma distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+  P(x) for the Gamma distribution with parameters a and b.")
 
 (defun-gsl gamma-Qinv (Q a b)
   "gsl_cdf_gamma_Qinv" ((Q :double) (a :double) (b :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-   @math{Q(x)} for the Gamma distribution with parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+   Q(x) for the Gamma distribution with parameters a and b.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test gamma-randist
@@ -69,22 +69,20 @@
      "0.869072489937d-01" "0.590607841809d+00" "0.123221058781d+01"
      "0.602337266708d+00" "0.549021596387d+00")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (gamma-rd *rng-mt19937* 1.0d0 2.0d0)))))
+	    (gamma-rd rng 1.0d0 2.0d0)))))
   (lisp-unit:assert-equal
    '("0.260013787613d+01" "0.252226669542d+01" "0.773142209213d+01"
      "0.422727992649d+01" "0.951930434749d-01" "0.571092010687d+00"
      "0.891063771946d+00" "0.826322120255d+00" "0.318306657206d+01"
      "0.380840036132d-02" "0.103201173341d+01")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (gamma-mt *rng-mt19937* 1.0d0 2.0d0)))))
+	    (gamma-mt rng 1.0d0 2.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.475614712250d+00"
    (gamma-pdf 0.1d0 1.0d0 2.0d0))

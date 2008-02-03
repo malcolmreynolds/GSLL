@@ -1,11 +1,7 @@
-;********************************************************
-; file:        exponential-power.lisp                          
-; description: Exponential power distribution                  
-; date:        Sat Sep 30 2006
-; author:      Liam M. Healy                             
-; modified:    Sat Sep 30 2006 - 19:03
-;********************************************************
-;;; $Id: $
+;; Exponential power distribution
+;; Liam Healy, Sat Sep 30 2006
+;; Time-stamp: <2008-02-03 11:12:27EST exponential-power.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -13,37 +9,38 @@
   "gsl_ran_exppow"
   (((generator generator) :pointer) (a :double) (b :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "A random variate from the exponential power distribution
-   with scale parameter @var{a} and exponent @var{b}.  The distribution is
+   with scale parameter a and exponent b.  The distribution is
    p(x) dx = {1 \over 2 a \Gamma(1+1/b)} \exp(-|x/a|^b) dx
-   for @math{x >= 0}.  For @math{b = 1} this reduces to the Laplace
-   distribution.  For @math{b = 2} it has the same form as a gaussian
-   distribution, but with @c{$a = \sqrt{2} \sigma$}
-   @math{a = \sqrt@{2@} \sigma}.")
+   for x >= 0.  For b = 1 this reduces to the Laplace
+   distribution.  For b = 2 it has the same form as a gaussian
+   distribution, but with a = \sqrt{2} \sigma.")
 
 (defun-gsl exponential-power-pdf (x a b)
   "gsl_ran_exppow_pdf" 
   ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation
-  "The probability density @math{p(x)} at @var{x}
-   for an exponential power distribution with scale parameter @var{a}
-  and exponent @var{b}, using the formula given for #'exponential-power.")
+  :documentation			; FDL
+  "The probability density p(x) at x
+   for an exponential power distribution with scale parameter a
+   and exponent b, using the formula given for #'exponential-power.")
 
 (defun-gsl exponential-power-P (x a b)
   "gsl_cdf_exppow_P" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution function
-  @math{P(x)}, for the exponential power distribution with
-  parameters @var{a} and @var{b}.")
+  :documentation			; FDL
+  "The cumulative distribution function
+  P(x), for the exponential power distribution with
+  parameters a and b.")
 
 (defun-gsl exponential-power-Q (x a b)
   "gsl_cdf_exppow_Q" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution functions @math{Q(x)}
+  :documentation			; FDL
+  "The cumulative distribution functions Q(x)
   for the exponential power distribution with
-  parameters @var{a} and @var{b}.")
+  parameters a and b.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test exponential-power
@@ -53,11 +50,10 @@
      "-0.169473362899d+01" "-0.480323610806d+00" "-0.276417363499d-01"
      "0.631839185605d+00" "-0.124788752274d-01")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (exponential-power *rng-mt19937* 1.0d0 2.0d0)))))
+	    (exponential-power rng 1.0d0 2.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.564189583548d+00"
    (exponential-power-pdf 0.0d0 1.0d0 2.0d0))

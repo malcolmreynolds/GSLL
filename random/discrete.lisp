@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-02-02 20:59:58EST discrete.lisp>
+;; Time-stamp: <2008-02-03 10:58:16EST discrete.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -18,8 +18,8 @@
   (((dim0 probabilities) :size) ((gsl-array probabilities) :pointer))
   :c-return :pointer
   :export nil
-  :index (letm discrete)
-  :documentation
+  :index (letm discrete-random)
+  :documentation			; FDL
   "A pointer to a structure that contains the lookup
   table for the discrete random number generator.  The array probabilities contains
   the probabilities of the discrete events; these array elements must all be 
@@ -31,22 +31,15 @@
   "gsl_ran_discrete_free" ((table :pointer))
   :c-return :void
   :export nil
-  :index (letm discrete)
-  :documentation
+  :index (letm discrete-random)
+  :documentation			; FDL
   "De-allocates the lookup table created by #'discrete-preprocess.")
-
-(export 'with-discrete-table)
-(defmacro with-discrete-table ((probabilities table) &body body)
-  `(let ((,table (discrete-preprocess ,probabilities)))
-     (unwind-protect
-	  (progn ,@body)
-       (discrete-free ,table))))
 
 (defun-gsl discrete (generator table)
   "gsl_ran_discrete"
   (((generator generator) :pointer) (table :pointer))
   :c-return :size
-  :documentation
+  :documentation			; FDL
   "Generate discrete random numbers after running #'discrete-preprocess;
    the argument 'table is the value returned by #'discrete-preprocess.")
 
@@ -54,29 +47,28 @@
   "gsl_ran_discrete_pdf"
   ((k :size) (table :pointer))
   :c-return :double
-  :documentation
-  "The probability @math{P[k]} of observing the variable @var{k}.
-   Since @math{P[k]} is not stored as part of the lookup table, it must be
-   recomputed; this computation takes @math{O(K)}, so if @var{K} is large
-   and you care about the original array @math{P[k]} used to create the
-   lookup table, then you should just keep this original array @math{P[k]}
+  :documentation			; FDL
+  "The probability P[k] of observing the variable k.
+   Since P[k] is not stored as part of the lookup table, it must be
+   recomputed; this computation takes O(K), so if K is large
+   and you care about the original array P[k] used to create the
+   lookup table, then you should just keep this original array P[k]
    around.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test discrete
   (lisp-unit:assert-equal
    '(1 0 1 1 0 1 1 2 1 2 2)
-   (with-data (probabilities vector-double 3)
-     (setf (data probabilities) #(0.25d0 0.5d0 0.25d0))
+   ;; Must have two letms because the vector value is not set until
+   ;; the body, but the discrete-random needs that set value.
+   (letm ((probabilities (vector-double #(0.25d0 0.5d0 0.25d0))))
      (letm ((table (discrete-random probabilities))
 	    (rng (random-number-generator *mt19937* 0)))
        (loop for i from 0 to 10
 	     collect
-	     (discrete *rng-mt19937* table))))
+	     (discrete rng table))))
    (lisp-unit:assert-first-fp-equal
     "0.500000000000d+00"
-    (with-data (probabilities vector-double 3)
-      (setf (data probabilities)
-	    #(0.25d0 0.5d0 0.25d0))
+    (letm ((probabilities (vector-double #(0.25d0 0.5d0 0.25d0))))
       (letm ((table (discrete-random probabilities)))
 	(discrete-pdf 1 table))))))

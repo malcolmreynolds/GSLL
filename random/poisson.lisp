@@ -1,6 +1,6 @@
 ;; Poisson distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-02-02 23:02:43EST poisson.lisp>
+;; Time-stamp: <2008-02-03 09:50:16EST poisson.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,31 +9,33 @@
   "gsl_ran_poisson"
   (((generator generator) :pointer) (mu :double))
   :c-return :uint
-  :documentation
-  "A random integer from the Poisson distribution with mean @var{mu}.
+  :documentation			; FDL
+  "A random integer from the Poisson distribution with mean mu.
    The probability distribution for Poisson variates is
    p(k) = {\mu^k \over k!} \exp(-\mu)
-   @math{k >= 0}.")
+   k >= 0.")
 
 (defun-gsl poisson-pdf (k mu)
   "gsl_ran_poisson_pdf" ((k :uint) (mu :double))
   :c-return :double
-  :documentation
-  "The probability @math{p(k)} of obtaining @var{k}
-   from a Poisson distribution with mean @var{mu} using the formula
+  :documentation			; FDL
+  "The probability p(k) of obtaining k
+   from a Poisson distribution with mean mu using the formula
    given in #'poisson.")
 
 (defun-gsl poisson-P (k mu)
   "gsl_cdf_poisson_P" ((k :uint) (mu :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{P(k)} for the Poisson distribution with parameter @var{mu}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  P(k) for the Poisson distribution with parameter mu.")
 
 (defun-gsl poisson-Q (k mu)
   "gsl_cdf_poisson_Q" ((k :uint) (mu :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{Q(k)} for the Poisson distribution with parameter @var{mu}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  Q(k) for the Poisson distribution with parameter mu.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test poisson

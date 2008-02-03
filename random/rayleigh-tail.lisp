@@ -1,6 +1,6 @@
 ;; Rayleigh tail distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-02-02 23:00:39EST rayleigh-tail.lisp>
+;; Time-stamp: <2008-02-03 09:47:12EST rayleigh-tail.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,20 +9,20 @@
   "gsl_ran_rayleigh_tail"
   (((generator generator) :pointer) (a :double) (sigma :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "A random variate from the tail of the Rayleigh
-  distribution with scale parameter @var{sigma} and a lower limit of
-  @var{a}.  The distribution is
+  distribution with scale parameter sigma and a lower limit of
+  a.  The distribution is
   p(x) dx = {x \over \sigma^2} \exp ((a^2 - x^2) /(2 \sigma^2)) dx
-  for @math{x > a}.")
+  for x > a.")
 
 (defun-gsl rayleigh-tail-pdf (x a sigma)
   "gsl_ran_rayleigh_tail_pdf" ((x :double) (a :double) (sigma :double))
   :c-return :double
-  :documentation
-  "The probability density @math{p(x)} at @var{x}
-   for a Rayleigh tail distribution with scale parameter @var{sigma} and
-   lower limit @var{a}, using the formula given in #'rayleigh-tail.")
+  :documentation			; FDL
+  "The probability density p(x) at x
+   for a Rayleigh tail distribution with scale parameter sigma and
+   lower limit a, using the formula given in #'rayleigh-tail.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test rayleigh-tail

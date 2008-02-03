@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-02-02 23:01:02EST generators.lisp>
+;; Time-stamp: <2008-02-03 11:36:39EST generators.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -243,10 +243,6 @@
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
-
-;;; (defparameter *rng-mt19937* (make-random-number-generator *mt19937*))
-;;; (defparameter *rng-cmrg* (make-random-number-generator *cmrg*))
-;;; (defparameter *rng-default* (make-random-number-generator *default-type*))
 
 (lisp-unit:define-test random-number-generators
   (lisp-unit:assert-equal

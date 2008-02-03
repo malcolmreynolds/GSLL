@@ -1,11 +1,7 @@
-;********************************************************
-; file:        tdist.lisp                          
-; description: tdist distribution                  
-; date:        Sat Oct  7 2006 - 16:13
-; author:      Liam M. Healy                             
-; modified:    Sun Oct  8 2006 - 16:44
-;********************************************************
-;;; $Id: $
+;; Tdist distribution
+;; Liam Healy, Sat Oct  7 2006 - 16:13
+;; Time-stamp: <2008-02-03 11:27:51EST tdist.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -13,44 +9,48 @@
   "gsl_ran_tdist"
   (((generator generator) :pointer) (nu :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "A random variate from the Student t-distribution.  The
    distribution function is,
    p(x) dx = {\Gamma((\nu + 1)/2) \over \sqrt{\pi \nu} \Gamma(\nu/2)}
    (1 + x^2/\nu)^{-(\nu + 1)/2} dx
-  for @math{-\infty < x < +\infty}.")
+   for -\infty < x < +\infty.")
 
 (defun-gsl tdist-pdf (x nu)
   "gsl_ran_tdist_pdf" ((x :double) (nu :double))
   :c-return :double
-  :documentation
-  "The probability density @math{p(x)} at @var{x}
-   for a t-distribution with @var{nu} degrees of freedom, using the formula
+  :documentation			; FDL
+  "The probability density p(x) at x
+   for a t-distribution with nu degrees of freedom, using the formula
    given in #'tdist.")
 
 (defun-gsl tdist-P (x nu)
   "gsl_cdf_tdist_P" ((x :double) (nu :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{P(x)} for the tdist distribution with @var{nu} degrees of freedom.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  P(x) for the tdist distribution with nu degrees of freedom.")
 
 (defun-gsl tdist-Q (x nu)
   "gsl_cdf_tdist_Q" ((x :double) (nu :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{Q(x)} for the tdist distribution with @var{nu} degrees of freedom.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+   Q(x) for the tdist distribution with nu degrees of freedom.")
 
 (defun-gsl tdist-Pinv (P nu)
   "gsl_cdf_tdist_Pinv" ((P :double) (nu :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-  @math{P(x)} for the tdist distribution with @var{nu} degrees of freedom.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+   P(x) for the tdist distribution with nu degrees of freedom.")
 
 (defun-gsl tdist-Qinv (Q nu)
   "gsl_cdf_tdist_Qinv" ((Q :double) (nu :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-   @math{Q(x)} for the tdist distribution with @var{nu} degrees of freedom.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+   Q(x) for the tdist distribution with nu degrees of freedom.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test tdist
@@ -59,12 +59,11 @@
      "-0.160088628258d+01" "-0.170109355058d+01" "-0.437095974981d-01"
      "0.127611592766d+00" "-0.197312182555d-01" "-0.653466611720d+00"
      "0.203577132452d+00" "0.177650300478d+01")
-   (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
-      (loop for i from 0 to 10
-	    collect
-	    (tdist *rng-mt19937* 10.0d0)))))
+   (letm ((rng (random-number-generator *mt19937* 0)))
+     (rng-set rng 0)
+     (loop for i from 0 to 10
+	   collect
+	   (tdist rng 10.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.254647908947d+00"
    (tdist-pdf 0.5d0 1.0d0))

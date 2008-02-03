@@ -1,11 +1,7 @@
-;********************************************************
-; file:        pareto.lisp                          
-; description: Pareto distribution                  
-; date:        Sat Oct  8 2006 - 21:23
-; author:      Liam M. Healy                             
-; modified:    Sun Oct  8 2006 - 21:45
-;********************************************************
-;;; $Id: $
+;; Pareto distribution
+;; Liam Healy, Sat Oct  8 2006 - 21:23
+;; Time-stamp: <2008-02-03 10:33:14EST pareto.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -13,43 +9,47 @@
   "gsl_ran_pareto"
   (((generator generator) :pointer) (a :double) (b :double))
   :c-return :double
-  :documentation
-  "A random variate from the Pareto distribution of order @var{a}.
+  :documentation			; FDL
+  "A random variate from the Pareto distribution of order a.
    The distribution function is
    p(x) dx = (a/b) / (x/b)^{a+1} dx
-   @math{x >= b}.")
+   x >= b.")
 
 (defun-gsl pareto-pdf (x a b)
   "gsl_ran_pareto_pdf" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation
-  "The probability density @math{p(x)} at @var{x}
-   for a Pareto distribution with exponent @var{a} and scale @var{b}, using
+  :documentation			; FDL
+  "The probability density p(x) at x
+   for a Pareto distribution with exponent a and scale b, using
    the formula given in #'pareto.")
 
 (defun-gsl pareto-P (x a b)
   "gsl_cdf_pareto_P" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{P(x)} for the Pareto distribution with exponent @var{a} and scale @var{b}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  P(x) for the Pareto distribution with exponent a and scale b.")
 
 (defun-gsl pareto-Q (x a b)
   "gsl_cdf_pareto_Q" ((x :double) (a :double) (b :double))
   :c-return :double
-  :documentation "The cumulative distribution functions
-  @math{Q(x)} for the Pareto distribution with exponent @var{a} and scale @var{b}.")
+  :documentation			; FDL
+  "The cumulative distribution functions
+  Q(x) for the Pareto distribution with exponent a and scale b.")
 
 (defun-gsl pareto-Pinv (P a b)
   "gsl_cdf_pareto_Pinv" ((P :double) (a :double) (b :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-  @math{P(x)} for the Pareto distribution with exponent @var{a} and scale @var{b}.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+  P(x) for the Pareto distribution with exponent a and scale b.")
 
 (defun-gsl pareto-Qinv (Q a b)
   "gsl_cdf_pareto_Qinv" ((Q :double) (a :double) (b :double))
   :c-return :double
-  :documentation  "The inverse cumulative distribution functions
-   @math{Q(x)} for the Pareto distribution with exponent @var{a} and scale @var{b}.")
+  :documentation			; FDL
+  "The inverse cumulative distribution functions
+   Q(x) for the Pareto distribution with exponent a and scale b.")
 
 ;;; Examples and unit test
 (lisp-unit:define-test pareto
@@ -59,11 +59,10 @@
      "0.208882311615d+01" "0.268706924980d+01" "0.370340428797d+01"
      "0.270287443943d+01" "0.263177356639d+01")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (pareto *rng-mt19937* 1.0d0 2.0d0)))))
+	    (pareto rng 1.0d0 2.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.511603440571d+00"
    (pareto-pdf 1.5d0 1.3d0 1.0d0))

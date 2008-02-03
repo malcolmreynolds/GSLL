@@ -1,11 +1,7 @@
-;********************************************************
-; file:        landau.lisp                          
-; description: Landau distribution                  
-; date:        Sat Sep 30 2006
-; author:      Liam M. Healy                             
-; modified:    Sat Sep 30 2006 - 21:52
-;********************************************************
-;;; $Id: $
+;; Landau distribution
+;; Liam Healy, Sat Sep 30 2006
+;; Time-stamp: <2008-02-03 11:30:46EST landau.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -13,7 +9,7 @@
   "gsl_ran_landau"
   (((generator generator) :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "A random variate from the Landau distribution.  The
    probability distribution for Landau random variates is defined
    analytically by the complex integral,
@@ -25,8 +21,8 @@
 (defun-gsl landau-pdf (x)
   "gsl_ran_landau_pdf" ((x :double))
   :c-return :double
-  :documentation
-  "The probability density @math{p(x)} at @var{x}
+  :documentation			; FDL
+  "The probability density p(x) at x
    for the Landau distribution using an approximation to the formula given
    in #'landau.")
 
@@ -38,11 +34,9 @@
      "0.261461684796d+02" "0.433721764097d+01" "0.167995462811d+01"
      "0.424757192183d+01" "0.468150620898d+01")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
-	    collect
-	    (landau *rng-mt19937*)))))
+	    collect (landau rng)))))
   (lisp-unit:assert-first-fp-equal
    "0.173319689959d+00"
    (landau-pdf 0.25d0)))
