@@ -1,6 +1,6 @@
 ;; Using GSL storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-02-02 23:15:39EST data.lisp>
+;; Time-stamp: <2008-02-02 23:37:58EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -103,17 +103,19 @@
     ;;(LONG-DOUBLE . "_long_double")
     (COMPLEX . "_complex")))
 
-(defmacro data-letm (type)
+(defmacro data-letm (type size-spec-is-list)
   "Define the letm function for data types."
-  `(defun-letm ,type (size-or-initial &optional zero)
-    (let ((argsymb (gensym "ARG")))
-      (list
-       `(make-data ',',type ,zero
-	 (if (numberp ,argsymb) ,argsymb (length ,argsymb)))
-       'free
-       (lambda (symb)
-	 `(unless (numberp ,argsymb) (setf (data ,symb) ,argsymb)))
-       (lambda () (list argsymb size-or-initial))))))
+  (let ((size-spec (if size-spec-is-list 'listp 'numberp))
+	(init-spec (if size-spec-is-list 'array-dimensions 'length)))
+    `(defun-letm ,type (size-or-initial &optional zero)
+      (let ((argsymb (gensym "ARG")))
+	(list
+	 `(make-data ',',type ,zero
+	   (if (,',size-spec ,argsymb) ,argsymb (,',init-spec ,argsymb)))
+	 'free
+	 (lambda (symb)
+	   `(unless (,',size-spec ,argsymb) (setf (data ,symb) ,argsymb)))
+	 (lambda () (list argsymb size-or-initial)))))))
 
 (defmacro defdata
     (c-string cl-symbol cl-base-type
@@ -130,7 +132,7 @@
 			collect `((nth ,i (storage-size object)) :size)))
 	   (object-name (make-symbol-from-strings *gsl-prefix* cl-symbol)))
       `(progn
-	(data-letm ,cl-symbol)
+	(data-letm ,cl-symbol ,(eq superclass 'gsl-matrix))
 	(defclass ,object-name (,superclass)
 	  ((cl-base-type :initform ',cl-base-type :reader cl-base-type
 			 :allocation :class)))

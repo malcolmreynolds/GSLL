@@ -1,6 +1,6 @@
 ;; Utility definitions
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-02-02 22:48:23EST utility.lisp>
+;; Time-stamp: <2008-02-02 23:22:56EST utility.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -59,6 +59,11 @@
 	;; No GSL objects in the bindings, just make an ordinary let
 	`(let* (,@bindings) ,@body))))
 
+(defun not-for-users (form)
+  (unless *not-for-users*
+    (error "The form ~a should be placed in the binding of a letm."
+	   form)))
+
 ;;; General definition for object creation
 (defmacro defun-letm (symbol arglist &body body)
   "Define a GSL object to be bound in a letm.
@@ -75,9 +80,7 @@
     (pushnew ',symbol *letm-expanded-object*)
     (export ',symbol)
     (defun ,symbol ,arglist
-      (unless *not-for-users*
-	(error "The form ~a should be placed in the binding of a letm."
-	       ',(cons symbol arglist)))
+      (not-for-users ',(cons symbol arglist))
       ,@body)))
 
 ;;; Specific, simple and common types of object creation 

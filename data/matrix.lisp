@@ -1,9 +1,19 @@
 ;; Matrices
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-01-28 22:19:38EST matrix.lisp>
+;; Time-stamp: <2008-02-02 23:44:57EST matrix.lisp>
 ;; $Id: $
 
 (in-package :gsl)
+
+;;; Matrices are specified in a letm binding with
+;;;  (matrix-double size-or-initial &optional zero)
+;;;  (matrix-single size-or-initial &optional zero)
+;;;  (matrix-fixnum size-or-initial &optional zero)
+;;;  (matrix-complex size-or-initial &optional zero)
+;;; where size-or-initial is a length-2 list of positive integers
+;;; indicating the dimensions, and zero indicates that all elements should
+;;; be set to zero, or, size-or-initial is a 2D array to which the
+;;; vector should be initially set.
 
 ;;;;****************************************************************************
 ;;;; Matrix object definition, allocation, reading & writing

@@ -1,9 +1,19 @@
 ;; Vectors
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-02 23:13:54EST vector.lisp>
+;; Time-stamp: <2008-02-02 23:45:19EST vector.lisp>
 ;; $Id: $
 
 (in-package :gsl)
+
+;;; Vectors are specified in a letm binding with
+;;;  (vector-double size-or-initial &optional zero)
+;;;  (vector-single size-or-initial &optional zero)
+;;;  (vector-fixnum size-or-initial &optional zero)
+;;;  (vector-complex size-or-initial &optional zero)
+;;; where size-or-initial is a positive integer indicating the
+;;; size, and zero indicates that all elements should be set to zero,
+;;; or, size-or-initial is a sequence to which the vector
+;;; should be initially set.
 
 ;;; No mechanism for C stream input/output yet.
 ;;; Generalize check-gsl-status to optionally signal errors, use here?
