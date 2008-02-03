@@ -1,11 +1,7 @@
-;********************************************************
-; file:        poisson.lisp                          
-; description: Poisson distribution                  
-; date:        Sat Nov 25 2006 - 16:00
-; author:      Liam M. Healy                             
-; modified:    Sat Nov 25 2006 - 17:00
-;********************************************************
-;;; $Id: $
+;; Poisson distribution
+;; Liam Healy, Sat Nov 25 2006 - 16:00
+;; Time-stamp: <2008-02-02 23:02:43EST poisson.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -43,11 +39,10 @@
 (lisp-unit:define-test poisson
   (lisp-unit:assert-equal
    '(15 6 9 9 5 8 11 9 11 5 10)
-   (progn
-     (rng-set *rng-mt19937* 0)
+   (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
-	collect
-	(poisson *rng-mt19937* 10.0d0))))
+	   collect
+	   (poisson rng 10.0d0))))
   (lisp-unit:assert-first-fp-equal
    "0.112599032149d+00"
    (poisson-pdf 8 10.0d0))

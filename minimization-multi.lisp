@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-01-28 22:42:05EST minimization-multi.lisp>
+;; Time-stamp: <2008-02-02 21:17:03EST minimization-multi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -48,16 +48,18 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-(set-asf mfminimizer allocate-mfminimizer free-mfminimizer set-mfminimizer 2)
-(set-asf
- mfdfminimizer allocate-mfdfminimizer free-mfdfminimizer set-mfdfminimizer 2)
+;;; Could have one fewer argument: dimension=(dim0 initial)
+(set-asf (mfminimizer type dimension function intial step-size)
+	 allocate-mfminimizer free-mfminimizer set-mfminimizer 2)
+(set-asf (mfdfminimizer type dimension function-derivative intitial step-size tolerance)
+	 allocate-mfdfminimizer free-mfdfminimizer set-mfdfminimizer 2)
 
 (defun-gsl allocate-mfminimizer (type dimension)
   "gsl_multimin_fminimizer_alloc"
   ((type :pointer) (dimension :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects mfminimizer)
+  :index (letm mfminimizer)
   :documentation			; FDL
   "Allocate an instance of a minimizer of the given for an
    function of the given dimensions.")
@@ -67,7 +69,7 @@
   ((type :pointer) (dimension :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects mfdfminimizer)
+  :index (letm mfdfminimizer)
   :documentation			; FDL
   "Allocate an instance of a derivative-based minimizer of the given for an
    function of the given dimensions.")
@@ -77,7 +79,7 @@
   ((minimizer :pointer) (function :pointer)
    ((pointer initial) :pointer) ((pointer step-size) :pointer))
   :export nil
-  :index (with-gsl-objects mfminimizer)
+  :index (letm mfminimizer)
   :documentation			; FDL
   "Initialize the minimizer to minimize the function
    starting from the initial point.
@@ -92,7 +94,7 @@
    ((pointer initial) :pointer) (step-size :double)
    (tolerance :double))
   :export nil
-  :index (with-gsl-objects mfdfminimizer)
+  :index (letm mfdfminimizer)
   :documentation			; FDL
   "Initialize the minimizer to minimize the function
    starting from the initial point.  The size of the
@@ -108,7 +110,7 @@
   ((minimizer :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects mfminimizer)
+  :index (letm mfminimizer)
   :documentation			; FDL
   "Free all the memory associated with the minimizer.")
 
@@ -117,7 +119,7 @@
   ((minimizer :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects mfdfminimizer)
+  :index (letm mfdfminimizer)
   :documentation			; FDL
   "Free all the memory associated with the minimizer.")
 
@@ -345,9 +347,9 @@
 (defun multimin-example-fletcher-reeves ()
   (with-data (initial vector-double 2)
     (setf (data initial) #(5.0d0 7.0d0))
-    (with-gsl-objects
-	((mfdfminimizer minimizer *conjugate-fletcher-reeves* 2 parabaloid
-		       initial 0.01d0 1.0d-4))
+    (letm ((minimizer
+	    (mfdfminimizer *conjugate-fletcher-reeves* 2 parabaloid
+			   initial 0.01d0 1.0d-4)))
       (loop with status = T
 	    for iter from 0 below 100
 	    while status
@@ -378,9 +380,8 @@
     (with-data (step-size vector-double 2)
       (setf (data initial) #(5.0d0 7.0d0))
       (set-all step-size 1.0d0)
-      (with-gsl-objects
-	  ((mfminimizer
-	    minimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size))
+      (letm ((minimizer
+	      (mfminimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size)))
 	(loop with status = T and size
 	      for iter from 0 below 100
 	      while status

@@ -130,19 +130,20 @@
 ;;;; General Polynomial Equations
 ;;;;****************************************************************************
 
-(set-asf complex-workspace allocate-complex-workspace free-complex-workspace)
+(set-asf (complex-workspace n)
+	 allocate-complex-workspace free-complex-workspace)
 
 (defun-gsl allocate-complex-workspace (n)
   "gsl_poly_complex_workspace_alloc" ((n :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-object complex-workspace))
+  :index (letm complex-workspace))
 
 (defun-gsl free-complex-workspace (ws)
   "gsl_poly_complex_workspace_free" ((ws :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-object complex-workspace))
+  :index (letm complex-workspace))
 
 (defun polynomial-solve (coefficients)
   "The roots of the general polynomial 
@@ -157,7 +158,7 @@
     (with-data (coef vector-double len)
       (setf (data coef) coefficients)
       (with-data (answer vector-double ((* 2 (1- len))))
-	(with-gsl-objects ((complex-workspace ws len))
+	(letm ((ws (complex-workspace len)))
 	  (values-list (polynomial-solve-ws coef ws answer)))))))
 
 (defun-gsl polynomial-solve-ws (coefficients workspace answer-pd)

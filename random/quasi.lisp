@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-01-31 22:52:29EST quasi.lisp>
+;; Time-stamp: <2008-02-02 22:01:47EST quasi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
 
 (defparameter *default-quasi-random-number-generator* nil)
 
-(set-asf quasi-random-number-generator
+(set-asf (quasi-random-number-generator dimension type)
 	 make-quasi-random-number-generator free nil 2)
 
 (defun make-quasi-random-number-generator 
@@ -128,10 +128,8 @@
   ;; This example is given in the GSL documentation
   (lisp-unit:assert-equal
    '(0.5d0 0.5d0 0.75d0 0.25d0 0.25d0 0.75d0 0.375d0 0.375d0 0.875d0 0.875d0)
-   (with-data (vec vector-double 2)
-     (with-gsl-objects ((quasi-random-number-generator gen 2 *sobol*))
-       (loop repeat 5
-	     do (qrng-get gen vec)
-	     append (coerce (data vec) 'list))))))
-
-
+   (letm ((gen (quasi-random-number-generator 2 *sobol*))
+	  (vec (vector-double 2)))
+     (loop repeat 5
+	   do (qrng-get gen vec)
+	   append (coerce (data vec) 'list)))))

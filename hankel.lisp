@@ -1,20 +1,20 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-01-26 18:36:00EST hankel.lisp>
+;; Time-stamp: <2008-02-02 19:24:27EST hankel.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
 ;;; Everything compiles, but not tested -- need example.
 
-(set-asf hankel allocate-hankel free-hankel init-hankel)
+(set-asf (hankel size nu xmax) allocate-hankel free-hankel init-hankel)
 
 (defun-gsl allocate-hankel (size)
   "gsl_dht_alloc"
   ((size :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects hankel)
+  :index (letm hankel)
   :documentation
   "Allocate a Discrete Hankel transform object of size @var{size}.")
 
@@ -22,7 +22,7 @@
   "gsl_dht_new"
   ((hankel :pointer) (nu :double) (xmax :double))
   :export nil
-  :index (with-gsl-objects hankel)
+  :index (letm hankel)
   :documentation
   "Initialize the transform @var{t} for the given values of
    @var{nu} and @var{x}.")
@@ -44,7 +44,7 @@
   ((hankel :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects hankel)
+  :index (letm hankel)
   :documentation
   "Free the Hankel object.")
 

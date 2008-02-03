@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-01-27 18:53:48EST wavelet.lisp>
+;; Time-stamp: <2008-02-02 21:12:08EST wavelet.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,14 +11,14 @@
 ;;;; Allocation of wavelets
 ;;;;****************************************************************************
 
-(set-asf wavelet allocate-wavelet free-wavelet nil 2)
+(set-asf (wavelet type member) allocate-wavelet free-wavelet nil 2)
 
 (defun-gsl allocate-wavelet (type member)
   "gsl_wavelet_alloc"
   ((type :pointer) (member :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects wavelet)
+  :index (letm wavelet)
   :documentation
   "Allocate and initialize a wavelet object of type
    'type.  The parameter 'member selects the specific member of the
@@ -30,7 +30,7 @@
   ((wavelet :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects wavelet)
+  :index (letm wavelet)
   :documentation
   "Free the wavelet object.")
 
@@ -69,14 +69,14 @@
   :documentation
   "The name of the wavelet family.")
 
-(set-asf wavelet-workspace allocate-wavelet-workspace free-wavelet-workspace)
+(set-asf (wavelet-workspace size) allocate-wavelet-workspace free-wavelet-workspace)
 
 (defun-gsl allocate-wavelet-workspace (size)
   "gsl_wavelet_workspace_alloc"
   ((size :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects wavelet-workspace)
+  :index (letm wavelet-workspace)
   :documentation
   "Allocate a workspace for the discrete wavelet transform.
    To perform a one-dimensional transform on size elements, a workspace
@@ -90,7 +90,7 @@
   ((workspace :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects wavelet-workspace)
+  :index (letm wavelet-workspace)
   :documentation
   "Free the allocated workspace.")
 
@@ -385,9 +385,8 @@
   (let ((n (length cl-data)))
     (with-data (vector vector-double n)
       (setf (data vector) cl-data)
-      (with-gsl-objects
-	  ((wavelet wavelet *daubechies-wavelet* 4)
-	   (wavelet-workspace workspace n))
+      (letm ((wavelet (wavelet *daubechies-wavelet* 4))
+	     (workspace (wavelet-workspace n)))
 	(wavelet-transform-forward wavelet vector 1 workspace)
 	(with-data (absvector vector-double n)
 	  (dotimes (i n)
@@ -408,9 +407,8 @@
   (let ((n (length cl-data)))
     (with-data (vector vector-double n)
       (setf (data vector) cl-data)
-      (with-gsl-objects
-	  ((wavelet wavelet *daubechies-wavelet* 4)
-	   (wavelet-workspace workspace n))
+      (letm ((wavelet (wavelet *daubechies-wavelet* 4))
+	     (workspace (wavelet-workspace n)))
 	(wavelet-transform-forward wavelet vector 1 workspace)
 	(cl-invalidate vector)
 	(data vector)))))

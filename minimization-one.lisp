@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-01-26 19:33:45EST minimization-one.lisp>
+;; Time-stamp: <2008-02-02 21:12:20EST minimization-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,14 +9,15 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-(set-asf fminimizer allocate-fminimizer free-fminimizer set-fminimizer)
+(set-asf (fminimizer type function minimum lower upper)
+	 allocate-fminimizer free-fminimizer set-fminimizer)
 
 (defun-gsl allocate-fminimizer (type)
   "gsl_min_fminimizer_alloc"
   ((type :pointer))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects fminimizer)
+  :index (letm fminimizer)
   :documentation
   "Allocate an instance of a minimizer of the given type.")
 
@@ -25,13 +26,13 @@
   ((minimizer :pointer) (function :pointer)
    (minimum :double) (lower :double) (upper :double))
   :export nil
-  :index (with-gsl-objects fminimizer)
+  :index (letm fminimizer)
   :documentation
   "Set, or reset, an existing minimizer to use the
    function and the initial search interval [lower,
    upper], with a guess for the location of the minimum.")
 
-;;; Use this in with-gsl-objects macro in any way?
+;;; Use this in letm macro in any way?
 (defun-gsl set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
 	       f-minimum f-lower f-upper)
@@ -50,7 +51,7 @@
   ((minimizer :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects fminimizer)
+  :index (letm fminimizer)
   :documentation
   "Free all the memory associated with the minimizer.")
 
@@ -195,22 +196,21 @@
 
 (defun minimization-one-example ()
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
-  (let ((max-iter 100))
-    (with-gsl-objects
-	((fminimizer
-	  minimizer *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0))
-      (format t "~&iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower")
-      (loop for iter from 0
-	    for min = (fminimizer-x-minimum minimizer)
-	    for lower = (fminimizer-x-lower minimizer)
-	    for upper = (fminimizer-x-upper minimizer)
-	    do (iterate-fminimizer minimizer)
-	    while  (and (< iter max-iter)
-			;; abs and rel error swapped in example?
-			(not (min-test-interval lower upper 0.001d0 0.0d0)))
-	    do
-	    (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
-		    iter lower upper
-		    min (- min pi)
-		    (- upper lower))))))
+  (letm ((max-iter 100)
+	 (minimizer
+	  (fminimizer *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0)))
+    (format t "~&iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower")
+    (loop for iter from 0
+	  for min = (fminimizer-x-minimum minimizer)
+	  for lower = (fminimizer-x-lower minimizer)
+	  for upper = (fminimizer-x-upper minimizer)
+	  do (iterate-fminimizer minimizer)
+	  while  (and (< iter max-iter)
+		      ;; abs and rel error swapped in example?
+		      (not (min-test-interval lower upper 0.001d0 0.0d0)))
+	  do
+	  (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
+		  iter lower upper
+		  min (- min pi)
+		  (- upper lower)))))
 

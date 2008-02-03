@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-01-28 22:22:22EST linear-least-squares.lisp>
+;; Time-stamp: <2008-02-02 21:01:35EST linear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -125,12 +125,14 @@
 ;;;; Multiparameter fitting
 ;;;;****************************************************************************
 
-(set-asf fit-workspace allocate-fit-workspace free-fit-workspace nil 2)
+(set-asf (fit-workspace number-of-observations number-of-parameters)
+	 allocate-fit-workspace free-fit-workspace nil 2)
 
 (defun-gsl allocate-fit-workspace (number-of-observations number-of-parameters)
   "gsl_multifit_linear_alloc"
   ((number-of-observations :size) (number-of-parameters :size))
   :c-return :pointer
+  :index (letm fit-workspace)
   :documentation			; FDL
   "Allocate a workspace for fitting a linear model.")
 
@@ -138,6 +140,7 @@
   "gsl_multifit_linear_free"
   ((pointer :pointer))
   :c-return :void
+  :index (letm fit-workspace)
   :documentation			; FDL
   "Free the memory associate with the workspace.")
 
@@ -310,7 +313,7 @@
 			  (gsl-aref X i 2) (expt (first row) 2)
 			  (gsl-aref y i) (second row)
 			  (gsl-aref w i) (/ (expt (third row) 2))))
-	      (with-gsl-objects ((fit-workspace ws n 3))
+	      (letm ((ws (fit-workspace n 3)))
 		(setf chisq
 		      (weighted-linear-mfit X w y c cov ws)))
 	      (format t "~&Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2"

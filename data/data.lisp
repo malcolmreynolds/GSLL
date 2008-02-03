@@ -1,6 +1,6 @@
 ;; Using GSL storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-01-27 18:50:53EST data.lisp>
+;; Time-stamp: <2008-02-02 23:15:39EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -103,6 +103,18 @@
     ;;(LONG-DOUBLE . "_long_double")
     (COMPLEX . "_complex")))
 
+(defmacro data-letm (type)
+  "Define the letm function for data types."
+  `(defun-letm ,type (size-or-initial &optional zero)
+    (let ((argsymb (gensym "ARG")))
+      (list
+       `(make-data ',',type ,zero
+	 (if (numberp ,argsymb) ,argsymb (length ,argsymb)))
+       'free
+       (lambda (symb)
+	 `(unless (numberp ,argsymb) (setf (data ,symb) ,argsymb)))
+       (lambda () (list argsymb size-or-initial))))))
+
 (defmacro defdata
     (c-string cl-symbol cl-base-type
      &optional (superclass 'gsl-data) (dimensions 1))
@@ -115,40 +127,41 @@
   (flet ((gsl-name (function-name)
 	   (format nil "gsl_~a_~a" c-string function-name)))
     (let* ((cargs (loop for i below dimensions
-		     collect `((nth ,i (storage-size object)) :size)))
+			collect `((nth ,i (storage-size object)) :size)))
 	   (object-name (make-symbol-from-strings *gsl-prefix* cl-symbol)))
       `(progn
-	 (defclass ,object-name (,superclass)
-	   ((cl-base-type :initform ',cl-base-type :reader cl-base-type
-			  :allocation :class)))
-	 (defun-gsl alloc ((object ,object-name))
-	   ,(gsl-name "alloc") ,cargs
-	   :type :method
-	   :c-return (cr :pointer)
-	   :return ((assign-pointer object cr)))
-	 (defun-gsl calloc ((object ,object-name))
-	   ,(gsl-name "calloc") ,cargs
-	   :type :method
-	   :c-return (cr :pointer)
-	   :return ((assign-pointer object cr)))
-	 (defun-gsl free ((object ,object-name))
-	   ,(gsl-name "free") (((pointer object) :pointer))
-	   :type :method
-	   :c-return :void)
-	 (defun-gsl write-binary ((object ,object-name) stream)
-	   ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
-	   :type :method)
-	 (defun-gsl read-binary ((object ,object-name) stream)
-	   ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
-	   :type :method)
-	 (defun-gsl write-formatted ((object ,object-name) stream format)
-	   ,(gsl-name "fprintf")
-	   ((stream :pointer) ((pointer object) :pointer) (format :string))
-	   :type :method)
-	 (defun-gsl read-formatted ((object ,object-name) stream format)
-	   ,(gsl-name "fscanf")
-	   ((stream :pointer) ((pointer object) :pointer) (format :string))
-	   :type :method)))))
+	(data-letm ,cl-symbol)
+	(defclass ,object-name (,superclass)
+	  ((cl-base-type :initform ',cl-base-type :reader cl-base-type
+			 :allocation :class)))
+	(defun-gsl alloc ((object ,object-name))
+	  ,(gsl-name "alloc") ,cargs
+	  :type :method
+	  :c-return (cr :pointer)
+	  :return ((assign-pointer object cr)))
+	(defun-gsl calloc ((object ,object-name))
+	  ,(gsl-name "calloc") ,cargs
+	  :type :method
+	  :c-return (cr :pointer)
+	  :return ((assign-pointer object cr)))
+	(defun-gsl free ((object ,object-name))
+	  ,(gsl-name "free") (((pointer object) :pointer))
+	  :type :method
+	  :c-return :void)
+	(defun-gsl write-binary ((object ,object-name) stream)
+	  ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
+	  :type :method)
+	(defun-gsl read-binary ((object ,object-name) stream)
+	  ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
+	  :type :method)
+	(defun-gsl write-formatted ((object ,object-name) stream format)
+	  ,(gsl-name "fprintf")
+	  ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  :type :method)
+	(defun-gsl read-formatted ((object ,object-name) stream format)
+	  ,(gsl-name "fscanf")
+	  ((stream :pointer) ((pointer object) :pointer) (format :string))
+	  :type :method)))))
 
 (defun splice-name (base-name keyword symbol)
   "Make a new C name for a data function from a base name." 
@@ -197,8 +210,6 @@
 ;;;;****************************************************************************
 
 (export '(make-data with-data))
-
-(set-asf generic make-data free (setf data) 3)
 
 (defgeneric alloc (object)
   (:documentation "Allocate GSL data; used internally."))

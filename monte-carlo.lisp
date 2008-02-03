@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-01-26 17:20:19EST monte-carlo.lisp>
+;; Time-stamp: <2008-02-02 21:11:35EST monte-carlo.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -13,14 +13,14 @@
   (dim :size)
   (x :pointer))
 
-(set-asf monte-carlo-plain monte-carlo-plain-alloc monte-carlo-plain-free)
+(set-asf (monte-carlo-plain dim) monte-carlo-plain-alloc monte-carlo-plain-free)
 
 (defun-gsl monte-carlo-plain-alloc (dim)
   "gsl_monte_plain_alloc"
   ((dim :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects monte-carlo-plain)
+  :index (letm monte-carlo-plain)
   :documentation
   "Allocate and initialize a workspace for Monte Carlo
    integration in @var{dim} dimensions.")
@@ -38,7 +38,7 @@
   ((integrator-state :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects monte-carlo-plain)
+  :index (letm monte-carlo-plain)
   :documentation
   "Frees the memory associated with the integrator.")
 
@@ -96,14 +96,14 @@
   (hits-l :pointer)
   (hits-r :pointer))
 
-(set-asf monte-carlo-miser monte-carlo-miser-alloc monte-carlo-miser-free)
+(set-asf (monte-carlo-miser dim) monte-carlo-miser-alloc monte-carlo-miser-free)
 
 (defun-gsl monte-carlo-miser-alloc (dim)
   "gsl_monte_miser_alloc"
   ((dim :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects monte-carlo-miser)
+  :index (letm monte-carlo-miser)
   :documentation
   "Allocate and initialize a workspace for Monte Carlo integration in
    @var{dim} dimensions.  The workspace is used to maintain
@@ -122,7 +122,7 @@
   ((integrator-state :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects monte-carlo-miser)
+  :index (letm monte-carlo-miser)
   :documentation
   "Frees the memory associated with the integrator.")
 
@@ -198,14 +198,14 @@
   (calls-per-box :uint)
   (ostream :pointer))
 
-(set-asf monte-carlo-vegas monte-carlo-vegas-alloc monte-carlo-vegas-free)
+(set-asf (monte-carlo-vegas dim) monte-carlo-vegas-alloc monte-carlo-vegas-free)
 
 (defun-gsl monte-carlo-vegas-alloc (dim)
   "gsl_monte_vegas_alloc"
   ((dim :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects monte-carlo-vegas)
+  :index (letm monte-carlo-vegas)
   :documentation
   "Allocate and initialize a workspace for Monte Carlo integration in
    @var{dim} dimensions.  The workspace is used to maintain
@@ -224,7 +224,7 @@
   ((integrator-state :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects monte-carlo-vegas)
+  :index (letm monte-carlo-vegas)
   :documentation
   "Frees the memory associated with the integrator.")
 
@@ -288,7 +288,7 @@
 (def-mc-function monte-carlo-g 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
-  (with-gsl-objects ((monte-carlo-plain ws 3))
+  (letm ((ws (monte-carlo-plain 3)))
     (with-data (lower vector-double 3)
       (with-data (upper vector-double 3)
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
@@ -302,7 +302,7 @@
 	 ws)))))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
-  (with-gsl-objects ((monte-carlo-miser ws 3))
+  (letm ((ws (monte-carlo-miser 3)))
     (with-data (lower vector-double 3)
       (with-data (upper vector-double 3)
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)
@@ -316,7 +316,7 @@
 	 ws)))))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
-  (with-gsl-objects ((monte-carlo-vegas ws 3))
+  (letm ((ws (monte-carlo-vegas 3)))
     (with-data (lower vector-double 3)
       (with-data (upper vector-double 3)
 	(setf (data lower) #(0.0d0 0.0d0 0.0d0)

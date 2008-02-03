@@ -63,11 +63,9 @@
      "0.382920819366d+01" "0.191289739318d+01" "0.117748457895d+01"
      "0.189323210797d+01" "0.198591186168d+01")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
-	 collect
-	 (gumbel1 *rng-mt19937* 1.0d0 2.0d0)))))
+	    collect (gumbel1 rng 1.0d0 2.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.296257089650d+00"
    (gumbel1-pdf 0.1d0 1.0d0 2.0d0))

@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-01-26 17:22:14EST discrete.lisp>
+;; Time-stamp: <2008-02-02 20:59:58EST discrete.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,14 +11,14 @@
   (A :pointer)
   (F :pointer))
 
-(set-asf discrete discrete-preprocess discrete-free)
+(set-asf (discrete-random probabilities) discrete-preprocess discrete-free)
 
 (defun-gsl discrete-preprocess (probabilities) 
   "gsl_ran_discrete_preproc"
   (((dim0 probabilities) :size) ((gsl-array probabilities) :pointer))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects discrete)
+  :index (letm discrete)
   :documentation
   "A pointer to a structure that contains the lookup
   table for the discrete random number generator.  The array probabilities contains
@@ -31,7 +31,7 @@
   "gsl_ran_discrete_free" ((table :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects discrete)
+  :index (letm discrete)
   :documentation
   "De-allocates the lookup table created by #'discrete-preprocess.")
 
@@ -68,8 +68,8 @@
    '(1 0 1 1 0 1 1 2 1 2 2)
    (with-data (probabilities vector-double 3)
      (setf (data probabilities) #(0.25d0 0.5d0 0.25d0))
-     (with-gsl-objects ((discrete table probabilities))
-       (rng-set *rng-mt19937* 0)
+     (letm ((table (discrete-random probabilities))
+	    (rng (random-number-generator *mt19937* 0)))
        (loop for i from 0 to 10
 	     collect
 	     (discrete *rng-mt19937* table))))
@@ -78,7 +78,5 @@
     (with-data (probabilities vector-double 3)
       (setf (data probabilities)
 	    #(0.25d0 0.5d0 0.25d0))
-      (with-gsl-objects ((discrete table probabilities))
-	(discrete-pdf
-	 1
-	 table))))))
+      (letm ((table (discrete-random probabilities)))
+	(discrete-pdf 1 table))))))

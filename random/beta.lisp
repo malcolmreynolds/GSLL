@@ -1,11 +1,7 @@
-;********************************************************
-; file:        beta.lisp                          
-; description: Beta distribution                  
-; date:        Sat Sep 30 2006
-; author:      Liam M. Healy                             
-; modified:    Sun Oct  8 2006 - 17:05
-;********************************************************
-;;; $Id: $
+;; Beta distribution
+;; Liam Healy, Sat Sep 30 2006
+;; Time-stamp: <2008-02-02 23:04:13EST beta.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -59,11 +55,10 @@
      "0.230096194773d+00" "0.392834882565d+00" "0.514387412254d+00"
      "0.233783685805d+00" "0.198512886686d+00")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (beta-rd *rng-mt19937* 1.0d0 2.0d0)))))
+	    (beta-rd rng 1.0d0 2.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.180000000000d+01"
    (beta-pdf 0.1d0 1.0d0 2.0d0))

@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-01-26 18:17:32EST chebyshev.lisp>
+;; Time-stamp: <2008-02-02 19:13:03EST chebyshev.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,14 +9,15 @@
 ;;;; Creation and calculation of Chebyshev series
 ;;;;****************************************************************************
 
-(set-asf chebyshev allocate-chebyshev free-chebyshev initialize-chebyshev)
+(set-asf (chebyshev order function lower-limit upper-limit)
+	 allocate-chebyshev free-chebyshev initialize-chebyshev)
 
 (defun-gsl allocate-chebyshev (order)
   "gsl_cheb_alloc"
   ((order :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects chebyshev)
+  :index (letm chebyshev)
   :documentation
   "Allocate a Chebyshev series of specified order
    and return a pointer to it.")
@@ -26,7 +27,7 @@
   ((chebyshev :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects chebyshev)
+  :index (letm chebyshev)
   :documentation
   "Free a previously allocated Chebyshev series.")
 
@@ -35,7 +36,7 @@
   ((chebyshev :pointer) (function :pointer)
    (lower-limit :double) (upper-limit :double))
   :export nil
-  :index (with-gsl-objects chebyshev)
+  :index (letm chebyshev)
   :documentation
   "Compute the Chebyshev approximation for the function over the range
    (lower-limit, upper-limit) to the previously specified order.  The
@@ -125,7 +126,7 @@
 
 (defun chebyshev-table-example ()
   (let ((steps 100))
-    (with-gsl-objects ((chebyshev cheb 40 chebyshev-step 0.0d0 1.0d0))
+    (letm ((cheb (chebyshev 40 chebyshev-step 0.0d0 1.0d0)))
       (dotimes (i steps)
 	(let ((x (coerce (/ i steps) 'double-float)))
 	  (format t "~&~a ~a ~a ~a"
@@ -136,10 +137,9 @@
 
 (defun chebyshev-point-example (x)
   (check-type x double-float)
-  (with-gsl-objects
-      ((chebyshev cheb 40 chebyshev-step 0.0d0 1.0d0)
-       (chebyshev deriv 40)
-       (chebyshev integ 40))
+  (letm ((cheb (chebyshev 40 chebyshev-step 0.0d0 1.0d0))
+	 (deriv (chebyshev 40))
+	 (integ (chebyshev 40)))
     (derivative-chebyshev deriv cheb)
     (integral-chebyshev integ cheb)
     (list

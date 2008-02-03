@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-01-26 18:31:15EST series-acceleration.lisp>
+;; Time-stamp: <2008-02-02 19:33:39EST series-acceleration.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -21,14 +21,14 @@
   (dq-den :pointer)
   (dsum :pointer))
 
-(set-asf levin allocate-levin free-levin)
+(set-asf (levin order) allocate-levin free-levin)
 
 (defun-gsl allocate-levin (order)
   "gsl_sum_levin_u_alloc"
   ((order :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects levin)
+  :index (letm levin)
   :documentation
   "Allocate a workspace for a Levin @math{u}-transform of @var{n}
    terms.  The size of the workspace is @math{O(2n^2 + 3n)}.")
@@ -38,7 +38,7 @@
   ((levin :pointer))
   :c-return :void		; Error in GSL manual, should be void?
   :export nil
-  :index (with-gsl-objects levin)
+  :index (letm levin)
   :documentation
   "Free a previously allocated Levin acceleration.")
 
@@ -61,14 +61,14 @@
 ;;;; Acceleration with error estimation from truncation
 ;;;;****************************************************************************
 
-(set-asf levin-truncated allocate-levin-truncated free-levin-truncated)
+(set-asf (levin-truncated order) allocate-levin-truncated free-levin-truncated)
 
 (defun-gsl allocate-levin-truncated (order)
   "gsl_sum_levin_utrunc_alloc"
   ((order :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects levin-truncated)
+  :index (letm levin-truncated)
   :documentation
   "Allocate a workspace for a Levin @math{u}-transform of @var{n}
    terms, without error estimation.  The size of the workspace is
@@ -78,7 +78,7 @@
   "gsl_sum_levin_utrunc_free"
   ((levin :pointer))
   :export nil
-  :index (with-gsl-objects levin-truncated)
+  :index (letm levin-truncated)
   :documentation
   "Free a previously allocated Levin acceleration.")
 
@@ -109,7 +109,7 @@
   (let ((maxterms 20)
 	(sum 0.0d0)
 	(zeta2 (/ (expt pi 2) 6)))
-    (with-gsl-objects ((levin levin maxterms))
+    (letm ((levin (levin maxterms)))
       (with-data (array vector-double maxterms)
 	(dotimes (n maxterms)
 	  (setf (gsl-aref array n) (coerce (/ (expt (1+ n) 2)) 'double-float))

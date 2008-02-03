@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-01-27 23:04:02EST roots-multi.lisp>
+;;; Time-stamp: <2008-02-02 22:22:20EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -43,15 +43,26 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-(set-asf mfsolver allocate-mfsolver free-mfsolver set-mfsolver 2)
-(set-asf mfdfsolver allocate-mfdfsolver free-mfdfsolver set-mfdfsolver 2)
+(defun-letm mfsolver (type function-derivative initial)
+  (list
+   `(allocate-mfsolver ,type (dim0 ,initial))
+   'free-mfsolver
+   (lambda (symb)
+     `(set-mfsolver ,symb ,function-derivative ,initial))))
+
+(defun-letm mfdfsolver (type function-derivative initial)
+  (list
+   `(allocate-mfdfsolver ,type (dim0 ,initial))
+   'free-mfdfsolver
+   (lambda (symb)
+     `(set-mfdfsolver ,symb ,function-derivative ,initial))))
 
 (defun-gsl allocate-mfsolver (type dimension)
   "gsl_multiroot_fsolver_alloc"
   ((type :pointer) (dimension :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects mfsolver)
+  :index (letm mfsolver)
   :documentation
   "Allocate an instance of a solver of the type specified for a system of
    the specified number of dimensions.")
@@ -61,7 +72,7 @@
   ((type :pointer) (dimension :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects mfdfsolver)
+  :index (letm mfdfsolver)
   :documentation
   "Allocate an instance of a derivative solver of the type specified for
    a system of the specified number of dimensions.")
@@ -70,7 +81,7 @@
   "gsl_multiroot_fsolver_set"
   ((solver :pointer) (function :pointer) ((pointer initial) :pointer))
   :export nil
-  :index (with-gsl-objects mfsolver)
+  :index (letm mfsolver)
   :documentation
   "Set or reset an existing solver to use the function and the
    initial guess gsl-vector.")
@@ -80,7 +91,7 @@
   ((solver :pointer) (function-derivative :pointer)
    ((pointer initial) :pointer))
   :export nil
-  :index (with-gsl-objects mfdfsolver)
+  :index (letm mfdfsolver)
   :documentation
   "Set or reset an existing solver to use the function and derivative
    (fdf) and the initial guess.")
@@ -90,7 +101,7 @@
   ((solver :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects mfsolver)
+  :index (letm mfsolver)
   :documentation
   "Free all the memory associated with the solver.")
 
@@ -99,7 +110,7 @@
   ((solver :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects mfdfsolver)
+  :index (letm mfdfsolver)
   :documentation
   "Free all the memory associated with the solver.")
 
@@ -415,8 +426,7 @@
   (let ((max-iter 1000))
     (with-data (vect vector-double 2)
       (setf (data vect) #(-10.0d0 -5.0d0))
-      (with-gsl-objects
-	  ((mfsolver solver *hybrid-scaled* (dim0 vect) rosenbrock vect))
+      (letm ((solver (mfsolver *hybrid-scaled* rosenbrock vect)))
 	(let ((fnval (mfsolver-f solver))
 	      (argval (mfsolver-root solver)))
 	  (loop for iter from 0
@@ -469,8 +479,8 @@
     (let ((max-iter 1000))
       (with-data (vect vector-double 2)
 	(setf (data vect) #(-10.0d0 -5.0d0))
-	(with-gsl-objects
-	    ((mfdfsolver solver *gnewton-mfdfsolver* (dim0 vect) rosenbrock-f vect))
+	(letm
+	    ((solver (mfdfsolver *gnewton-mfdfsolver* rosenbrock-f vect)))
 	  (let ((fnval (mfdfsolver-f solver))
 		(argval (mfdfsolver-root solver)))
 	    (loop for iter from 0

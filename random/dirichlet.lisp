@@ -1,11 +1,7 @@
-;********************************************************
-; file:        dirichlet.lisp                          
-; description: Dirichlet distribution                  
-; date:        Sun Oct 29 2006
-; author:      Liam M. Healy                             
-; modified:    Sat Mar  3 2007 - 22:40
-;********************************************************
-;;; $Id: $
+;; Dirichlet distribution
+;; Liam Healy, Sun Oct 29 2006
+;; Time-stamp: <2008-02-02 23:00:40EST dirichlet.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -64,24 +60,18 @@
    '("0.392833324564d-04" "0.468176310887d+00"
      "0.340750440311d+00" "0.191033965469d+00")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
-      (with-data (alpha vector-double 4)
-	(with-data (theta vector-double 4)
-	  (setf (data alpha) #(1.0d0 2.0d0 3.0d0 4.0d0))
-	  (dirichlet *rng-mt19937* alpha theta)
-	  (data theta))))))
+    (letm ((rng (random-number-generator *mt19937* 0))
+	   (alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	   (theta (vector-double 4)))
+      (dirichlet rng alpha theta)
+      (data theta))))
   (lisp-unit:assert-first-fp-equal
    "0.288000000000d+01"
-   (with-data (alpha vector-double 4)
-     (with-data (theta vector-double 4)
-       (setf (data alpha) #(1.0d0 2.0d0 3.0d0 4.0d0)
-	     (data theta) #(0.1d0 0.3d0 0.4d0 0.2d0))
-       (dirichlet-pdf alpha theta))))
+   (letm ((alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	  (theta (vector-double #(0.1d0 0.3d0 0.4d0 0.2d0))))
+     (dirichlet-pdf alpha theta)))
   (lisp-unit:assert-first-fp-equal
    "0.105779029415d+01"
-   (with-data (alpha vector-double 4)
-     (with-data (theta vector-double 4)
-       (setf (data alpha) #(1.0d0 2.0d0 3.0d0 4.0d0)
-	     (data theta) #(0.1d0 0.3d0 0.4d0 0.2d0))
-       (dirichlet-log-pdf alpha theta)))))
+   (letm ((alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	  (theta (vector-double #(0.1d0 0.3d0 0.4d0 0.2d0))))
+     (dirichlet-log-pdf alpha theta))))

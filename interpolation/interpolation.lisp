@@ -1,6 +1,6 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2008-01-26 17:40:04EST interpolation.lisp>
+;; Time-stamp: <2008-02-02 22:22:59EST interpolation.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -8,9 +8,13 @@
 ;;; A spline is an interpolation that also stores the arrays xa and ya,
 ;;; so they need not be supplied on each call.
 
-(set-asf
- interpolation allocate-interpolation free-interpolation
- initialize-interpolation 2)
+(defun-letm interpolation (type xa-or-size &optional ya)
+  (list
+   `(allocate-interpolation ,type ,(if ya `(dim0 ,ya) xa-or-size))
+   'free-spline
+   (when ya
+     (lambda (symb)
+       `(initialize-interpolation ,symb ,xa-or-size ,ya (dim0 ,ya))))))
 
 ;;; Interpolation
 (defun-gsl allocate-interpolation (type size)
@@ -18,7 +22,7 @@
   ((type :pointer) (size :size))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects interpolation)
+  :index (letm interpolation)
   :documentation
   "Allocate an interpolation object of type for size data-points,
    and return the pointer to it.")
@@ -39,11 +43,17 @@
   ((interpolation :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects interpolation)
+  :index (letm interpolation)
   :documentation
   "Frees the interpolation object @var{interp}.")
 
-(set-asf spline allocate-spline free-spline intialize-spline 2)
+(defun-letm spline (type xa-or-size &optional ya)
+  (list
+   `(allocate-spline ,type ,(if ya `(dim0 ,ya) xa-or-size))
+   'free-spline
+   (when ya
+     (lambda (symb)
+       `(initialize-spline ,symb ,xa-or-size ,ya (dim0 ,ya))))))
 
 ;;; Spline
 (defun-gsl allocate-spline (type size)

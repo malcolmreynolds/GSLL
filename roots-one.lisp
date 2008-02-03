@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-26 19:07:22EST roots-one.lisp>
+;; Time-stamp: <2008-02-02 19:29:21EST roots-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -44,15 +44,16 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-(set-asf fsolver allocate-fsolver free-fsolver set-fsolver)
-(set-asf fdfsolver allocate-fdfsolver free-fdfsolver set-fdfsolver)
+(set-asf (fsolver type function lower upper) allocate-fsolver free-fsolver set-fsolver)
+(set-asf (fdfsolver type function-derivative root-guess)
+	 allocate-fdfsolver free-fdfsolver set-fdfsolver)
 
 (defun-gsl allocate-fsolver (type)
   "gsl_root_fsolver_alloc"
   ((type :pointer))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects fsolver)
+  :index (letm fsolver)
   :documentation
   "Allocate an instance of a solver of the given type.")
 
@@ -61,7 +62,7 @@
   ((type :pointer))
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects fdfsolver)
+  :index (letm fdfsolver)
   :documentation
   "Allocate an instance of a derivative-based solver of the given type.")
 
@@ -70,7 +71,7 @@
   ((solver :pointer) (function :pointer)
    (lower :double) (upper :double))
   :export nil
-  :index (with-gsl-objects fsolver)
+  :index (letm fsolver)
   :documentation
   "Initialize or reinitialize an existing solver
    to use the function and the initial search interval
@@ -80,7 +81,7 @@
   "gsl_root_fdfsolver_set"
   ((solver :pointer) (function-derivative :pointer) (root-guess :double))
   :export nil
-  :index (with-gsl-objects fdfsolver)
+  :index (letm fdfsolver)
   :documentation
   "Initialize or reinitialize an existing solver.")
 
@@ -89,7 +90,7 @@
   ((solver :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects fsolver)
+  :index (letm fsolver)
   :documentation
   "Free all the memory associated with the solver.")
 
@@ -98,7 +99,7 @@
   ((solver :pointer))
   :c-return :void
   :export nil
-  :index (with-gsl-objects fdfsolver)
+  :index (letm fdfsolver)
   :documentation
   "Free all the memory associated with the solver.")
 
@@ -353,21 +354,21 @@
 
 (defun roots-one-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
-  (let ((max-iter 50))
-    (with-gsl-objects ((fsolver solver *brent-fsolver* quadratic 0.0d0 5.0d0))
-      (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
-      (loop for iter from 0
-	    for root = (fsolver-root solver)
-	    for lower = (fsolver-lower solver)
-	    for upper = (fsolver-upper solver)
-	    do (iterate-fsolver solver)
-	    while  (and (< iter max-iter)
-			(not (root-test-interval lower upper 0.0d0 0.001d0)))
-	    do
-	    (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
-		    iter lower upper
-		    root (- root (sqrt 5.0d0))
-		    (- upper lower))))))
+  (letm ((max-iter 50)
+	 (solver (fsolver *brent-fsolver* quadratic 0.0d0 5.0d0)))
+    (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
+    (loop for iter from 0
+	  for root = (fsolver-root solver)
+	  for lower = (fsolver-lower solver)
+	  for upper = (fsolver-upper solver)
+	  do (iterate-fsolver solver)
+	  while  (and (< iter max-iter)
+		      (not (root-test-interval lower upper 0.0d0 0.001d0)))
+	  do
+	  (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
+		  iter lower upper
+		  root (- root (sqrt 5.0d0))
+		  (- upper lower)))))
 
 ;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
@@ -382,7 +383,7 @@
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 100)
 	(initial 5.0d0))
-    (with-gsl-objects ((fdfsolver solver *newton-fdfsolver* quadratic-df initial))
+    (letm ((solver (fdfsolver *newton-fdfsolver* quadratic-df initial)))
       (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
       (loop for iter from 0
 	    for itres = (iterate-fdfsolver solver)

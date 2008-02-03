@@ -1,13 +1,13 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-01-31 22:43:53EST generators.lisp>
+;; Time-stamp: <2008-02-02 23:01:02EST generators.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
 ;;; Would it be useful to have a make-data like macro?
 
-(export '(random-number-generator make-random-number-generator))
+(export '(make-random-number-generator))
 
 (defgeneric generator (object)
   (:method ((object t))
@@ -38,7 +38,8 @@
 	  :generator generator)))
     (if (eq generator t) (alloc instance) instance)))
 
-(set-asf random-number-generator make-random-number-generator free rng-set 1)
+(set-asf (random-number-generator type value)
+	 make-random-number-generator free rng-set 1)
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -243,14 +244,14 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(defparameter *rng-mt19937* (make-random-number-generator *mt19937*))
-(defparameter *rng-cmrg* (make-random-number-generator *cmrg*))
+;;; (defparameter *rng-mt19937* (make-random-number-generator *mt19937*))
+;;; (defparameter *rng-cmrg* (make-random-number-generator *cmrg*))
 ;;; (defparameter *rng-default* (make-random-number-generator *default-type*))
 
 (lisp-unit:define-test random-number-generators
   (lisp-unit:assert-equal
    '(999 162 282 947 231 484 957 744 540 739 759)
-   (with-gsl-objects ((random-number-generator rng *mt19937* 0))
+   (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
 	   (uniform-fixnum rng 1000))))
@@ -260,8 +261,5 @@
      "0.554133304187d+00" "0.880695776958d+00" "0.597139396983d+00"
      "0.751874113340d+00" "0.931108462127d+00")
    (lisp-unit:fp-sequence
-    (with-gsl-objects ((random-number-generator rng *cmrg* 0))
+    (letm ((rng (random-number-generator *cmrg* 0)))
       (loop for i from 0 to 10 collect (uniform rng))))))
-
-
-

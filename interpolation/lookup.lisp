@@ -9,7 +9,7 @@
 
 (in-package :gsl)
 
-(set-asf acceleration allocate-acceleration free-acceleration nil 0)
+(set-asf (acceleration) allocate-acceleration free-acceleration nil 0)
 
 (defun-gsl interpolation-search (x-array x low-index high-index)
   "gsl_interp_bsearch"
@@ -25,7 +25,7 @@
   ()
   :c-return :pointer
   :export nil
-  :index (with-gsl-objects acceleration)
+  :index (letm acceleration)
   :documentation
   "Allocate an accelerator object, which is a
    kind of iterator for interpolation lookups.  It tracks the state of
@@ -47,7 +47,7 @@
   "gsl_interp_accel_free"
   ((acceleration :pointer))
   :export nil
-  :index (with-gsl-objects acceleration)
+  :index (letm acceleration)
   :c-return :void
   :documentation
   "Frees the accelerator object.")

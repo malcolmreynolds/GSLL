@@ -1,11 +1,7 @@
-;********************************************************
-; file:        rayleigh-tail.lisp                          
-; description: Rayleigh tail distribution                  
-; date:        Sat Sep 30 2006
-; author:      Liam M. Healy                             
-; modified:    Sat Sep 30 2006 - 19:51
-;********************************************************
-;;; $Id: $
+;; Rayleigh tail distribution
+;; Liam Healy, Sat Sep 30 2006
+;; Time-stamp: <2008-02-02 23:00:39EST rayleigh-tail.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -36,11 +32,9 @@
      "0.311299291669d+01" "0.774988930120d+01" "0.111454501381d+02"
      "0.782519818732d+01" "0.747677468155d+01")
    (lisp-unit:fp-sequence
-    (progn
-      (rng-set *rng-mt19937* 0)
+    (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
-	    collect
-	    (rayleigh-tail *rng-mt19937* 1.0d0 10.0d0)))))
+	    collect (rayleigh-tail rng 1.0d0 10.0d0)))))
   (lisp-unit:assert-first-fp-equal
    "0.102243176249d+00"
    (rayleigh-tail-pdf 0.25d0 -2.0d0 2.0d0)))
