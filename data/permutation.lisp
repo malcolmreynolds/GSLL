@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-01-21 11:12:01EST permutation.lisp>
+;; Time-stamp: <2008-02-03 23:33:15EST permutation.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -69,8 +69,8 @@
 (defun-gsl permutation-size (p)
   "gsl_permutation_size"
   (((pointer p) gsl-permutation-c))
-  :c-return :size			; FDL
-  :documentation
+  :c-return :size
+  :documentation			; FDL
   "The size of the permutation p.")
 
 (defun-gsl permutation-data (p)
@@ -241,81 +241,68 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(defparameter *perm-1* (make-data 'permutation t 4))
-(defparameter *perm-2* (make-data 'permutation t 4))
+(defun generate-all-permutations (n)
+  "Generate all the permutations of n objects."
+  (letm ((perm (permutation n t)))
+    (loop collect (data perm 'list)
+	  while (permutation-next perm))))
 
 (lisp-unit:define-test permutation
   (lisp-unit:assert-eql			;gsl-aref
    2
-   (progn
-     (set-identity *perm-1*)
-     (gsl-aref *perm-1* 2)))
+   (letm ((perm-1 (permutation 4 t)))
+     (set-identity perm-1)
+     (gsl-aref perm-1 2)))
   (lisp-unit:assert-equalp		;data
    #(0 1 2 3)
-   (progn
-     (set-identity *perm-1*)
-     (data *perm-1*)))
+   (letm ((perm-1 (permutation 4 t)))
+     (set-identity perm-1)
+     (data perm-1)))
   (lisp-unit:assert-equalp		;permutation-reverse
    #(3 2 1 0)
-   (progn
-     (set-identity *perm-1*)
-     (data (permutation-reverse *perm-1*))))
+   (letm ((perm-1 (permutation 4 t)))
+     (set-identity perm-1)
+     (data (permutation-reverse perm-1))))
   (lisp-unit:assert-equalp	;permutation-next, permutation-inverse
    #(0 3 1 2)
-   (progn
-     (set-identity *perm-1*)
-     (permutation-next *perm-1*)
-     (permutation-next *perm-1*)
-     (permutation-next *perm-1*)
-     (permutation-inverse *perm-2* *perm-1*)
-     (data *perm-2*)))
+   (letm ((perm-1 (permutation 4 t)) (perm-2 (permutation 4 t)))
+     (set-identity perm-1)
+     (permutation-next perm-1)
+     (permutation-next perm-1)
+     (permutation-next perm-1)
+     (permutation-inverse perm-2 perm-1)
+     (data perm-2)))
   (lisp-unit:assert-equalp		;swap-elements
    #(0 3 2 1)
-   (progn
-     (set-identity *perm-1*)
-     (swap-elements *perm-1* 1 3)
-     (data *perm-1*)))
+   (letm ((perm-1 (permutation 4 t)))
+     (set-identity perm-1)
+     (swap-elements perm-1 1 3)
+     (data perm-1)))
   (lisp-unit:assert-equalp		;permute-vector
    #(33 44 11 22)
-   (progn
-     (set-identity *perm-1*)
-     (swap-elements *perm-1* 1 3)
-     (swap-elements *perm-1* 0 2)
-     (setf (data *intvec-1*) #(11 22 33 44)) 
-     (permute-vector *perm-1* *intvec-1*)
-     (data *intvec-1*)))
+   (letm ((perm-1 (permutation 4 t))
+	  (intvec (vector-fixnum #(11 22 33 44))))
+     (set-identity perm-1)
+     (swap-elements perm-1 1 3)
+     (swap-elements perm-1 0 2)
+     (permute-vector perm-1 intvec)
+     (data intvec)))
   (lisp-unit:assert-eql			;inversions
    3
-   (progn
-     (set-identity *perm-1*)
-     (swap-elements *perm-1* 1 3)
-     (inversions *perm-1*)))
+   (letm ((perm-1 (permutation 4 t)))
+     (set-identity perm-1)
+     (swap-elements perm-1 1 3)
+     (inversions perm-1)))
   (lisp-unit:assert-eql			;linear-cycles
    3
-   (progn
-     (set-identity *perm-1*)
-     (swap-elements *perm-1* 1 3)
-     (linear-cycles *perm-1*)))
+   (letm ((perm-1 (permutation 4 t)))
+     (set-identity perm-1)
+     (swap-elements perm-1 1 3)
+     (linear-cycles perm-1)))
   (lisp-unit:assert-eql			;canonical-cycles
    2
-   (progn
-     (set-identity *perm-1*)
-     (swap-elements *perm-1* 1 3)
-     (swap-elements *perm-1* 0 2)
-     (canonical-cycles *perm-1*))))
-
-;;;;****************************************************************************
-;;;; Examples
-;;;;****************************************************************************
-
-
-#|
-(with-data (perm permutation 4 t)
-  (loop collect (data perm 'list)
-    while (permutation-next perm)))
-
-((0 1 2 3) (0 1 3 2) (0 2 1 3) (0 2 3 1) (0 3 1 2) (0 3 2 1) (1 0 2 3)
- (1 0 3 2) (1 2 0 3) (1 2 3 0) (1 3 0 2) (1 3 2 0) (2 0 1 3) (2 0 3 1)
- (2 1 0 3) (2 1 3 0) (2 3 0 1) (2 3 1 0) (3 0 1 2) (3 0 2 1) (3 1 0 2)
- (3 1 2 0) (3 2 0 1) (3 2 1 0))
-|#
+   (letm ((perm-1 (permutation 4 t)))
+     (set-identity perm-1)
+     (swap-elements perm-1 1 3)
+     (swap-elements perm-1 0 2)
+     (canonical-cycles perm-1))))

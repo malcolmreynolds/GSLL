@@ -1,11 +1,7 @@
-;********************************************************
-; file:        autocorrelation.lisp                   
-; description: Autocorrelation
-; date:        Sun Dec 31 2006 - 13:19                   
-; author:      Liam M. Healy                             
-; modified:    Sun Dec 31 2006 - 16:51
-;********************************************************
-;;; $Id: $
+;; Autocorrelation
+;; Liam Healy, Sun Dec 31 2006 - 13:19
+;; Time-stamp: <2008-02-03 23:18:13EST autocorrelation.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -30,6 +26,7 @@
 (export 'autocorrelation)
 (defun-optionals autocorrelation (data &optional mean)
   -nom -m
+  ;; FDL
   "The lag-1 autocorrelation of the dataset @var{data}.
   a_1 = {\sum_{i = 1}^{n} (x_{i} - \Hat\mu) (x_{i-1} - \Hat\mu)
   \over
@@ -38,10 +35,9 @@
 (lisp-unit:define-test autocorrelation
   (lisp-unit:assert-equal
    '("-0.464636683425d-01" "-0.464636683425d-01")
-   (with-data (vec vector-double 3)
-     (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
-     (let ((mean (mean vec)))
-       (lisp-unit:fp-sequence
+   (lisp-unit:fp-sequence
+    (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+      (let ((mean (mean vec)))
 	(list
 	 (autocorrelation vec)
 	 (autocorrelation vec mean)))))))

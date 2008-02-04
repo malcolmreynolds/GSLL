@@ -1,6 +1,6 @@
 ;; Using GSL storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-02-03 13:17:10EST data.lisp>
+;; Time-stamp: <2008-02-03 23:34:26EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -103,19 +103,42 @@
     ;;(LONG-DOUBLE . "_long_double")
     (COMPLEX . "_complex")))
 
-(defmacro data-go (type size-spec-is-list)
+(defmacro data-go (type matrixp)
   "Define the letm function for data types."
-  (let ((size-spec (if size-spec-is-list 'listp 'numberp))
-	(init-spec (if size-spec-is-list 'array-dimensions 'length)))
-    `(defgo ,type (size-or-initial &optional zero)
-      (let ((argsymb (gensym "ARG")))
-	(list
-	 `(make-data ',',type ,zero
-	   (if (,',size-spec ,argsymb) ,argsymb (,',init-spec ,argsymb)))
-	 'free
-	 (lambda (symb)
-	   `(unless (,',size-spec ,argsymb) (setf (data ,symb) ,argsymb)))
-	 (lambda () (list argsymb size-or-initial)))))))
+  (if matrixp				; Matrix (two indices)
+      `(defgo ,type (size-or-initial &optional size-or-zero zero)
+	(if (and (numberp size-or-initial) (numberp size-or-zero))
+	    ;; Array dimensions are given as literal numbers for matrix
+	    (list
+	     `(make-data ',',type ,zero ,size-or-initial ,size-or-zero)
+	     'free)
+	    ;; Determine at runtime whether first arg is initial or dimension
+	    (let ((argsymb (gensym "ARG")))
+	      (list
+	       `(apply #'make-data ',',type nil
+		 (if (and (numberp ,argsymb) (numberp ,size-or-zero))
+		     (list ,argsymb ,size-or-zero)
+		     (array-dimensions ,argsymb)))
+	       'free
+	       (lambda (symb)
+		 `(unless (and (numberp ,argsymb) (numberp ,size-or-zero))
+		   (setf (data ,symb) ,argsymb)))
+	       (lambda () (list argsymb size-or-initial))))))
+      ;; Vector or other one-index object
+      `(defgo ,type (size-or-initial &optional zero)
+	(if (numberp size-or-initial)
+	    ;; Size is given as literal number
+	    (list
+	     `(make-data ',',type ,zero ,size-or-initial)
+	     'free)
+	    ;; Determine at runtime whether first arg is initial or size 
+	    (let ((argsymb (gensym "ARG")))
+	      (list
+	       `(make-data ',',type ,zero
+		 (if (numberp ,argsymb) ,argsymb (length ,argsymb)))
+	       'free
+	       (lambda (symb) `(unless (numberp ,argsymb) (setf (data ,symb) ,argsymb)))
+	       (lambda () (list argsymb size-or-initial))))))))
 
 (defmacro defdata
     (c-string cl-symbol cl-base-type

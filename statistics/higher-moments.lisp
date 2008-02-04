@@ -1,11 +1,7 @@
-;********************************************************
-; file:        higher-moments.lisp                       
-; description: Skewness and kurtosis.                    
-; date:        Sun Dec 31 2006 - 14:20                   
-; author:      Liam M. Healy                             
-; modified:    Sun Dec 31 2006 - 21:32
-;********************************************************
-;;; $Id: $
+;; Skewness and kurtosis.
+;; Liam Healy, Sun Dec 31 2006 - 14:20
+;; Time-stamp: <2008-02-03 23:14:05EST higher-moments.lisp>
+;; $Id: $
 
 (in-package :gsl)
 ;;; To do: stride other than 1 when that information is availble from
@@ -17,10 +13,10 @@
   :c-return :double
   :index skewness
   :export nil
-  :documentation
-  "The skewness of @var{data}, defined as
+  :documentation			; FDL
+  "The skewness of data, defined as
   skew = (1/N) \sum ((x_i - \Hat\mu)/\Hat\sigma)^3
-  where @math{x_i} are the elements of the dataset @var{data}.
+  where x_i are the elements of the dataset data.
   The skewness measures the asymmetry of the tails of a distribution.")
 
 (defun-gsl skewness-msd (data mean standard-deviation)
@@ -30,20 +26,21 @@
   :c-return :double
   :index skewness
   :export nil
-  :documentation
-  "The skewness of the dataset @var{data} using the
-   given values of the mean @var{mean} and standard deviation @var{sd},
+  :documentation			; FDL
+  "The skewness of the dataset data using the
+   given values of the mean and standard deviation,
    skew = (1/N) \sum ((x_i - mean)/sd)^3
    These functions are useful if you have already computed the mean and
-   standard deviation of @var{data} and want to avoid recomputing them.")
+   standard deviation of data and want to avoid recomputing them.")
 
 (export 'skewness)
 (defun-optionals skewness
     (data &optional mean standard-deviation)
   -nomsd -msd
-  "The skewness of @var{data}, defined as
+  ;; FDL
+  "The skewness of data defined as
   skew = (1/N) \sum ((x_i - \Hat\mu)/\Hat\sigma)^3
-  where @math{x_i} are the elements of the dataset @var{data}.
+  where x_i are the elements of the dataset data.
   The skewness measures the asymmetry of the tails of a distribution.")
 
 (defun-gsl kurtosis-nomsd (data)
@@ -65,7 +62,8 @@
 (defun-optionals kurtosis
     (data &optional mean standard-deviation)
   -nomsd -msd
-  "The kurtosis of @var{data}, defined as
+  ;; FDL
+  "The kurtosis of data defined as
    kurtosis = ((1/N) \sum ((x_i - \Hat\mu)/\Hat\sigma)^4)  - 3
    The kurtosis measures how sharply peaked a distribution is,
    relative to its width.  The kurtosis is normalized to zero
@@ -91,6 +89,7 @@
 (defun-optionals weighted-skewness
     (data weights &optional mean standard-deviation)
   -nomsd -msd
+  ;; FDL
   "The weighted skewness of the dataset.
    skew = (\sum w_i ((x_i - xbar)/\sigma)^3) / (\sum w_i).")
 
@@ -113,6 +112,7 @@
 (defun-optionals weighted-kurtosis
     (data weights &optional mean standard-deviation)
   -nomsd -msd
+  ;; FDL
   "The weighted kurtosis of the dataset.
    kurtosis = ((\sum w_i ((x_i - xbar)/sigma)^4) / (\sum w_i)) - 3.")
 
@@ -120,11 +120,10 @@
   (lisp-unit:assert-equal
    '("0.276511898399d+00" "0.276511898399d+00"
      "-0.233333333333d+01" "-0.233333333333d+01")
-   (with-data (vec vector-double 3)
-     (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
-     (let* ((mean (mean vec))
-	    (sd (standard-deviation vec mean)))
-       (lisp-unit:fp-sequence
+   (lisp-unit:fp-sequence
+    (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+      (let* ((mean (mean vec))
+	     (sd (standard-deviation vec mean)))
 	(list
 	 (skewness vec)
 	 (skewness vec mean sd)

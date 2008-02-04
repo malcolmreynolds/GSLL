@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-01-21 11:22:27EST sorting.lisp>
+;; Time-stamp: <2008-02-03 19:57:52EST sorting.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -22,9 +22,9 @@
     ,body))
 
 (defun-gsl heapsort (array count size function)
-  "gsl_heapsort"			; FDL
+  "gsl_heapsort"
   ((array :pointer) (count :size) (size :size) (function :pointer))
-  :documentation
+  :documentation			; FDL
   "Sort the count elements of the array of size specified
    into ascending order using the comparison
    function.  The type of the comparison function is defined by,
@@ -146,45 +146,39 @@
    '("-0.321000000000d+01" "-0.200000000000d+01" "0.100000000000d+01"
      "0.710000000000d+01" "0.128000000000d+02")
    (lisp-unit:fp-sequence
-    (with-data (vec vector-double 5)
-      (setf (data vec) #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))
+    (letm ((vec (vector-double #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
       (sort-vector vec)
       (data vec))))
   (lisp-unit:assert-equalp
    #(3 1 4 0 2)
-   (with-data (perm permutation 5)
-     (with-data (vec vector-double 5)
-       (setf (data vec) #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))
-       (sort-vector-index perm vec)
-       (data perm))))
+   (letm ((perm (permutation 5))
+	  (vec (vector-double #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
+     (sort-vector-index perm vec)
+     (data perm)))
   (lisp-unit:assert-equal
    '("-0.321000000000d+01" "-0.200000000000d+01" "0.100000000000d+01")
    (lisp-unit:fp-sequence
-    (with-data (vec vector-double 5)
-      (with-data (smallest vector-double 3)
-	(setf (data vec) #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))
-	(sort-vector-smallest smallest vec)
-	(data smallest)))))
+    (letm ((vec (vector-double #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
+	   (smallest (vector-double 3)))
+      (sort-vector-smallest smallest vec)
+      (data smallest))))
   (lisp-unit:assert-equalp
    #(3 1 4)
-   (with-data (vec vector-double 5)
-     (with-data (smallest vector-fixnum 3)
-       (setf (data vec) #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))
-       (sort-vector-smallest-index smallest vec)
-       (data smallest))))
+   (letm ((vec (vector-double #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
+	  (smallest (vector-fixnum 3)))
+     (sort-vector-smallest-index smallest vec)
+     (data smallest)))
   (lisp-unit:assert-equal
    '("0.128000000000d+02" "0.710000000000d+01" "0.100000000000d+01")
    (lisp-unit:fp-sequence
-    (with-data (vec vector-double 5)
-      (with-data (largest vector-double 3)
-	(setf (data vec) #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))
-	(sort-vector-largest largest vec)
-	(data largest)))))
+    (letm ((vec (vector-double #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
+	   (largest (vector-double 3)))
+      (sort-vector-largest largest vec)
+      (data largest))))
   (lisp-unit:assert-equalp
    #(2 0 4)
-   (with-data (vec vector-double 5)
-     (with-data (largest vector-fixnum 3)
-       (setf (data vec) #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))
-       (sort-vector-largest-index largest vec)
-       (data largest)))))
+   (letm ((vec (vector-double #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
+	  (largest (vector-fixnum 3)))
+     (sort-vector-largest-index largest vec)
+     (data largest))))
 

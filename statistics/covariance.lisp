@@ -1,11 +1,7 @@
-;********************************************************
-; file:        covariance.lisp                   
-; description: Covariance
-; date:        Sun Dec 31 2006 - 13:19                   
-; author:      Liam M. Healy                             
-; modified:    Sun Dec 31 2006 - 16:59
-;********************************************************
-;;; $Id: $
+;; Covariance
+;; Liam Healy, Sun Dec 31 2006 - 13:19
+;; Time-stamp: <2008-02-03 23:19:46EST covariance.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -32,6 +28,7 @@
 (export 'covariance)
 (defun-optionals covariance (data1 data2 &optional mean1 mean2)
   -nom -m
+  ;; FDL
   "The covariance of the datasets @var{data1} and
    @var{data2} which must both be of the same length @var{n}.
    covar = {1 \over (n - 1)} \sum_{i = 1}^{n}
@@ -40,13 +37,11 @@
 (lisp-unit:define-test covariance
   (lisp-unit:assert-equal
    '("-0.293000000000d+00" "-0.293000000000d+00")
-   (with-data (vec1 vector-double 3)
-     (setf (data vec1) #(-3.21d0 1.0d0 12.8d0))
-     (with-data (vec2 vector-double 3)
-       (setf (data vec2) #(1.15d0 -1.0d0 0.5d0))
-       (let ((mean1 (mean vec1))
-	     (mean2 (mean vec2)))
-	 (lisp-unit:fp-sequence
-	  (list
-	   (covariance vec1 vec2)
-	   (covariance vec1 vec2 mean1 mean2))))))))
+   (lisp-unit:fp-sequence
+    (letm ((vec1 (vector-double #(-3.21d0 1.0d0 12.8d0)))
+	   (vec2 (vector-double #(1.15d0 -1.0d0 0.5d0))))
+      (let ((mean1 (mean vec1))
+	    (mean2 (mean vec2)))
+	(list
+	 (covariance vec1 vec2)
+	 (covariance vec1 vec2 mean1 mean2)))))))

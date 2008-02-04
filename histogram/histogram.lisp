@@ -1,18 +1,22 @@
-;********************************************************
-; file:        structure.lisp                            
-; description: The histogram structure.                  
-; date:        Mon Jan  1 2007 - 11:32                   
-; author:      Liam M. Healy                             
-; modified:    Tue Jan  2 2007 - 23:03
-;********************************************************
-;;; $Id: $
+;; The histogram structure
+;; Liam Healy, Mon Jan  1 2007 - 11:32
+;; Time-stamp: <2008-02-03 21:53:32EST histogram.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
 ;;; Define, make, copy histograms in one or two dimensions.
 
-;;; Should this have a with-histogram macro, or be integrated into
-;;; the data superclass (and so use with-data)?
+(defgo histogram (size &rest from-or-ranges)
+  (list `(make-histogram ,size
+	  ,(when from-or-ranges
+		 `(when (typep (first ,from-or-ranges) 'histogram)
+		   (first ,from-or-ranges))))
+	'free
+	(when from-or-ranges
+	  (lambda (sym)
+	    `(unless (typep (first ,from-or-ranges) 'histogram)
+	      (set-ranges ,sym ,@from-or-ranges))))))
 
 (defclass histogram ()
   ((pointer
@@ -26,7 +30,7 @@
   "gsl_histogram_alloc"
   (((number-of-bins object) :size))
   :export nil
-  :index alloc
+  :index (letm histogram)
   :c-return (cr :pointer)
   :return ((assign-pointer object cr)))
 
@@ -35,7 +39,7 @@
   (((first (number-of-bins object)) :size)
    ((second (number-of-bins object)) :size))
   :export nil
-  :index alloc
+  :index (letm histogram)
   :c-return (cr :pointer)
   :return ((assign-pointer object cr)))
 
@@ -56,13 +60,17 @@
   "gsl_histogram_free"
   (((pointer object) :pointer))
   :c-return (cr :pointer)
-  :return ((assign-pointer object cr)))
+  :return ((assign-pointer object cr))
+  :export nil
+  :index (letm histogram))
 
 (defun-gsl free-histo-2 (object)
   "gsl_histogram2d_free"
   (((pointer object) :pointer))
   :c-return (cr :pointer)
-  :return ((assign-pointer object cr)))
+  :return ((assign-pointer object cr))
+  :export nil
+  :index (letm histogram))
 
 (defmethod free ((object histogram))
   (histo-1d2d object free-histo))
@@ -74,11 +82,11 @@
   (((pointer histogram) :pointer)
    ((gsl-array ranges) :pointer) ((dim0 ranges) :size))
   :export nil
-  :index set-ranges
-  :documentation
+  :index (letm histogram)
+  :documentation			; FDL
   "Set the ranges of the existing histogram using
    the gsl-vector of ranges.  The values of the histogram
-   bins are reset to zero.  The @code{ranges} array should contain the
+   bins are reset to zero.  The ranges array should contain the
    desired bin limits.  The ranges can be arbitrary, subject to the
    restriction that they are monotonically increasing.")
 
@@ -88,7 +96,7 @@
    ((gsl-array x-ranges) :pointer) ((dim0 x-ranges) :size)
    ((gsl-array y-ranges) :pointer) ((dim0 y-ranges) :size))
   :export nil
-  :index set-ranges)
+  :index (letm histogram))
 
 (export 'set-ranges)
 (defun set-ranges (histogram &rest ranges)
@@ -109,16 +117,16 @@
   (((pointer histogram) :pointer) (minimum :double) (maximum :double))
   :export nil
   :index set-ranges-uniform
-  :documentation
-  "Set the ranges of the existing histogram @var{h} to cover
-   the range @var{xmin} to @var{xmax} uniformly.  The values of the
+  :documentation			; FDL
+  "Set the ranges of the existing histogram h to cover
+   the range xmin to xmax uniformly.  The values of the
    histogram bins are reset to zero.  The bin ranges are shown in the table
    below,
    bin[0] corresponds to xmin <= x < xmin + d
    bin[1] corresponds to xmin + d <= x < xmin + 2 d
    ......
    bin[n-1] corresponds to xmin + (n-1)d <= x < xmax
-   where @math{d} is the bin spacing, @math{d = (xmax-xmin)/n}.")
+   where d is the bin spacing, d = (xmax-xmin)/n.")
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
@@ -133,15 +141,16 @@
 
 (export 'set-ranges-uniform)
 (defun set-ranges-uniform (histogram &rest limits)
-  "Set the ranges of the existing histogram @var{h} to cover
-   the range @var{xmin} to @var{xmax} uniformly.  The values of the
+  ;; FDL
+  "Set the ranges of the existing histogram h to cover
+   the range xmin to xmax uniformly.  The values of the
    histogram bins are reset to zero.  The bin ranges are shown in the table
    below,
    bin[0] corresponds to xmin <= x < xmin + d
    bin[1] corresponds to xmin + d <= x < xmin + 2 d
    ......
    bin[n-1] corresponds to xmin + (n-1)d <= x < xmax
-   where @math{d} is the bin spacing, @math{d = (xmax-xmin)/n}."
+   where d is the bin spacing, d = (xmax-xmin)/n."
   (histo-1d2d histogram set-ranges-uniform
 	      ((first limits) (second limits))
 	      ((first limits) (second limits)
@@ -152,7 +161,7 @@
   (((pointer destination) :pointer) ((pointer source) :pointer))
   :export nil
   :index copy
-  :documentation
+  :documentation			; FDL
   "Copy the histogram source into the pre-existing
    histogram destination, making the latter into
    an exact copy of the former.
@@ -172,7 +181,7 @@
   (((pointer source) :pointer))
   :export nil
   :index clone
-  :documentation
+  :documentation			; FDL
   "Create a new histogram which is an
    exact copy of the histogram source, and return the pointer.")
 
@@ -181,12 +190,15 @@
   (((pointer source) :pointer))
   :export nil
   :index clone
-  :documentation
+  :documentation			; FDL
   "Create a new histogram which is an
    exact copy of the histogram source, and return the pointer.")
 
 (export 'clone)
 (defun clone (source)
+  ;; FDL
+  "Create a new histogram which is an
+   exact copy of the histogram source, and return the pointer."
   (histo-1d2d source clone))
 
 (defun make-histogram (size &optional from)
@@ -198,5 +210,3 @@
     (unless (pointer ret)
       (alloc ret))
     ret))
-
-

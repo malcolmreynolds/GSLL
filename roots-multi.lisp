@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-02-03 13:17:08EST roots-multi.lisp>
+;;; Time-stamp: <2008-02-03 16:21:50EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -63,7 +63,7 @@
   :c-return :pointer
   :export nil
   :index (letm mfsolver)
-  :documentation
+  :documentation			; FDL
   "Allocate an instance of a solver of the type specified for a system of
    the specified number of dimensions.")
 
@@ -73,7 +73,7 @@
   :c-return :pointer
   :export nil
   :index (letm mfdfsolver)
-  :documentation
+  :documentation			; FDL
   "Allocate an instance of a derivative solver of the type specified for
    a system of the specified number of dimensions.")
 
@@ -82,7 +82,7 @@
   ((solver :pointer) (function :pointer) ((pointer initial) :pointer))
   :export nil
   :index (letm mfsolver)
-  :documentation
+  :documentation			; FDL
   "Set or reset an existing solver to use the function and the
    initial guess gsl-vector.")
 
@@ -92,7 +92,7 @@
    ((pointer initial) :pointer))
   :export nil
   :index (letm mfdfsolver)
-  :documentation
+  :documentation			; FDL
   "Set or reset an existing solver to use the function and derivative
    (fdf) and the initial guess.")
 
@@ -102,7 +102,7 @@
   :c-return :void
   :export nil
   :index (letm mfsolver)
-  :documentation
+  :documentation			; FDL
   "Free all the memory associated with the solver.")
 
 (defun-gsl free-mfdfsolver (solver)
@@ -111,21 +111,21 @@
   :c-return :void
   :export nil
   :index (letm mfdfsolver)
-  :documentation
+  :documentation			; FDL
   "Free all the memory associated with the solver.")
 
 (defun-gsl mfsolver-name (solver)
   "gsl_multiroot_fsolver_name"
   ((solver :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the solver.")
 
 (defun-gsl mfdfsolver-name (solver)
   "gsl_multiroot_fdfsolver_name"
   ((solver :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the solver.")
 
 ;;;;****************************************************************************
@@ -135,7 +135,7 @@
 (defun-gsl iterate-mfsolver (solver)
   "gsl_multiroot_fsolver_iterate"
   ((solver :pointer))
-  :documentation
+  :documentation			; FDL
   "Perform a single iteration of the solver.  The following
    errors may be signalled: :EBADFUNC,
    the iteration encountered a singular point where the function or its
@@ -146,7 +146,7 @@
 (defun-gsl iterate-mfdfsolver (solver)
   "gsl_multiroot_fdfsolver_iterate"
   ((solver :pointer))
-  :documentation
+  :documentation			; FDL
   "Perform a single iteration of the solver.  The following
    errors may be signalled: :EBADFUNC,
    the iteration encountered a singular point where the function or its
@@ -159,7 +159,7 @@
   ((solver :pointer))
   :c-return (canswer :pointer)
   :return ((make-data-from-pointer canswer))
-  :documentation
+  :documentation			; FDL
   "The current estimate of the root for the solver.")
 
 (defun-gsl mfdfsolver-root (solver)
@@ -175,7 +175,7 @@
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
   :return ((make-data-from-pointer canswer))
-  :documentation
+  :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
 (defun-gsl mfdfsolver-f (solver)
@@ -183,7 +183,7 @@
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
   :return ((make-data-from-pointer canswer))
-  :documentation
+  :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
 (defun-gsl mfsolver-dx (solver)
@@ -191,7 +191,7 @@
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
   :return ((make-data-from-pointer canswer))
-  :documentation
+  :documentation			; FDL
   "The last step dx taken by the solver.")
 
 (defun-gsl mfdfsolver-dx (solver)
@@ -199,7 +199,7 @@
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
   :return ((make-data-from-pointer canswer))
-  :documentation
+  :documentation			; FDL
   "The last step dx taken by the solver.")
 
 ;;;;****************************************************************************
@@ -227,7 +227,7 @@
    ((multiroot-slot solver 'x) :pointer)
    (absolute-error :double) (relative-error :double))
   :c-return :success-continue
-  :documentation
+  :documentation			; FDL
   "Test for the convergence of the sequence by comparing the
    last step dx with the absolute error and relative
    errors given to the current position x.  The test returns
@@ -239,7 +239,7 @@
   "gsl_multiroot_test_residual"
   (((multiroot-slot solver 'f) :pointer) (absolute-error :double))
   :c-return :success-failure
-  :documentation
+  :documentation			; FDL
   "Test the residual value f against the absolute error,
    returning T if the following condition is achieved:
    \sum_i |f_i| < absolute_error
@@ -253,6 +253,7 @@
 ;;;;****************************************************************************
 
 (defvariable *powells-hybrid* "gsl_multiroot_fdfsolver_hybridsj"
+  ;; FDL
   "This is a modified version of Powell's Hybrid method as implemented in
    the hybrj algorithm in @sc{minpack}.  Minpack was written by Jorge
    J. More, Burton S. Garbow and Kenneth E. Hillstrom.  The Hybrid
@@ -298,12 +299,14 @@
    making any progress, preventing the algorithm from continuing.")
 
 (defvariable *powells-hybrid-unscaled* "gsl_multiroot_fdfsolver_hybridj"
+  ;; FDL
   "This algorithm is an unscaled version of *powells-hybrid*.  The steps are
    controlled by a spherical trust region |x' - x| < \delta, instead
    of a generalized region.  This can be useful if the generalized region
    estimated by *powells-hybrid* is inappropriate.")
 
 (defvariable *newton-mfdfsolver* "gsl_multiroot_fdfsolver_newton"
+  ;; FDL
   "Newton's Method is the standard root-polishing algorithm.  The algorithm
    begins with an initial guess for the location of the solution.  On each
    iteration a linear approximation to the function F is used to
@@ -317,6 +320,7 @@
    using LU decomposition.")
 
 (defvariable *gnewton-mfdfsolver* "gsl_multiroot_fdfsolver_gnewton"
+  ;; FDL
   "A modified version of Newton's method which attempts to improve
    global convergence by requiring every step to reduce the Euclidean norm
    of the residual, |f(x)|.  If the Newton step leads to an increase
@@ -331,7 +335,8 @@
 ;;;;****************************************************************************
 
 (defvariable *hybrid-scaled* "gsl_multiroot_fsolver_hybrids"
-    "This is a version of the Hybrid algorithm which replaces calls to the
+  ;; FDL
+  "This is a version of the Hybrid algorithm which replaces calls to the
      Jacobian function by its finite difference approximation.  The finite
      difference approximation is computed using gsl_multiroots_fdjac
      with a relative step size of GSL_SQRT_DBL_EPSILON.")
@@ -339,10 +344,12 @@
 ;; library is gsl_multiroot_fdjacobian.
  
 (defvariable *hybrid-unscaled* "gsl_multiroot_fsolver_hybrid"
+  ;; FDL
   "A finite difference version of the Hybrid algorithm without
    internal scaling.")
 
 (defvariable *discrete-newton* "gsl_multiroot_fsolver_dnewton"
+  ;; FDL
   "The discrete Newton algorithm is the simplest method of solving a
    multidimensional system.  It uses the Newton iteration
    x -> x - J^{-1} f(x)
@@ -359,6 +366,7 @@
    are not a good approximation to the true derivatives.")
 
 (defvariable *broyden* "gsl_multiroot_fsolver_broyden"
+  ;; FDL
   "The Broyden algorithm is a version of the discrete Newton
    algorithm which attempts to avoids the expensive update of the Jacobian
    matrix on each iteration.  The changes to the Jacobian are also
@@ -424,8 +432,7 @@
 (defun roots-multi-example ()
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000))
-    (with-data (vect vector-double 2)
-      (setf (data vect) #(-10.0d0 -5.0d0))
+    (letm ((vect (vector-double #(-10.0d0 -5.0d0))))
       (letm ((solver (mfsolver *hybrid-scaled* rosenbrock vect)))
 	(let ((fnval (mfsolver-f solver))
 	      (argval (mfsolver-root solver)))
@@ -477,8 +484,7 @@
 		   (gsl-aref fnval 0)
 		   (gsl-aref fnval 1))))
     (let ((max-iter 1000))
-      (with-data (vect vector-double 2)
-	(setf (data vect) #(-10.0d0 -5.0d0))
+      (letm ((vect (vector-double #(-10.0d0 -5.0d0))))
 	(letm
 	    ((solver (mfdfsolver *gnewton-mfdfsolver* rosenbrock-f vect)))
 	  (let ((fnval (mfdfsolver-f solver))

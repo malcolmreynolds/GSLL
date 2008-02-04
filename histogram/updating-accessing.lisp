@@ -121,51 +121,61 @@
 	      ((first values) (second values))))
 
 ;;; Examples and unit test
-(defparameter *sample-histogram*
-  (let ((histo (make-histogram 10)))
-    (set-ranges-uniform histo 0.0d0 10.0d0)
-    histo))
-
-(defun setup-sample-histogram ()
-  (reset *sample-histogram*)
-  (increment *sample-histogram* 2.7d0)
-  (increment *sample-histogram* 6.9d0 2.0d0))
-
 (lisp-unit:define-test histogram
   (lisp-unit:assert-error
    'gsl-warning
-   (progn
-     (setup-sample-histogram)
-     (increment *sample-histogram* -2.0d0)))
+   (letm ((histo (histogram 10)))
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo -2.0d0)))
   (lisp-unit:assert-first-fp-equal
    "0.000000000000d+01"
-   (progn
-     (setup-sample-histogram)
-     (gsl-aref *sample-histogram* 1)))
+   (letm ((histo (histogram 10)))
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo 2.7d0)
+     (increment histo 6.9d0 2.0d0)
+     (gsl-aref histo 1)))
   (lisp-unit:assert-first-fp-equal
    "0.100000000000d+01"
-   (progn
-     (setup-sample-histogram)
-     (gsl-aref *sample-histogram* 2)))
+   (letm ((histo (histogram 10)))
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo 2.7d0)
+     (increment histo 6.9d0 2.0d0)
+     (gsl-aref histo 2)))
   (lisp-unit:assert-first-fp-equal
    "0.200000000000d+01"
-   (progn
-     (setup-sample-histogram)
-     (gsl-aref *sample-histogram* 6)))
+   (letm ((histo (histogram 10)))
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo 2.7d0)
+     (increment histo 6.9d0 2.0d0)
+     (gsl-aref histo 6)))
   (lisp-unit:assert-error
    'gsl-error
-   (gsl-aref *sample-histogram* 16))
+   (letm ((histo (histogram 10)))
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo 2.7d0)
+     (increment histo 6.9d0 2.0d0)
+     (gsl-aref histo 16)))
   (lisp-unit:assert-first-fp-equal
-   "0.000000000000d+01"
-   (gsl-min-range *sample-histogram*))
-  (lisp-unit:assert-first-fp-equal
-   "0.100000000000d+02"
-   (gsl-max-range *sample-histogram*))
+   '("0.000000000000d+01" "0.100000000000d+02")
+   (lisp-unit:fp-values
+    (letm ((histo (histogram 10)))
+      (set-ranges-uniform histo 0.0d0 10.0d0)
+      (increment histo 2.7d0)
+      (increment histo 6.9d0 2.0d0)
+      (values (gsl-min-range histo) (gsl-max-range histo)))))
   (lisp-unit:assert-eql
    10
-   (bins *sample-histogram*))
+   (letm ((histo (histogram 10)))
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo 2.7d0)
+     (increment histo 6.9d0 2.0d0)
+     (bins histo)))
   (lisp-unit:assert-eql
    5
-   (histogram-find *sample-histogram* 5.5d0)))
+   (letm ((histo (histogram 10)))
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo 2.7d0)
+     (increment histo 6.9d0 2.0d0)
+     (histogram-find histo 5.5d0))))
 
   

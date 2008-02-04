@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-02-03 13:22:54EST minimization-multi.lisp>
+;; Time-stamp: <2008-02-03 20:01:09EST minimization-multi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -345,27 +345,26 @@
     parabaloid 2 parabaloid-derivative parabaloid-and-derivative)
 
 (defun multimin-example-fletcher-reeves ()
-  (with-data (initial vector-double 2)
-    (setf (data initial) #(5.0d0 7.0d0))
-    (letm ((minimizer
-	    (mfdfminimizer *conjugate-fletcher-reeves* 2 parabaloid
-			   initial 0.01d0 1.0d-4)))
-      (loop with status = T
-	    for iter from 0 below 100
-	    while status
-	    do
-	    (iterate-mfdfminimizer minimizer)
-	    (setf status
-		  (not (min-test-gradient
-			(mfdfminimizer-gradient minimizer)
-			1.0d-3)))
-	    (let ((x (mfdfminimizer-x minimizer)))
-	      (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f"
-		      iter (gsl-aref x 0) (gsl-aref x 1)
-		      (mfdfminimizer-minimum minimizer)))
-	    finally (return
-		      (let ((x (mfdfminimizer-x minimizer)))
-			(values (gsl-aref x 0) (gsl-aref x 1))))))))
+  (letm ((minimizer
+	  (mfdfminimizer *conjugate-fletcher-reeves* 2 parabaloid
+			 initial 0.01d0 1.0d-4))
+	 (initial (vector-double #(5.0d0 7.0d0))))
+    (loop with status = T
+	  for iter from 0 below 100
+	  while status
+	  do
+	  (iterate-mfdfminimizer minimizer)
+	  (setf status
+		(not (min-test-gradient
+		      (mfdfminimizer-gradient minimizer)
+		      1.0d-3)))
+	  (let ((x (mfdfminimizer-x minimizer)))
+	    (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f"
+		    iter (gsl-aref x 0) (gsl-aref x 1)
+		    (mfdfminimizer-minimum minimizer)))
+	  finally (return
+		    (let ((x (mfdfminimizer-x minimizer)))
+		      (values (gsl-aref x 0) (gsl-aref x 1)))))))
 
 ;;; Because def-minimization-functions bind a symbol
 ;;; of the same name as the first function, and we want both to run,
@@ -376,25 +375,24 @@
 (def-minimization-functions parabaloid-f 2)
 
 (defun multimin-example-nelder-mead ()
-  (with-data (initial vector-double 2)
-    (with-data (step-size vector-double 2)
-      (setf (data initial) #(5.0d0 7.0d0))
-      (set-all step-size 1.0d0)
-      (letm ((minimizer
-	      (mfminimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size)))
-	(loop with status = T and size
-	      for iter from 0 below 100
-	      while status
-	      do (iterate-mfminimizer minimizer)
-	      (setf size
-		    (mfminimizer-size minimizer)
-		    status
-		    (not (min-test-size size 1.0d-2)))
-	      (let ((x (mfminimizer-x minimizer)))
-		(format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f"
-			iter (gsl-aref x 0) (gsl-aref x 1)
-			(mfminimizer-minimum minimizer)
-			size))
-	      finally (return
-			(let ((x (mfminimizer-x minimizer)))
-			  (values (gsl-aref x 0) (gsl-aref x 1)))))))))
+  (letm ((initial (vector-double #(5.0d0 7.0d0)))
+	 (step-size (vector-double 2)))
+    (set-all step-size 1.0d0)
+    (letm ((minimizer
+	    (mfminimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size)))
+      (loop with status = T and size
+	    for iter from 0 below 100
+	    while status
+	    do (iterate-mfminimizer minimizer)
+	    (setf size
+		  (mfminimizer-size minimizer)
+		  status
+		  (not (min-test-size size 1.0d-2)))
+	    (let ((x (mfminimizer-x minimizer)))
+	      (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f"
+		      iter (gsl-aref x 0) (gsl-aref x 1)
+		      (mfminimizer-minimum minimizer)
+		      size))
+	    finally (return
+		      (let ((x (mfminimizer-x minimizer)))
+			(values (gsl-aref x 0) (gsl-aref x 1))))))))

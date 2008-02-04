@@ -1,11 +1,20 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-02-03 13:22:53EST wavelet.lisp>
+;; Time-stamp: <2008-02-03 16:59:39EST wavelet.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
 ;;; Examples do not agree with C results.
+
+
+;;;;****************************************************************************
+;;;; Allocation of wavelets
+;;;;****************************************************************************
+
+;;; Utility
+(defun forward-backward (symb)
+  (if (string-equal :symb backward) -1 1)
 
 ;;;;****************************************************************************
 ;;;; Allocation of wavelets
@@ -19,7 +28,7 @@
   :c-return :pointer
   :export nil
   :index (letm wavelet)
-  :documentation
+  :documentation			; FDL
   "Allocate and initialize a wavelet object of type
    'type.  The parameter 'member selects the specific member of the
    wavelet family.  An error of :ENOMEM indicates either lack
@@ -31,33 +40,39 @@
   :c-return :void
   :export nil
   :index (letm wavelet)
-  :documentation
+  :documentation			; FDL
   "Free the wavelet object.")
 
 (defvariable *daubechies-wavelet* "gsl_wavelet_daubechies"
+  ;; FDL
   "The Daubechies wavelet family of maximum phase with member/2
    vanishing moments.  The implemented wavelets are 
    member=4, 6,..., 20, with member even.")
 
 (defvariable *daubechies-wavelet-centered* "gsl_wavelet_daubechies_centered"
+  ;; FDL
   "The Daubechies wavelet family of maximum phase with member/2
    vanishing moments.  The implemented wavelets are 
    member=4, 6,..., 20, with member even.")
 
 (defvariable *haar-wavelet* "gsl_wavelet_haar"
+  ;; FDL
   "The Haar wavelet.  The only valid choice for member for the
    Haar wavelet is member=2.")
 
 (defvariable *haar-wavelet-centered* "gsl_wavelet_haar_centered"
+  ;; FDL
   "The Haar wavelet.  The only valid choice for member for the
    Haar wavelet is member=2.")
 
 (defvariable *bspline-wavelet* "gsl_wavelet_bspline"
+  ;; FDL
   "The biorthogonal B-spline wavelet family of order (i,j).  
    The implemented values of member = 100*i + j are 103, 105, 202, 204,
    206, 208, 301, 303, 305 307, 309.")
 
 (defvariable *bspline-wavelet-centered* "gsl_wavelet_bspline_centered"
+  ;; FDL
   "The biorthogonal B-spline wavelet family of order (i,j).  
    The implemented values of member = 100*i + j are 103, 105, 202, 204,
    206, 208, 301, 303, 305 307, 309.")
@@ -66,7 +81,7 @@
   "gsl_wavelet_name"
   ((wavelet :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the wavelet family.")
 
 (defgo-s (wavelet-workspace size) allocate-wavelet-workspace free-wavelet-workspace)
@@ -77,7 +92,7 @@
   :c-return :pointer
   :export nil
   :index (letm wavelet-workspace)
-  :documentation
+  :documentation			; FDL
   "Allocate a workspace for the discrete wavelet transform.
    To perform a one-dimensional transform on size elements, a workspace
    of size size must be provided.  For two-dimensional transforms of
@@ -91,7 +106,7 @@
   :c-return :void
   :export nil
   :index (letm wavelet-workspace)
-  :documentation
+  :documentation			; FDL
   "Free the allocated workspace.")
 
 ;;;;****************************************************************************
@@ -101,76 +116,71 @@
 (defun-gsl wavelet-transform (wavelet data stride direction workspace)
   "gsl_wavelet_transform"
   ((wavelet :pointer) ((gsl-array data) :pointer)
-   (stride :size) ((dim0 data) :size) (direction :int)
+   (stride :size) ((dim0 data) :size) ((forward-backward direction) :int)
    (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute in-place forward and inverse discrete wavelet
-   transforms of length @var{n} with stride @var{stride} on the array
-   @var{data}. The length of the transform @var{n} is restricted to powers
-   of two.  For the @code{transform} version of the function the argument
-   @var{dir} can be either forward (+1) or backward
-   (-1).  A workspace @var{work} of length @var{n} must be provided.
+   transforms on the array data. The length of the
+   transform n is restricted to powers
+   of two.  For the transform version of the function the argument
+   dir can be either :forward or :backward.  A workspace
+   of the same length as data must be provided.
    For the forward transform, the elements of the original array are 
    replaced by the discrete wavelet
-   transform f_i -> w_@{j,k@}
+   transform f_i -> w_{j,k}
    in a packed triangular storage layout, 
    where j is the index of the level j = 0 ... J-1
    and k is the index of the coefficient within each level,
    k = 0 ... (2^j)-1.  The total number of levels is J = \log_2(n).
    The output data has the following form,
    (s_{-1,0}, d_{0,0}, d_{1,0}, d_{1,1}, d_{2,0},\cdots, d_{j,k},\cdots, d_{J-1,2^{J-1} - 1}) 
-   where the first element is the smoothing coefficient @c{$s_{-1,0}$}
-   @math{s_@{-1,0@}}, followed by the detail coefficients @c{$d_{j,k}$}
-   @math{d_@{j,k@}} for each level
-   @math{j}.  The backward transform inverts these coefficients to obtain 
+   where the first element is the smoothing coefficient
+   s_{-1,0}, followed by the detail coefficients d_{j,k} for each level j.
+   The backward transform inverts these coefficients to obtain 
    the original data.")
 
 (defun-gsl wavelet-transform-forward (wavelet data stride workspace)
   "gsl_wavelet_transform_forward"
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (stride :size) ((dim0 data) :size) (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute in-place forward and inverse discrete wavelet
-   transforms of length @var{n} with stride @var{stride} on the array
-   @var{data}. The length of the transform @var{n} is restricted to powers
-   of two.  A workspace @var{work} of length @var{n} must be provided.
+   transforms on the array data.  The length of the transform
+   is restricted to powers of two.
+   A workspace of the same length as data must be provided.
    For the forward transform, the elements of the original array are 
-   replaced by the discrete wavelet
-   transform f_i -> w_@{j,k@}
-   in a packed triangular storage layout, 
+   replaced by the discrete wavelet transform
+   f_i -> w_{j,k} in a packed triangular storage layout, 
    where j is the index of the level j = 0 ... J-1
    and k is the index of the coefficient within each level,
    k = 0 ... (2^j)-1.  The total number of levels is J = \log_2(n).
    The output data has the following form,
    (s_{-1,0}, d_{0,0}, d_{1,0}, d_{1,1}, d_{2,0},\cdots, d_{j,k},\cdots, d_{J-1,2^{J-1} - 1}) 
-   where the first element is the smoothing coefficient @c{$s_{-1,0}$}
-   @math{s_@{-1,0@}}, followed by the detail coefficients @c{$d_{j,k}$}
-   @math{d_@{j,k@}} for each level
-   @math{j}.  The backward transform inverts these coefficients to obtain 
+   where the first element is the smoothing coefficient s_{-1,0},
+   followed by the detail coefficients d_{j,k} for each level j.
+   The backward transform inverts these coefficients to obtain 
    the original data.")
 
 (defun-gsl wavelet-transform-inverse (wavelet data stride workspace)
   "gsl_wavelet_transform_inverse"
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (stride :size) ((dim0 data) :size) (workspace :pointer))
-  :documentation
-  "Compute in-place forward and inverse discrete wavelet
-   transforms of length @var{n} with stride @var{stride} on the array
-   @var{data}. The length of the transform @var{n} is restricted to powers
-   of two.  A workspace @var{work} of length @var{n} must be provided.
+  :documentation			; FDL
+  "Compute in-place inverse discrete wavelet
+   transforms on the array data.  The length of the transform
+   is restricted to powers of two.
+   A workspace of the same length as data must be provided.
    For the forward transform, the elements of the original array are 
-   replaced by the discrete wavelet
-   transform f_i -> w_@{j,k@}
-   in a packed triangular storage layout, 
+   replaced by the discrete wavelet transform
+   f_i -> w_{j,k} in a packed triangular storage layout, 
    where j is the index of the level j = 0 ... J-1
    and k is the index of the coefficient within each level,
    k = 0 ... (2^j)-1.  The total number of levels is J = \log_2(n).
    The output data has the following form,
    (s_{-1,0}, d_{0,0}, d_{1,0}, d_{1,1}, d_{2,0},\cdots, d_{j,k},\cdots, d_{J-1,2^{J-1} - 1}) 
-   where the first element is the smoothing coefficient @c{$s_{-1,0}$}
-   @math{s_@{-1,0@}}, followed by the detail coefficients @c{$d_{j,k}$}
-   @math{d_@{j,k@}} for each level
-   @math{j}.  The backward transform inverts these coefficients to obtain 
+   where the first element is the smoothing coefficient s_{-1,0},
+   followed by the detail coefficients d_{j,k} for each level j.
+   The backward transform inverts these coefficients to obtain 
    the original data.")
 
 ;;;;****************************************************************************
@@ -180,18 +190,18 @@
 (defun-gsl wavelet-2d-transform (wavelet data tda direction workspace)
   "gsl_wavelet2d_transform"
   ((wavelet :pointer) ((gsl-array data) :pointer)
-   (tda :size) ((dim0 data) :size) ((dim1 data) :size) (direction :int)
-   (workspace :pointer))
-  :documentation
-  "Compute two-dimensional in-place forward and inverse
-  discrete wavelet transforms in standard and non-standard forms on the
-  array @var{data} stored in row-major form with dimensions @var{size1}
-  and @var{size2} and physical row length @var{tda}.  The dimensions must
+   (tda :size) ((dim0 data) :size) ((dim1 data) :size)
+   ((forward-backward direction) :int) (workspace :pointer))
+  :documentation			; FDL
+  "Compute in-place forward and inverse discrete wavelet transforms
+  in standard and non-standard forms on the
+  array data stored in row-major form with dimensions
+  and physical row length @var{tda}.  The dimensions must
   be equal (square matrix) and are restricted to powers of two.  For the
-  @code{transform} version of the function the argument @var{dir} can be
-  either @code{forward} (@math{+1}) or @code{backward} (@math{-1}).  A
-  workspace @var{work} of the appropriate size must be provided.  On exit,
-  the appropriate elements of the array @var{data} are replaced by their
+  transform version of the function the argument direction can be
+  either :forward or :backward.  A
+  workspace of the appropriate size must be provided.  On exit,
+  the appropriate elements of the array data are replaced by their
   two-dimensional wavelet transform.
   An error :EINVAL is signalled if the matrix is not square
   with dimension a power of 2, or if insufficient
@@ -222,38 +232,36 @@
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (tda :size) ((dim0 data) :size) ((dim1 data) :size)
    (workspace :pointer))
-  :documentation
-  "Compute two-dimensional in-place forward and inverse
-  discrete wavelet transforms in standard and non-standard forms on the
-  array @var{data} stored in row-major form with dimensions @var{size1}
-  and @var{size2} and physical row length @var{tda}.  The dimensions must
-  be equal (square matrix) and are restricted to powers of two.  For the
-  @code{transform} version of the function the argument @var{dir} can be
-  either @code{forward} (@math{+1}) or @code{backward} (@math{-1}).  A
-  workspace @var{work} of the appropriate size must be provided.  On exit,
-  the appropriate elements of the array @var{data} are replaced by their
-  two-dimensional wavelet transform.
-  An error :EINVAL is signalled if the matrix is not square
-  with dimension a power of 2, or if insufficient
-  workspace is provided.")
+  :documentation			; FDL
+  "Compute two-dimensional in-place forward and inverse discrete
+   wavelet transforms in standard and non-standard forms on the array
+   data stored in row-major form with dimensions size1 and size2 and
+   physical row length tda.  The dimensions must be equal (square matrix)
+   and are restricted to powers of two.  For the transform version of the
+   function the argument direction can be either :forward or :backward.
+   A workspace of the appropriate size must be provided.  On exit, the
+   appropriate elements of the array data are replaced by their
+   two-dimensional wavelet transform.  An error :EINVAL is signalled if
+   the matrix is not square with dimension a power of 2, or if
+   insufficient workspace is provided.")
 
 (defun-gsl wavelet-2d-transform-matrix (wavelet data direction workspace)
   "gsl_wavelet2d_transform_matrix"
   ((wavelet :pointer) ((gsl-array data) :pointer)
-   (direction :int) (workspace :pointer))
-  :documentation
+   ((forward-backward direction) :int) (workspace :pointer))
+  :documentation			; FDL
   "Compute the two-dimensional in-place wavelet transform on a matrix.")
 
 (defun-gsl wavelet-2d-transform-matrix-forward (wavelet data workspace)
   "gsl_wavelet2d_transform_matrix_forward"
   ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the two-dimensional in-place wavelet transform on a matrix.")
 
 (defun-gsl wavelet-2d-transform-matrix-inverse (wavelet data workspace)
   "gsl_wavelet2d_transform_matrix_inverse"
   ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the two-dimensional in-place wavelet transform on a matrix.")
 
 (defun-gsl wavelet-2d-nonstandard-transform (wavelet data tda direction workspace)
@@ -261,7 +269,7 @@
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (tda :size) ((dim0 data) :size) ((dim1 data) :size) (direction :int)
    (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-forward (wavelet data tda workspace)
@@ -269,7 +277,7 @@
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (tda :size) ((dim0 data) :size) ((dim1 data) :size)
    (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-inverse (wavelet data tda workspace)
@@ -277,7 +285,7 @@
   ((wavelet :pointer) ((gsl-array data) :pointer)
    (tda :size) ((dim0 data) :size) ((dim1 data) :size)
    (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-matrix (wavelet data direction workspace)
@@ -291,14 +299,14 @@
 (defun-gsl wavelet-2d-nonstandard-transform-matrix-forward (wavelet data workspace)
   "gsl_wavelet2d_nstransform_matrix_forward"
   ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the non-standard form of the two-dimensional in-place wavelet
    transform on a matrix.")
 
 (defun-gsl wavelet-2d-nonstandard-transform-matrix-inverse (wavelet data workspace)
   "gsl_wavelet2d_nstransform_matrix_inverse"
   ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the non-standard form of the two-dimensional in-place wavelet
    transform on a matrix.")
 
@@ -382,33 +390,31 @@
    functions. It computes an approximation to an input signal (of length
    256) using the 20 largest components of the wavelet transform, while
    setting the others to zero.  See GSL manual Section 30.4."
-  (let ((n (length cl-data)))
-    (with-data (vector vector-double n)
-      (setf (data vector) cl-data)
-      (letm ((wavelet (wavelet *daubechies-wavelet* 4))
-	     (workspace (wavelet-workspace n)))
-	(wavelet-transform-forward wavelet vector 1 workspace)
-	(with-data (absvector vector-double n)
-	  (dotimes (i n)
-	    (setf (gsl-aref absvector i) (abs (gsl-aref vector i))))
-	  ;; Sort and set to 0 all but the largest 20.
-	  (with-data (permutation permutation n)
-	    (sort-vector-index permutation absvector)
-	    (dotimes (i (- n 20))
-	      (setf (gsl-aref vector (gsl-aref permutation i))
-		    0.0d0)))) ;; Transform back
-	(dotimes (i n) (format t "~&~a" (gsl-aref vector i)))
-	(cl-invalidate vector)
-	(wavelet-transform-inverse wavelet vector 1 workspace)
-	(data vector)))))
+  (letm ((n (length cl-data))
+	 (vector (vector-double cl-data))
+	 (wavelet (wavelet *daubechies-wavelet* 4))
+	 (workspace (wavelet-workspace n)))
+    (wavelet-transform-forward wavelet vector 1 workspace)
+    (letm ((absvector (vector-double n))
+	   (permutation (permutation n)))
+      (dotimes (i n)
+	(setf (gsl-aref absvector i) (abs (gsl-aref vector i))))
+      ;; Sort and set to 0 all but the largest 20.
+      (sort-vector-index permutation absvector)
+      (dotimes (i (- n 20))
+	(setf (gsl-aref vector (gsl-aref permutation i))
+	      0.0d0))) ;; Transform back
+    (dotimes (i n) (format t "~&~a" (gsl-aref vector i)))
+    (cl-invalidate vector)
+    (wavelet-transform-inverse wavelet vector 1 workspace)
+    (data vector)))
 
 (defun wavelet-forward-example (&optional (cl-data *wavelet-sample*))
   "Simpler example, with only a Daubechies wavelet forward transformation."
-  (let ((n (length cl-data)))
-    (with-data (vector vector-double n)
-      (setf (data vector) cl-data)
-      (letm ((wavelet (wavelet *daubechies-wavelet* 4))
-	     (workspace (wavelet-workspace n)))
-	(wavelet-transform-forward wavelet vector 1 workspace)
-	(cl-invalidate vector)
-	(data vector)))))
+  (letm ((n (length cl-data))
+	 (vector (vector-double cl-data))
+	 (wavelet (wavelet *daubechies-wavelet* 4))
+	 (workspace (wavelet-workspace n)))
+    (wavelet-transform-forward wavelet vector 1 workspace)
+    (cl-invalidate vector)
+    (data vector)))

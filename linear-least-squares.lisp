@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-02-03 13:23:36EST linear-least-squares.lisp>
+;; Time-stamp: <2008-02-03 15:38:26EST linear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -255,12 +255,9 @@
 (defun univariate-linear-least-squares-example ()
   "First example in Section 36.5 of the GSL manual."
   ;; Results not given in manual so not verified yet.
-  (with-data (x vector-double 4)
-    (with-data (y vector-double 4)
-      (with-data (w vector-double 4)
-	(setf (data x) #(1970.0d0 1980.0d0 1990.0d0 2000.0d0)
-	      (data y) #(12.0d0 11.0d0 14.0d0 13.0d0)
-	      (data w) #(0.1d0 0.2d0 0.3d0 0.4d0))
+  (letm ((x (vector-double #(1970.0d0 1980.0d0 1990.0d0 2000.0d0)))
+	 (y (vector-double #(12.0d0 11.0d0 14.0d0 13.0d0)))
+	 (w (vector-double #(0.1d0 0.2d0 0.3d0 0.4d0))))
 	(multiple-value-bind (c0 c1 cov00 cov01 cov11 chisq)
 	    (weighted-linear-fit x w y)
 	  (format t "~&Best fit: Y = ~8,5f + ~8,5f X" c0 c1)
@@ -285,7 +282,7 @@
 		  (format t "~&fit:~6t~g ~g" xf yf)
 		  (format t "~&high:~6t~g ~g" xf (+ yf yferr))
 		  (format t "~&low:~6t~g ~g" xf (- yf yferr))))
-	  (fresh-line))))))
+	  (fresh-line))))
 
 (defun mv-linear-least-squares-data ()
   "Generate data for second example in Section 36.5 of the GSL
@@ -300,34 +297,34 @@
 
 (defun mv-linear-least-squares-example (data)
   "Second example in Section 36.5 of the GSL manual."
-  (let ((n (length data)) chisq)
-    (with-data (x matrix-double (n 3))
-      (with-data (cov matrix-double (3 3))
-	(with-data (y vector-double n)
-	  (with-data (w vector-double n)
-	    (with-data (c vector-double 3)
-	      (loop for i from 0
-		    for row in data do
-		    (setf (gsl-aref X i 0) 1.0d0
-			  (gsl-aref X i 1) (first row)
-			  (gsl-aref X i 2) (expt (first row) 2)
-			  (gsl-aref y i) (second row)
-			  (gsl-aref w i) (/ (expt (third row) 2))))
-	      (letm ((ws (fit-workspace n 3)))
-		(setf chisq
-		      (weighted-linear-mfit X w y c cov ws)))
-	      (format t "~&Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2"
-		      (gsl-aref c 0) (gsl-aref c 1) (gsl-aref c 2))
-	      (format t "~&Covariance matrix:")
-	      (format
-	       t "~&~10,8f ~10,8f ~10,8f"
-	       (gsl-aref cov 0 0) (gsl-aref cov 0 1) (gsl-aref cov 0 2))
-	      (format
-	       t "~&~10,8f ~10,8f ~10,8f"
-	       (gsl-aref cov 1 0) (gsl-aref cov 1 1) (gsl-aref cov 1 2))
-	      (format
-	       t "~&~10,8f ~10,8f ~10,8f"
-	       (gsl-aref cov 2 0) (gsl-aref cov 2 1) (gsl-aref cov 2 2))
-	      (format t "~&Chisq = ~10,6f" chisq))))))))
+  (letm ((n (length data)) chisq
+	 (x (matrix-double n 3))
+	 (cov (matrix-double 3 3))
+	 (y (vector-double n))
+	 (w (vector-double n))
+	 (c (vector-double 3)))
+    (loop for i from 0
+	  for row in data do
+	  (setf (gsl-aref X i 0) 1.0d0
+		(gsl-aref X i 1) (first row)
+		(gsl-aref X i 2) (expt (first row) 2)
+		(gsl-aref y i) (second row)
+		(gsl-aref w i) (/ (expt (third row) 2))))
+    (letm ((ws (fit-workspace n 3)))
+      (setf chisq
+	    (weighted-linear-mfit X w y c cov ws)))
+    (format t "~&Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2"
+	    (gsl-aref c 0) (gsl-aref c 1) (gsl-aref c 2))
+    (format t "~&Covariance matrix:")
+    (format
+     t "~&~10,8f ~10,8f ~10,8f"
+     (gsl-aref cov 0 0) (gsl-aref cov 0 1) (gsl-aref cov 0 2))
+    (format
+     t "~&~10,8f ~10,8f ~10,8f"
+     (gsl-aref cov 1 0) (gsl-aref cov 1 1) (gsl-aref cov 1 2))
+    (format
+     t "~&~10,8f ~10,8f ~10,8f"
+     (gsl-aref cov 2 0) (gsl-aref cov 2 1) (gsl-aref cov 2 2))
+    (format t "~&Chisq = ~10,6f" chisq)))
 
 ;;; (mv-linear-least-squares-example (mv-linear-least-squares-data))

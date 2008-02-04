@@ -1,6 +1,6 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2008-02-03 13:17:11EST interpolation.lisp>
+;; Time-stamp: <2008-02-03 22:55:28EST interpolation.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -14,7 +14,7 @@
    'free-spline
    (when ya
      (lambda (symb)
-       `(initialize-interpolation ,symb ,xa-or-size ,ya (dim0 ,ya))))))
+       `(initialize-interpolation ,symb ,xa-or-size ,ya)))))
 
 ;;; Interpolation
 (defun-gsl allocate-interpolation (type size)
@@ -23,19 +23,19 @@
   :c-return :pointer
   :export nil
   :index (letm interpolation)
-  :documentation
+  :documentation			; FDL
   "Allocate an interpolation object of type for size data-points,
    and return the pointer to it.")
 
-(defun-gsl initialize-interpolation (interpolation xa ya size)
+(defun-gsl initialize-interpolation (interpolation xa ya)
   "gsl_interp_init"
-  ((interpolation :pointer) (xa :pointer) (ya :pointer) (size :size))
-  :documentation
-  "Initialize the interpolation object @var{interp} for the
-  data (@var{xa},@var{ya}) where @var{xa} and @var{ya} are arrays of size
-  @var{size}.  The interpolation object (@code{gsl_interp}) does not save
-  the data arrays @var{xa} and @var{ya} and only stores the static state
-  computed from the data.  The @var{xa} data array is always assumed to be
+  ((interpolation :pointer)
+   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) :size))
+  :documentation			; FDL
+  "Initialize the interpolation object interp for the
+  data (xa,ya) where xa and ya are gsl-arrays.  The interpolation object does not save
+  the data arrays xa and ya and only stores the static state
+  computed from the data.  The xa data array is always assumed to be
   strictly ordered; the behavior for other arrangements is not defined.")
 
 (defun-gsl free-interpolation (interpolation)
@@ -53,31 +53,31 @@
    'free-spline
    (when ya
      (lambda (symb)
-       `(initialize-spline ,symb ,xa-or-size ,ya (dim0 ,ya))))))
+       `(initialize-spline ,symb ,xa-or-size ,ya)))))
 
 ;;; Spline
 (defun-gsl allocate-spline (type size)
   "gsl_spline_alloc"
   ((type :pointer) (size :size))
   :c-return :pointer
-  :documentation
+  :documentation			; FDL
   "Allocate an interpolation object of type for size data-points,
    and return the pointer to it.")
 
-(defun-gsl initialize-spline (interpolation xa ya size)
+(defun-gsl initialize-spline (interpolation xa ya)
   "gsl_spline_init"
-  ((interpolation :pointer) (xa :pointer) (ya :pointer) (size :size))
-  :documentation
-  "Initialize the interpolation object @var{interp} for the
-  data (@var{xa},@var{ya}) where @var{xa} and @var{ya} are arrays of size
-  @var{size}.  The interpolation object (@code{gsl_spline}) does not save
-  the data arrays @var{xa} and @var{ya} and only stores the static state
-  computed from the data.  The @var{xa} data array is always assumed to be
+  ((interpolation :pointer)
+   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) :size))
+  :documentation			; FDL
+  "Initialize the interpolation object interp for the
+  data (xa,ya) where xa and ya are gsl-arrays.  The spline object saves
+  the data arrays xa and ya computed from the data.
+  The xa data array is always assumed to be
   strictly ordered; the behavior for other arrangements is not defined.")
 
 (defun-gsl free-spline (interpolation)
   "gsl_spline_free"
   ((interpolation :pointer))
   :c-return :void
-  :documentation
-  "Frees the interpolation object @var{interp}.")
+  :documentation			; FDL
+  "Frees the spline object.")

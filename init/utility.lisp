@@ -1,6 +1,6 @@
 ;; Utility definitions
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-02-03 13:31:47EST utility.lisp>
+;; Time-stamp: <2008-02-03 23:00:32EST utility.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -32,38 +32,41 @@
   (let* (setters			; save setting forms
 	 freers				; save freeing forms
 	 assigns			; save global assignements
-	 (*not-for-users* t)
-	 (bnd			; rewrite the bindings with allocators
-	  (mapcar
-	   (lambda (b)
-	     (let ((defsymb (first b)) (defas (second b)))
-	       (if (and (listp b) (listp defas)
-			(member (first defas) *letm-expanded-object*))
-		   ;; It is a GSL object
-		   (destructuring-bind (allocator freer &optional setter assign)
-		       (apply (first defas) (rest defas))
-		     ;; If there's a setting function, save the form
-		     (when setter (push (funcall setter defsymb) setters))
-		     ;; Save the freeing form
-		     (push `(,freer ,defsymb) freers)
-		     ;; Save the global assignments
-		     (when assign (push (funcall assign) assigns))
-		     ;; Return the allocation form to be used in let
-		     `(,defsymb ,allocator))
-		   ;; Not a GSL object, just define it with let
-		   b)))
-	   bindings)))
+	 (*not-for-users* t))
+    ;; Rewrite the bindings with allocators and push them on assigns
+    (dolist (b bindings)
+      (if (atom b)
+	  (push b assigns)
+	  (let ((defsymb (first b)) (defas (second b)))
+	    (if (and (listp b) (listp defas)
+		     (member (first defas) *letm-expanded-object*))
+		;; It is a GSL object
+		(destructuring-bind (allocator freer &optional setter assign)
+		    (apply (first defas) (rest defas))
+		  ;; If there's a setting function, save the form
+		  (when setter (push (funcall setter defsymb) setters))
+		  ;; Save the freeing form
+		  (push `(,freer ,defsymb) freers)
+		  ;; Save the global assignments
+		  (when assign (push (funcall assign) assigns))
+		  ;; Return the allocation form to be used in let
+		  (push `(,defsymb ,allocator) assigns))
+		;; Not a GSL object, just define it with let
+		(push b assigns)))))
     (if freers
 	;; There were GSL objects
-	`(let* (,@assigns ,@bnd)
+	`(let* (,@(reverse assigns))
 	  ;; put the body in an unwind-protect
 	  (unwind-protect
 	       (progn
-		 ,@setters		; setting the objects 
+		 ,@(reverse setters)		; setting the objects 
 		 ,@body)
 	    ,@freers))			; freeing the objects
 	;; No GSL objects in the bindings, just make an ordinary let
 	`(let* (,@bindings) ,@body))))
+
+;;; It might be nice to have a letm* or something where one go is
+;;; dependent on another's being initialized.
 
 (defun not-for-users (form)
   (unless *not-for-users*

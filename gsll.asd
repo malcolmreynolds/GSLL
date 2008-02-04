@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-01-28 22:24:15EST gsll.asd>
+;; Time-stamp: <2008-02-03 22:30:09EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -163,7 +163,8 @@
 	    ((:file "interpolation")
 	     (:file "types")
 	     (:file "lookup")
-	     (:file "evaluation")))
+	     (:file "evaluation")
+	     (:file "spline-example")))
    (:file "numerical-differentiation" :depends-on (init general))
    (:file "chebyshev" :depends-on (init general))
    (:file "series-acceleration" :depends-on (init))
