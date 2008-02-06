@@ -155,7 +155,7 @@
      (increment histo 2.7d0)
      (increment histo 6.9d0 2.0d0)
      (gsl-aref histo 16)))
-  (lisp-unit:assert-first-fp-equal
+  (lisp-unit:assert-equal
    '("0.000000000000d+01" "0.100000000000d+02")
    (lisp-unit:fp-values
     (letm ((histo (histogram 10)))

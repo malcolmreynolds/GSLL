@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-02 23:44:57EST matrix.lisp>
+;; Time-stamp: <2008-02-05 22:38:36EST matrix.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -73,7 +73,8 @@
    ((first indices) :size)
    ((second indices) :size))
   :c-return :c-base-type
-  :documentation "The (i,j)-th element of the matrix.")	;FDL
+  :documentation			; FDL
+  "The (i,j)-th element of the matrix.")
 
 (defun-gsl mref (pointer index0 index1)
   "gsl_matrix_get"
@@ -153,9 +154,9 @@
   "gsl_matrix_set_identity" (((pointer matrix) gsl-matrix-c))
   :c-return :void
   :documentation			; FDL
-  "Set the elements of the matrix @var{m} to the
-  corresponding elements of the identity matrix, @math{m(i,j) =
-  \delta(i,j)}, i.e. a unit diagonal with all off-diagonal elements zero.
+  "Set the elements of the matrix m to the
+  corresponding elements of the identity matrix, m(i,j) =
+  \delta(i,j), i.e. a unit diagonal with all off-diagonal elements zero.
   This applies to both square and rectangular matrices.")
 
 ;;;;****************************************************************************
@@ -574,124 +575,99 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(defparameter *intmat-1* (make-data 'matrix-fixnum nil 2 2))
-(defparameter *intmat-2* (make-data 'matrix-fixnum nil 2 2))
-(defparameter *intmatvec* (make-data 'vector-fixnum nil 2))
-
 (lisp-unit:define-test matrix-fixnum
   (lisp-unit:assert-eql			;(setf gsl-aref), gsl-aref
    77
-   (progn
-     (setf (gsl-aref *intmat-1* 0 1) 77)
-     (gsl-aref *intmat-1* 0 1)))
+   (letm ((intmat (matrix-fixnum 2 2)))
+     (setf (gsl-aref intmat 0 1) 77)
+     (gsl-aref intmat 0 1)))
   (lisp-unit:assert-equalp		;(setf data)
    #2A((4 6) (8 2))
-   (progn (setf (data *intmat-1*) #2A((4 6) (8 2))) (data *intmat-1*)))
+   (letm ((intmat (matrix-fixnum 2 2)))
+     (setf (data intmat) #2A((4 6) (8 2)))
+     (data intmat)))
   (lisp-unit:assert-equalp		;set-zero
    #2A((0 0) (0 0))
-   (progn (set-zero *intmat-1*) (data *intmat-1*)))
+   (letm ((intmat (matrix-fixnum 2 2)))
+     (set-zero intmat)
+     (data intmat)))
   (lisp-unit:assert-equalp		;set-all
    #2A((44 44)(44 44))
-   (progn (set-all *intmat-1* 44) (data *intmat-1*)))
-  (lisp-unit:assert-equalp		;set-basis
+   (letm ((intmat (matrix-fixnum 2 2)))
+     (set-all intmat 44)
+     (data intmat)))
+  (lisp-unit:assert-equalp		;set-identity
    #2A((1 0)(0 1))
-   (progn (set-identity *intmat-1*) (data *intmat-1*)))
+   (letm ((intmat (matrix-fixnum 2 2)))
+     (set-identity intmat)
+     (data intmat)))
   (lisp-unit:assert-equalp		;row
    #(4 6)
-   (progn
-     (setf (data *intmat-1*) #2A((4 6) (8 2)))
-     (row *intmatvec* *intmat-1* 0)
-     (data *intmatvec*)))
+   (letm ((intmat (matrix-fixnum #2A((4 6) (8 2))))
+	  (vect (vector-fixnum 2)))
+     (row vect intmat 0)
+     (data vect)))
   (lisp-unit:assert-equalp		;column
    #(6 2)
-   (progn
-     (setf (data *intmat-1*) #2A((4 6) (8 2)))
-     (column *intmatvec* *intmat-1* 1)
-     (data *intmatvec*)))
+   (letm ((intmat (matrix-fixnum #2A((4 6) (8 2))))
+	  (vect (vector-fixnum 2)))
+     (column vect intmat 1)
+     (data vect)))
   (lisp-unit:assert-eql			;gsl-min
    -12
-   (progn
-     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
-     (gsl-min *intmat-1*)))
+   (letm ((intmat (matrix-fixnum #2A((-1 -12) (8 3)))))
+     (gsl-min intmat)))
   (lisp-unit:assert-eql			;gsl-max
    8
-   (progn
-     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
-     (gsl-max *intmat-1*)))
+   (letm ((intmat (matrix-fixnum #2A((-1 -12) (8 3)))))
+     (gsl-max intmat)))
   (lisp-unit:assert-equal		;gsl-minmax
    '(-12 8)
-   (progn
-     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
-     (multiple-value-list (gsl-minmax *intmat-1*))))
+   (letm ((intmat (matrix-fixnum #2A((-1 -12) (8 3)))))
+     (multiple-value-list (gsl-minmax intmat))))
   (lisp-unit:assert-equal		;gsl-min-index
    '(0 1)
-   (progn
-     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
-     (gsl-min-index *intmat-1*)))
+   (letm ((intmat (matrix-fixnum #2A((-1 -12) (8 3)))))
+     (gsl-min-index intmat)))
   (lisp-unit:assert-equal		;gsl-max-index
    '(1 0)
-   (progn
-     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
-     (gsl-max-index *intmat-1*)))
+   (letm ((intmat (matrix-fixnum #2A((-1 -12) (8 3)))))
+     (gsl-max-index intmat)))
   (lisp-unit:assert-equal		;gsl-minmax-index
    '((0 1) (1 0))
-   (progn
-     (setf (data *intmat-1*) #2A((-1 -12) (8 3)))
-     (multiple-value-list (gsl-minmax-index *intmat-1*))))
+   (letm ((intmat (matrix-fixnum #2A((-1 -12) (8 3)))))
+     (multiple-value-list (gsl-minmax-index intmat))))
   (lisp-unit:assert-equalp		;copy
    #2A((1 2)(3 4))
-   (progn
-     (setf (data *intmat-1*) #2A((1 2)(3 4)))
-     (copy *intmat-2* *intmat-1*) (data *intmat-2*)))
+   (letm ((intmat1 (matrix-fixnum #2A((1 2)(3 4))))
+	  (intmat2 (matrix-fixnum 2 2)))
+     (copy intmat2 intmat1)
+     (data intmat2)))
   (lisp-unit:assert-equalp		;swap
    #2A((5 6) (7 8))
-   (progn
-     (setf (data *intmat-1*) #2A((1 2) (3 4))
-	   (data *intmat-2*) #2A((5 6) (7 8)))
-     (swap *intmat-1* *intmat-2*)
-     (data *intmat-1*)))
+   (letm ((intmat1 (matrix-fixnum #2A((1 2)(3 4))))
+	  (intmat2 (matrix-fixnum #2A((5 6) (7 8)))))
+     (swap intmat1 intmat2)
+     (data intmat1)))
   (lisp-unit:assert-equalp		;swap-rows
    #2A((3 4) (1 2))
-   (progn
-     (setf (data *intmat-1*) #2A((1 2) (3 4)))
-     (swap-rows *intmat-1* 0 1)
-     (data *intmat-1*)))
+   (letm ((intmat1 (matrix-fixnum #2A((1 2)(3 4)))))
+     (swap-rows intmat1 0 1)
+     (data intmat1)))
   (lisp-unit:assert-equalp		;swap-columns
    #2A((2 1) (4 3))
-   (progn
-     (setf (data *intmat-1*) #2A((1 2) (3 4)))
-     (swap-columns *intmat-1* 0 1)
-     (data *intmat-1*)))
+   (letm ((intmat1 (matrix-fixnum #2A((1 2)(3 4)))))
+     (swap-columns intmat1 0 1)
+     (data intmat1)))
   (lisp-unit:assert-equalp		;swap-rowcol
    #2A((2 4) (3 1))
-   (progn
-     (setf (data *intmat-1*) #2A((1 2) (3 4)))
-     (swap-rowcol *intmat-1* 0 1)
-     (data *intmat-1*))))
+   (letm ((intmat1 (matrix-fixnum #2A((1 2)(3 4)))))
+     (swap-rowcol intmat1 0 1)
+     (data intmat1))))
 
-;;;;****************************************************************************
-;;;; Examples
-;;;;****************************************************************************
-
-#|
-
-(with-data (mat matrix (10 3))
-  (loop for i from 0 below 10
-	do
-	(loop for j from 0 below 3
-	      do (setf (gsl-aref mat i j) (+ 0.23d0 j (* 100 i)))))
-  (loop for i from 0 below 10
-	do
-	(loop for j from 0 below 3 do (print (gsl-aref mat i j)))))
-
-(with-data (mat matrix (10 3))
-  (loop for i from 0 below 10
-	do
-	(loop for j from 0 below 3
-	      do (setf (gsl-aref mat i j) (+ 0.23d0 j (* 100 i)))))
-  (data mat))
-
-#2A((0.23d0 1.23d0 2.23d0)
+(lisp-unit:define-test matrix-double
+  (lisp-unit:assert-equalp
+   #2A((0.23d0 1.23d0 2.23d0)
     (100.23d0 101.23d0 102.23d0)
     (200.23d0 201.23d0 202.23d0)
     (300.23d0 301.23d0 302.23d0)
@@ -701,18 +677,20 @@
     (700.23d0 701.23d0 702.23d0)
     (800.23d0 801.23d0 802.23d0)
     (900.23d0 901.23d0 902.23d0))
-
-(with-data (mat matrix (2 2))
-  (setf (data mat) #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))
-  (with-data (ans matrix (2 2))
-    (matrix-copy ans mat)
-    (data ans)))
-;;; #2A((1.0d0 2.0d0) (3.0d0 4.0d0))
-
-(with-data (mat matrix (2 2))
-  (setf (data mat) #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))
-  (matrix* mat mat)
-  (data mat)))
-;;; #2A((1.0d0 4.0d0) (9.0d0 16.0d0))
-
-|#
+   (letm ((mat (matrix-double 10 3)))
+     (loop for i from 0 below 10
+	   do
+	   (loop for j from 0 below 3
+		 do (setf (gsl-aref mat i j) (+ 0.23d0 j (* 100 i)))))
+     (data mat)))
+  (lisp-unit:assert-equalp
+   #2A((1.0d0 2.0d0) (3.0d0 4.0d0))
+   (letm ((mat (matrix-double #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
+	  (ans (matrix-double 2 2)))
+     (copy ans mat)
+     (data ans))
+   (lisp-unit:assert-equalp
+    #2A((1.0d0 4.0d0) (9.0d0 16.0d0))
+    (letm ((mat (matrix-double #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
+      (gsl* mat mat)
+      (data mat)))))

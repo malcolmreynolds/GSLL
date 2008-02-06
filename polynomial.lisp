@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-02-03 15:07:32EST polynomial.lisp>
+;; Time-stamp: <2008-02-05 22:35:20EST polynomial.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -44,7 +44,7 @@
 	 (yad (vector-double ya)))
     (divided-difference-int
      (make-data 'vector-double nil (length xa))
-     xad yad)))))
+     xad yad)))
 
 (defun-gsl polynomial-eval-divided-difference (dd xa x)
   "gsl_poly_dd_eval"

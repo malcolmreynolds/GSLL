@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-02-03 16:59:39EST wavelet.lisp>
+;; Time-stamp: <2008-02-05 22:40:07EST wavelet.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -14,7 +14,7 @@
 
 ;;; Utility
 (defun forward-backward (symb)
-  (if (string-equal :symb backward) -1 1)
+  (if (string-equal symb :backward) -1 1))
 
 ;;;;****************************************************************************
 ;;;; Allocation of wavelets

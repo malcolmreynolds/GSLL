@@ -1,11 +1,7 @@
-;********************************************************
-; file:        combination.lisp                        
-; description: Combinations
-; date:        Sun Mar 26 2006 - 11:51                   
-; author:      Liam M. Healy                             
-; modified:    Mon Jun  5 2006 - 11:19
-;********************************************************
-;;; $Id: $
+;; Combinations
+;; Liam Healy, Sun Mar 26 2006 - 11:51
+;; Time-stamp: <2008-02-04 19:25:57EST combination.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -34,7 +30,8 @@
   (((pointer combination) :pointer) ((first indices) :size))
   :type :method 
   :c-return :size
-  :documentation "The ith element of the combination.")
+  :documentation			; FDL
+  "The ith element of the combination.")
 
 (defmethod data ((object gsl-combination) &optional sequence)
   (let ((seq (or sequence
@@ -53,18 +50,18 @@
   (((pointer combination) gsl-combination-c))
   :c-return :void
   :invalidate (combination)
-  :documentation
-  "Initialize the combination @var{c} to the lexicographically
-      first combination, i.e.  @math{(0,1,2,@dots{},k-1)}.")
+  :documentation			; FDL
+  "Initialize the combination c to the lexicographically
+      first combination, i.e.  (0,1,2,...,k-1).")
 
 (defun-gsl init-last (combination)
   "gsl_combination_init_last"
   (((pointer combination) gsl-combination-c))
   :c-return :void
   :invalidate (combination)
-  :documentation
-  "Initialize the combination @var{c} to the lexicographically
-   last combination, i.e.  @math{(n-k,n-k+1,@dots{},n-1)}.")
+  :documentation			; FDL
+  "Initialize the combination c to the lexicographically
+   last combination, i.e. (n-k,n-k+1,...,n-1).")
 
 (defun-gsl copy (destination source)
   "gsl_combination_memcpy"
@@ -72,9 +69,9 @@
    ((pointer source) gsl-combination-c))
   :type :method
   :invalidate (destination)
-  :documentation
-  "Copy the elements of the combination @var{src} into the
-  combination @var{dest}.  The two combinations must have the same size.")
+  :documentation			; FDL
+  "Copy the elements of the combination source into the
+  combination destination.  The two combinations must have the same size.")
 
 ;;;;****************************************************************************
 ;;;; Combination properties
@@ -84,15 +81,15 @@
   "gsl_combination_n"
   (((pointer c) gsl-combination-c))
   :c-return :size
-  :documentation
-  "The range (@math{n}) of the combination @var{c}.")
+  :documentation			; FDL
+  "The range (n) of the combination c.")
 
 (defun-gsl combination-size (c)
   "gsl_combination_k"
   (((pointer c) gsl-combination-c))
   :c-return :size
-  :documentation
-  "The number of elements (@math{k}) in the combination @var{c}.")
+  :documentation			; FDL
+  "The number of elements (k) in the combination c.")
 
 #|
 ;;; Unnecessary, gsl-array serves this function.
@@ -100,8 +97,8 @@
   "gsl_combination_data"
   (((pointer c) gsl-combination-c))
   :c-return :pointer
-  :documentation
-  "A pointer to the array of elements in the combination @var{p}.")
+  :documentation			; FDL
+  "A pointer to the array of elements in the combination.")
 |#
 
 (defun-gsl data-valid ((combination gsl-combination))
@@ -109,9 +106,9 @@
   (((pointer combination) :pointer))
   :type :method 
   :c-return :boolean
-  :documentation
-  "Check that the combination @var{c} is valid.  The @var{k}
-   elements should lie in the range 0 to @math{@var{n}-1}, with each
+  :documentation			; FDL
+  "Check that the combination is valid.  The k
+   elements should lie in the range 0 to n-1, with each
    value occurring once at most and in increasing order.")
 
 ;;;;****************************************************************************
@@ -122,11 +119,11 @@
   "gsl_combination_next" (((pointer c) gsl-combination-c))
   :c-return :success-failure
   :invalidate (c)
-  :documentation
-  "Advance the combination @var{c} to the next combination
+  :documentation			; FDL
+  "Advance the combination c to the next combination
    in lexicographic order and return T and c.  If no further
    combinations are available it return NIL and c with
-   @var{c} unmodified.  Starting with the first combination and
+   c unmodified.  Starting with the first combination and
    repeatedly applying this function will iterate through all possible
    combinations of a given order.")
 
@@ -135,42 +132,43 @@
   (((pointer c) gsl-combination-c))
   :c-return :success-failure
   :invalidate (c)
-  :documentation
-  "Step backwards from the combination @var{c} to the
+  :documentation			; FDL
+  "Step backwards from the combination c to the
    previous combination in lexicographic order, returning
    T and c.  If no previous combination is available it returns
-   NIL and c with @var{c} unmodified.")
+   NIL and c with c unmodified.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(defparameter *comb-1* (make-data 'combination t 4 2))
-
 (lisp-unit:define-test combination
   (lisp-unit:assert-eql			; combination-range
    4
-   (combination-range *comb-1*))
+   (letm ((comb (combination 4 2 t)))
+     (combination-range comb)))
   (lisp-unit:assert-eql			; combination-size
    2
-   (combination-size *comb-1*))
+   (letm ((comb (combination 4 2 t)))
+     (combination-size comb)))
   (lisp-unit:assert-equal		; init-first, combination-next
    '((0 1) (0 2) (0 3) (1 2) (1 3) (2 3))
-   (progn
-     (init-first *comb-1*)
-     (loop collect (data *comb-1*)
-       while (combination-next *comb-1*))))
-  (lisp-unit:assert-equal		; init-last, combination-previous
+   (letm ((comb (combination 4 2 t)))
+     (init-first comb)
+     (loop collect (data comb)
+	   while (combination-next comb))))
+  (lisp-unit:assert-equal	     ; init-last, combination-previous
    '((2 3) (1 3) (1 2) (0 3) (0 2) (0 1))
-   (progn
-     (init-last *comb-1*)
-     (loop collect (data *comb-1*)
-       while (combination-previous *comb-1*))))
-  (lisp-unit:assert-equal		; with-data, combination-next
+   (letm ((comb (combination 4 2 t)))
+     (init-last comb)
+     (loop collect (data comb)
+	   while (combination-previous comb))))
+  (lisp-unit:assert-equal		; combination-next
    '(NIL (0) (1) (2) (3) (0 1) (0 2) (0 3) (1 2) (1 3) (2 3)
      (0 1 2) (0 1 3) (0 2 3) (1 2 3) (0 1 2 3))
    (loop for i from 0 to 4
 	 append
-	 (with-data (comb combination (4 i) t)
+	 (letm ((comb (combination 4 i t)))
+	   (init-first comb)
 	   (loop collect (data comb)
-	     while (combination-next comb))))))
+		 while (combination-next comb))))))
