@@ -1,7 +1,20 @@
 TODO
 remove cffi-array
-rename defun-gsl, defvariable.
-Document with-gsl-objects
+Document letm
+Document chapters
+organize presentation
+what to do about regression tests?  clean up files in floating-point if necessary
+Errors in sorting; do C? see Sun Feb 10 2008
+Other regression errors
+Do tests in ia32.
+normalize terminology for solve-minimize-fit; make subdir?
+
+Wishlist: 
+Sun Feb 10 2008 GSLL creation of objects within letm as from e.g. #'covariance.
+
+Bulk changes needed:
+Rename defun-gsl, defvariable.
+Clean up markup and header files.
 
 
 Features:

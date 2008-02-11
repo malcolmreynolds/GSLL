@@ -1,6 +1,6 @@
 ;; Using GSL storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-02-05 22:32:15EST data.lisp>
+;; Time-stamp: <2008-02-10 15:30:20EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -126,19 +126,30 @@
 	       (lambda () (list argsymb size-or-initial))))))
       ;; Vector or other one-index object
       `(defgo ,type (size-or-initial &optional zero)
-	(if (numberp size-or-initial)
-	    ;; Size is given as literal number
-	    (list
-	     `(make-data ',',type ,zero ,size-or-initial)
-	     'free)
-	    ;; Determine at runtime whether first arg is initial or size 
-	    (let ((argsymb (gensym "ARG")))
-	      (list
-	       `(make-data ',',type ,zero
-		 (if (numberp ,argsymb) ,argsymb (length ,argsymb)))
-	       'free
-	       (lambda (symb) `(unless (numberp ,argsymb) (setf (data ,symb) ,argsymb)))
-	       (lambda () (list argsymb size-or-initial))))))))
+	(typecase size-or-initial
+	  (number
+	   ;; Size is given as literal number
+	   (list
+	    `(make-data ',',type ,zero ,size-or-initial)
+	    'free))
+	  (vector
+	   ;; Initial value supplied as literal CL vector)
+	   (let ((argsymb (gensym "ARG")))
+	     (list
+	      `(make-data ',',type ,zero
+		(length ,argsymb))
+	      'free
+	      (lambda (symb) `(setf (data ,symb) ,argsymb))
+	      (lambda () (list argsymb size-or-initial)))))
+	  (t
+	   ;; Determine at runtime whether first arg is initial or size
+	   (let ((argsymb (gensym "ARG")))
+	     (list
+	      `(make-data ',',type ,zero
+		(if (numberp ,argsymb) ,argsymb (length ,argsymb)))
+	      'free
+	      (lambda (symb) `(unless (numberp ,argsymb) (setf (data ,symb) ,argsymb)))
+	      (lambda () (list argsymb size-or-initial)))))))))
 
 (defmacro defdata
     (c-string cl-symbol cl-base-type

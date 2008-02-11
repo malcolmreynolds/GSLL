@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-04 19:44:24EST vector.lisp>
+;; Time-stamp: <2008-02-10 11:06:54EST vector.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -62,8 +62,13 @@ deallocated with the vector.
 (defdata "vector_float" vector-single single-float gsl-vector)
 (defdata "vector_int" vector-fixnum fixnum gsl-vector)
 (defdata "vector_complex" vector-complex complex gsl-vector)
+
 ;;; (defdata "vector_uint" vector-unsigned-fixnum (unsigned-byte 64) gsl-vector)
 ;;; doesn't work 2007-03-04.
+;;; (deftype unsigned-fixnum () `(integer 0 ,most-positive-fixnum))
+;;; (defdata "vector_uint" vector-unsigned-fixnum unsigned-fixnum gsl-vector)
+;;; doesn't work either 2008-02-10.
+
 
 (defmacro defun-gsl-vdsfc (&rest args)
   "A defun-gsl for vectors of double, single, fixnum, and complex."
