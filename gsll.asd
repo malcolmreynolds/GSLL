@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-02-16 10:54:24EST gsll.asd>
+;; Time-stamp: <2008-02-16 10:59:40EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -83,7 +83,7 @@
 	     (:file "householder")))
    (:file "eigensystems" :depends-on (init data))
    ;; Skip fft for now, I'm not sure how it works in C
-   (:file "numerical-integration" :depends-on (init general))
+   (:file "numerical-integration" :depends-on (init))
    (:module random
 	    :depends-on (init)
 	    :components
@@ -145,7 +145,7 @@
 	     (:file "read-write" :depends-on (histogram))
 	     (:file "probability-distribution" :depends-on (histogram))
 	     (:file "ntuple")))
-   (:file "monte-carlo" :depends-on (init data random general))
+   (:file "monte-carlo" :depends-on (init data random))
    (:module ordinary-differential-equations
 	    :depends-on (init)
 	    :components
@@ -162,13 +162,13 @@
 	     (:file "lookup")
 	     (:file "evaluation")
 	     (:file "spline-example")))
-   (:file "numerical-differentiation" :depends-on (init general))
-   (:file "chebyshev" :depends-on (init general))
+   (:file "numerical-differentiation" :depends-on (init))
+   (:file "chebyshev" :depends-on (init))
    (:file "series-acceleration" :depends-on (init))
    (:file "wavelet" :depends-on (init data))
    (:file "hankel" :depends-on (init data))
    (:module solve-minimize-fit
-	    :depends-on (init general data random)
+	    :depends-on (init data random)
 	    :components
 	    ((:file "roots-one")
 	     (:file "minimization-one")
