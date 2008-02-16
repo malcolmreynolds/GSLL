@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-02-16 10:36:32EST gsll.asd>
+;; Time-stamp: <2008-02-16 10:54:24EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -19,14 +19,11 @@
 	     (:file "gsl-objects" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
 	     (:file "interface" :depends-on (conditions init number-conversion))
+	     (:file "callback" :depends-on (init))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
 	     (:file "tests" :depends-on (init lisp-unit))))
-   (:module general
-	    :depends-on (init)
-	    :components
-	    ((:file "mathematical")
-	     (:file "functions")))
+   (:file "mathematical" :depends-on (init))
    ;; complex numbers not necessary?  Just make a struct.
    (:module data
 	    :depends-on (init)
