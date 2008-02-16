@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-02-16 10:28:59EST gsll.asd>
+;; Time-stamp: <2008-02-16 10:36:32EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -16,6 +16,7 @@
 	    ((:file "init")
 	     (:file "conditions" :depends-on (init))
 	     (:file "utility" :depends-on (init))
+	     (:file "gsl-objects" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
 	     (:file "interface" :depends-on (conditions init number-conversion))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
