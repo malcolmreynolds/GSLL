@@ -8,6 +8,7 @@ Errors in sorting; do C? see Sun Feb 10 2008
 Other regression errors
 Do tests in ia32.
 normalize terminology for solve-minimize-fit; make subdir?
+Add bspline.
 
 Wishlist: 
 Sun Feb 10 2008 GSLL creation of objects within letm as from e.g. #'covariance.

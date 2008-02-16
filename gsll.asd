@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-02-10 23:17:25EST gsll.asd>
+;; Time-stamp: <2008-02-16 10:18:14EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -170,9 +170,12 @@
    (:file "series-acceleration" :depends-on (init))
    (:file "wavelet" :depends-on (init data))
    (:file "hankel" :depends-on (init data))
-   (:file "roots-one" :depends-on (init general))
-   (:file "minimization-one" :depends-on (init general))
-   (:file "roots-multi" :depends-on (init general data roots-one))
-   (:file "minimization-multi" :depends-on (init general data))
-   (:file "linear-least-squares" :depends-on (init general data random))
-   (:file "nonlinear-least-squares" :depends-on (init general data random))))
+   (:module solve-minimize-fit
+	    :depends-on (init general data random)
+	    :components
+	    ((:file "roots-one")
+	     (:file "minimization-one")
+	     (:file "roots-multi" :depends-on (roots-one))
+	     (:file "minimization-multi")
+	     (:file "linear-least-squares")
+	     (:file "nonlinear-least-squares")))))
