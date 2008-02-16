@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-01-28 22:36:32EST interface.lisp>
+;; Time-stamp: <2008-02-16 10:44:10EST interface.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -279,3 +279,12 @@
       ,documentation)
     (map-name ',cl-symbol ,gsl-symbol)
     (export ',cl-symbol)))
+
+;;;;****************************************************************************
+;;;; GSL library version
+;;;;****************************************************************************
+
+(cffi:defcvar ("gsl_version" *gsl-version* :read-only t) :string
+          "The version of the GSL library being used.")
+(map-name '*gsl-version* "gsl_version")
+(export '*gsl-version*)
