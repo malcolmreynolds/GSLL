@@ -17,12 +17,18 @@
   "The number of decimal digits on which floating point
    number must agree.")
 
+(defparameter *zero-threshold* 1.0d-15
+  "Threshold below which a number is tpo be considered zero.")
+
 (defun fp-string (fp &optional (decimal-digits *test-fp-decimal-digits*))
   "Format the floating point number as a string for comparison."
   (if (typep fp 'complex)
       (list (fp-string (realpart fp)) (fp-string (imagpart fp)))
       (format nil "~,v,2,0,,,ve"
-	      decimal-digits (if (typep fp 'double-float) #\d #\e) fp)))
+	      decimal-digits (if (typep fp 'double-float) #\d #\e)
+	      (if (< (abs fp)  *zero-threshold*)
+		  0.0d0
+		  fp))))
 
 (defmacro assert-first-fp-equal (expected form &rest extras)
   (lisp-unit::expand-assert

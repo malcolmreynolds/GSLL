@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-02-05 22:35:20EST polynomial.lisp>
+;; Time-stamp: <2008-02-16 11:17:51EST polynomial.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -194,8 +194,8 @@
    (lisp-unit:fp-values (solve-cubic -6.0d0 -13.0d0 42.0d0)))
   ;; This should use double-float-unequal
   (lisp-unit:assert-equal
-   '(("-0.902598308594d-17" "-1.000000000000d+00")
-     ("-0.902598308594d-17" "1.000000000000d+00")
+   '(("0.000000000000d+01" "-1.000000000000d+00")
+     ("0.000000000000d+01" "1.000000000000d+00")
      ("0.100000000000d+01" "0.000000000000d+01"))
    (lisp-unit:fp-values (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)))
   (lisp-unit:assert-equal

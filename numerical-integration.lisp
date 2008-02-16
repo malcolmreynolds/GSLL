@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-02-03 13:22:48EST numerical-integration.lisp>
+;; Time-stamp: <2008-02-16 11:07:23EST numerical-integration.lisp>
 ;; $Id: $
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -232,5 +232,5 @@
      (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws)))
   (lisp-unit:assert-error
    'gsl-error
-   (letm ((ws (integration-workspace ws 20)))
+   (letm ((ws (integration-workspace 20)))
      (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws))))
