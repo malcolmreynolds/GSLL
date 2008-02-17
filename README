@@ -1,5 +1,4 @@
 TODO
-remove cffi-array
 Document letm
 Document chapters
 organize presentation
@@ -9,6 +8,8 @@ Other regression errors
 Do tests in ia32.
 normalize terminology for solve-minimize-fit; make subdir?
 Add bspline.
+Include required parts per FDL.
+
 
 Wishlist: 
 Sun Feb 10 2008 GSLL creation of objects within letm as from e.g. #'covariance.
@@ -16,6 +17,8 @@ Sun Feb 10 2008 GSLL creation of objects within letm as from e.g. #'covariance.
 Bulk changes needed:
 Rename defun-gsl, defvariable.
 Clean up markup and header files.
+:size to size
+String comparison of floats?
 
 
 Features:

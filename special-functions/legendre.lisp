@@ -1,6 +1,6 @@
 ;; Legendre functions
 ;; Liam Healy, Sat Apr 29 2006 - 19:16
-;; Time-stamp: <2008-02-03 16:58:53EST legendre.lisp>
+;; Time-stamp: <2008-02-16 22:30:23EST legendre.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,31 +11,31 @@
 ;;;; Legendre polynomials
 ;;;;****************************************************************************
 
-(defun-gsl legendre-P1 (x)
+(defmfun legendre-P1 (x)
   "gsl_sf_legendre_P1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The Legendre polynomials P_1(x) using an explicit
    representation.")
 
-(defun-gsl legendre-P2 (x)
+(defmfun legendre-P2 (x)
   "gsl_sf_legendre_P2_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The Legendre polynomials P_2(x) using an explicit
    representation.")
 
-(defun-gsl legendre-P3 (x)
+(defmfun legendre-P3 (x)
   "gsl_sf_legendre_P3_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The Legendre polynomials P_3(x) using an explicit
    representation.")
 
-(defun-gsl legendre-Pl (l x)
+(defmfun legendre-Pl (l x)
   "gsl_sf_legendre_Pl_e" ((l :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The Legendre polynomial P_l(x) for a specific value of l,
    x subject to l >= 0, |x| <= 1.")
 
-(defun-gsl legendre-Pl-array (x array)
+(defmfun legendre-Pl-array (x array)
   "gsl_sf_legendre_Pl_array"
   (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
   :documentation			; FDL
@@ -43,7 +43,7 @@
   P_l(x) for l = 0, ..., length(array), |x| <= 1."
   :invalidate (array))
 
-(defun-gsl legendre-Pl-deriv-array (x array)
+(defmfun legendre-Pl-deriv-array (x array)
   "gsl_sf_legendre_Pl_deriv_array"
   (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
   :documentation			; FDL
@@ -51,19 +51,19 @@
   dP_l(x)/dx, for l = 0, ...,  length(array), |x| <= 1."
   :invalidate (array))
 
-(defun-gsl legendre-Q0 (x)
+(defmfun legendre-Q0 (x)
   "gsl_sf_legendre_Q0_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The Legendre function Q_0(x) for x > -1,
    x /= 1.")
 
-(defun-gsl legendre-Q1 (x)
+(defmfun legendre-Q1 (x)
   "gsl_sf_legendre_Q1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The Legendre function Q_1(x) for x > -1,
    x /= 1.")
 
-(defun-gsl legendre-Ql (l x)
+(defmfun legendre-Ql (l x)
   "gsl_sf_legendre_Ql_e" ((l :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The Legendre function Q_l(x) for x > -1, x /= 1, l >= 0.")
@@ -85,13 +85,13 @@
 ;;; these functions.  Instead use legendre-sphPlm below,
 ;;; which uses a similar recursion, but with the normalized functions.
 
-(defun-gsl legendre-Plm (l m x)
+(defmfun legendre-Plm (l m x)
   "gsl_sf_legendre_Plm_e" ((l :int) (m :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The associated Legendre polynomial
    P_l^m(x) for m >= 0, l >= m, |x| <= 1.")
 
-(defun-gsl legendre-Plm-array (m x array)
+(defmfun legendre-Plm-array (m x array)
   "gsl_sf_legendre_Plm_array"
   (((+ (dim0 array) m -1) :int) (m :int) (x :double)
    ((gsl-array array) :pointer))
@@ -101,7 +101,7 @@
     l = |m|, ..., |m|+length(array)-1} and |x| <= 1."
   :invalidate (array))
 
-(defun-gsl legendre-Plm-deriv-array (m x values derivatives)
+(defmfun legendre-Plm-deriv-array (m x values derivatives)
   "gsl_sf_legendre_Plm_deriv_array"
   (((+ (dim0 values) m -1) :int) (m :int) (x :double)
    ((gsl-array values) :pointer) ((gsl-array derivatives) :pointer))
@@ -111,7 +111,7 @@
     l = |m|, ..., length(values) and |x| <= 1."
   :invalidate (values derivatives))
 
-(defun-gsl legendre-sphPlm (l m x)
+(defmfun legendre-sphPlm (l m x)
   "gsl_sf_legendre_sphPlm_e" ((l :int) (m :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The normalized associated Legendre polynomial
@@ -120,7 +120,7 @@
    m >= 0, l >= m, |x| <= 1.  These routines avoid the overflows
    that occur for the standard normalization of P_l^m(x).")
 
-(defun-gsl legendre-sphPlm-array (m x array)
+(defmfun legendre-sphPlm-array (m x array)
   "gsl_sf_legendre_sphPlm_array"
   (((+ (dim0 array) m -1) :int) (m :int) (x :double)
    ((gsl-array array) :pointer))
@@ -130,7 +130,7 @@
    for m >= 0, l = |m|, ..., length(array)}, |x| <= 1.0."
   :invalidate (array))
 
-(defun-gsl legendre-sphPlm-deriv-array (m x values derivatives)
+(defmfun legendre-sphPlm-deriv-array (m x values derivatives)
   "gsl_sf_legendre_sphPlm_deriv_array"
   (((+ (dim0 values) m -1) :int) (m :int) (x :double)
    ((gsl-array values) :pointer) ((gsl-array derivatives) :pointer))
@@ -140,7 +140,7 @@
    l = |m|, ..., length(array)}, |x| <= 1.0."
   :invalidate (values derivatives))
 
-(defun-gsl legendre-array-size (lmax m)
+(defmfun legendre-array-size (lmax m)
   "gsl_sf_legendre_array_size" ((lmax :int) (m :int))
   :documentation			; FDL
   "The size of result array needed for the array
@@ -153,40 +153,40 @@
 
 ;;; FDL
 ;;; The Conical Functions P^\mu_{-(1/2)+i\lambda}(x)} and 
-;;; Q^\mu_@{-(1/2)+i\lambda}
+;;; Q^\mu_{-(1/2)+i\lambda}
 ;;; are described in Abramowitz & Stegun, Section 8.12.
 
-(defun-gsl legendre-conicalP-half (lambda x)
+(defmfun legendre-conicalP-half (lambda x)
   "gsl_sf_conicalP_half_e" ((lambda :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular Spherical Conical Function
    P^{1/2}_{-1/2 + i \lambda}(x) for x > -1.")
 
-(defun-gsl legendre-conicalP-mhalf (lambda x)
+(defmfun legendre-conicalP-mhalf (lambda x)
   "gsl_sf_conicalP_mhalf_e" ((lambda :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The regular Spherical Conical Function
    P^{-1/2}_{-1/2 + i \lambda}(x) for x > -1.")
 
-(defun-gsl legendre-conicalP-0 (lambda x)
+(defmfun legendre-conicalP-0 (lambda x)
   "gsl_sf_conicalP_0_e" ((lambda :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The conical function P^0_{-1/2 + i \lambda(x)} for x > -1.")
 
-(defun-gsl legendre-conicalP-1 (lambda x)
+(defmfun legendre-conicalP-1 (lambda x)
   "gsl_sf_conicalP_1_e" ((lambda :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The conical function 
    P^1_{-1/2 + i \lambda}(x)} for x > -1.")
 
-(defun-gsl legendre-regular-spherical-conical (l lambda x)
+(defmfun legendre-regular-spherical-conical (l lambda x)
   "gsl_sf_conicalP_sph_reg_e"
   ((l :int) (lambda :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The Regular Spherical Conical Function
    P^{-1/2-l}_{-1/2 + i \lambda}(x) for x > -1, l >= -1.")
 
-(defun-gsl legendre-regular-cylindrical-conical (l lambda x)
+(defmfun legendre-regular-cylindrical-conical (l lambda x)
   "gsl_sf_conicalP_cyl_reg_e"
   ((l :int) (lambda :double) (x :double) (ret sf-result))
   :documentation			; FDL
@@ -204,7 +204,7 @@
 ;;; is the flat limit, \lambda \to \infty, \eta \to 0, \lambda\eta
 ;;; fixed.
 
-(defun-gsl legendre-H3d-0 (lambda eta)
+(defmfun legendre-H3d-0 (lambda eta)
   "gsl_sf_legendre_H3d_0_e"
   ((lambda :double) (eta :double) (ret sf-result))
   :documentation			; FDL
@@ -212,9 +212,9 @@
    3-dimensional hyperbolic space,
    L^{H3d}_0(\lambda,\eta) := \sin(\lambda\eta)/(\lambda\sinh(\eta))
    for \eta >= 0. In the flat limit this takes the form
-   L^{H3d@}_0(\lambda,\eta) = j_0(\lambda\eta).")
+   L^{H3d}_0(\lambda,\eta) = j_0(\lambda\eta).")
 
-(defun-gsl legendre-H3d-1 (lambda eta)
+(defmfun legendre-H3d-1 (lambda eta)
   "gsl_sf_legendre_H3d_1_e"
   ((lambda :double) (eta :double) (ret sf-result))
   :documentation			; FDL
@@ -225,7 +225,7 @@
    for \eta >= 0.  In the flat limit this takes the form 
    L^{H3d}_1(\lambda,\eta) = j_1(\lambda\eta)}.")
 
-(defun-gsl legendre-H3d (l lambda eta)
+(defmfun legendre-H3d (l lambda eta)
   "gsl_sf_legendre_H3d_e"
   ((l :int) (lambda :double) (eta :double) (ret sf-result))
   :documentation			; FDL
@@ -234,7 +234,7 @@
    \eta >= 0, l >= 0.  In the flat limit this takes the form
    L^{H3d}_l(\lambda,\eta) = j_l(\lambda\eta).")
 
-(defun-gsl legendre-H3d-array (lambda eta array)
+(defmfun legendre-H3d-array (lambda eta array)
   "gsl_sf_legendre_H3d_array"
   (((1- (dim0 array)) :int) (lambda :double) (eta :double)
    ((gsl-array array) :pointer))
@@ -251,105 +251,157 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test legendre
-  (lisp-unit:assert-first-fp-equal
-   "0.300000000000d+00"
-   (legendre-P1 0.3d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.365000000000d+00"
-   (legendre-P2 0.3d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.382500000000d+00"
-   (legendre-P3 0.3d0))
-  (lisp-unit:assert-error 'gsl-error (legendre-Pl -4 0.3d0))
-  (lisp-unit:assert-error 'gsl-error (legendre-Pl 4 3.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.729375000000d-01"
-   (legendre-Pl 4 0.3d0))
-  (lisp-unit:assert-equal
-   '("0.100000000000d+01" "0.500000000000d+00"
-     "-0.125000000000d+00" "-0.437500000000d+00")
-   (lisp-unit:fp-sequence
-    (letm ((arr (vector-double 4)))
+#|
+(make-tests legendre
+  (legendre-P1 0.3d0)
+  (legendre-P2 0.3d0)
+  (legendre-P3 0.3d0)
+  (legendre-Pl -4 0.3d0)
+  (legendre-Pl 4 3.0d0)
+  (legendre-Pl 4 0.3d0)
+  (letm ((arr (vector-double 4)))
       (legendre-Pl-array 0.5d0 arr)
-      (data arr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.312852949882d+00"
-   (legendre-Q0 3.3d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.324147346113d-01"
-   (legendre-Q1 3.3d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.402646138474d-02"
-   (legendre-Ql 2 3.3d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.340997502740d+02"
-   (legendre-Plm 4 3 0.5d0))
-  (lisp-unit:assert-equal
-   '("0.225000000000d+01" "0.562500000000d+01"
-     "0.421875000000d+01" "-0.492187500000d+01")
-   (lisp-unit:fp-sequence
-    (letm ((arr (vector-double 4)))
+      (data arr))
+  (legendre-Q0 3.3d0)
+  (legendre-Q1 3.3d0)
+  (legendre-Ql 2 3.3d0)
+  (legendre-Plm 4 3 0.5d0)
+  (letm ((arr (vector-double 4)))
       (legendre-Plm-array 2 0.5d0 arr)
-      (data arr))))
-  (lisp-unit:assert-equal
-   '("-0.300000000000d+01" "0.375000000000d+01"
-     "0.337500000000d+02" "0.557812500000d+02")
-   (lisp-unit:fp-sequence
-    (letm ((val (vector-double 4))
+      (data arr))
+  (letm ((val (vector-double 4))
 	   (deriv (vector-double 4)))
       (legendre-Plm-deriv-array 2 0.5d0 val deriv)
-      (data deriv))))
-  (lisp-unit:assert-first-fp-equal
-   "0.398506257222d-13"
-   (legendre-sphplm 1200 1100 0.5d0))
-  (lisp-unit:assert-equal
-   '("0.248924639500d+00" "0.412794815148d+00"
-     "0.351206555622d+00" "0.515993518936d-01")
-   (lisp-unit:fp-sequence
-    (letm ((arr (vector-double 4)))
+      (data deriv))
+  (legendre-sphplm 1200 1100 0.3d0)
+  (letm ((arr (vector-double 4)))
       (legendre-sphPlm-array 4 0.5d0 arr)
-      (data arr))))
-  ;; suspicious? same answer as legendre-sphPlm-array?
-  (lisp-unit:assert-equal
-   '("-0.663799038667d+00" "-0.275196543432d+00"
-     "0.127103324892d+01" "0.264876673054d+01")
-   (lisp-unit:fp-sequence
-    (letm ((val (vector-double 4))
+      (data arr))
+  (letm ((val (vector-double 4))
 	   (deriv (vector-double 4)))
 	(legendre-sphPlm-deriv-array 4 0.5d0 val deriv)
-	(data deriv))))
-  (lisp-unit:assert-first-fp-equal
-   "-0.125529904888d+00"
-   (legendre-conicalp-half 3.5d0 10.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.627433629279d-01"
-   (legendre-conicalp-mhalf 3.5d0 10.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.131636618937d+00"
-   (legendre-conicalp-0 3.5d0 10.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.174071955601d+00"
-   (legendre-conicalp-1 3.5d0 10.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.898079795297d-03"
-   (legendre-regular-spherical-conical 3 3.5d0 10.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.230602506199d-02"
-   (legendre-regular-cylindrical-conical 3 3.5d0 10.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.920034269259d+00"
-   (legendre-h3d-0 1.0d0 0.5d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.216940264504d+00"
-   (legendre-h3d-1 1.0d0 0.5d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.240061623900d-02"
-   (legendre-h3d 4 1.0d0 0.5d0))
-  (lisp-unit:assert-equal
-   '("0.920034269259d+00" "0.216940264504d+00"
-     "0.479506604883d-01" "0.106637690961d-01")
-   (lisp-unit:fp-sequence
-    (letm ((arr (vector-double 4)))
+	(data deriv))
+  (legendre-conicalp-half 3.5d0 10.0d0)
+  (legendre-conicalp-mhalf 3.5d0 10.0d0)
+  (legendre-conicalp-0 3.5d0 10.0d0)
+  (legendre-conicalp-1 3.5d0 10.0d0)
+  (legendre-regular-spherical-conical 3 3.5d0 10.0d0)
+  (legendre-regular-cylindrical-conical 3 3.5d0 10.0d0)
+  (legendre-h3d-0 1.0d0 0.5d0)
+  (legendre-h3d-1 1.0d0 0.5d0)
+  (legendre-h3d 4 1.0d0 0.5d0)
+  (letm ((arr (vector-double 4)))
       (legendre-h3d-array 1.0d0 0.5d0 arr)
-      (data arr)))))
+      (data arr)))
+|#
+
+(LISP-UNIT:DEFINE-TEST LEGENDRE
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 0.3d0 0.0d0)
+				     (MULTIPLE-VALUE-LIST
+				      (LEGENDRE-P1
+				       0.3d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.365d0 2.8199664825478977d-16)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-P2 0.3d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.38249999999999995d0 1.9984014443252816d-16)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-P3 0.3d0)))
+  (LISP-UNIT:ASSERT-ERROR 'GSL-ERROR
+			  (LEGENDRE-PL -4 0.3d0))
+  (LISP-UNIT:ASSERT-ERROR 'GSL-ERROR
+			  (LEGENDRE-PL 4 3.0d0))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.07293749999999999d0 5.668382430101814d-17)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-PL 4 0.3d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(1.0d0 0.5d0 -0.125d0 -0.4375d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((ARR (VECTOR-DOUBLE 4)))
+      (LEGENDRE-PL-ARRAY 0.5d0 ARR) (DATA ARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.3128529498822064d0 1.3893461931245028d-16)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-Q0 3.3d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.03241473461128108d0 1.4395033881023292d-17)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-Q1 3.3d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.004026461384737812d0 1.788108054840004d-18)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-QL 2 3.3d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -34.099750274012266d0 3.0286662310541114d-14)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-PLM 4 3 0.5d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(2.25d0 5.625d0 4.21875d0 -4.921875d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((ARR (VECTOR-DOUBLE 4)))
+      (LEGENDRE-PLM-ARRAY 2 0.5d0 ARR) (DATA ARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(-3.0d0 3.75d0 33.75d0 55.78125d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((VAL (VECTOR-DOUBLE 4)) (DERIV (VECTOR-DOUBLE 4)))
+      (LEGENDRE-PLM-DERIV-ARRAY 2 0.5d0 VAL DERIV)
+      (DATA DERIV))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.30366280894310793d0 3.438761110552081d-15)
+   (MULTIPLE-VALUE-LIST
+    (LEGENDRE-SPHPLM 1200 1100 0.3d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.24892463950030283d0 0.4127948151484927d0
+      0.35120655562190445d0 0.051599351893561574d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((ARR (VECTOR-DOUBLE 4)))
+      (LEGENDRE-SPHPLM-ARRAY 4 0.5d0 ARR)
+      (DATA ARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(-0.6637990386674741d0 -0.2751965434323283d0
+      1.2710332489173686d0 2.648766730536161d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((VAL (VECTOR-DOUBLE 4)) (DERIV (VECTOR-DOUBLE 4)))
+      (LEGENDRE-SPHPLM-DERIV-ARRAY 4 0.5d0 VAL DERIV)
+      (DATA DERIV))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.1255299048878925d0 1.3395992025650077d-15)
+   (MULTIPLE-VALUE-LIST
+    (LEGENDRE-CONICALP-HALF 3.5d0 10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.06274336292793128d0 2.504525777730328d-16)
+   (MULTIPLE-VALUE-LIST
+    (LEGENDRE-CONICALP-MHALF 3.5d0 10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.1316366189368757d0 3.0865532615549887d-15)
+   (MULTIPLE-VALUE-LIST
+    (LEGENDRE-CONICALP-0 3.5d0 10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.17407195560076358d0 4.024312727070929d-15)
+   (MULTIPLE-VALUE-LIST
+    (LEGENDRE-CONICALP-1 3.5d0 10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 8.980797952969897d-4 7.157154480497032d-17)
+   (MULTIPLE-VALUE-LIST
+    (LEGENDRE-REGULAR-SPHERICAL-CONICAL 3 3.5d0 10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.0023060250619859907d0 2.7345630541297237d-16)
+   (MULTIPLE-VALUE-LIST
+    (LEGENDRE-REGULAR-CYLINDRICAL-CONICAL 3 3.5d0
+					  10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.9200342692589382d0 1.7018240558144874d-15)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-H3D-0 1.0d0 0.5d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.2169402645039212d0 1.418962379417407d-15)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-H3D-1 1.0d0 0.5d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.002400616238997978d0 4.3381136468045d-17)
+   (MULTIPLE-VALUE-LIST (LEGENDRE-H3D 4 1.0d0 0.5d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.9200342692589379d0 0.21694026450392115d0
+      0.04795066048830776d0 0.010663769096144337d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((ARR (VECTOR-DOUBLE 4)))
+      (LEGENDRE-H3D-ARRAY 1.0d0 0.5d0 ARR)
+      (DATA ARR)))))

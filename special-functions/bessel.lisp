@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2008-02-03 21:04:32EST bessel.lisp>
+;; Time-stamp: <2008-02-16 19:16:11EST bessel.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,23 +9,23 @@
 ;;;; Regular Cylindrical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl cylindrical-bessel-J0 (x)
+(defmfun cylindrical-bessel-J0 (x)
     "gsl_sf_bessel_J0_e"
   ((x :double) (ret sf-result))
   :documentation			; FDL
   "The regular cylindrical Bessel function of zeroth order, J_0(x).")
 
-(defun-gsl cylindrical-bessel-J1 (x)
+(defmfun cylindrical-bessel-J1 (x)
   "gsl_sf_bessel_J1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The regular cylindrical Bessel function of first order, J_1(x).")
 
-(defun-gsl cylindrical-bessel-Jn (n x)
+(defmfun cylindrical-bessel-Jn (n x)
   "gsl_sf_bessel_Jn_e" ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The regular cylindrical Bessel function of order n, J_n(x).")
 
-(defun-gsl cylindrical-bessel-Jn-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Jn-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Jn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((gsl-array array) :pointer))
@@ -40,23 +40,23 @@
 ;;;; Irregular Cylindrical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl cylindrical-bessel-Y0 (x)
+(defmfun cylindrical-bessel-Y0 (x)
   "gsl_sf_bessel_Y0_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular cylindrical Bessel function of zeroth order, Y_0(x).")
 
-(defun-gsl cylindrical-bessel-Y1 (x)
+(defmfun cylindrical-bessel-Y1 (x)
   "gsl_sf_bessel_Y1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular cylindrical Bessel function of first order, Y_1(x).")
 
-(defun-gsl cylindrical-bessel-Yn (n x)
+(defmfun cylindrical-bessel-Yn (n x)
   "gsl_sf_bessel_Yn_e"
   ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular cylindrical Bessel function of order n, Y_n(x).")
 
-(defun-gsl cylindrical-bessel-Yn-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Yn-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Yn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((gsl-array array) :pointer))
@@ -72,22 +72,22 @@
 ;;;; Regular Modified Cylindrical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl cylindrical-bessel-I0 (x)
+(defmfun cylindrical-bessel-I0 (x)
   "gsl_sf_bessel_I0_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The regular modified cylindrical Bessel function of zeroth order, I_0(x).")
 
-(defun-gsl cylindrical-bessel-I1 (x)
+(defmfun cylindrical-bessel-I1 (x)
   "gsl_sf_bessel_I1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The regular modified cylindrical Bessel function of first order, I_1(x).")
 
-(defun-gsl cylindrical-bessel-In (n x)
+(defmfun cylindrical-bessel-In (n x)
   "gsl_sf_bessel_In_e" ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The regular modified cylindrical Bessel function of order n, I_n(x).")
 
-(defun-gsl cylindrical-bessel-In-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-In-array (x array &optional (nmin 0))
   "gsl_sf_bessel_In_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((gsl-array array) :pointer))
@@ -98,25 +98,25 @@
    The values are computed using recurrence relations for efficiency, and
    therefore may differ slightly from the exact values.")
 
-(defun-gsl cylindrical-bessel-I0-scaled (x)
+(defmfun cylindrical-bessel-I0-scaled (x)
   "gsl_sf_bessel_I0_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified cylindrical Bessel function of zeroth order,
   \exp(-|x|) I_0(x).")
 
-(defun-gsl cylindrical-bessel-I1-scaled (x)
+(defmfun cylindrical-bessel-I1-scaled (x)
   "gsl_sf_bessel_I1_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified cylindrical Bessel function of first order,
   \exp(-|x|) I_1(x).")
 
-(defun-gsl cylindrical-bessel-In-scaled (n x)
+(defmfun cylindrical-bessel-In-scaled (n x)
   "gsl_sf_bessel_In_scaled_e" ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified cylindrical Bessel function of order n,
   \exp(-|x|) I_n(x)}.")
 
-(defun-gsl cylindrical-bessel-In-scaled-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-In-scaled-array (x array &optional (nmin 0))
   "gsl_sf_bessel_In_scaled_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((gsl-array array) :pointer))
@@ -133,23 +133,23 @@
 ;;;; Irregular Modified Cylindrical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl cylindrical-bessel-K0 (x)
+(defmfun cylindrical-bessel-K0 (x)
   "gsl_sf_bessel_K0_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular modified cylindrical Bessel function of zeroth order,
   K_0(x).")
 
-(defun-gsl cylindrical-bessel-K1 (x)
+(defmfun cylindrical-bessel-K1 (x)
   "gsl_sf_bessel_K1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular modified cylindrical Bessel function of first order, K_1(x).")
 
-(defun-gsl cylindrical-bessel-Kn (n x)
+(defmfun cylindrical-bessel-Kn (n x)
   "gsl_sf_bessel_Kn_e" ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular modified cylindrical Bessel function of order n, K_n(x).")
 
-(defun-gsl cylindrical-bessel-Kn-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Kn-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Kn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((gsl-array array) :pointer))
@@ -160,25 +160,25 @@
    The values are computed using recurrence relations for efficiency, and
    therefore may differ slightly from the exact values.")
 
-(defun-gsl cylindrical-bessel-K0-scaled (x)
+(defmfun cylindrical-bessel-K0-scaled (x)
   "gsl_sf_bessel_K0_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified cylindrical Bessel function of zeroth order,
   \exp(-|x|) K_0(x).")
 
-(defun-gsl cylindrical-bessel-K1-scaled (x)
+(defmfun cylindrical-bessel-K1-scaled (x)
   "gsl_sf_bessel_K1_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified cylindrical Bessel function of first order,
    \exp(-|x|) K_1(x).")
 
-(defun-gsl cylindrical-bessel-Kn-scaled (n x)
+(defmfun cylindrical-bessel-Kn-scaled (n x)
   "gsl_sf_bessel_Kn_scaled_e" ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified cylindrical Bessel function of order n,
   \exp(-|x|) K_n(x).")
 
-(defun-gsl cylindrical-bessel-Kn-scaled-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Kn-scaled-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Kn_scaled_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((gsl-array array) :pointer))
@@ -196,30 +196,30 @@
 ;;;; Regular Spherical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl spherical-bessel-j0 (x)
+(defmfun spherical-bessel-j0 (x)
   "gsl_sf_bessel_j0_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The regular spherical Bessel function of zeroth order, j_0(x) = \sin(x)/x.")
 
-(defun-gsl spherical-bessel-j1 (x)
+(defmfun spherical-bessel-j1 (x)
   "gsl_sf_bessel_j1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The regular spherical Bessel function of first order, j_1(x)
    = (\sin(x)/x - \cos(x))/x.")
 
-(defun-gsl spherical-bessel-j2 (x)
+(defmfun spherical-bessel-j2 (x)
   "gsl_sf_bessel_j2_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The regular spherical Bessel function of second order, j_2(x)
    = ((3/x^2 - 1)\sin(x) - 3\cos(x)/x)/x.")
 
-(defun-gsl spherical-bessel-jl (l x)
+(defmfun spherical-bessel-jl (l x)
   "gsl_sf_bessel_jl_e" ((l :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The regular spherical Bessel function of order
    l, j_l(x), for l >= 0 and x >= 0.")
 
-(defun-gsl spherical-bessel-jl-array (x array)
+(defmfun spherical-bessel-jl-array (x array)
   "gsl_sf_bessel_jl_array"
   (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
   :invalidate (array)
@@ -229,7 +229,7 @@
   The values are computed using recurrence relations for
   efficiency, and therefore may differ slightly from the exact values.")
 
-(defun-gsl spherical-bessel-jl-steed-array (x array)
+(defmfun spherical-bessel-jl-steed-array (x array)
   "gsl_sf_bessel_jl_steed_array"
   (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
   :invalidate (array)
@@ -245,30 +245,30 @@
 ;;;; Irregular Spherical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl spherical-bessel-y0 (x)
+(defmfun spherical-bessel-y0 (x)
   "gsl_sf_bessel_y0_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular spherical Bessel function of zeroth order,
   y_0(x) = -\cos(x)/x.")
 
-(defun-gsl spherical-bessel-y1 (x)
+(defmfun spherical-bessel-y1 (x)
   "gsl_sf_bessel_y1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular spherical Bessel function of first order,
   y_1(x) = -(\cos(x)/x + \sin(x))/x.")
 
-(defun-gsl spherical-bessel-y2 (x)
+(defmfun spherical-bessel-y2 (x)
   "gsl_sf_bessel_y2_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular spherical Bessel function of second order,
   y_2(x) = (-3/x^3 + 1/x)\cos(x) - (3/x^2)\sin(x).")
 
-(defun-gsl spherical-bessel-yl (l x)
+(defmfun spherical-bessel-yl (l x)
   "gsl_sf_bessel_yl_e" ((l :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular spherical Bessel function of order l, y_l(x), for l >= 0.")
 
-(defun-gsl spherical-bessel-yl-array (x array)
+(defmfun spherical-bessel-yl-array (x array)
   "gsl_sf_bessel_yl_array"
   (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
   :invalidate (array)
@@ -282,31 +282,31 @@
 ;;;; Regular Modified Spherical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl spherical-bessel-i0-scaled (x)
+(defmfun spherical-bessel-i0-scaled (x)
   "gsl_sf_bessel_i0_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified spherical Bessel function of zeroth
   order, \exp(-|x|) i_0(x).")
 
-(defun-gsl spherical-bessel-i1-scaled (x)
+(defmfun spherical-bessel-i1-scaled (x)
   "gsl_sf_bessel_i1_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified spherical Bessel function of first order,
   \exp(-|x|) i_1(x).")
 
-(defun-gsl spherical-bessel-i2-scaled (x)
+(defmfun spherical-bessel-i2-scaled (x)
   "gsl_sf_bessel_i2_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified spherical Bessel function of second order,
    \exp(-|x|) i_2(x).")
 
-(defun-gsl spherical-bessel-il-scaled (n x)
+(defmfun spherical-bessel-il-scaled (n x)
   "gsl_sf_bessel_il_scaled_e" ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified spherical Bessel function of order l,
    \exp(-|x|) i_l(x).")
 
-(defun-gsl spherical-bessel-il-scaled-array (x array)
+(defmfun spherical-bessel-il-scaled-array (x array)
   "gsl_sf_bessel_il_scaled_array"
   (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
   :invalidate (array)
@@ -320,31 +320,31 @@
 ;;;; Irregular Modified Spherical Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl spherical-bessel-k0-scaled (x)
+(defmfun spherical-bessel-k0-scaled (x)
   "gsl_sf_bessel_k0_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified spherical Bessel function of zeroth
   order, \exp(x) k_0(x), for x>0.")
 
-(defun-gsl spherical-bessel-k1-scaled (x)
+(defmfun spherical-bessel-k1-scaled (x)
   "gsl_sf_bessel_k1_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified spherical Bessel function of first order,
    \exp(x) k_1(x), for x>0.")
 
-(defun-gsl spherical-bessel-k2-scaled (x)
+(defmfun spherical-bessel-k2-scaled (x)
   "gsl_sf_bessel_k2_scaled_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified spherical Bessel function of second order,
   \exp(x) k_2(x), for x>0.")
 
-(defun-gsl spherical-bessel-kl-scaled (n x)
+(defmfun spherical-bessel-kl-scaled (n x)
   "gsl_sf_bessel_il_scaled_e" ((n :int) (x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified spherical Bessel function of order l,
    \exp(x) k_l(x), for x>0.")
 
-(defun-gsl spherical-bessel-kl-scaled-array (x array)
+(defmfun spherical-bessel-kl-scaled-array (x array)
   "gsl_sf_bessel_kl_scaled_array"
   (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
   :invalidate (array)
@@ -359,13 +359,13 @@
 ;;;; Regular Bessel Function - Fractional Order
 ;;;;****************************************************************************
 
-(defun-gsl bessel-Jnu (nu x)
+(defmfun bessel-Jnu (nu x)
   "gsl_sf_bessel_Jnu_e" ((nu :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The regular cylindrical Bessel function of fractional order
   \nu, J_\nu(x).")
 
-(defun-gsl spherical-Jnu-array (nu v)
+(defmfun spherical-Jnu-array (nu v)
   "gsl_sf_bessel_sequence_Jnu_e"
   ((nu :double) :mode ((dim0 v) :int) ((gsl-array v) :pointer))
   :invalidate (v)
@@ -380,7 +380,7 @@
 ;;;; Irregular Bessel Function - Fractional Order
 ;;;;****************************************************************************
 
-(defun-gsl bessel-Ynu (nu x)
+(defmfun bessel-Ynu (nu x)
   "gsl_sf_bessel_Ynu_e" ((nu :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular cylindrical Bessel function of fractional order
@@ -390,13 +390,13 @@
 ;;;; Regular Modified Bessel Functions - Fractional Order
 ;;;;****************************************************************************
 
-(defun-gsl bessel-Inu (nu x)
+(defmfun bessel-Inu (nu x)
   "gsl_sf_bessel_Inu_e" ((nu :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The regular modified Bessel function of fractional order
   \nu, I_\nu(x) for x>0, \nu>0.")
 
-(defun-gsl bessel-Inu-scaled (nu x)
+(defmfun bessel-Inu-scaled (nu x)
   "gsl_sf_bessel_Inu_scaled_e" ((nu :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled regular modified Bessel function of fractional order
@@ -406,19 +406,19 @@
 ;;;; Irregular Modified Bessel Functions - Fractional Order
 ;;;;****************************************************************************
 
-(defun-gsl bessel-Knu (nu x)
+(defmfun bessel-Knu (nu x)
   "gsl_sf_bessel_Knu_e" ((nu :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The irregular modified Bessel function of fractional order \nu,
    K_\nu(x) for x>0, \nu>0.")
 
-(defun-gsl bessel-lnKnu (nu x)
+(defmfun bessel-lnKnu (nu x)
   "gsl_sf_bessel_lnKnu_e" ((nu :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The logarithm of the irregular modified Bessel function of fractional
    order \nu, \ln(K_\nu(x)) for x>0, \nu>0.")
 
-(defun-gsl bessel-Knu-scaled (nu x)
+(defmfun bessel-Knu-scaled (nu x)
   "gsl_sf_bessel_Knu_scaled_e" ((nu :double) (x :double) (ret sf-result))
   :documentation			; FDL
   "The scaled irregular modified Bessel function of fractional order
@@ -428,19 +428,19 @@
 ;;;; Zeros of Regular Bessel Functions
 ;;;;****************************************************************************
 
-(defun-gsl bessel-zero-J0 (s)
+(defmfun bessel-zero-J0 (s)
   "gsl_sf_bessel_zero_J0_e" ((s :int) (ret sf-result))
   :documentation			; FDL
   "The location of the s-th positive zero of the Bessel function
   J_0(x).")
 
-(defun-gsl bessel-zero-J1 (s)
+(defmfun bessel-zero-J1 (s)
   "gsl_sf_bessel_zero_J1_e" ((s :int) (ret sf-result))
   :documentation			; FDL
   "The location of the s-th positive zero of the Bessel function
   J_1(x).")
 
-(defun-gsl bessel-zero-Jnu (nu s)
+(defmfun bessel-zero-Jnu (nu s)
   "gsl_sf_bessel_zero_Jnu_e" ((nu :double) (s :int) (ret sf-result))
   :documentation			; FDL
   "These routines compute the location of the s-th positive zero
@@ -451,219 +451,341 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test bessel
-  (lisp-unit:assert-first-fp-equal
-   "-0.397149809864d+00"
-   (cylindrical-bessel-J0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.660433280235d-01"
-   (cylindrical-bessel-J1 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.364128145852d+00"
-   (cylindrical-bessel-Jn 2 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.352834028616d+00" "0.128943249474d+00" "0.339957198076d-01"
-     "0.703962975587d-02")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (cylindrical-bessel-Jn-array 2.0d0 besarr 2)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "-0.169407393251d-01"
-   (cylindrical-bessel-Y0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.397925710557d+00"
-   (cylindrical-bessel-Y1 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.182022115953d+00"
-   (cylindrical-bessel-Yn 3 4.0d0))
-  (lisp-unit:assert-equal
-   '("-0.617408104191d+00" "-0.112778377684d+01" "-0.276594322633d+01"
-     "-0.993598912848d+01")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (cylindrical-bessel-Yn-array 2.0d0 besarr 2)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.113019219521d+02"
-   (cylindrical-bessel-I0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.975946515370d+01"
-   (cylindrical-bessel-I1 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.333727577842d+01"
-   (cylindrical-bessel-In 3 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.688948447699d+00" "0.212739959240d+00" "0.507285699792d-01"
-     "0.982567932313d-02")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (cylindrical-bessel-In-array 2.0d0 besarr 2)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.207001921224d+00"
-   (cylindrical-bessel-I0-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.178750839502d+00"
-   (cylindrical-bessel-I1-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.611243380297d-01"
-   (cylindrical-bessel-In-scaled 3 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.932390333047d-01" "0.287912226395d-01" "0.686536538632d-02"
-     "0.132976109419d-02")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (cylindrical-bessel-In-scaled-array 2.0d0 besarr 2)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.111596760859d-01"
-   (cylindrical-bessel-K0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.124834988873d-01"
-   (cylindrical-bessel-K1 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.174014255295d-01"
-   (cylindrical-bessel-Kn 2 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.253759754566d+00" "0.647385390949d+00" "0.219591592741d+01"
-     "0.943104910060d+01")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.609297669257d+00"
-   (cylindrical-bessel-K0-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.681575945186d+00"
-   (cylindrical-bessel-K1-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.950085641850d+00"
-   (cylindrical-bessel-Kn-scaled 2 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.253759754566d+00" "0.647385390949d+00" "0.219591592741d+01"
-     "0.943104910060d+01")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "-0.189200623827d+00"
-   (spherical-bessel-j0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.116110749259d+00"
-   (spherical-bessel-j1 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.276283685771d+00"
-   (spherical-bessel-j2 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.229243857955d+00"
-   (spherical-bessel-jl 3 4.0d0))
-  (lisp-unit:assert-equal
-   '("-0.189200623827d+00" "0.116110749259d+00" "0.276283685771d+00"
-     "0.229243857955d+00")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (spherical-bessel-jl-array 4.0d0 besarr)
-      (data besarr))))
-  (lisp-unit:assert-equal
-   '("-0.189200623827d+00" "0.116110749259d+00" "0.276283685771d+00"
-     "0.229243857955d+00")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (spherical-bessel-jl-steed-array 4.0d0 besarr)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.163410905216d+00"
-   (spherical-bessel-y0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.230053350131d+00"
-   (spherical-bessel-y1 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.912910738232d-02"
-   (spherical-bessel-y2 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.912910738232d-02"
-   (spherical-bessel-yl 2 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.163410905216d+00" "0.230053350131d+00" "0.912910738232d-02"
-     "-0.218641965903d+00")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (spherical-bessel-yl-array 4.0d0 besarr)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.124958067172d+00"
-   (spherical-bessel-i0-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.938024160356d-01"
-   (spherical-bessel-i1-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.546062551448d-01"
-   (spherical-bessel-i2-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.255445971046d-01"
-   (spherical-bessel-il-scaled 3 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.124958067172d+00" "0.938024160356d-01" "0.546062551448d-01"
-     "0.255445971046d-01")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (spherical-bessel-il-scaled-array 4.0d0 besarr)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.392699081699d+00"
-   (spherical-bessel-k0-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.490873852123d+00"
-   (spherical-bessel-k1-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.760854470791d+00"
-   (spherical-bessel-k2-scaled 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.255445971046d-01"
-   (spherical-bessel-kl-scaled 3 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.392699081699d+00" "0.490873852123d+00" "0.760854470791d+00"
-     "0.144194194061d+01")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double 4)))
-      (spherical-bessel-kl-scaled-array 4.0d0 besarr)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "0.430171473876d+00"
-   (bessel-jnu 3.0d0 4.0d0))
-  (lisp-unit:assert-equal
-   '("0.671396707142d+00" "0.513016136562d+00" "0.650081828774d-01")
-   (lisp-unit:fp-sequence
-    (letm ((besarr (vector-double #(1.0d0 2.0d0 3.0d0))))
-      (spherical-Jnu-array 0.5d0 besarr)
-      (data besarr))))
-  (lisp-unit:assert-first-fp-equal
-   "-0.182022115953d+00"
-   (bessel-Ynu 3.0d0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.333727577842d+01"
-   (bessel-Inu 3.0d0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.611243380297d-01"
-   (bessel-Inu-scaled 3.0d0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.298849244168d-01"
-   (bessel-Knu 3.0d0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.351040112585d+01"
-   (bessel-lnKnu 3.0d0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.163166158704d+01"
-   (bessel-Knu-scaled 3.0d0 4.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.149309177085d+02"
-   (bessel-zero-J0 5))
-  (lisp-unit:assert-first-fp-equal
-   "0.164706300509d+02"
-   (bessel-zero-J1 5))
-  (lisp-unit:assert-first-fp-equal
-   "0.179598194950d+02"
-   (bessel-zero-Jnu 2.0d0 5)))
+#|
+
+;; This bizarrely causes a division-by-zero error 
+;;	    (bessel-jnu 3.0d0 4.0d0)
+;; in macroexpansion the form from within SLIME using SBCL (expands
+;; fine from shell)
+
+(make-tests bessel
+	    (cylindrical-bessel-J0 4.0d0)
+	    (cylindrical-bessel-J1 4.0d0)
+	    (cylindrical-bessel-Jn 2 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (cylindrical-bessel-Jn-array 2.0d0 besarr 2)
+	      (data besarr))
+	    (cylindrical-bessel-Y0 4.0d0)
+	    (cylindrical-bessel-Y1 4.0d0)
+	    (cylindrical-bessel-Yn 3 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (cylindrical-bessel-Yn-array 2.0d0 besarr 2)
+	      (data besarr))
+	    (cylindrical-bessel-I0 4.0d0)
+	    (cylindrical-bessel-I1 4.0d0)
+	    (cylindrical-bessel-In 3 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (cylindrical-bessel-In-array 2.0d0 besarr 2)
+	      (data besarr))
+	    (cylindrical-bessel-I0-scaled 4.0d0)
+	    (cylindrical-bessel-I1-scaled 4.0d0)
+	    (cylindrical-bessel-In-scaled 3 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (cylindrical-bessel-In-scaled-array 2.0d0 besarr 2)
+	      (data besarr))
+	    (cylindrical-bessel-K0 4.0d0)
+	    (cylindrical-bessel-K1 4.0d0)
+	    (cylindrical-bessel-Kn 2 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
+	      (data besarr))
+	    (cylindrical-bessel-K0-scaled 4.0d0)
+	    (cylindrical-bessel-K1-scaled 4.0d0)
+	    (cylindrical-bessel-Kn-scaled 2 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
+	      (data besarr))
+	    (spherical-bessel-j0 4.0d0)
+	    (spherical-bessel-j1 4.0d0)
+	    (spherical-bessel-j2 4.0d0)
+	    (spherical-bessel-jl 3 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (spherical-bessel-jl-array 4.0d0 besarr)
+	      (data besarr))
+	    (letm ((besarr (vector-double 4)))
+	      (spherical-bessel-jl-steed-array 4.0d0 besarr)
+	      (data besarr))
+	    (spherical-bessel-y0 4.0d0)
+	    (spherical-bessel-y1 4.0d0)
+	    (spherical-bessel-y2 4.0d0)
+	    (spherical-bessel-yl 2 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (spherical-bessel-yl-array 4.0d0 besarr)
+	      (data besarr))
+	    (spherical-bessel-i0-scaled 4.0d0)
+	    (spherical-bessel-i1-scaled 4.0d0)
+	    (spherical-bessel-i2-scaled 4.0d0)
+	    (spherical-bessel-il-scaled 3 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (spherical-bessel-il-scaled-array 4.0d0 besarr)
+	      (data besarr))
+	    (spherical-bessel-k0-scaled 4.0d0)
+	    (spherical-bessel-k1-scaled 4.0d0)
+
+	    (spherical-bessel-k2-scaled 4.0d0)
+	    (spherical-bessel-kl-scaled 3 4.0d0)
+	    (letm ((besarr (vector-double 4)))
+	      (spherical-bessel-kl-scaled-array 4.0d0 besarr)
+	      (data besarr))
+	    (bessel-jnu 3.0d0 4.0d0)
+	    (letm ((besarr (vector-double #(1.0d0 2.0d0 3.0d0))))
+	      (spherical-Jnu-array 0.5d0 besarr)
+	      (data besarr))
+	    (bessel-Ynu 3.0d0 4.0d0)
+	    (bessel-Inu 3.0d0 4.0d0)
+	    (bessel-Inu-scaled 3.0d0 4.0d0)
+	    (bessel-Knu 3.0d0 4.0d0)
+	    (bessel-lnKnu 3.0d0 4.0d0)
+	    (bessel-Knu-scaled 3.0d0 4.0d0)
+	    (bessel-zero-J0 5)
+	    (bessel-zero-J1 5)
+	    (bessel-zero-Jnu 2.0d0 5))
+
+|#
+
+(LISP-UNIT:DEFINE-TEST BESSEL
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.3971498098638474d0 4.334456411751256d-16)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-J0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.0660433280235491d0 2.1409770694795335d-16)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-J1 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.3641281458520729d0 3.974061014982464d-16)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-JN 2 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.35283402861563773d0 0.12894324947440206d0
+      0.033995719807568436d0 0.007039629755871686d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (CYLINDRICAL-BESSEL-JN-ARRAY 2.0d0 BESARR 2)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.016940739325064968d0 1.8993556609468549d-16)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-Y0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.3979257105570999d0 3.1396236150465943d-16)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-Y1 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.18202211595348539d0 3.355735727760045d-16)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-YN 3 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(-0.6174081041906827d0 -1.127783776840428d0
+      -2.7659432263306014d0 -9.935989128481978d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (CYLINDRICAL-BESSEL-YN-ARRAY 2.0d0 BESARR 2)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 11.301921952136329d0 2.7297681442535893d-14)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-I0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 9.759465153704449d0 1.9210136786427457d-14)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-I1 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 3.3372757784203446d0 8.06056628872663d-15)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-IN 3 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.6889484476987382d0 0.21273995923985267d0
+      0.05072856997918024d0 0.009825679323131702d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (CYLINDRICAL-BESSEL-IN-ARRAY 2.0d0 BESARR 2)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.2070019212239867d0 2.241925168997723d-16)
+   (MULTIPLE-VALUE-LIST
+    (CYLINDRICAL-BESSEL-I0-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.1787508395024353d0 1.1370197115937822d-16)
+   (MULTIPLE-VALUE-LIST
+    (CYLINDRICAL-BESSEL-I1-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.0611243380296663d0 9.334510342661594d-17)
+   (MULTIPLE-VALUE-LIST
+    (CYLINDRICAL-BESSEL-IN-SCALED 3 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.09323903330473338d0 0.028791222639470898d0
+      0.006865365386320685d0 0.0013297610941881578d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (CYLINDRICAL-BESSEL-IN-SCALED-ARRAY 2.0d0 BESARR
+					  2)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.011159676085853023d0 2.0424662435034432d-17)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-K0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.01248349888726843d0 1.767412161819488d-17)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-K1 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.017401425529487143d0 2.257461693414273d-16)
+   (MULTIPLE-VALUE-LIST (CYLINDRICAL-BESSEL-KN 2 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.2537597545660558d0 0.6473853909486341d0
+      2.1959159274119586d0 9.431049100596468d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (CYLINDRICAL-BESSEL-KN-ARRAY 2.0d0 BESARR 2)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.6092976692566953d0 3.0340122249326356d-16)
+   (MULTIPLE-VALUE-LIST
+    (CYLINDRICAL-BESSEL-K0-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.681575945185671d0 3.596132979136138d-16)
+   (MULTIPLE-VALUE-LIST
+    (CYLINDRICAL-BESSEL-K1-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.9500856418495256d0 1.1481477659153143d-14)
+   (MULTIPLE-VALUE-LIST
+    (CYLINDRICAL-BESSEL-KN-SCALED 2 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.2537597545660558d0 0.6473853909486341d0
+      2.1959159274119586d0 9.431049100596468d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (CYLINDRICAL-BESSEL-KN-ARRAY 2.0d0 BESARR 2)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.18920062382698205d0 1.6804391107692678d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-J0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.11611074925915747d0 2.387125482192573d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-J1 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.27628368577135015d0 3.680838111259856d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-J2 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.22924385795503022d0 4.581212568400321d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-JL 3 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(-0.18920062382698202d0 0.11611074925915743d0
+      0.2762836857713501d0 0.22924385795503022d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (SPHERICAL-BESSEL-JL-ARRAY 4.0d0 BESARR)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(-0.18920062382698208d0 0.11611074925915742d0
+      0.27628368577135015d0 0.22924385795503024d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (SPHERICAL-BESSEL-JL-STEED-ARRAY 4.0d0 BESARR)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.16341090521590299d0 1.4513803955642766d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-Y0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.2300533501309578d0 1.5324631572452525d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-Y1 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.009129107382315343d0 1.6876604955506113d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-Y2 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.009129107382315343d0 1.6876604955506113d-16)
+   (MULTIPLE-VALUE-LIST (SPHERICAL-BESSEL-YL 2 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.16341090521590299d0 0.2300533501309578d0
+      0.009129107382315343d0 -0.21864196590306362d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (SPHERICAL-BESSEL-YL-ARRAY 4.0d0 BESARR)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.12495806717151219d0 5.5492529314587895d-17)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-I0-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.09380241603560975d0 4.165664081928078d-17)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-I1-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.05460625514480487d0 2.425004870012731d-17)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-I2-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.02554459710460367d0 5.842201171222646d-16)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-IL-SCALED 3 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.12495806717151212d0 0.09380241603560971d0
+      0.05460625514480483d0 0.02554459710460367d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (SPHERICAL-BESSEL-IL-SCALED-ARRAY 4.0d0 BESARR)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.39269908169872414d0 1.743934249004316d-16)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-K0-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.4908738521234052d0 2.1799178112553949d-16)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-K1-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.760854470791278d0 3.378872607445862d-16)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-K2-SCALED 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.02554459710460367d0 5.842201171222646d-16)
+   (MULTIPLE-VALUE-LIST
+    (SPHERICAL-BESSEL-KL-SCALED 3 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.39269908169872414d0 0.4908738521234052d0
+      0.760854470791278d0 1.4419419406125027d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+      (SPHERICAL-BESSEL-KL-SCALED-ARRAY 4.0d0 BESARR)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.43017147387562193d0 7.641380397338472d-16)
+   (MULTIPLE-VALUE-LIST (BESSEL-JNU 3.0d0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(0.6713967071418024d0 0.5130161365618323d0
+      0.06500818287738516d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((BESARR (VECTOR-DOUBLE #(1.0d0 2.0d0 3.0d0))))
+      (SPHERICAL-JNU-ARRAY 0.5d0 BESARR)
+      (DATA BESARR))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -0.1820221159534852d0 2.020851441225493d-15)
+   (MULTIPLE-VALUE-LIST (BESSEL-YNU 3.0d0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 3.3372757784203437d0 1.1856385307923545d-14)
+   (MULTIPLE-VALUE-LIST (BESSEL-INU 3.0d0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.061124338029666284d0 1.3572329489101316d-16)
+   (MULTIPLE-VALUE-LIST (BESSEL-INU-SCALED 3.0d0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.029884924416755682d0 1.0617257976532701d-16)
+   (MULTIPLE-VALUE-LIST (BESSEL-KNU 3.0d0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -3.5104011258456183d0 4.776268519767339d-15)
+   (MULTIPLE-VALUE-LIST (BESSEL-LNKNU 3.0d0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.6316615870352025d0 5.072223134504136d-15)
+   (MULTIPLE-VALUE-LIST (BESSEL-KNU-SCALED 3.0d0 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 14.930917708487813d0 4.4792753125463437d-14)
+   (MULTIPLE-VALUE-LIST (BESSEL-ZERO-J0 5)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 16.470630050877624d0 3.2941260101755246d-13)
+   (MULTIPLE-VALUE-LIST (BESSEL-ZERO-J1 5)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 17.95981949498783d0 3.591963898997566d-14)
+   (MULTIPLE-VALUE-LIST (BESSEL-ZERO-JNU 2.0d0 5))))
+
+

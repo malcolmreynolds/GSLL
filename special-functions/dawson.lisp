@@ -1,25 +1,30 @@
-;********************************************************
-; file:        dawson.lisp                               
-; description: Dawson function                           
-; date:        Sun Mar 19 2006 - 14:31                   
-; author:      Liam M. Healy                             
-; modified:    Mon Jun 12 2006 - 23:17
-;********************************************************
-;;; $Id: $
+;; Dawson function
+;; Liam Healy, Sun Mar 19 2006 - 14:31
+;; Time-stamp: <2008-02-16 20:04:51EST dawson.lisp>
+;; $Id: $
 
 #|
-The Dawson integral is defined by @math{\exp(-x^2) \int_0^x dt
-\exp(t^2)}.  A table of Dawson's integral can be found in Abramowitz &
+;;; FDL
+The Dawson integral is defined by \exp(-x^2) \int_0^x dt
+\exp(t^2).  A table of Dawson's integral can be found in Abramowitz &
 Stegun, Table 7.5.  The Dawson functions are declared in the header file
-@file{gsl_sf_dawson.h}.
+gsl_sf_dawson.h.
 |#
 
 (in-package :gsl)
 
-(defun-gsl dawson (x)
+(defmfun dawson (x)
   "gsl_sf_dawson_e" ((x :double) (ret sf-result))
-  :documentation
-  "Dawson's integral for @var{x}.")
+  :documentation			; FDL
+  "Dawson's integral for x.")
 
-(lisp-unit:define-test dawson
-  (lisp-unit:assert-first-fp-equal "0.538079506913d+00" (dawson 1.0d0)))
+#|
+(make-tests dawson
+	    (dawson 1.0d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST DAWSON
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.5380795069127684d0 1.424354102650492d-15)
+   (MULTIPLE-VALUE-LIST (DAWSON 1.0d0))))
+

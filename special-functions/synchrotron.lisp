@@ -1,28 +1,34 @@
-;********************************************************
-; file:        synchrotron.lisp                                
-; description: Synchrotron functions
-; date:        Mon May  1 2006 - 22:29
-; author:      Liam M. Healy                             
-; modified:    Sat Jun 17 2006 - 22:32
-;********************************************************
-;;; $Id: $
+;; Synchrotron functions
+;; Liam Healy, Mon May  1 2006 - 22:29
+;; Time-stamp: <2008-02-16 22:48:24EST synchrotron.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl synchrotron-1 (x)
+(defmfun synchrotron-1 (x)
   "gsl_sf_synchrotron_1_e" ((x :double) (ret sf-result))
-  :documentation "The first synchrotron function 
-  @math{x \int_x^\infty dt K_@{5/3@}(t)} for @math{x >= 0}.")
+  :documentation			; FDL
+  "The first synchrotron function x \int_x^\infty dt K_{5/3}(t)} for x >= 0.")
 
-(defun-gsl synchrotron-2 (x)
+(defmfun synchrotron-2 (x)
   "gsl_sf_synchrotron_2_e" ((x :double) (ret sf-result))
-  :documentation "The second synchrotron function 
-  @math{x K_@{2/3@}(x)} for @math{x >= 0}.")
+  :documentation			; FDL
+  "The second synchrotron function x K_{2/3}(x)} for x >= 0.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test synchrotron
-  (lisp-unit:assert-first-fp-equal "0.528273966979d-01" (synchrotron-1 4.0d0))
-  (lisp-unit:assert-first-fp-equal "0.469232058261d-01" (synchrotron-2 4.0d0)))
+#|
+(make-tests synchrotron
+  (synchrotron-1 4.0d0)
+  (synchrotron-2 4.0d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST SYNCHROTRON
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.052827396697912476d0 4.825849878208132d-14)
+   (MULTIPLE-VALUE-LIST (SYNCHROTRON-1 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.04692320582614684d0 6.854449168174663d-14)
+   (MULTIPLE-VALUE-LIST (SYNCHROTRON-2 4.0d0))))

@@ -1,11 +1,7 @@
-;********************************************************
-; file:        zeta.lisp                         
-; description: Zeta functions                              
-; date:        Sat May 13 2006 - 23:27
-; author:      Liam M. Healy                             
-; modified:    Mon Oct  8 2007 - 11:30
-;********************************************************
-;;; $Id: $
+;; Zeta functions
+;; Liam Healy, Sat May 13 2006 - 23:27
+;; Time-stamp: <2008-02-16 23:04:22EST zeta.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -13,24 +9,26 @@
 ;;;; Riemann Zeta Function
 ;;;;****************************************************************************
 
+;;; FDL
 ;;; The Riemann zeta function is defined by the infinite sum 
-;;; @math{\zeta(s) = \sum_@{k=1@}^\infty k^@{-s@}}.  
+;;; zeta(s) = \sum_{k=1}^\infty k^{-s}.  
 
 (defgeneric zeta (x)
-  (:documentation "The Riemann zeta function @math{\zeta(n)}."))
+  (:documentation			; FDL
+   "The Riemann zeta function zeta(n)."))
 
-(defun-gsl zeta ((n integer))
+(defmfun zeta ((n integer))
   "gsl_sf_zeta_int_e" ((n :int) (ret sf-result))
   :type :method
   :export t
-  :documentation "The Riemann zeta function @math{\zeta(n)} 
-   for integer @var{n}, @math{n \ne 1}.")
+  :documentation			; FDL
+  "The Riemann zeta function zeta(n) for integer n, n \ne 1.")
 
-(defun-gsl zeta ((s float))
+(defmfun zeta ((s float))
   "gsl_sf_zeta_e" ((s :double) (ret sf-result))
-  :documentation "The Riemann zeta function @math{\zeta(s)}
-   for arbitrary @var{s}, @math{s \ne 1}."
-  :type :method)
+  :type :method
+  :documentation			; FDL
+  "The Riemann zeta function zeta(s) for arbitrary s, s \ne 1.")
 
 ;;;;****************************************************************************
 ;;;; Riemann Zeta Function Minus One
@@ -39,45 +37,67 @@
 (defgeneric zeta-1 (x)
   (:documentation "zeta - 1."))
 
-(defun-gsl zeta-1 ((n integer))
+(defmfun zeta-1 ((n integer))
   "gsl_sf_zetam1_int_e" ((n :int) (ret sf-result))
-  :documentation "The Riemann zeta function @math{\zeta(n)} 
-   for integer @var{n}, @math{n \ne 1}."
   :type :method
-  :export t)
+  :export t
+  :documentation			; FDL
+  "The Riemann zeta function zeta(n) for integer n, n \ne 1.")
 
-(defun-gsl zeta-1 ((s float))
+(defmfun zeta-1 ((s float))
   "gsl_sf_zetam1_e" ((s :double) (ret sf-result))
-  :documentation "The Riemann zeta function @math{\zeta(s)}
-   for arbitrary @var{s}, @math{s \ne 1}."
-  :type :method)
+  :type :method
+  :documentation			; FDL
+  "The Riemann zeta function zeta(s) for arbitrary s, s \ne 1.")
 
 ;;;;****************************************************************************
 ;;;; Hurwitz Zeta Function
 ;;;;****************************************************************************
 
-(defun-gsl hurwitz-zeta (s q)
+(defmfun hurwitz-zeta (s q)
   "gsl_sf_hzeta_e" ((s :double) (q :double) (ret sf-result))
-  :documentation "The Hurwitz zeta function @math{\zeta(s,q)} for
-  @math{s > 1}, @math{q > 0}.")
+  :documentation			; FDL
+  "The Hurwitz zeta function zeta(s,q) for s > 1, q > 0.")
 
 ;;;;****************************************************************************
 ;;;; Eta Function
 ;;;;****************************************************************************
 
-(defun-gsl eta (s)
+(defmfun eta (s)
   "gsl_sf_eta_e" ((s :double) (ret sf-result))
-  :documentation "The eta function @math{\eta(s)} for arbitrary @var{s}.")
+  :documentation			; FDL
+  "The eta function eta(s) for arbitrary s.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test zeta
-  (lisp-unit:assert-first-fp-equal "0.164493406685d+01" (zeta 2))
-  (lisp-unit:assert-first-fp-equal "0.261237534869d+01" (zeta 1.5d0))
-  (lisp-unit:assert-first-fp-equal "0.644934066848d+00" (zeta-1 2))
-  (lisp-unit:assert-first-fp-equal "0.161237534869d+01" (zeta-1 1.5d0))
-  (lisp-unit:assert-first-fp-equal "0.140377976886d+01"
-				   (hurwitz-zeta 1.5d0 2.5d0))
-  (lisp-unit:assert-first-fp-equal "0.765147024625d+00" (eta 1.5d0)))
+#|
+(make-tests zeta
+  (zeta 2)
+  (zeta 1.5d0)
+  (zeta-1 2)
+  (zeta-1 1.5d0)
+  (hurwitz-zeta 1.5d0 2.5d0)
+  (eta 1.5d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST ZETA
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.6449340668482264d0 7.304974700020789d-16)
+   (MULTIPLE-VALUE-LIST (ZETA 2)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2.612375348685493d0 1.419471177334903d-14)
+   (MULTIPLE-VALUE-LIST (ZETA 1.5d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.6449340668482264d0 2.8640826015201633d-16)
+   (MULTIPLE-VALUE-LIST (ZETA-1 2)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.612375348685493d0 1.419471177334903d-14)
+   (MULTIPLE-VALUE-LIST (ZETA-1 1.5d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.4037797688568256d0 8.104244828616706d-15)
+   (MULTIPLE-VALUE-LIST (HURWITZ-ZETA 1.5d0 2.5d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.7651470246254092d0 1.0661276646941275d-14)
+   (MULTIPLE-VALUE-LIST (ETA 1.5d0))))

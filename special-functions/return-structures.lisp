@@ -1,11 +1,7 @@
-;********************************************************
-; file:        return-structures.lisp                    
-; description: Structures returned by special functions. 
-; date:        Mon Jan  1 2007 - 11:35                   
-; author:      Liam M. Healy                             
-; modified:    Mon Jan  1 2007 - 11:35
-;********************************************************
-;;; $Id: $
+;; Structures returned by special functions.
+;; Liam Healy, Mon Jan  1 2007 - 11:35
+;; Time-stamp: <2008-02-16 22:45:31EST return-structures.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -21,7 +17,7 @@
 
 (cffi:defcstruct sf-result-e10
   "Results from special functions with value, error estimate
-and a scaling exponent e10, such that the value is val*10^e10."
+   and a scaling exponent e10, such that the value is val*10^e10."
   ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC61
   (val :double)
   (err :double)
@@ -43,13 +39,3 @@ and a scaling exponent e10, such that the value is val*10^e10."
 (defun e10 (sf-result)
   (cffi:foreign-slot-value sf-result 'sf-result-e10 'e10))
 
-;;; obsolete; just do this manually for the few cases of multiple sf-result returns?
-(defun rearrange-sf-result-err (return-list)
-  "Put the 'err values from the sf-results at the end of the return values."
-  (flet ((sf-err (x)
-	   (and (eq (first x) 'cffi:foreign-slot-value)
-		(member (third x) '('sf-result 'sf-result-e10) :test #'equal)
-		(equal (fourth x) ''err))))
-    (append
-     (remove-if #'sf-err return-list)
-     (remove-if-not #'sf-err return-list))))

@@ -1,22 +1,17 @@
-;********************************************************
-; file:        elliptic-functions.lisp
-; description: Jacobian elliptic functions                        
-; date:        Mon Mar 20 2006 - 22:21                   
-; author:      Liam M. Healy                             
-; modified:    Tue Jun 13 2006 - 21:16
-;********************************************************
-;;; $Id: $
+;; Jacobian elliptic functions
+;; Liam Healy, Mon Mar 20 2006 - 22:21
+;; Time-stamp: <2008-02-16 20:42:55EST elliptic-functions.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl jacobian-elliptic-functions (u m)
+(defmfun jacobian-elliptic-functions (u m)
   "gsl_sf_elljac_e"
   ((u :double) (m :double) (sn sf-result) (cn sf-result) (dn sf-result))
-  :documentation
-  "The Jacobian elliptic functions @math{sn(u|m)},
-  @math{cn(u|m)}, @math{dn(u|m)} computed by descending Landen
-  transformations."
-  :return ((val sn) (val cn) (val dn) (err sn) (err cn) (err dn)))
+  :return ((val sn) (val cn) (val dn) (err sn) (err cn) (err dn))
+  :documentation			; FDL
+  "The Jacobian elliptic functions sn(u|m),
+  cn(u|m), dn(u|m) computed by descending Landen transformations.")
 
 ;;; > (jacobian-elliptic-functions 0.61802d0 0.5d0)
 ;;; 0.564575752943391
@@ -30,12 +25,19 @@
 ;;; ;;;error
 
 
-(lisp-unit:define-test elliptic-functions
-  (lisp-unit:assert-equal
-   '("0.197620823672d+00" "0.980278536974d+00" "0.984056028965d+00")
-   (subseq
-    (lisp-unit:fp-values (jacobian-elliptic-functions 0.2d0 0.81d0))
-    0 3))
-  (lisp-unit:assert-error
-   'gsl-error
-   (jacobian-elliptic-functions 0.61802d0 1.5d0)))
+#|
+(make-tests elliptic-functions
+	    (jacobian-elliptic-functions 0.2d0 0.81d0)
+	    (jacobian-elliptic-functions 0.61802d0 1.5d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST ELLIPTIC-FUNCTIONS
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.19762082367187703d0 0.9802785369736752d0
+	 0.9840560289645665d0 0.0d0 0.0d0 0.0d0)
+   (MULTIPLE-VALUE-LIST
+    (JACOBIAN-ELLIPTIC-FUNCTIONS 0.2d0 0.81d0)))
+  (LISP-UNIT:ASSERT-ERROR 'GSL-ERROR
+			  (JACOBIAN-ELLIPTIC-FUNCTIONS
+			   0.61802d0 1.5d0)))
+

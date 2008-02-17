@@ -1,41 +1,57 @@
-;********************************************************
-; file:        transport.lisp                                
-; description: Transport functions
-; date:        Mon May  1 2006 - 22:29
-; author:      Liam M. Healy                             
-; modified:    Sat Jun 17 2006 - 22:33
-;********************************************************
-;;; $Id: $
+;; Transport functions
+;; Liam Healy, Mon May  1 2006 - 22:29
+;; Time-stamp: <2008-02-16 22:50:39EST transport.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
-;;; The transport functions @math{J(n,x)} are defined by the integral 
+;;;  FDL
+;;; The transport functions J(n,x) are defined by the integral 
 ;;; representations
-;;; @c{$J(n,x) := \int_0^x dt \, t^n e^t /(e^t - 1)^2$}
-;;; @math{J(n,x) := \int_0^x dt t^n e^t /(e^t - 1)^2}.
+;;; J(n,x) := \int_0^x dt \, t^n e^t /(e^t - 1)^2.
 
-(defun-gsl transport-2 (x)
+(defmfun transport-2 (x)
   "gsl_sf_transport_2_e" ((x :double) (ret sf-result))
-  :documentation "The transport function @math{J(2,x)}.")
+  :documentation			; FDL
+  "The transport function J(2,x).")
 
-(defun-gsl transport-3 (x)
+(defmfun transport-3 (x)
   "gsl_sf_transport_3_e" ((x :double) (ret sf-result))
-  :documentation "The transport function @math{J(3,x)}.")
+  :documentation			; FDL
+  "The transport function J(3,x).")
 
-(defun-gsl transport-4 (x)
+(defmfun transport-4 (x)
   "gsl_sf_transport_4_e" ((x :double) (ret sf-result))
-  :documentation "The transport function @math{J(4,x)}.")
+  :documentation			; FDL
+  "The transport function J(4,x).")
 
-(defun-gsl transport-5 (x)
+(defmfun transport-5 (x)
   "gsl_sf_transport_5_e" ((x :double) (ret sf-result))
-  :documentation "The transport function @math{J(5,x)}.")
+  :documentation			; FDL
+  "The transport function J(5,x).")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test transport
-  (lisp-unit:assert-first-fp-equal "0.280666640456d+01" (transport-2 4.0d0))
-  (lisp-unit:assert-first-fp-equal "0.457921743723d+01" (transport-3 4.0d0))
-  (lisp-unit:assert-first-fp-equal "0.107319323930d+02" (transport-4 4.0d0))
-  (lisp-unit:assert-first-fp-equal "0.294883390152d+02" (transport-5 4.0d0)))
+#|
+(make-tests transport
+  (transport-2 4.0d0)
+  (transport-3 4.0d0)
+  (transport-4 4.0d0)
+  (transport-5 4.0d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST TRANSPORT
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2.806666404563118d0 2.2867923780257255d-15)
+   (MULTIPLE-VALUE-LIST (TRANSPORT-2 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 4.579217437229157d0 3.242324689309112d-15)
+   (MULTIPLE-VALUE-LIST (TRANSPORT-3 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 10.731932392998623d0 1.0925209116254758d-14)
+   (MULTIPLE-VALUE-LIST (TRANSPORT-4 4.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 29.488339015245842d0 3.204450601879883d-14)
+   (MULTIPLE-VALUE-LIST (TRANSPORT-5 4.0d0))))

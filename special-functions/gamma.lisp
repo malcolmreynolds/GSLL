@@ -1,11 +1,7 @@
-;********************************************************
-; file:        gamma.lisp                                
-; description: Gamma functions                           
-; date:        Thu Apr 27 2006 - 22:06                   
-; author:      Liam M. Healy                             
-; modified:    Tue Jun 13 2006 - 22:16
-;********************************************************
-;;; $Id: $
+;; Gamma functions
+;; Liam Healy, Thu Apr 27 2006 - 22:06
+;; Time-stamp: <2008-02-16 21:58:18EST gamma.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
@@ -19,239 +15,285 @@
 
 (defconstant +gamma-xmax+ 171.0d0)
 
-(defun-gsl gamma (x)
+(defmfun gamma (x)
   "gsl_sf_gamma_e" ((x :double) (ret sf-result))
-  :documentation "The Gamma function @math{\Gamma(x)}, subject to x
+  :documentation			; FDL
+  "The Gamma function Gamma(x), subject to x
    not being a negative integer.  The function is computed using the real
-   Lanczos method. The maximum value of @math{x} such that
-   @math{\Gamma(x)} is not considered an overflow is given by +gamma-xmax+.")
+   Lanczos method. The maximum value of x such that
+   Gamma(x) is not considered an overflow is given by +gamma-xmax+.")
 
-(defun-gsl log-gamma (x)
+(defmfun log-gamma (x)
   "gsl_sf_lngamma_e" ((x :double) (ret sf-result))
-  :documentation "The logarithm of the Gamma function,
-   @math{\log(\Gamma(x))}, subject to @math{x} not a being negative
-   integer.  For @math{x<0} the real part of @math{\log(\Gamma(x))} is
-   returned, which is equivalent to @math{\log(|\Gamma(x)|)}.  The function
+  :documentation			; FDL
+  "The logarithm of the Gamma function,
+   log(Gamma(x)), subject to x not a being negative
+   integer.  For x<0 the real part of log(Gamma(x)) is
+   returned, which is equivalent to log(|Gamma(x)|).  The function
    is computed using the real Lanczos method.")
 
-(defun-gsl log-gamma-sign (x)
+(defmfun log-gamma-sign (x)
   "gsl_sf_lngamma_sgn_e" ((x :double) (ret sf-result) (sign :double))
-  :documentation "Compute the sign of the gamma function and the logarithm of
-  its magnitude, subject to @math{x} not being a negative integer.  The
+  :return ((val ret) (dcref sign) (err ret))
+  :documentation			; FDL
+  "Compute the sign of the gamma function and the logarithm of
+  its magnitude, subject to x not being a negative integer.  The
   function is computed using the real Lanczos method.  The value of the
-  gamma function can be reconstructed using the relation @math{\Gamma(x) =
-  sgn * \exp(resultlg)}."
-  :return ((val ret) (dcref sign) (err ret)))
+  gamma function can be reconstructed using the relation Gamma(x) =
+  sgn * exp(resultlg)}.")
 
-(defun-gsl gamma* (x)
+(defmfun gamma* (x)
   "gsl_sf_gammastar_e" ((x :double) (ret sf-result))
-  :Documentation "The regulated Gamma Function @math{\Gamma^*(x)}
-  for @math{x > 0}, given by
-  \Gamma^*(x) &= \Gamma(x)/(\sqrt{2\pi} x^{(x-1/2)} \exp(-x))\cr
-            &= \left(1 + {1 \over 12x} + ...\right)
-  \quad\hbox{for~} x\to \infty\cr.")
+  :documentation			; FDL
+  "The regulated Gamma Function Gamma^*(x)
+  for x > 0, given by
+  Gamma^*(x) = Gamma(x)/(sqrt{2\pi} x^{(x-1/2)} \exp(-x))
+            = (1 + {1 \over 12x} + ...)
+  for x to infinity.")
 
-(defun-gsl 1/gamma (x)
+(defmfun 1/gamma (x)
   "gsl_sf_gammainv_e" ((x :double) (ret sf-result))
-  :documentation "The reciprocal of the gamma function,
-  @math{1/\Gamma(x)} using the real Lanczos method.")
+  :documentation			; FDL
+  "The reciprocal of the gamma function,
+  1/\Gamma(x) using the real Lanczos method.")
 
-(defun-gsl log-gamma-complex (z)
+(defmfun log-gamma-complex (z)
   "gsl_sf_lngamma_complex_e"
   (((realpart z) :double) ((imagpart z) :double)
    (lnr sf-result) (arg sf-result))
-  :documentation "Compute @math{\log(\Gamma(z))} for complex @math{z=z_r+i
-  z_i} and @math{z} not a negative integer, using the complex Lanczos
-  method.  The returned parameters are @math{lnr = \log|\Gamma(z)|} and
-  @math{arg = \arg(\Gamma(z))} in @math{(-\pi,\pi]}.  Note that the phase
-  part (@var{arg}) is not well-determined when @math{|z|} is very large,
-  due to inevitable roundoff in restricting to @math{(-\pi,\pi]}.  This
-  will result in a @code{GSL_ELOSS} error when it occurs.  The absolute
-  value part (@var{lnr}), however, never suffers from loss of precision."
+  :documentation			; FDL
+  "Compute log(Gamma(z)) for complex z=z_r+i z_i
+  and z not a negative integer, using the complex Lanczos
+  method.  The returned parameters are lnr = log|\Gamma(z)| and
+  arg = arg(Gamma(z)) in (-pi,pi].  Note that the phase
+  part (arg) is not well-determined when |z| is very large,
+  due to inevitable roundoff in restricting to (-\pi,\pi].  This
+  will result in a :ELOSS error when it occurs.  The absolute
+  value part (lnr), however, never suffers from loss of precision."
   :return
   ((val lnr) (val arg) (err lnr) (err arg)))
 
-(defun-gsl taylor-coefficient (n x)
+(defmfun taylor-coefficient (n x)
   "gsl_sf_taylorcoeff_e" ((n :int) (x :double) (ret sf-result))
-  :documentatiOn "Compute the Taylor coefficient @math{x^n / n!} for 
-  @math{x >= 0}, @math{n >= 0}.")
+  :documentation			; FDL
+  "Compute the Taylor coefficient x^n / n! for x >= 0, n >= 0.")
 
-(defun-gsl factorial (n)
-  "gsl_sf_fact_e" ((n :size) (ret sf-result))
-  :documentation "The factorial @math{n!},
-  related to the Gamma function by @math{n! = \Gamma(n+1)}.")
+(defmfun factorial (n)
+  "gsl_sf_fact_e" ((n size) (ret sf-result))
+  :documentation			; FDL
+  "The factorial n!, related to the Gamma function by n! = \Gamma(n+1).")
 
-(defun-gsl double-factorial (n)
-  "gsl_sf_doublefact_e" ((n :size) (ret sf-result))
-  :documentation "The double factorial @math{n!! = n(n-2)(n-4) \dots}.")
+(defmfun double-factorial (n)
+  "gsl_sf_doublefact_e" ((n size) (ret sf-result))
+  :documentation			; FDL
+  "The double factorial n!! = n(n-2)(n-4) \dots.")
 
-(defun-gsl log-factorial (n)
-  "gsl_sf_lnfact_e" ((n :size) (ret sf-result))
-  :documentation "The logarithm of the factorial of @var{n},
-  @math{\log(n!)}.  The algorithm is faster than computing
-  @math{\ln(\Gamma(n+1))} via @code{gsl_sf_lngamma} for @math{n < 170},
-  but defers for larger @var{n}.")
+(defmfun log-factorial (n)
+  "gsl_sf_lnfact_e" ((n size) (ret sf-result))
+  :documentation			; FDL
+  "The logarithm of the factorial of n, log(n!).
+  The algorithm is faster than computing
+  ln(Gamma(n+1)) via #'log-gamma for n < 170, but defers for larger n.")
 
-(defun-gsl log-double-factorial (n)
-  "gsl_sf_lndoublefact_e" ((n :size) (ret sf-result))
-  :documentation "These routines compute the logarithm of
-  the double factorial of @var{n}, @math{\log(n!!)}.")
+(defmfun log-double-factorial (n)
+  "gsl_sf_lndoublefact_e" ((n size) (ret sf-result))
+  :documentation			; FDL
+  "Compute the logarithm of the double factorial of n, log(n!!).")
 
-(defun-gsl choose (n m)
-  "gsl_sf_choose_e" ((n :size) (m :size) (ret sf-result))
-  :documentation "The combinatorial factor @code{n choose m}
-  @math{= n!/(m!(n-m)!)}")
+(defmfun choose (n m)
+  "gsl_sf_choose_e" ((n size) (m size) (ret sf-result))
+  :documentation			; FDL
+  "The combinatorial factor (n choose m) = n!/(m!(n-m)!).")
 
-(defun-gsl log-choose (n m)
-  "gsl_sf_lnchoose_e" ((n :size) (m :size) (ret sf-result))
-  :documentation "The logarithm of @code{n choose m}.  This is
-  equivalent to the sum @math{\log(n!) - \log(m!) - \log((n-m)!)}.")
+(defmfun log-choose (n m)
+  "gsl_sf_lnchoose_e" ((n size) (m size) (ret sf-result))
+  :documentation			; FDL
+  "The logarithm of (n choose m).  This is
+  equivalent to the sum log(n!) - log(m!) - log((n-m)!).")
 
-(defun-gsl pochammer (a x)
+(defmfun pochammer (a x)
   "gsl_sf_poch_e"  ((a :double) (x :double) (ret sf-result))
-  :documentation "The Pochhammer symbol @math{(a)_x := \Gamma(a +
-   x)/\Gamma(a)}, subject to @math{a} and @math{a+x} not being negative
+  :documentation			; FDL
+  "The Pochhammer symbol (a)_x := Gamma(a +
+   x)/Gamma(a), subject to a and a+x not being negative
    integers. The Pochhammer symbol is also known as the Apell symbol and
-   sometimes written as @math{(a,x)}.")
+   sometimes written as (a,x).")
 
-(defun-gsl log-pochammer (a x)
+(defmfun log-pochammer (a x)
   "gsl_sf_lnpoch_e" ((a :double) (x :double) (ret sf-result))
-  :documentation "The logarithm of the Pochhammer symbol,
-  @math{\log((a)_x) = \log(\Gamma(a + x)/\Gamma(a))} for @math{a > 0},
-  @math{a+x > 0}.")
+  :documentation			; FDL
+  "The logarithm of the Pochhammer symbol,
+  log((a)_x) = log(Gamma(a + x)/Gamma(a)) for a > 0, a+x > 0.")
 
-(defun-gsl log-pochammer-sign (a x)
+(defmfun log-pochammer-sign (a x)
   "gsl_sf_lnpoch_sgn_e"
   ((a :double) (x :double) (ret sf-result) (sign :double))
-  :documentation "The logarithm of the Pochhammer symbol and its sign.
-  The computed parameters are @math{result =
-  \log(|(a)_x|)} and @math{sgn = \sgn((a)_x)} where @math{(a)_x :=
-  \Gamma(a + x)/\Gamma(a)}, subject to @math{a}, @math{a+x} not being
-  negative integers."
+  :documentation			; FDL
+  "The logarithm of the Pochhammer symbol and its sign.
+  The computed parameters are result =
+  log(|(a)_x|) and sgn = sgn((a)_x) where (a)_x :=
+  Gamma(a + x)/Gamma(a), subject to a, a+x not being negative integers."
   :return ((val ret) (dcref sign) (err ret)))
 
-(defun-gsl relative-pochammer (a x)
+(defmfun relative-pochammer (a x)
   "gsl_sf_pochrel_e" ((a :double) (x :double) (ret sf-result))
-  :documentation "The relative Pochhammer symbol @math{((a)_x -
-  1)/x} where @math{(a)_x := \Gamma(a + x)/\Gamma(a)}.")
+  :documentation			; FDL
+  "The relative Pochhammer symbol ((a)_x -
+  1)/x where (a)_x := Gamma(a + x)/Gamma(a)}.")
 
-(defun-gsl incomplete-gamma (a x)
+(defmfun incomplete-gamma (a x)
   "gsl_sf_gamma_inc_Q_e" ((a :double) (x :double) (ret sf-result))
-  :documentation "The normalized incomplete Gamma Function
-  @math{Q(a,x) = 1/\Gamma(a) \int_x^\infty dt t^@{a-1@} \exp(-t)}
-  for @math{a > 0}, @math{x >= 0}.")
+  :documentation			; FDL
+  "The normalized incomplete Gamma Function
+  Q(a,x) = 1/Gamma(a) \int_x^\infty dt t^{a-1} \exp(-t) for a > 0, x >= 0.")
 
-(defun-gsl complementary-incomplete-gamma (a x)
+(defmfun complementary-incomplete-gamma (a x)
   "gsl_sf_gamma_inc_P_e" ((a :double) (x :double) (ret sf-result))
-  :documentation "The complementary normalized incomplete Gamma Function
-  @math{P(a,x) = 1/\Gamma(a) \int_0^x dt t^@{a-1@} \exp(-t)}
-  for @math{a > 0}, @math{x >= 0}.  Note that Abramowitz & Stegun
-  call @math{P(a,x)} the incomplete gamma function (section 6.5).")
+  :documentation			; FDL
+  "The complementary normalized incomplete Gamma Function
+  P(a,x) = 1/\Gamma(a) \int_0^x dt t^{a-1} \exp(-t)}
+  for a > 0, x >= 0.  Note that Abramowitz & Stegun
+  call P(a,x) the incomplete gamma function (section 6.5).")
 
-(defun-gsl nonnormalized-incomplete-gamma (a x)
+(defmfun nonnormalized-incomplete-gamma (a x)
   "gsl_sf_gamma_inc_e" ((a :double) (x :double) (ret sf-result))
-  :documentation "The incomplete Gamma Function
-   @math{\Gamma(a,x)}, without the normalization factor
+  :documentation			; FDL
+  "The incomplete Gamma Function
+   Gamma(a,x), without the normalization factor
    included in the previously defined functions:
-   @math{\Gamma(a,x) = \int_x^\infty dt t^@{a-1@} \exp(-t)}
-   for @math{a} real and @math{x >= 0}.")
+   Gamma(a,x) = \int_x^\infty dt t^{a-1} \exp(-t)
+   for a real and x >= 0.")
 
-(defun-gsl beta (a b)
+(defmfun beta (a b)
   "gsl_sf_beta_e" ((a :double) (b :double) (ret sf-result))
-  :documentation "The Beta Function, @math{B(a,b) =
-  \Gamma(a)\Gamma(b)/\Gamma(a+b)} for @math{a > 0}, @math{b > 0}.")
+  :documentation			; FDL
+  "The Beta Function, B(a,b) = Gamma(a)Gamma(b)/Gamma(a+b)} for a > 0, b > 0.")
 
-(defun-gsl log-beta (a b)
+(defmfun log-beta (a b)
   "gsl_sf_lnbeta_e" ((a :double) (b :double) (ret sf-result))
-  :documentation "The logarithm of the Beta Function,
-  @math{\log(B(a,b))} for @math{a > 0}, @math{b > 0}.")
+  :documentation			; FDL
+  "The logarithm of the Beta Function, log(B(a,b)) for a > 0, b > 0.")
 
-(defun-gsl incomplete-beta (a b x)
+(defmfun incomplete-beta (a b x)
   "gsl_sf_beta_inc_e"
   ((a :double) (b :double) (x :double) (ret sf-result))
-  :documentation "The normalized incomplete Beta function
-   @math{B_x(a,b)/B(a,b)} where
-   @math{B_x(a,b) = \int_0^x t^@{a-1@} (1-t)^@{b-1@} dt}
-   for @math{a > 0}, @math{b > 0}, and @math{0 <= x <= 1}.")
+  :documentation			; FDL
+  "The normalized incomplete Beta function
+   B_x(a,b)/B(a,b) where
+   B_x(a,b) = \int_0^x t^{a-1} (1-t)^{b-1} dt
+   for a > 0, b > 0, and 0 <= x <= 1.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test gamma
-  (lisp-unit:assert-error 'gsl-error (gamma -1.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.120000000000d+03"
-   (gamma 6.0d0))
-  (lisp-unit:assert-error 'gsl-error (log-gamma -100.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.359134205370d+03"
-   (log-gamma 100.0d0))
-  (lisp-unit:assert-equal
-   '("0.359134205370d+03" "0.100000000000d+01")
-   (subseq (lisp-unit:fp-values (log-gamma-sign 100.0d0)) 0 2))
-  (lisp-unit:assert-first-fp-equal
-   "0.100347805583d+01"
-   (gamma* 24.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.198412698413d-03"
-   (1/gamma 8.0d0))
-  (lisp-unit:assert-equal
-   '("0.823613175045d+01" "-0.118403781494d+01")
-   (subseq
-    (lisp-unit:fp-values (log-gamma-complex #C(10.0d0 10.0d0)))
-    0 2))
-  (lisp-unit:assert-first-fp-equal
-   "0.110947646104d-02"
-   (taylor-coefficient 12 3.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.479001600000d+09"
-   (factorial 12))
-  (lisp-unit:assert-first-fp-equal
-   "0.460800000000d+05"
-   (double-factorial 12))
-  (lisp-unit:assert-first-fp-equal
-   "0.857933669826d+03"
-   (log-factorial 199))
-  (lisp-unit:assert-first-fp-equal
-   "0.430177893581d+03"
-   (log-double-factorial 199))
-  (lisp-unit:assert-first-fp-equal
-   "0.560000000000d+02"
-   (choose 8 3))
-  (lisp-unit:assert-error 'gsl-error (choose 3 8))
-  (lisp-unit:assert-first-fp-equal
-   "0.294222741699d+02"
-   (log-choose 67 12))
-  (lisp-unit:assert-first-fp-equal
-   "0.120000000000d+02"
-   (pochammer 3.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.863231987192d+03"
-   (log-pochammer 2.0d0 199.0d0))
-  (lisp-unit:assert-equal
-   '("0.863231987192d+03" "0.100000000000d+01")
-   (subseq (lisp-unit:fp-values
-	    (log-pochammer-sign 2.0d0 199.0d0))
-	   0 2))
-  (lisp-unit:assert-first-fp-equal
-   "0.403199888889d+06"
-   (relative-pochammer 2.0d0 9.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.406005849710d+00"
-   (incomplete-gamma 2.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.593994150290d+00"
-   (complementary-incomplete-gamma 2.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.406005849710d+00"
-   (nonnormalized-incomplete-gamma 2.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.181818181818d+00"
-   (beta 5.50d0 1.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "-0.170474809224d+01"
-   (log-beta 5.5d0 1.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.646446609407d+00"
-   (incomplete-beta 1.0d0 1.50d0 0.50d0)))
+#|
+(make-tests gamma
+  (gamma -1.0d0)
+  (gamma 6.0d0)
+  (log-gamma -100.0d0)
+  (log-gamma 100.0d0)
+  (log-gamma-sign 100.0d0)
+  (gamma* 24.0d0)
+  (1/gamma 8.0d0)
+  (log-gamma-complex #C(10.0d0 10.0d0))
+  (taylor-coefficient 12 3.0d0)
+  (factorial 12)
+  (double-factorial 12)
+  (log-factorial 199)
+  (log-double-factorial 199)
+  (choose 8 3)
+  (choose 3 8)
+  (log-choose 67 12)
+  (pochammer 3.0d0 2.0d0)
+  (log-pochammer 2.0d0 199.0d0)
+  (log-pochammer-sign 2.0d0 199.0d0)
+  (relative-pochammer 2.0d0 9.0d0)
+  (incomplete-gamma 2.0d0 2.0d0)
+  (complementary-incomplete-gamma 2.0d0 2.0d0)
+  (nonnormalized-incomplete-gamma 2.0d0 2.0d0)
+  (beta 5.50d0 1.0d0)
+  (log-beta 5.5d0 1.0d0)
+  (incomplete-beta 1.0d0 1.50d0 0.50d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST GAMMA
+  (LISP-UNIT:ASSERT-ERROR 'GSL-ERROR (GAMMA -1.0d0))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 120.0d0 2.6645352591003757d-14)
+   (MULTIPLE-VALUE-LIST (GAMMA 6.0d0)))
+  (LISP-UNIT:ASSERT-ERROR 'GSL-ERROR (LOG-GAMMA -100.0d0))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 359.13420536957534d0 2.4544868717695813d-13)
+   (MULTIPLE-VALUE-LIST (LOG-GAMMA 100.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 359.13420536957534d0 1.0d0
+	 2.4544868717695813d-13)
+   (MULTIPLE-VALUE-LIST (LOG-GAMMA-SIGN 100.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.0034780558311105d0 4.456337769159149d-16)
+   (MULTIPLE-VALUE-LIST (GAMMA* 24.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.984126984126984d-4 1.3216940769347103d-19)
+   (MULTIPLE-VALUE-LIST (1/GAMMA 8.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 8.236131750448724d0 -1.1840378149363078d0
+	 7.315154482555574d-15 2.1796539969587586d-14)
+   (MULTIPLE-VALUE-LIST
+    (LOG-GAMMA-COMPLEX #C(10.0d0 10.0d0))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.0011094764610389606d0 2.956239149580215d-18)
+   (MULTIPLE-VALUE-LIST (TAYLOR-COEFFICIENT 12 3.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 4.790016d8 0.0d0)
+   (MULTIPLE-VALUE-LIST (FACTORIAL 12)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 46080.0d0 0.0d0)
+   (MULTIPLE-VALUE-LIST (DOUBLE-FACTORIAL 12)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 857.9336698258575d0 5.777158772429952d-13)
+   (MULTIPLE-VALUE-LIST (LOG-FACTORIAL 199)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 430.17789358084747d0 1.9103736085528287d-13)
+   (MULTIPLE-VALUE-LIST (LOG-DOUBLE-FACTORIAL 199)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 56.0d0 7.460698725481052d-14)
+   (MULTIPLE-VALUE-LIST (CHOOSE 8 3)))
+  (LISP-UNIT:ASSERT-ERROR 'GSL-ERROR (CHOOSE 3 8))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 29.422274169864693d0 1.9338924605168215d-13)
+   (MULTIPLE-VALUE-LIST (LOG-CHOOSE 67 12)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 12.0d0 6.927791673660977d-14)
+   (MULTIPLE-VALUE-LIST (POCHAMMER 3.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 863.2319871924054d0 9.645972767118375d-13)
+   (MULTIPLE-VALUE-LIST (LOG-POCHAMMER 2.0d0 199.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 863.2319871924054d0 1.0d0 9.645972767118375d-13)
+   (MULTIPLE-VALUE-LIST
+    (LOG-POCHAMMER-SIGN 2.0d0 199.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 403199.88888888917d0 3.5998302729212807d-9)
+   (MULTIPLE-VALUE-LIST (RELATIVE-POCHAMMER 2.0d0 9.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.40600584970983766d0 9.568405127077496d-16)
+   (MULTIPLE-VALUE-LIST (INCOMPLETE-GAMMA 2.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.5939941502901611d0 3.510166705531295d-15)
+   (MULTIPLE-VALUE-LIST
+    (COMPLEMENTARY-INCOMPLETE-GAMMA 2.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.40600584970983766d0 1.2272947381959672d-15)
+   (MULTIPLE-VALUE-LIST
+    (NONNORMALIZED-INCOMPLETE-GAMMA 2.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.1818181818181818d0 1.0189782228738177d-15)
+   (MULTIPLE-VALUE-LIST (BETA 5.5d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -1.7047480922384253d0 3.81791013808375d-15)
+   (MULTIPLE-VALUE-LIST (LOG-BETA 5.5d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.6464466094067263d0 1.0178662453689468d-14)
+   (MULTIPLE-VALUE-LIST
+    (INCOMPLETE-BETA 1.0d0 1.5d0 0.5d0))))
