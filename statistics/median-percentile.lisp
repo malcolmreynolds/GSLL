@@ -1,6 +1,6 @@
 ;; Median and percentile
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-02-03 23:22:42EST median-percentile.lisp>
+;; Time-stamp: <2008-02-17 16:50:24EST median-percentile.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -8,9 +8,9 @@
 ;;; To do: stride other than 1 when that information is availble from
 ;;; the vector.
 
-(defun-gsl median (sorted-data)
+(defmfun median (sorted-data)
   "gsl_stats_median_from_sorted_data"
-  (((gsl-array sorted-data) :pointer) (1 :int) ((dim0 sorted-data) :size))
+  (((gsl-array sorted-data) :pointer) (1 :int) ((dim0 sorted-data) size))
   :c-return :double
   :documentation			; FDL
   "The median value of sorted-data.  The elements of the array
@@ -24,9 +24,9 @@
    computing the median involves interpolation this function always returns
    a floating-point number, even for integer data types.")
 
-(defun-gsl quantile (sorted-data fraction)
+(defmfun quantile (sorted-data fraction)
   "gsl_stats_quantile_from_sorted_data"
-  (((gsl-array sorted-data) :pointer) (1 :int) ((dim0 sorted-data) :size)
+  (((gsl-array sorted-data) :pointer) (1 :int) ((dim0 sorted-data) size)
    (fraction :double))
   :c-return :double
   :documentation			; FDL
@@ -46,12 +46,25 @@
    interpolation this function always returns a floating-point number, even
    for integer data types.")
 
-(lisp-unit:define-test median-percentile
-  (lisp-unit:assert-first-fp-equal
-   "0.100000000000d+01"
-   (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
-     (median vec)))
-  (lisp-unit:assert-first-fp-equal
-   "0.185000000000d+01"
-   (letm ((vec (vector-double #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
-     (quantile vec 0.75d0))))
+;;; Examples and unit test
+
+#|
+(make-tests median-percentile
+  (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+     (median vec))
+  (letm ((vec (vector-double #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
+     (quantile vec 0.75d0)))
+|#
+
+(LISP-UNIT:DEFINE-TEST MEDIAN-PERCENTILE
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.0d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((VEC (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0))))
+      (MEDIAN VEC))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.85d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((VEC (VECTOR-DOUBLE #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
+      (QUANTILE VEC 0.75d0)))))
+

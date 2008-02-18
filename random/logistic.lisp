@@ -1,11 +1,11 @@
 ;; Logistic distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2008-02-03 10:35:08EST logistic.lisp>
+;; Time-stamp: <2008-02-17 13:20:11EST logistic.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl logistic (generator a)
+(defmfun logistic (generator a)
   "gsl_ran_logistic"
   (((generator generator) :pointer) (a :double))
   :c-return :double
@@ -14,7 +14,7 @@
    p(x) dx = { \exp(-x/a) \over a (1 + \exp(-x/a))^2 } dx
    for -\infty < x < +\infty.")
 
-(defun-gsl logistic-pdf (x a)
+(defmfun logistic-pdf (x a)
   "gsl_ran_logistic_pdf" ((x :double) (a :double))
   :c-return :double
   :documentation			; FDL
@@ -22,28 +22,28 @@
    for a logistic distribution with scale parameter a, using the
    formula given in #'logistic.")
 
-(defun-gsl logistic-P (x a)
+(defmfun logistic-P (x a)
   "gsl_cdf_logistic_P" ((x :double) (a :double))
   :c-return :double
   :documentation			; FDL
   "The cumulative distribution functions
   P(x) for the logistic distribution with scale parameter a.")
 
-(defun-gsl logistic-Q (x a)
+(defmfun logistic-Q (x a)
   "gsl_cdf_logistic_Q" ((x :double) (a :double))
   :c-return :double
   :documentation			; FDL
   "The cumulative distribution functions
   Q(x) for the logistic distribution with scale parameter a.")
 
-(defun-gsl logistic-Pinv (P a)
+(defmfun logistic-Pinv (P a)
   "gsl_cdf_logistic_Pinv" ((P :double) (a :double))
   :c-return :double
   :documentation			; FDL
   "The inverse cumulative distribution functions
   P(x) for the logistic distribution with scale parameter a.")
 
-(defun-gsl logistic-Qinv (Q a)
+(defmfun logistic-Qinv (Q a)
   "gsl_cdf_logistic_Qinv" ((Q :double) (a :double))
   :c-return :double
   :documentation			; FDL
@@ -51,29 +51,47 @@
    Q(x) for the logistic distribution with scale parameter a.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test logistic
-  (lisp-unit:assert-equal
-   '("0.826131993192d+02" "-0.163673460427d+02" "-0.931513272044d+01"
-     "0.288702070871d+02" "-0.119898098758d+02" "-0.601236476200d+00"
-     "0.311425552636d+02" "0.106846737210d+02" "0.160518409540d+01"
-     "0.104572419047d+02" "0.115237141063d+02")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests logistic
+  (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (logistic rng 10.0d0)))))
-  (lisp-unit:assert-first-fp-equal
-   "0.235003712202d+00"
-   (logistic-pdf 0.5d0 1.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.622459331202d+00"
-   (logistic-P 0.5d0 1.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.377540668798d+00"
-   (logistic-Q 0.5d0 1.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.500000000000d+00"
-   (logistic-Pinv 0.6224593312018546d0 1.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.500000000000d+00"
-   (logistic-Qinv 0.37754066879814546d0 1.0d0)))
+	    (logistic rng 10.0d0)))
+  (logistic-pdf 0.5d0 1.0d0)
+  (logistic-P 0.5d0 1.0d0)
+  (logistic-Q 0.5d0 1.0d0)
+  (logistic-Pinv 0.6224593312018546d0 1.0d0)
+  (logistic-Qinv 0.37754066879814546d0 1.0d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST LOGISTIC
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 82.6131993192451d0 -16.367346042668906d0
+	  -9.31513272043762d0 28.87020708710654d0
+	  -11.989809875784625d0 -0.6012364762000397d0
+	  31.142555263622d0 10.684673721048895d0
+	  1.6051840954024446d0 10.457241904701199d0
+	  11.523714106294097d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (LOGISTIC RNG 10.0d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.2350037122015945d0)
+   (MULTIPLE-VALUE-LIST (LOGISTIC-PDF 0.5d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.6224593312018546d0)
+   (MULTIPLE-VALUE-LIST (LOGISTIC-P 0.5d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.37754066879814546d0)
+   (MULTIPLE-VALUE-LIST (LOGISTIC-Q 0.5d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.5000000000000001d0)
+   (MULTIPLE-VALUE-LIST
+    (LOGISTIC-PINV 0.6224593312018546d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.4999999999999998d0)
+   (MULTIPLE-VALUE-LIST
+    (LOGISTIC-QINV 0.37754066879814546d0 1.0d0))))
+

@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-02-03 21:53:32EST histogram.lisp>
+;; Time-stamp: <2008-02-17 16:51:35EST histogram.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -26,18 +26,18 @@
   (:documentation
    "A histogram, including bin boundaries and bin contents."))
 
-(defun-gsl alloc-histo-1 (object)
+(defmfun alloc-histo-1 (object)
   "gsl_histogram_alloc"
-  (((number-of-bins object) :size))
+  (((number-of-bins object) size))
   :export nil
   :index (letm histogram)
   :c-return (cr :pointer)
   :return ((assign-pointer object cr)))
 
-(defun-gsl alloc-histo-2 (object)
+(defmfun alloc-histo-2 (object)
   "gsl_histogram2d_alloc"
-  (((first (number-of-bins object)) :size)
-   ((second (number-of-bins object)) :size))
+  (((first (number-of-bins object)) size)
+   ((second (number-of-bins object)) size))
   :export nil
   :index (letm histogram)
   :c-return (cr :pointer)
@@ -56,7 +56,7 @@
 (defmethod alloc ((object histogram))
   (histo-1d2d object alloc-histo))
 
-(defun-gsl free-histo-1 (object)
+(defmfun free-histo-1 (object)
   "gsl_histogram_free"
   (((pointer object) :pointer))
   :c-return (cr :pointer)
@@ -64,7 +64,7 @@
   :export nil
   :index (letm histogram))
 
-(defun-gsl free-histo-2 (object)
+(defmfun free-histo-2 (object)
   "gsl_histogram2d_free"
   (((pointer object) :pointer))
   :c-return (cr :pointer)
@@ -77,10 +77,10 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defun-gsl set-ranges-1 (histogram ranges)
+(defmfun set-ranges-1 (histogram ranges)
   "gsl_histogram_set_ranges"
   (((pointer histogram) :pointer)
-   ((gsl-array ranges) :pointer) ((dim0 ranges) :size))
+   ((gsl-array ranges) :pointer) ((dim0 ranges) size))
   :export nil
   :index (letm histogram)
   :documentation			; FDL
@@ -90,11 +90,11 @@
    desired bin limits.  The ranges can be arbitrary, subject to the
    restriction that they are monotonically increasing.")
 
-(defun-gsl set-ranges-2 (histogram x-ranges y-ranges)
+(defmfun set-ranges-2 (histogram x-ranges y-ranges)
   "gsl_histogram2d_set_ranges"
   (((pointer histogram) :pointer)
-   ((gsl-array x-ranges) :pointer) ((dim0 x-ranges) :size)
-   ((gsl-array y-ranges) :pointer) ((dim0 y-ranges) :size))
+   ((gsl-array x-ranges) :pointer) ((dim0 x-ranges) size)
+   ((gsl-array y-ranges) :pointer) ((dim0 y-ranges) size))
   :export nil
   :index (letm histogram))
 
@@ -112,7 +112,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defun-gsl set-ranges-uniform-1 (histogram minimum maximum)
+(defmfun set-ranges-uniform-1 (histogram minimum maximum)
   "gsl_histogram_set_ranges_uniform"
   (((pointer histogram) :pointer) (minimum :double) (maximum :double))
   :export nil
@@ -130,7 +130,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defun-gsl set-ranges-uniform-2
+(defmfun set-ranges-uniform-2
     (histogram x-minimum x-maximum y-minimum y-maximum)
   "gsl_histogram2d_set_ranges_uniform"
   (((pointer histogram) :pointer)
@@ -156,7 +156,7 @@
 	      ((first limits) (second limits)
 	       (third limits) (fourth limits))))
 
-(defun-gsl copy-1 (destination source)
+(defmfun copy-1 (destination source)
   "gsl_histogram_memcpy"
   (((pointer destination) :pointer) ((pointer source) :pointer))
   :export nil
@@ -167,7 +167,7 @@
    an exact copy of the former.
    The two histograms must be of the same size.")
 
-(defun-gsl copy-2 (destination source)
+(defmfun copy-2 (destination source)
   "gsl_histogram2d_memcpy"
   (((pointer destination) :pointer) ((pointer source) :pointer))
   :export nil
@@ -176,7 +176,7 @@
 (defmethod copy ((destination histogram) (source histogram))
   (histo-1d2d destination copy (source)))
 
-(defun-gsl clone-1 (source)
+(defmfun clone-1 (source)
   "gsl_histogram_memcpy"
   (((pointer source) :pointer))
   :export nil
@@ -185,7 +185,7 @@
   "Create a new histogram which is an
    exact copy of the histogram source, and return the pointer.")
 
-(defun-gsl clone-2 (source)
+(defmfun clone-2 (source)
   "gsl_histogram2d_memcpy"
   (((pointer source) :pointer))
   :export nil

@@ -1,6 +1,6 @@
 ;; Trigonometry
 ;; Liam Healy, Thu May  4 2006 - 22:58
-;; Time-stamp: <2008-02-16 22:59:12EST trigonometry.lisp>
+;; Time-stamp: <2008-02-17 18:30:19EST trigonometry.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -10,10 +10,10 @@
 ;;;;****************************************************************************
 
 (defgeneric gsl-sin (x)
-  (:documentation "The sine function @math{\sin(x)}."))
+  (:documentation "The sine function sin(x)."))
 
 (defgeneric gsl-cos (x)
-  (:documentation "The cosine function @math{\sin(x)}."))
+  (:documentation "The cosine function cos(x)."))
 
 (defmfun gsl-sin ((x float))
   "gsl_sf_sin_e" ((x :double) (ret sf-result))

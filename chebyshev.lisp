@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-02-03 13:22:58EST chebyshev.lisp>
+;; Time-stamp: <2008-02-17 18:02:26EST chebyshev.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -12,36 +12,36 @@
 (defgo-s (chebyshev order function lower-limit upper-limit)
 	 allocate-chebyshev free-chebyshev initialize-chebyshev)
 
-(defun-gsl allocate-chebyshev (order)
+(defmfun allocate-chebyshev (order)
   "gsl_cheb_alloc"
-  ((order :size))
+  ((order size))
   :c-return :pointer
   :export nil
   :index (letm chebyshev)
-  :documentation
+  :documentation			; FDL
   "Allocate a Chebyshev series of specified order
    and return a pointer to it.")
 
-(defun-gsl free-chebyshev (chebyshev)
+(defmfun free-chebyshev (chebyshev)
   "gsl_cheb_free"
   ((chebyshev :pointer))
   :c-return :void
   :export nil
   :index (letm chebyshev)
-  :documentation
+  :documentation			; FDL
   "Free a previously allocated Chebyshev series.")
 
-(defun-gsl initialize-chebyshev (chebyshev function lower-limit upper-limit)
+(defmfun initialize-chebyshev (chebyshev function lower-limit upper-limit)
   "gsl_cheb_init"
   ((chebyshev :pointer) (function :pointer)
    (lower-limit :double) (upper-limit :double))
   :export nil
   :index (letm chebyshev)
-  :documentation
+  :documentation			; FDL
   "Compute the Chebyshev approximation for the function over the range
    (lower-limit, upper-limit) to the previously specified order.  The
-   computation of the Chebyshev approximation is an @math{O(n^2)}
-   process, and requires @math{n} function evaluations.")
+   computation of the Chebyshev approximation is an O(n^2)
+   process, and requires n function evaluations.")
 
 ;;;;****************************************************************************
 ;;;; Chebyshev series evaluation
@@ -51,45 +51,45 @@
 ;;; to use the functions that do return error (and ignore it if
 ;;; desired) in the form of #'evaluate-chebyshev.
 
-(defun-gsl evaluate-chebyshev-noerror (chebyshev x)
+(defmfun evaluate-chebyshev-noerror (chebyshev x)
   "gsl_cheb_eval"
   ((chebyshev :pointer) (x :double))
   :c-return :double
   :index evaluate-chebyshev
   :export nil
-  :documentation
+  :documentation			; FDL
   "Evaluate the Chebyshev series at a point x.")
 
-(defun-gsl evaluate-chebyshev-noerror-order (chebyshev x order)
+(defmfun evaluate-chebyshev-noerror-order (chebyshev x order)
   "gsl_cheb_eval_n"
-  ((chebyshev :pointer) (order :size) (x :double))
+  ((chebyshev :pointer) (order size) (x :double))
   :c-return :double
   :index evaluate-chebyshev
   :export nil
-  :documentation
+  :documentation			; FDL
   "Evaluate the Chebyshev series at a point x to at most the given order.")
 
-(defun-gsl evaluate-chebyshev-full (chebyshev x)
+(defmfun evaluate-chebyshev-full (chebyshev x)
   "gsl_cheb_eval_err"
   ((chebyshev :pointer) (x :double) (result :double) (abserr :double))
   :index evaluate-chebyshev
   :export nil
-  :documentation
+  :documentation			; FDL
   "Evaluate the Chebyshev series at a point x, returning result and
    an estimate of its absolute error.")
 
-(defun-gsl evaluate-chebyshev-order (chebyshev x order)
+(defmfun evaluate-chebyshev-order (chebyshev x order)
   "gsl_cheb_eval_n_err"
-  ((chebyshev :pointer) (order :size) (x :double) (result :double) (abserr :double))
+  ((chebyshev :pointer) (order size) (x :double) (result :double) (abserr :double))
   :index evaluate-chebyshev
   :export nil
-  :documentation
+  :documentation			; FDL
   "Evaluate the Chebyshev series at a point x to at most the given order,
    returning result and an estimate of its absolute error.")
 
 (export 'evaluate-chebyshev)
 (defun-optionals evaluate-chebyshev (chebyshev x &optional order)
-  -full -order
+  -full -order				; FDL
   "Evaluate the Chebyshev series at a point x to at most the given order,
    returning result and an estimate of its absolute error.")
 
@@ -97,18 +97,18 @@
 ;;;; Derivatives and integrals
 ;;;;****************************************************************************
 
-(defun-gsl derivative-chebyshev (derivative chebyshev)
+(defmfun derivative-chebyshev (derivative chebyshev)
   "gsl_cheb_calc_deriv"
   ((derivative :pointer) (chebyshev :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the derivative of the Chebyshev series, storing
    the derivative coefficients in the previously allocated series.
    The two series must have been allocated with the same order.")
 
-(defun-gsl integral-chebyshev (integral chebyshev)
+(defmfun integral-chebyshev (integral chebyshev)
   "gsl_cheb_calc_integ"
   ((integral :pointer) (chebyshev :pointer))
-  :documentation
+  :documentation			; FDL
   "Compute the integral of the Chebyshev series, storing
    the integral coefficients in the previously allocated series.
    The two series must have been allocated with the same order.
@@ -147,7 +147,16 @@
      (evaluate-chebyshev deriv x)
      (evaluate-chebyshev integ x))))
 
-(lisp-unit:define-test chebyshev
-  (lisp-unit:assert-equal
-   '("0.715920990169d+00" "-0.150199666581d+01" "0.172397194040d+00")
-   (lisp-unit:fp-sequence (chebyshev-point-example 0.55d0))))
+
+#|
+(make-tests chebyshev
+  (chebyshev-point-example 0.55d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST CHEBYSHEV
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 0.7159209901689866d0 -1.5019966658054353d0
+	  0.17239719403979925d0))
+   (MULTIPLE-VALUE-LIST (CHEBYSHEV-POINT-EXAMPLE 0.55d0))))
+

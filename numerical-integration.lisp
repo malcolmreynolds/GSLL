@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-02-16 11:07:23EST numerical-integration.lisp>
+;; Time-stamp: <2008-02-17 11:43:47EST numerical-integration.lisp>
 ;; $Id: $
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -11,24 +11,24 @@
 ;;;; QNG non-adaptive Gauss-Kronrod integration
 ;;;;****************************************************************************
 
-(defun-gsl integration-QNG
-    (function a b &optional (epsabs 1.0d0) (epsrel 1.0d0))
-  ;; Set epsabs and epsrel to 1 because it apparently doesn't matter
+(defmfun integration-QNG
+    (function a b &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+  ;; Set absolute-error and relative-error to 1 because it apparently doesn't matter
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
   "gsl_integration_qng"
   ((function :pointer)
    (a :double) (b :double)
-   (epsabs :double) (epsrel :double)
-   (result :double) (abserr :double) (neval :size))
-  :documentation
+   (absolute-error :double) (relative-error :double)
+   (result :double) (abserr :double) (neval size))
+  :documentation			; FDL
   "Apply the Gauss-Kronrod 10-point, 21-point, 43-point and
    87-point integration rules in succession until an estimate of the
-   integral of @math{f} over @math{(a,b)} is achieved within the desired
-   absolute and relative error limits, @var{epsabs} and @var{epsrel}.  The
+   integral of f over (a,b) is achieved within the desired
+   absolute and relative error limits, absolute-error and relative-error.  The
    function returns the final approximation, an estimate of
    the absolute error, and the number of function evaluations
-   used, @var{neval}.  The Gauss-Kronrod rules are designed in such a way
+   used.  The Gauss-Kronrod rules are designed in such a way
    that each rule uses all the results of its predecessors, in order to
    minimize the total number of function evaluations.")
 
@@ -39,44 +39,46 @@
 (defgo-s (integration-workspace size)
 	 integration-workspace-alloc integration-workspace-free)
 
-(defun-gsl integration-workspace-alloc (size)
-  "gsl_integration_workspace_alloc" ((size :size))
+(defmfun integration-workspace-alloc (size)
+  "gsl_integration_workspace_alloc" ((size size))
   :c-return :pointer
   :export nil
   :index (letm integration-workspace)
-  :documentation "Allocate a workspace sufficient to hold @var{n} double
+  :documentation			; FDL
+  "Allocate a workspace sufficient to hold n double
   precision intervals, their integration results and error estimates.")
 
-(defun-gsl integration-workspace-free (pointer)
+(defmfun integration-workspace-free (pointer)
   "gsl_integration_workspace_free" ((pointer :pointer))
   :c-return :void
   :export nil
   :index (letm integration-workspace)
-  :documentation "Free the memory associated with the workspace @var{w}.")
+  :documentation			; FDL
+  "Free the memory associated with the workspace.")
 
 (cffi:defcenum integrate-method
   :gauss15 :gauss21 :gauss31
   :gauss41 :gauss51 :gauss61)
 
-(defun-gsl integration-QAG
+(defmfun integration-QAG
     (function a b method limit workspace
-	      &optional (epsabs 1.0d0) (epsrel 1.0d0))
-  ;; Set epsabs and epsrel to 1 because it apparently doesn't matter
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+  ;; Set absolute-error and relative-error to 1 because it apparently doesn't matter
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
   "gsl_integration_qag"
   ((function :pointer)
    (a :double) (b :double)
-   (epsabs :double) (epsrel :double)
-   (limit :size) (method integrate-method) (workspace :pointer)
+   (absolute-error :double) (relative-error :double)
+   (limit size) (method integrate-method) (workspace :pointer)
    (result :double) (abserr :double))
-  :documentation
+  :documentation			; FDL
   "Apply an integration rule adaptively until an estimate
-  of the integral of @math{f} over @math{(a,b)} is achieved within the
-  desired absolute and relative error limits, @var{epsabs} and
-  @var{epsrel}.  The function returns the final approximation,
+  of the integral of f over (a,b) is achieved within the
+  desired absolute and relative error limits, absolute-error and
+  relative-error.  The function returns the final approximation,
   and an estimate of the absolute error.  The integration rule
-  is determined by the value of @var{method}, which should
+  is determined by the value of method, which should
   be chosen from the following symbolic names,
   :gauss15 :gauss21 :gauss31 :gauss41 :gauss51 :gauss61
   corresponding to the 15, 21, 31, 41, 51 and 61 point Gauss-Kronrod
@@ -85,72 +87,73 @@
   difficulties, such as discontinuities.
   On each iteration the adaptive integration strategy bisects the interval
   with the largest error estimate.  The subintervals and their results are
-  stored in the memory provided by @var{workspace}.  The maximum number of
-  subintervals is given by @var{limit}, which may not exceed the allocated
+  stored in the memory provided by workspace.  The maximum number of
+  subintervals is given by limit, which may not exceed the allocated
   size of the workspace.")
 
 ;;;;****************************************************************************
 ;;;; QAGS adaptive integration with singularity
 ;;;;****************************************************************************
 
-(defun-gsl integration-QAGS
-    (function a b limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
+(defmfun integration-QAGS
+    (function a b limit workspace
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qags"
   ((function :pointer)
    (a :double) (b :double)
-   (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
    (result :double) (abserr :double))
-  :documentation
+  :documentation			; FDL
   "Apply the Gauss-Kronrod 21-point integration rule
-   adaptively until an estimate of the integral of @math{f} over
-   @math{(a,b)} is achieved within the desired absolute and relative error
-   limits, @var{epsabs} and @var{epsrel}.  The results are extrapolated
+   adaptively until an estimate of the integral of f over
+   (a,b) is achieved within the desired absolute and relative error
+   limits, absolute-error and relative-error.  The results are extrapolated
    using the epsilon-algorithm, which accelerates the convergence of the
    integral in the presence of discontinuities and integrable
    singularities.  The function returns the final approximation from the
-   extrapolation, @var{result}, and an estimate of the absolute error,
-   @var{abserr}.  The subintervals and their results are stored in the
-   memory provided by @var{workspace}.  The maximum number of subintervals
-   is given by @var{limit}, which may not exceed the allocated size of the
+   extrapolation, and an estimate of the absolute error.  The subintervals
+   and their results are stored in the
+   memory provided by workspace.  The maximum number of subintervals
+   is given by limit, which may not exceed the allocated size of the
    workspace.")
 
 ;;;;****************************************************************************
 ;;;; QAGP adaptive integration with known singular points
 ;;;;****************************************************************************
 
-(defun-gsl integration-QAGP
-    (function points limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
+(defmfun integration-QAGP
+    (function points limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagp"
   ((function :pointer)
-   ((pointer points) :pointer) ((dim0 points) :size)
-   (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
+   ((pointer points) :pointer) ((dim0 points) size)
+   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
    (result :double) (abserr :double))
-  :documentation
+  :documentation			; FDL
   "Apply the adaptive integration algorithm QAGS taking
    account of the user-supplied locations of singular points.  The array
-   @var{pts} of length @var{npts} should contain the endpoints of the
+   pts of length npts should contain the endpoints of the
    integration ranges defined by the integration region and locations of
    the singularities.  For example, to integrate over the region
-   @math{(a,b)} with break-points at @math{x_1, x_2, x_3} (where 
-   @math{a < x_1 < x_2 < x_3 < b}) then an array with
+   (a,b) with break-points at x_1, x_2, x_3 (where 
+   a < x_1 < x_2 < x_3 < b) then an array with
    (setf (data array) #(a x_1 x_2 x_3 b)) should be used.
    If you know the locations of the singular points in the integration
-   region then this routine will be faster than @code{QAGS}.")
+   region then this routine will be faster than #'integration-QAGS.")
 
 ;;;;****************************************************************************
 ;;;; QAGI adaptive integration on infinite intervals
 ;;;;****************************************************************************
 
-(defun-gsl integration-QAGi
-    (function limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
+(defmfun integration-QAGi
+    (function limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagi"
   ((function :pointer)
-   (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
    (result :double) (abserr :double))
-  :documentation
-  "Compute the integral of the function @var{f} over the
-   infinite interval @math{(-\infty,+\infty)}.  The integral is mapped onto the
-   semi-open interval @math{(0,1]} using the transformation @math{x = (1-t)/t},
+  :documentation			; FDL
+  "Compute the integral of the function f over the
+   infinite interval (-\infty,+\infty).  The integral is mapped onto the
+   semi-open interval (0,1] using the transformation x = (1-t)/t,
    \int_{-\infty}^{+\infty} dx \, f(x) 
     = \int_0^1 dt \, (f((1-t)/t) + f(-(1-t)/t))/t^2.
    It is then integrated using the QAGS algorithm.  The normal 21-point
@@ -158,56 +161,56 @@
    transformation can generate an integrable singularity at the origin.  In
    this case a lower-order rule is more efficient.")
 
-(defun-gsl integration-QAGiu
-    (function a limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
+(defmfun integration-QAGiu
+    (function a limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagiu"
   ((function :pointer) (a :double)
-   (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
    (result :double) (abserr :double))
-  :documentation
-  "Compute the integral of the function @var{f} over the
-   semi-infinite interval @math{(a,+\infty)}.  The integral is mapped onto the
-   semi-open interval @math{(0,1]} using the transformation @math{x = a + (1-t)/t},
-   \int_{a}^{+\infty} dx \, f(x) = \int_0^1 dt \, f(a + (1-t)/t)/t^2
+  :documentation			; FDL
+  "Compute the integral of the function f over the
+   semi-infinite interval (a,+\infty).  The integral is mapped onto the
+   semi-open interval (0,1] using the transformation x = a + (1-t)/t,
+   int_{a}^{+\infty} dx,  f(x) = \int_0^1 dt f(a + (1-t)/t)/t^2
    and then integrated using the QAGS algorithm.")
 
-(defun-gsl integration-QAGil
-    (function b limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
+(defmfun integration-QAGil
+    (function b limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagil"
   ((function :pointer) (b :double)
-   (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
    (result :double) (abserr :double))
-  :documentation
-  "Compute the integral of the function @var{f} over the
-   semi-infinite interval @math{(-\infty,b)}.  The integral is mapped onto the
-   semi-open interval @math{(0,1]} using the transformation @math{x = b - (1-t)/t},
-   \int_{-\infty}^{b} dx \, f(x) = \int_0^1 dt \, f(b - (1-t)/t)/t^2
+  :documentation			; FDL
+  "Compute the integral of the function f over the
+   semi-infinite interval (-\infty,b).  The integral is mapped onto the
+   semi-open interval (0,1] using the transformation x = b - (1-t)/t,
+   \int_{-\infty}^{b} dx, f(x) = \int_0^1 dt, f(b - (1-t)/t)/t^2
    and then integrated using the QAGS algorithm.")
 
 ;;;;****************************************************************************
 ;;;; QAWC adaptive integration for Cauchy principal values
 ;;;;****************************************************************************
 
-(defun-gsl integration-QAWC
-    (function a b c limit workspace &optional (epsabs 1.0d0) (epsrel 1.0d0))
+(defmfun integration-QAWC
+    (function a b c limit workspace
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qawc"
   ((function :pointer)
    (a :double) (b :double) (c :double)
-   (epsabs :double) (epsrel :double) (limit :size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
    (result :double) (abserr :double))
-  :documentation
+  :documentation			; FDL
   "Compute the Cauchy principal value of the integral of
-   @math{f} over @math{(a,b)}, with a singularity at @var{c},
-   I = \int_a^b dx\, {f(x) \over x - c} = \lim_{\epsilon \to 0} 
-   \left\{\int_a^{c-\epsilon} dx\, {f(x) \over x - c} +
-   \int_{c+\epsilon}^b dx\, {f(x) \over x - c} \right\}
+   f over (a,b), with a singularity at c,
+   I = \int_a^b dx, {f(x)/x - c} = lim_{epsilon -> 0}
+   {\int_a^{c-epsilon} dx, {f(x)/x - c} + \int_{c+epsilon}^b dx,
+   {f(x) \over x - c}}
    The adaptive bisection algorithm of QAG is used, with modifications to
-   ensure that subdivisions do not occur at the singular point @math{x = c}.
-   When a subinterval contains the point @math{x = c} or is close to
+   ensure that subdivisions do not occur at the singular point x = c.
+   When a subinterval contains the point x = c or is close to
    it then a special 25-point modified Clenshaw-Curtis rule is used to control
-   the singularity.  Further away from the
-   singularity the algorithm uses an ordinary 15-point Gauss-Kronrod
-   integration rule.")
+   the singularity.  Further away from the singularity the algorithm
+   uses an ordinary 15-point Gauss-Kronrod integration rule.")
 
 
 ;;;;****************************************************************************
@@ -222,15 +225,28 @@
   (defun-single two-sine (x) (sin (* mult x))))
 |#
 
-(lisp-unit:define-test numerical-integration
-  (lisp-unit:assert-first-fp-equal
-   "0.200000000000d+01"
-   (integration-qng one-sine 0.0d0 pi))
-  (lisp-unit:assert-first-fp-equal
-   "0.200000000000d+01"
-   (letm ((ws (integration-workspace 20)))
-     (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws)))
-  (lisp-unit:assert-error
-   'gsl-error
-   (letm ((ws (integration-workspace 20)))
-     (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws))))
+#|
+(make-tests numerical-integration
+  (integration-qng one-sine 0.0d0 pi)
+  (letm ((ws (integration-workspace 20)))
+     (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws))
+  (letm ((ws (integration-workspace 20)))
+     (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws)))
+|#
+
+(LISP-UNIT:DEFINE-TEST NUMERICAL-INTEGRATION
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2.0d0 2.220446049250313d-14 21)
+   (MULTIPLE-VALUE-LIST
+    (INTEGRATION-QNG ONE-SINE 0.0d0 PI)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2.0d0 2.220446049250313d-14)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((WS (INTEGRATION-WORKSPACE 20)))
+      (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 20
+		       WS))))
+  (LISP-UNIT:ASSERT-ERROR
+   'GSL-ERROR
+   (LETM ((WS (INTEGRATION-WORKSPACE 20)))
+     (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 50 WS))))
+

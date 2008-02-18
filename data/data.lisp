@@ -1,6 +1,6 @@
-;; Using GSL storage.
+;; Using GSL bulk data (vectors, matrices, etc.) storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-02-10 15:30:20EST data.lisp>
+;; Time-stamp: <2008-02-17 09:18:27EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -94,7 +94,7 @@
   (setf (pointer object) pointer))
 
 ;;; (args (loop for i below dimensions collect (intern (format nil "I~d" i))))
-;;; (mapcar (lambda (v) `(,v :size))			    args)
+;;; (mapcar (lambda (v) `(,v size))			    args)
 
 (defparameter *data-name-alist*
   '((FIXNUM . "_int")
@@ -163,7 +163,7 @@
   (flet ((gsl-name (function-name)
 	   (format nil "gsl_~a_~a" c-string function-name)))
     (let* ((cargs (loop for i below dimensions
-			collect `((nth ,i (storage-size object)) :size)))
+			collect `((nth ,i (storage-size object)) size)))
 	   (object-name (make-symbol-from-strings *gsl-prefix* cl-symbol)))
       `(progn
 	(defclass ,object-name (,superclass)
@@ -171,31 +171,31 @@
 			 :allocation :class)))
 	(data-go ,cl-symbol
 	 ,(or (member superclass '(gsl-matrix)) (member object-name '(gsl-combination))))
-	(defun-gsl alloc ((object ,object-name))
+	(defmfun alloc ((object ,object-name))
 	  ,(gsl-name "alloc") ,cargs
 	  :type :method
 	  :c-return (cr :pointer)
 	  :return ((assign-pointer object cr)))
-	(defun-gsl calloc ((object ,object-name))
+	(defmfun calloc ((object ,object-name))
 	  ,(gsl-name "calloc") ,cargs
 	  :type :method
 	  :c-return (cr :pointer)
 	  :return ((assign-pointer object cr)))
-	(defun-gsl free ((object ,object-name))
+	(defmfun free ((object ,object-name))
 	  ,(gsl-name "free") (((pointer object) :pointer))
 	  :type :method
 	  :c-return :void)
-	(defun-gsl write-binary ((object ,object-name) stream)
+	(defmfun write-binary ((object ,object-name) stream)
 	  ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
 	  :type :method)
-	(defun-gsl read-binary ((object ,object-name) stream)
+	(defmfun read-binary ((object ,object-name) stream)
 	  ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
 	  :type :method)
-	(defun-gsl write-formatted ((object ,object-name) stream format)
+	(defmfun write-formatted ((object ,object-name) stream format)
 	  ,(gsl-name "fprintf")
 	  ((stream :pointer) ((pointer object) :pointer) (format :string))
 	  :type :method)
-	(defun-gsl read-formatted ((object ,object-name) stream format)
+	(defmfun read-formatted ((object ,object-name) stream format)
 	  ,(gsl-name "fscanf")
 	  ((stream :pointer) ((pointer object) :pointer) (format :string))
 	  :type :method)))))
@@ -213,13 +213,13 @@
 ;;; (make-symbol-from-strings *gsl-prefix* 'vector-fixnum)
 ;;; GSL-VECTOR-FIXNUM
 
-(defun defun-gsl-all (types ctypes string general-class args)
-  "A defun-gsl for each of the declared data types."
+(defun defmfun-all (types ctypes string general-class args)
+  "A defmfun for each of the declared data types."
   `(progn
      ,@(loop for type in types
 	  for ctype in ctypes
 	  collect
-	  `(defun-gsl ,(first args)
+	  `(defmfun ,(first args)
 	       ;; Set the class name for the arglist
 	       ,(mapcar
 		 (lambda (x)

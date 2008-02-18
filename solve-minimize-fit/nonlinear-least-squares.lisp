@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-02-10 23:16:29EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-02-17 18:26:44EST nonlinear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -16,9 +16,9 @@
 			 function initial-guess)
     allocate-ffit free-ffit set-ffit 3)
 
-(defun-gsl allocate-ffit (solver-type number-of-observations number-of-parameters)
+(defmfun allocate-ffit (solver-type number-of-observations number-of-parameters)
   "gsl_multifit_fsolver_alloc"
-  ((solver-type :pointer) (number-of-observations :size) (number-of-parameters :size))
+  ((solver-type :pointer) (number-of-observations size) (number-of-parameters size))
   :c-return :pointer
   :export nil
   :index (letm nonlinear-ffit)
@@ -26,14 +26,14 @@
   "Allocate an instance of a solver.  The number of observations
    must be greater than or equal to parameters.")
 
-(defun-gsl set-ffit (solver function initial-guess)
+(defmfun set-ffit (solver function initial-guess)
   "gsl_multifit_fsolver_set"
   ((solver :pointer) (function :pointer) (initial-guess :pointer))
   :documentation			; FDL
   "Initialize or reinitialize an existing solver
    to use the function and the initial guess.")
 
-(defun-gsl free-ffit (solver)
+(defmfun free-ffit (solver)
   "gsl_multifit_fsolver_free"
   ((solver :pointer))
   :c-return :void
@@ -42,7 +42,7 @@
   :documentation			; FDL
   "Free all the memory associated with the solver.")
 
-(defun-gsl name-ffit (solver)
+(defmfun name-ffit (solver)
   "gsl_multifit_fsolver_name"
   ((solver :pointer))
   :c-return :string
@@ -57,9 +57,9 @@
 			   functions initial-guess)
     allocate-fdffit free-fdffit set-fdffit 3)
 
-(defun-gsl allocate-fdffit (solver-type number-of-observations number-of-parameters)
+(defmfun allocate-fdffit (solver-type number-of-observations number-of-parameters)
   "gsl_multifit_fdfsolver_alloc"
-  ((solver-type :pointer) (number-of-observations :size) (number-of-parameters :size))
+  ((solver-type :pointer) (number-of-observations size) (number-of-parameters size))
   :c-return :pointer
   :export nil
   :index (letm nonlinear-fdffit)
@@ -67,14 +67,14 @@
   "Allocate an instance of a solver.  The number of observations
    must be greater than or equal to parameters.")
 
-(defun-gsl set-fdffit (solver function initial-guess)
+(defmfun set-fdffit (solver function initial-guess)
   "gsl_multifit_fdfsolver_set"
   ((solver :pointer) (function :pointer) ((pointer initial-guess) :pointer))
   :documentation			; FDL
   "Initialize or reinitialize an existing solver
    to use the function and the initial guess.")
 
-(defun-gsl free-fdffit (solver)
+(defmfun free-fdffit (solver)
   "gsl_multifit_fdfsolver_free"
   ((solver :pointer))
   :c-return :void
@@ -83,7 +83,7 @@
   :documentation			; FDL
   "Free all the memory associated with the solver.")
 
-(defun-gsl name-fdffit (solver)
+(defmfun name-fdffit (solver)
   "gsl_multifit_fdfsolver_name"
   ((solver :pointer))
   :c-return :string
@@ -114,7 +114,7 @@
   ;; See /usr/include/gsl/gsl_multifit_nlin.h
   "The definition of a function for nonlinear least squares fitting in GSL."
   (function :pointer)
-  (dimensions :size)
+  (dimensions size)
   (parameters :pointer))
 
 (cffi:defcstruct gsl-fdffit-function
@@ -124,8 +124,8 @@
   (function :pointer)
   (df :pointer)
   (fdf :pointer)
-  (number-of-observations :size)
-  (number-of-parameters :size)
+  (number-of-observations size)
+  (number-of-parameters size)
   (parameters :pointer))
 
 (export 'def-fitting-functions)
@@ -153,21 +153,21 @@
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defun-gsl iterate-ffit (solver)
+(defmfun iterate-ffit (solver)
   "gsl_multifit_fsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The solver maintains a
    current estimate of the best-fit parameters at all times. ")
 
-(defun-gsl iterate-fdffit (solver)
+(defmfun iterate-fdffit (solver)
   "gsl_multifit_fdfsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The solver maintains a
    current estimate of the best-fit parameters at all times. ")
 
-(defun-gsl current-parameters-ffit (solver)
+(defmfun current-parameters-ffit (solver)
   "gsl_multifit_fsolver_position"
   ((solver :pointer))
   :c-return (canswer :pointer)
@@ -175,7 +175,7 @@
   :documentation			; FDL
   "The current best-fit parameters.")
 
-(defun-gsl current-parameters-fdffit (solver)
+(defmfun current-parameters-fdffit (solver)
   "gsl_multifit_fdfsolver_position"
   ((solver :pointer))
   :c-return (canswer :pointer)
@@ -187,7 +187,7 @@
 ;;;; Search stopping
 ;;;;****************************************************************************
 
-(defun-gsl fit-test-delta
+(defmfun fit-test-delta
     (last-step current-position absolute-error relative-error)
   "gsl_multifit_test_delta"
   ((last-step :pointer) (current-position :pointer)
@@ -200,7 +200,7 @@
    if |last-step_i| < absolute-error + relative-error |current-position_i|
    for each component i of current-position and returns NIL otherwise.")
 
-(defun-gsl fit-test-gradient (gradient absolute-error)
+(defmfun fit-test-gradient (gradient absolute-error)
   "gsl_multifit_test_gradient"
   ((gradient :pointer) (absolute-error :double))
   :c-return :success-continue
@@ -214,7 +214,7 @@
    is unimportant provided a value can be found where the gradient is small
    enough.")
 
-(defun-gsl fit-gradient (jacobian function-values gradient)
+(defmfun fit-gradient (jacobian function-values gradient)
   "gsl_multifit_gradient"
   ((jacobian :pointer) ((pointer function-values) :pointer) (gradient :pointer))
   :documentation			; FDL
@@ -226,7 +226,7 @@
 ;;;; Minimization using derivatives
 ;;;;****************************************************************************
 
-(defvariable *levenberg-marquardt* "gsl_multifit_fdfsolver_lmsder"
+(defmpar *levenberg-marquardt* "gsl_multifit_fdfsolver_lmsder"
   ;; FDL
   "A robust and efficient version of the Levenberg-Marquardt
    algorithm as implemented in the scaled lmder routine in
@@ -266,9 +266,9 @@
    These error codes indicate that further iterations will be unlikely to
    change the solution from its current value.")
 
-(defvariable *levenberg-marquardt-unscaled* "gsl_multifit_fdfsolver_lmder"
+(defmpar *levenberg-marquardt-unscaled* "gsl_multifit_fdfsolver_lmder"
   ;; FDL
-  "The unscaled version of the @sc{lmder} algorithm.  The elements of the
+  "The unscaled version of *levenberg-marquardt*.  The elements of the
    diagonal scaling matrix D are set to 1.  This algorithm may be
    useful in circumstances where the scaled version of converges too
    slowly, or the function is already scaled appropriately.")
@@ -277,7 +277,7 @@
 ;;;; Covariance
 ;;;;****************************************************************************
 
-(defun-gsl ls-covariance (jacobian relative-error covariance)
+(defmfun ls-covariance (jacobian relative-error covariance)
   "gsl_multifit_covar"
   ((jacobian :pointer) (relative-error :double) ((pointer covariance) :pointer))
   :return (covariance)
@@ -288,26 +288,25 @@
    rank deficient.  The covariance matrix is given by
    C = (J^T J)^{-1}
    and is computed by QR decomposition of J with column-pivoting.  Any
-   columns of R which satisfy |R_{kk}| \leq epsrel |R_{11}|
+   columns of R which satisfy |R_{kk}| <= relative-error |R_{11}|
    are considered linearly-dependent and are excluded from the covariance
    matrix (the corresponding rows and columns of the covariance matrix are
    set to zero).
 
    If the minimisation uses the weighted least-squares function
-   f_i = (Y(x, t_i) - y_i) / \sigma_i then the covariance
+   f_i = (Y(x, t_i) - y_i) / sigma_i then the covariance
    matrix above gives the statistical error on the best-fit parameters
-   resulting from the gaussian errors \sigma_i on 
+   resulting from the gaussian errors sigma_i on 
    the underlying data y_i.  This can be verified from the relation 
    \delta f = J \delta c and the fact that the fluctuations in f
-   from the data y_i are normalised by \sigma_i and 
-   so satisfy \langle \delta f \delta f^T \rangle = I
-   <\delta f \delta f^T> = I.
+   from the data y_i are normalised by sigma_i and 
+   so satisfy <delta f delta f^T> = I.
 
    For an unweighted least-squares function f_i = (Y(x, t_i) -
    y_i) the covariance matrix above should be multiplied by the variance
-   of the residuals about the best-fit \sigma^2 = \sum (y_i - Y(x,t_i))^2 / (n-p)
-   to give the variance-covariance
-   matrix \sigma^2 C.  This estimates the statistical error on the
+   of the residuals about the best-fit sigma^2 = sum (y_i - Y(x,t_i))^2 / (n-p)
+   to give the variance-covariance matrix sigma^2 C.
+   This estimates the statistical error on the
    best-fit parameters from the scatter of the underlying data.
 
    For more information about covariance matrices see the GSL documentation

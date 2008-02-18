@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-02-16 19:57:49EST coulomb.lisp>
+;; Time-stamp: <2008-02-17 18:33:52EST coulomb.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,13 +9,13 @@
 ;;;; Normalized Hydrogenic Bound States
 ;;;;****************************************************************************
 
-(defun-gsl hydrogenicR-1 (x r)
+(defmfun hydrogenicR-1 (x r)
   "gsl_sf_hydrogenicR_1_e" ((x :double) (r :double) (ret sf-result))
   :documentation			; FDL
   "The lowest-order normalized hydrogenic bound state radial
    wavefunction R_1 := 2Z \sqrt{Z} \exp(-Z r).")
 
-(defun-gsl hydrogenicR (n l x r)
+(defmfun hydrogenicR (n l x r)
   "gsl_sf_hydrogenicR_e"
   ((n :int) (l :int) (x :double) (r :double) (ret sf-result))
   :documentation			; FDL
@@ -31,7 +31,7 @@
 
 ;;; Comments are direct from GSL and aren't lispized yet.
 
-(defun-gsl coulomb-wave-FG (eta x L-F k)
+(defmfun coulomb-wave-FG (eta x L-F k)
   "gsl_sf_coulomb_wave_FG_e"
   ((eta :double) (x :double) (L-F :double) (k :int)
    (F sf-result) (Fp sf-result) (G sf-result) (Gp sf-result)
@@ -51,7 +51,7 @@
   :EOVRFLW is signalled and scaling exponents are stored in
   the modifiable parameters exp-F, exp-G.")
 
-(defun-gsl coulomb-wave-F-array (L-min eta x fc-array)
+(defmfun coulomb-wave-F-array (L-min eta x fc-array)
   "gsl_sf_coulomb_wave_F_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((gsl-array fc-array) :pointer) (F-exponent :double))
@@ -62,7 +62,7 @@
   L = Lmin ... Lmin + kmax, storing the results in fc-array.
   In the case of overflow the exponent is stored in the second value returned.")
 
-(defun-gsl coulomb-wave-FG-array (L-min eta x fc-array gc-array)
+(defmfun coulomb-wave-FG-array (L-min eta x fc-array gc-array)
   "gsl_sf_coulomb_wave_FG_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((gsl-array fc-array) :pointer) ((gsl-array gc-array) :pointer)
@@ -74,7 +74,7 @@
   results in fc_array and gc_array.  In the case of overflow the
   exponents are stored in F_exponent and G_exponent.")
 
-(defun-gsl coulomb-wave-FGp-array (L-min eta x fc-array fcp-array gc-array gcp-array)
+(defmfun coulomb-wave-FGp-array (L-min eta x fc-array fcp-array gc-array gcp-array)
   "gsl_sf_coulomb_wave_FGp_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((gsl-array fc-array) :pointer) ((gsl-array fcp-array) :pointer)
@@ -91,7 +91,7 @@
   In the case of overflow the exponents are stored in F_exponent
   and G_exponent.")
 
-(defun-gsl coulomb-wave-sphF-array (L-min eta x fc-array)
+(defmfun coulomb-wave-sphF-array (L-min eta x fc-array)
   "gsl_sf_coulomb_wave_sphF_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((gsl-array fc-array) :pointer) (F-exponent :double))
@@ -108,13 +108,13 @@
 ;;;; Coulomb Wave Function Normalization Constant
 ;;;;****************************************************************************
 
-(defun-gsl coulomb-CL (L eta)
+(defmfun coulomb-CL (L eta)
   "gsl_sf_coulomb_CL_e" ((L :double) (eta :double) (ret sf-result))
   :documentation			; FDL
   "The Coulomb wave function normalization constant C_L(\eta)
    for L > -1.")
 
-(defun-gsl coulomb-CL-array (L-min eta cl)
+(defmfun coulomb-CL-array (L-min eta cl)
   "gsl_sf_coulomb_CL_array"
   ((L-min :double) ((1- (dim0 cl)) :int) (eta :double)
    ((gsl-array cl) :pointer))

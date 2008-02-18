@@ -1,6 +1,6 @@
 ;; Mathematical functions
 ;; Liam Healy, Wed Mar  8 2006 - 22:09
-;; Time-stamp: <2008-01-21 18:01:09EST mathematical.lisp>
+;; Time-stamp: <2008-02-17 09:13:19EST mathematical.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -45,60 +45,65 @@
   (ignore-errors
     (cffi:foreign-funcall "gsl_neginf" :double)))
 
-(defun-gsl nanp (x)
+(defmfun nanp (x)
   "gsl_isnan" ((x :double))
-  :documentation "Return T if x is a double-float NaN."
   :c-return (cr :int)
-  :return ((= 1 cr)))
+  :return ((= 1 cr))
+  :documentation			; FDL
+  "Return T if x is a double-float NaN.")
 
-(defun-gsl infinityp (x)
+(defmfun infinityp (x)
   "gsl_isinf" ((x :double))
-  :documentation "Return +1 if x is positive infinity, -1 if negative infinity
-   nil if finite."
   :c-return (cr :int)
-  :return ((pmnil cr)))
+  :return ((pmnil cr))
+  :documentation			; FDL
+  "Return +1 if x is positive infinity, -1 if negative infinity
+   nil if finite.")
 
-(defun-gsl finitep (x)
-   "gsl_finite" ((x :double))
-  :documentation "Return T if x is finite."
+(defmfun finitep (x)
+  "gsl_finite" ((x :double))
   :c-return (cr :int)
-  :return ((= 1 cr)))
+  :return ((= 1 cr))
+  :documentation			; FDL
+  "Return T if x is finite.")
 
 ;;;;****************************************************************************
 ;;; Elementary functions
 ;;;;****************************************************************************
 
-(defun-gsl log+1 (x)
+(defmfun log+1 (x)
   "gsl_log1p" ((x :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "log(1+x), computed in a way that is accurate for small x.")
 
-(defun-gsl exp-1 (x)
+(defmfun exp-1 (x)
   "gsl_expm1" ((x :double))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "exp(x)-1, computed in a way that is accurate for small x.")
 
-(defun-gsl hypotenuse* (x y)
+(defmfun hypotenuse* (x y)
   ;; This is redundant; there is "gsl_sf_hypot_e" defined as
   ;; #'hyptoenuse.
   "gsl_hypot" ((x :double) (y :double))
   :c-return :double
-  :documentation
+  :documentation			;FDL
   "The hypotenuse sqrt{x^2 + y^2} computed in a way that avoids overflow.")
 
 ;; Not clear why this function exists
-(defun-gsl gsl-asinh (x)
+(defmfun gsl-asinh (x)
    "gsl_asinh" ((x :double))
   :c-return :double
-  :documentation  "Arc hyperbolic sine.")
+  :documentation			; FDL
+  "Arc hyperbolic sine.")
 
 ;; Not clear why this function exists
-(defun-gsl gsl-atanh (x)
+(defmfun gsl-atanh (x)
    "gsl_atanh" ((x :double))
   :c-return :double
-  :documentation  "Arc hyperbolic tangent.")
+  :documentation			; FDL
+  "Arc hyperbolic tangent.")
 
 ;;; gsl_ldexp
 ;;; gsl_frexp
@@ -111,6 +116,7 @@
 ;;; Does CL need these?
 
 #|
+;; FDL
 A common complaint about the standard C library is its lack of a
 function for calculating (small) integer powers. GSL provides a
 simple functions to fill this gap. For reasons of efficiency,
@@ -145,21 +151,22 @@ Function: double gsl_pow_9 (const double x)
 ;;; Approximate Comparison of Floating Point Numbers
 ;;;;****************************************************************************
 
+;;; FDL
 ;;; It is sometimes useful to be able to compare two floating point
 ;;; numbers approximately, to allow for rounding and truncation
 ;;; errors. This function implements the approximate
 ;;; floating-point comparison algorithm proposed by D.E. Knuth in
 ;;; Section 4.2.2 of Seminumerical Algorithms (3rd edition).
 
-(defun-gsl double-float-unequal (x y epsilon)
+(defmfun double-float-unequal (x y epsilon)
   "gsl_fcmp" ((x :double) (y :double) (epsilon :double))
   :c-return (cr :int)
-  :documentation
+  :documentation			; FDL
   "This function determines whether x and y are approximately equal
     to a relative accuracy epsilon.
 
     The relative accuracy is measured using an interval of size 2
-    \delta, where \delta = 2^k \epsilon and k is the maximum
+    delta, where delta = 2^k \epsilon and k is the maximum
     base-2 exponent of x and y as computed by the function
     frexp().
 
@@ -173,6 +180,13 @@ Function: double gsl_pow_9 (const double x)
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
+#|
+(make-tests mathematical
+  (log+1 0.001d0)
+  (exp-1 0.001d0)
+  (hypotenuse 3.0d0 4.0d0))
+|#
+
 (lisp-unit:define-test mathematical
   (lisp-unit:assert-true (nanp +nan+))
   (lisp-unit:assert-false (nanp 1.0d0))
@@ -180,7 +194,13 @@ Function: double gsl_pow_9 (const double x)
   (lisp-unit:assert-false (infinityp 1.0d0))
   (lisp-unit:assert-eq 1 (infinityp +positive-infinity+))
   (lisp-unit:assert-false (finitep +positive-infinity+))
-  (lisp-unit:assert-first-fp-equal "0.999500333084d-03" (log+1 0.001d0))
-  (lisp-unit:assert-first-fp-equal "0.100050016671d-02" (exp-1 0.001d0))
-  (lisp-unit:assert-first-fp-equal "0.500000000000d+01" (hypotenuse 3.0d0 4.0d0))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 9.995003330835331d-4)
+   (MULTIPLE-VALUE-LIST (LOG+1 0.001d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.0010005001667083417d0)
+   (MULTIPLE-VALUE-LIST (EXP-1 0.001d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 5.0d0 2.220446049250313d-15)
+   (MULTIPLE-VALUE-LIST (HYPOTENUSE 3.0d0 4.0d0)))
   (lisp-unit:assert-false (double-float-unequal 1.0d0 1.0d0 0.001d0)))

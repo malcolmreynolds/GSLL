@@ -1,22 +1,17 @@
-;********************************************************
-; file:        updating-accessing.lisp                   
-; description: Updating and accessing histogram          
-;              elements.                                 
-; date:        Mon Jan  1 2007 - 14:43                   
-; author:      Liam M. Healy                             
-; modified:    Sun Jan 28 2007 - 22:19
-;********************************************************
-;;; $Id: $
+;; Updating and accessing histogram elements.
+;; Liam Healy, Mon Jan  1 2007 - 14:43
+;; Time-stamp: <2008-02-17 17:04:08EST updating-accessing.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl increment-fix (histogram value)
+(defmfun increment-fix (histogram value)
   "gsl_histogram_increment"
   (((pointer histogram) :pointer) (value :double))
   :index increment
   :export nil)
 
-(defun-gsl increment-weight (histogram value weight)
+(defmfun increment-weight (histogram value weight)
   "gsl_histogram_accumulate"
   (((pointer histogram) :pointer) (value :double) (weight :double))
   :index increment
@@ -24,93 +19,94 @@
 
 (defun-optionals increment (histogram value &optional weight)
   -fix -weight
-   "Update the histogram @var{h} by adding the weight
+  ;; FDL
+   "Update the histogram by adding the weight
    (which defaults to 1.0) to the
-   bin whose range contains the coordinate @var{x}. 
+   bin whose range contains the coordinate x. 
 
-   If @var{x} lies in the valid range of the histogram then the function
-   returns zero to indicate success.  If @var{x} is less than the lower
-   limit of the histogram then the function issues a warning EDOM, and
-   none of bins are modified.  Similarly, if the value of @var{x} is greater
+   If x lies in the valid range of the histogram then the function
+   returns zero to indicate success.  If x is less than the lower
+   limit of the histogram then the function issues a warning :EDOM, and
+   none of bins are modified.  Similarly, if the value of x is greater
    than or equal to the upper limit of the histogram then the function
-   issues a warning EDOM, and none of the bins are modified.  The error
+   issues a warning :EDOM, and none of the bins are modified.  The error
    handler is not called, however, since it is often necessary to compute
    histograms for a small range of a larger dataset, ignoring the values
    outside the range of interest.")
 
-(defun-gsl gsl-aref ((histogram histogram) &rest i)
+(defmfun gsl-aref ((histogram histogram) &rest i)
   "gsl_histogram_get"
-  (((pointer histogram) :pointer) ((first i) :size))
+  (((pointer histogram) :pointer) ((first i) size))
   :type :method 
   :c-return :double
-  :documentation
-  "Return the contents of the @var{i}-th bin of the histogram.
-   If @var{i} lies outside the valid range of indices for the
-   histogram then an error (EDOM) is signalled.")
+  :documentation			; FDL
+  "Return the contents of the i-th bin of the histogram.
+   If i lies outside the valid range of indices for the
+   histogram then an error (:EDOM) is signalled.")
 
-(defun-gsl range (histogram i)
+(defmfun range (histogram i)
   "gsl_histogram_get_range"
-  (((pointer histogram) :pointer) (i :size)
+  (((pointer histogram) :pointer) (i size)
    (lower :double) (upper :double))
-  :documentation
-  "Find the upper and lower range limits of the @var{i}-th
-   bin of the histogram @var{h}.  If the index @var{i} is valid then the
-   corresponding range limits are stored in @var{lower} and @var{upper}.
+  :documentation			; FDL
+  "Find the upper and lower range limits of the i-th
+   bin of the histogram.  If the index i is valid then the
+   corresponding range limits are stored in lower and upper.
    The lower limit is inclusive (i.e. events with this coordinate are
    included in the bin) and the upper limit is exclusive (i.e. events with
    the coordinate of the upper limit are excluded and fall in the
    neighboring higher bin, if it exists).
-   If @var{i} lies outside the valid range of indices for
-   the histogram, then the error EDOM is signalled.")
+   If i lies outside the valid range of indices for
+   the histogram, then the error :EDOM is signalled.")
 
-(defun-gsl gsl-max-range (histogram)
+(defmfun gsl-max-range (histogram)
   "gsl_histogram_max"
   (((pointer histogram) :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The maximum upper range limit of the histogram.")
 
-(defun-gsl gsl-min-range (histogram)
+(defmfun gsl-min-range (histogram)
   "gsl_histogram_min"
   (((pointer histogram) :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The minimum lower range limit of the histogram.")
 
-(defun-gsl bins (histogram)
+(defmfun bins (histogram)
   "gsl_histogram_bins"
   (((pointer histogram) :pointer))
   :c-return :int
-  :documentation
+  :documentation			; FDL
   "The number of bins in the histogram.")
 
-(defun-gsl reset (histogram)
+(defmfun reset (histogram)
   "gsl_histogram_reset"
   (((pointer histogram) :pointer))
   :c-return :void
-  :documentation
+  :documentation			; FDL
   "Reset all the bins in the histogram to zero.")
 
-(defun-gsl histogram-find-1 (histogram value)
+(defmfun histogram-find-1 (histogram value)
   "gsl_histogram_find"
-  (((pointer histogram) :pointer) (value :double) (bin :size))
+  (((pointer histogram) :pointer) (value :double) (bin size))
   :export nil
   :index histogram-find
-  :documentation
+  :documentation			; FDL
   "Finds the bin number which covers the coordinate value in
    the histogram.  The bin is located using a binary search. The
    search includes an optimization for histograms with uniform
    range, and will return the correct bin immediately in this
    case.  If the value is found in the range of the histogram
    then the function returns the index.  If value lies outside
-   the valid range of the histogram then the error EDOM is
+   the valid range of the histogram then the error :EDOM is
    signalled.")
 
-(defun-gsl histogram-find-2 (histogram x-value y-value)
+(defmfun histogram-find-2 (histogram x-value y-value)
   "gsl_histogram2d_find"
   (((pointer histogram) :pointer)
    (x-value :double) (y-value :double)
-   (xbin :size) (ybin :size))
+   (xbin size) (ybin size))
   :export nil
   :index histogram-find)
 
@@ -121,61 +117,112 @@
 	      ((first values) (second values))))
 
 ;;; Examples and unit test
-(lisp-unit:define-test histogram
-  (lisp-unit:assert-error
-   'gsl-warning
-   (letm ((histo (histogram 10)))
+
+#|
+(make-tests histogram
+ (letm ((histo (histogram 10)))		; should be a gsl-warning here, how to check?
      (set-ranges-uniform histo 0.0d0 10.0d0)
-     (increment histo -2.0d0)))
-  (lisp-unit:assert-first-fp-equal
-   "0.000000000000d+01"
-   (letm ((histo (histogram 10)))
-     (set-ranges-uniform histo 0.0d0 10.0d0)
-     (increment histo 2.7d0)
-     (increment histo 6.9d0 2.0d0)
-     (gsl-aref histo 1)))
-  (lisp-unit:assert-first-fp-equal
-   "0.100000000000d+01"
-   (letm ((histo (histogram 10)))
-     (set-ranges-uniform histo 0.0d0 10.0d0)
-     (increment histo 2.7d0)
-     (increment histo 6.9d0 2.0d0)
-     (gsl-aref histo 2)))
-  (lisp-unit:assert-first-fp-equal
-   "0.200000000000d+01"
-   (letm ((histo (histogram 10)))
-     (set-ranges-uniform histo 0.0d0 10.0d0)
-     (increment histo 2.7d0)
-     (increment histo 6.9d0 2.0d0)
-     (gsl-aref histo 6)))
-  (lisp-unit:assert-error
-   'gsl-error
-   (letm ((histo (histogram 10)))
-     (set-ranges-uniform histo 0.0d0 10.0d0)
-     (increment histo 2.7d0)
-     (increment histo 6.9d0 2.0d0)
-     (gsl-aref histo 16)))
-  (lisp-unit:assert-equal
-   '("0.000000000000d+01" "0.100000000000d+02")
-   (lisp-unit:fp-values
-    (letm ((histo (histogram 10)))
-      (set-ranges-uniform histo 0.0d0 10.0d0)
-      (increment histo 2.7d0)
-      (increment histo 6.9d0 2.0d0)
-      (values (gsl-min-range histo) (gsl-max-range histo)))))
-  (lisp-unit:assert-eql
-   10
-   (letm ((histo (histogram 10)))
-     (set-ranges-uniform histo 0.0d0 10.0d0)
-     (increment histo 2.7d0)
-     (increment histo 6.9d0 2.0d0)
-     (bins histo)))
-  (lisp-unit:assert-eql
-   5
-   (letm ((histo (histogram 10)))
-     (set-ranges-uniform histo 0.0d0 10.0d0)
-     (increment histo 2.7d0)
-     (increment histo 6.9d0 2.0d0)
-     (histogram-find histo 5.5d0))))
+     (increment histo -2.0d0))
+ (letm ((histo (histogram 10)))
+   (set-ranges-uniform histo 0.0d0 10.0d0)
+   (increment histo 2.7d0)
+   (increment histo 6.9d0 2.0d0)
+   (gsl-aref histo 1))
+ (letm ((histo (histogram 10)))
+   (set-ranges-uniform histo 0.0d0 10.0d0)
+   (increment histo 2.7d0)
+   (increment histo 6.9d0 2.0d0)
+   (gsl-aref histo 2))
+ (letm ((histo (histogram 10)))
+   (set-ranges-uniform histo 0.0d0 10.0d0)
+   (increment histo 2.7d0)
+   (increment histo 6.9d0 2.0d0)
+   (gsl-aref histo 6))
+ (letm ((histo (histogram 10)))
+   (set-ranges-uniform histo 0.0d0 10.0d0)
+   (increment histo 2.7d0)
+   (increment histo 6.9d0 2.0d0)
+   (gsl-aref histo 16))
+ (letm ((histo (histogram 10)))
+   (set-ranges-uniform histo 0.0d0 10.0d0)
+   (increment histo 2.7d0)
+   (increment histo 6.9d0 2.0d0)
+   (values (gsl-min-range histo) (gsl-max-range histo)))
+ (letm ((histo (histogram 10)))
+   (set-ranges-uniform histo 0.0d0 10.0d0)
+   (increment histo 2.7d0)
+   (increment histo 6.9d0 2.0d0)
+   (bins histo))
+ (letm ((histo (histogram 10)))
+   (set-ranges-uniform histo 0.0d0 10.0d0)
+   (increment histo 2.7d0)
+   (increment histo 6.9d0 2.0d0)
+   (histogram-find histo 5.5d0)))
+|#
+
+(LISP-UNIT:DEFINE-TEST HISTOGRAM
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((HISTO (HISTOGRAM 10)))
+      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+      (INCREMENT HISTO -2.0d0))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.0d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((HISTO (HISTOGRAM 10)))
+      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+      (INCREMENT HISTO 2.7d0)
+      (INCREMENT HISTO 6.9d0 2.0d0)
+      (GSL-AREF HISTO 1))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.0d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((HISTO (HISTOGRAM 10)))
+      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+      (INCREMENT HISTO 2.7d0)
+      (INCREMENT HISTO 6.9d0 2.0d0)
+      (GSL-AREF HISTO 2))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2.0d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((HISTO (HISTOGRAM 10)))
+      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+      (INCREMENT HISTO 2.7d0)
+      (INCREMENT HISTO 6.9d0 2.0d0)
+      (GSL-AREF HISTO 6))))
+  (LISP-UNIT:ASSERT-ERROR
+   'GSL-ERROR
+   (LETM ((HISTO (HISTOGRAM 10)))
+     (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+     (INCREMENT HISTO 2.7d0)
+     (INCREMENT HISTO 6.9d0 2.0d0)
+     (GSL-AREF HISTO 16)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.0d0 10.0d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((HISTO (HISTOGRAM 10)))
+      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+      (INCREMENT HISTO 2.7d0)
+      (INCREMENT HISTO 6.9d0 2.0d0)
+      (VALUES (GSL-MIN-RANGE HISTO)
+	      (GSL-MAX-RANGE HISTO)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 10)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((HISTO (HISTOGRAM 10)))
+      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+      (INCREMENT HISTO 2.7d0)
+      (INCREMENT HISTO 6.9d0 2.0d0)
+      (BINS HISTO))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 5)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((HISTO (HISTOGRAM 10)))
+      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+      (INCREMENT HISTO 2.7d0)
+      (INCREMENT HISTO 6.9d0 2.0d0)
+      (HISTOGRAM-FIND HISTO 5.5d0)))))
+
 
   

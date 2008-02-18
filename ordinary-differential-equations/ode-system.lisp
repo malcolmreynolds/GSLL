@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2008-01-28 22:21:08EST ode-system.lisp>
+;; Time-stamp: <2008-02-17 17:25:09EST ode-system.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -10,7 +10,7 @@
   "The definition of an ordinary differential equation system for GSL."
   (function :pointer)
   (jacobian :pointer)
-  (dimension :size)
+  (dimension size)
   (parameters :pointer))
 
 (export '(def-ode-functions with-ode-integration))

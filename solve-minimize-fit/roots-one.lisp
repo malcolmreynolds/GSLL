@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-02-03 13:22:55EST roots-one.lisp>
+;; Time-stamp: <2008-02-17 18:13:47EST roots-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -48,73 +48,73 @@
 (defgo-s (fdfsolver type function-derivative root-guess)
 	 allocate-fdfsolver free-fdfsolver set-fdfsolver)
 
-(defun-gsl allocate-fsolver (type)
+(defmfun allocate-fsolver (type)
   "gsl_root_fsolver_alloc"
   ((type :pointer))
   :c-return :pointer
   :export nil
   :index (letm fsolver)
-  :documentation
+  :documentation			; FDL
   "Allocate an instance of a solver of the given type.")
 
-(defun-gsl allocate-fdfsolver (type)
+(defmfun allocate-fdfsolver (type)
   "gsl_root_fdfsolver_alloc"
   ((type :pointer))
   :c-return :pointer
   :export nil
   :index (letm fdfsolver)
-  :documentation
+  :documentation			; FDL
   "Allocate an instance of a derivative-based solver of the given type.")
 
-(defun-gsl set-fsolver (solver function lower upper)
+(defmfun set-fsolver (solver function lower upper)
   "gsl_root_fsolver_set"
   ((solver :pointer) (function :pointer)
    (lower :double) (upper :double))
   :export nil
   :index (letm fsolver)
-  :documentation
+  :documentation			; FDL
   "Initialize or reinitialize an existing solver
    to use the function and the initial search interval
    [lower, upper].")
 
-(defun-gsl set-fdfsolver (solver function-derivative root-guess)
+(defmfun set-fdfsolver (solver function-derivative root-guess)
   "gsl_root_fdfsolver_set"
   ((solver :pointer) (function-derivative :pointer) (root-guess :double))
   :export nil
   :index (letm fdfsolver)
-  :documentation
+  :documentation			; FDL
   "Initialize or reinitialize an existing solver.")
 
-(defun-gsl free-fsolver (solver)
+(defmfun free-fsolver (solver)
   "gsl_root_fsolver_free"
   ((solver :pointer))
   :c-return :void
   :export nil
   :index (letm fsolver)
-  :documentation
+  :documentation			; FDL
   "Free all the memory associated with the solver.")
 
-(defun-gsl free-fdfsolver (solver)
+(defmfun free-fdfsolver (solver)
   "gsl_root_fdfsolver_free"
   ((solver :pointer))
   :c-return :void
   :export nil
   :index (letm fdfsolver)
-  :documentation
+  :documentation			; FDL
   "Free all the memory associated with the solver.")
 
-(defun-gsl fsolver-name (solver)
+(defmfun fsolver-name (solver)
   "gsl_root_fsolver_name"
   ((solver :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the solver.")
 
-(defun-gsl fdfsolver-name (solver)
+(defmfun fdfsolver-name (solver)
   "gsl_root_fdfsolver_name"
   ((solver :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the solver.")
 
 ;;;;****************************************************************************
@@ -122,10 +122,10 @@
 ;;;;****************************************************************************
 
 ;; It appears that this is always returning :SUCCESS (0).
-(defun-gsl iterate-fsolver (solver)
+(defmfun iterate-fsolver (solver)
   "gsl_root_fsolver_iterate"
   ((solver :pointer))
-  :documentation
+  :documentation			; FDL
   "Perform a single iteration of the solver.  The following
    errors may be signalled: :EBADFUNC,
    the iteration encountered a singular point where the function or its
@@ -133,10 +133,10 @@
    :EZERODIV, the derivative of the function vanished at the iteration point,
    preventing the algorithm from continuing without a division by zero.")
 
-(defun-gsl iterate-fdfsolver (solver)
+(defmfun iterate-fdfsolver (solver)
   "gsl_root_fdfsolver_iterate"
   ((solver :pointer))
-  :documentation
+  :documentation			; FDL
   "Perform a single iteration of the solver.  The following
    errors may be signalled: :EBADFUNC,
    the iteration encountered a singular point where the function or its
@@ -144,67 +144,66 @@
    :EZERODIV, the derivative of the function vanished at the iteration point,
    preventing the algorithm from continuing without a division by zero.")
 
-(defun-gsl fsolver-root (solver)
+(defmfun fsolver-root (solver)
   "gsl_root_fsolver_root"
   ((solver :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The current estimate of the root for the solver.")
 
-(defun-gsl fdfsolver-root (solver)
+(defmfun fdfsolver-root (solver)
   "gsl_root_fdfsolver_root"
   ((solver :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The current estimate of the root for the solver.")
 
-(defun-gsl fsolver-lower (solver)
+(defmfun fsolver-lower (solver)
   "gsl_root_fsolver_x_lower"
   ((solver :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The lower end of the current bracketing interval for the solver.")
 
-(defun-gsl fsolver-upper (solver)
+(defmfun fsolver-upper (solver)
   "gsl_root_fsolver_x_upper"
   ((solver :pointer))
   :c-return :double
-  :documentation
+  :documentation 			; FDL
   "The upper end of the current bracketing interval for the solver.")
 
 ;;;;****************************************************************************
 ;;;; Search stopping conditions
 ;;;;****************************************************************************
 
-(defun-gsl root-test-interval (lower upper absolute-error relative-error)
+(defmfun root-test-interval (lower upper absolute-error relative-error)
   "gsl_root_test_interval"
   ((lower :double) (upper :double)
    (absolute-error :double) (relative-error :double))
   :c-return :success-continue	 ; GSL documentation not clear on this
-  :documentation
+  :documentation			; FDL
   "Test for the convergence of the interval [lower,upper]
    with absolute error absolute-error and relative error
    relative-error.  This returns T
    if the following condition is achieved,
    |a - b| < epsabs + epsrel min(|a|,|b|) 
-   when the interval @math{x = [a,b]} does not include the origin.  If the
-   interval includes the origin then @math{\min(|a|,|b|)} is replaced by
-   zero (which is the minimum value of @math{|x|} over the interval).  This
+   when the interval x = [a,b] does not include the origin.  If the
+   interval includes the origin then min(|a|,|b|) is replaced by
+   zero (which is the minimum value of |x| over the interval).  This
    ensures that the relative error is accurately estimated for roots close
    to the origin.
 
    This condition on the interval also implies that any estimate of the
-   root @math{r} in the interval satisfies the same condition with respect
-   to the true root @math{r^*},
-   |r - r^*| < epsabs + epsrel r^*
-   assuming that the true root @math{r^*} is contained within the interval.")
+   root r in the interval satisfies the same condition with respect
+   to the true root r^*, |r - r^*| < epsabs + epsrel r^*
+   assuming that the true root r^* is contained within the interval.")
 
-(defun-gsl root-test-delta (x1 x0 absolute-error relative-error)
+(defmfun root-test-delta (x1 x0 absolute-error relative-error)
   "gsl_root_test_delta"
   ((x1 :double) (x0 :double)
    (absolute-error :double) (relative-error :double))
   :c-return :success-continue
-  :documentation
+  :documentation			; FDL
   "Test for the convergence of the sequence ... x0, x1
    with absolute error absolute-error and relative error
    relative-error.  The test returns T if the following
@@ -212,17 +211,17 @@
    |x_1 - x_0| < epsabs + epsrel |x_1|
    and returns NIL otherwise.")
 
-(defun-gsl root-test-residual (f absolute-error)
+(defmfun root-test-residual (f absolute-error)
   "gsl_root_test_residual"
   ((f :double) (absolute-error :double))
   :c-return :success-continue
-  :documentation
+  :documentation			; FDL
   "Tests the residual value f against the absolute
    error bound absolute-error.  The test returns T if the
    following condition is achieved,
    |f| < epsabs
    and returns NIL otherwise.  This criterion is suitable
-   for situations where the precise location of the root, @math{x}, is
+   for situations where the precise location of the root, x, is
    unimportant provided a value can be found where the residual,
    |f(x)|, is small enough.")
 
@@ -230,7 +229,8 @@
 ;;;; Root bracketing algorithms
 ;;;;****************************************************************************
 
-(defvariable *bisection-fsolver* "gsl_root_fsolver_bisection"
+(defmpar *bisection-fsolver* "gsl_root_fsolver_bisection"
+  ;; FDL
   "The bisection algorithm is the simplest method of bracketing the
    roots of a function.   It is the slowest algorithm provided by
    the library, with linear convergence.
@@ -245,7 +245,8 @@
    At any time the current estimate of the root is taken as the midpoint of
    the interval.")
 
-(defvariable *false-position-fsolver* "gsl_root_fsolver_falsepos"
+(defmpar *false-position-fsolver* "gsl_root_fsolver_falsepos"
+  ;; FDL
   "The false position algorithm is a method of finding roots based on
    linear interpolation.  Its convergence is linear, but it is usually
    faster than bisection.
@@ -261,7 +262,8 @@
    The best estimate of the root is taken from the linear interpolation of
    the interval on the current iteration.")
 
-(defvariable *brent-fsolver* "gsl_root_fsolver_brent"
+(defmpar *brent-fsolver* "gsl_root_fsolver_brent"
+  ;; FDL
   "The Brent-Dekker method (referred to here as Brent's method)
    combines an interpolation strategy with the bisection algorithm.  This
    produces a fast algorithm which is still robust.
@@ -284,17 +286,19 @@
 ;;;; Root finding algorithms using derivatives
 ;;;;****************************************************************************
 
-(defvariable *newton-fdfsolver* "gsl_root_fdfsolver_newton"
+(defmpar *newton-fdfsolver* "gsl_root_fdfsolver_newton"
+  ;; FDL
   "Newton's Method is the standard root-polishing algorithm.  The algorithm
    begins with an initial guess for the location of the root.  On each
-   iteration, a line tangent to the function @math{f} is drawn at that
-   position.  The point where this line crosses the @math{x}-axis becomes
+   iteration, a line tangent to the function f is drawn at that
+   position.  The point where this line crosses the x-axis becomes
    the new guess.  The iteration is defined by the following sequence,
    x_{i+1} = x_i - f(x_i) / f'(x_i)
    Newton's method converges quadratically for single roots, and linearly
    for multiple roots.")
 
-(defvariable *secant-fdfsolver* "gsl_root_fdfsolver_secant"
+(defmpar *secant-fdfsolver* "gsl_root_fdfsolver_secant"
+  ;; FDL
   "The secant method is a simplified version of Newton's method which does
    not require the computation of the derivative on every step.
    On its first iteration the algorithm begins with Newton's method, using
@@ -318,7 +322,8 @@
    5)/2 (approximately 1.62).  It converges linearly for multiple
    roots.")
 
-(defvariable *steffenson-fdfsolver* "gsl_root_fdfsolver_steffenson"
+(defmpar *steffenson-fdfsolver* "gsl_root_fdfsolver_steffenson"
+  ;; FDL
   "The Steffenson method provides the fastest convergence of all the
    routines.  It combines the basic Newton algorithm with an Aitken
    ``delta-squared'' acceleration.  If the Newton iterates are x_i

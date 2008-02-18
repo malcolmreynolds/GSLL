@@ -1,6 +1,6 @@
 ;; Mean, standard deviation, and variance    
 ;; Liam Healy, Sat Dec  2 2006 - 22:15
-;; Time-stamp: <2008-02-03 23:10:32EST mean-variance.lisp>
+;; Time-stamp: <2008-02-17 16:35:48EST mean-variance.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -8,9 +8,9 @@
 ;;; To do: stride other than 1 when that information is availble from
 ;;; the vector.
 
-(defmacro defun-gsl-stats (&rest args)
-  "A defun-gsl for stats of double, single, and fixnum."
-  (defun-gsl-all
+(defmacro defmfun-stats (&rest args)
+  "A defmfun for stats of double, single, and fixnum."
+  (defmfun-all
       ;;'(double single fixnum long)
       '(double single fixnum)
       ;;'(:double :float :int :long-double)
@@ -19,9 +19,9 @@
     'gsl-vector
     args))
 
-(defmacro defun-gsl-stats-ds (&rest args)
-  "A defun-gsl for stats of double and single."
-  (defun-gsl-all
+(defmacro defmfun-stats-ds (&rest args)
+  "A defmfun for stats of double and single."
+  (defmfun-all
       '(double single)
       '(:double :float)
     "stats"
@@ -38,9 +38,9 @@
    The arithmetic mean, or sample mean, is denoted by
    \Hat\mu and defined as \Hat\mu = (1/N) \sum x_i.  Returns a double-float."))
 
-(defun-gsl-stats mean ((vector gsl-vector))
+(defmfun-stats mean ((vector gsl-vector))
   "gsl_stats_mean"
-  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
+  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
   :c-return :double)
 
 (defgeneric weighted-mean (gsl-vector weights)
@@ -49,10 +49,10 @@
     The weighted mean is defined as
     \Hat\mu = (\sum w_i x_i) / (\sum w_i)."))
 
-(defun-gsl-stats-ds weighted-mean ((vector gsl-vector) weights)
+(defmfun-stats-ds weighted-mean ((vector gsl-vector) weights)
   "gsl_stats_wmean"
   (((gsl-array weights) :pointer) (1 :int)
-    ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
+    ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
   :c-return :double)
 
 ;;;;****************************************************************************
@@ -74,9 +74,9 @@
    you have already computed the mean then you can pass it directly to
    #'variance-m."))
 
-(defun-gsl-stats variance-nom ((vector gsl-vector))
+(defmfun-stats variance-nom ((vector gsl-vector))
   "gsl_stats_variance"
-  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
+  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
   :index variance
   :export nil
   :c-return :double)
@@ -86,10 +86,10 @@
    "Compute the variance with the mean known to
    avoid its recomputation."))
 
-(defun-gsl-stats variance-m ((vector gsl-vector) mean)
+(defmfun-stats variance-m ((vector gsl-vector) mean)
   "gsl_stats_variance_m"
   (((gsl-array vector) :pointer) (1 :int)
-   ((dim0 vector) :size) (mean :double))
+   ((dim0 vector) size) (mean :double))
   :index variance
   :export nil
   :c-return :double)
@@ -115,10 +115,10 @@
   (:documentation			; FDL
    "Compute the weighted variance with the mean unknown."))
 
-(defun-gsl-stats-ds weighted-variance-nom ((vector gsl-vector) weights)
+(defmfun-stats-ds weighted-variance-nom ((vector gsl-vector) weights)
   "gsl_stats_wvariance"
   (((gsl-array weights) :pointer) (1 :int)
-    ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
+    ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
   :index weighted-variance
   :export nil
   :c-return :double)
@@ -128,11 +128,11 @@
    "Compute the weighted variance with the mean known to
    avoid its recomputation."))
 
-(defun-gsl-stats-ds weighted-variance-m ((vector gsl-vector) weights mean)
+(defmfun-stats-ds weighted-variance-m ((vector gsl-vector) weights mean)
   "gsl_stats_wvariance_m"
   (((gsl-array weights) :pointer) (1 :int)
    ((gsl-array vector) :pointer) (1 :int)
-   ((dim0 vector) :size) (mean :double))
+   ((dim0 vector) size) (mean :double))
   :index variance
   :export nil
   :c-return :double)
@@ -156,9 +156,9 @@
   (:documentation			; FDL
    "The standard deviation, square root of the variance."))
 
-(defun-gsl-stats standard-deviation-nom ((vector gsl-vector))
+(defmfun-stats standard-deviation-nom ((vector gsl-vector))
   "gsl_stats_sd"
-  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
+  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
   :index standard-deviation
   :export nil
   :c-return :double)
@@ -168,10 +168,10 @@
    "The standard deviation with the mean known to
    avoid its recomputation."))
 
-(defun-gsl-stats standard-deviation-m ((vector gsl-vector) mean)
+(defmfun-stats standard-deviation-m ((vector gsl-vector) mean)
   "gsl_stats_sd_m"
   (((gsl-array vector) :pointer) (1 :int)
-   ((dim0 vector) :size) (mean :double))
+   ((dim0 vector) size) (mean :double))
   :c-return :double)
 
 (export 'standard-deviation)
@@ -186,23 +186,23 @@
 
 (defgeneric weighted-standard-deviation-nom (gsl-vector weights))
 
-(defun-gsl-stats-ds weighted-standard-deviation-nom
+(defmfun-stats-ds weighted-standard-deviation-nom
     ((vector gsl-vector) weights)
   "gsl_stats_wsd"
   (((gsl-array weights) :pointer) (1 :int)
-   ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size))
+   ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
   :index weighted-standard-deviation
   :export nil
   :c-return :double)
 
 (defgeneric weighted-standard-deviation-m (gsl-vector weights mean))
 
-(defun-gsl-stats-ds weighted-standard-deviation-m
+(defmfun-stats-ds weighted-standard-deviation-m
     ((vector gsl-vector) weights mean)
   "gsl_stats_wsd_m"
   (((gsl-array weights) :pointer) (1 :int)
    ((gsl-array vector) :pointer) (1 :int)
-   ((dim0 vector) :size) (mean :double))
+   ((dim0 vector) size) (mean :double))
   :c-return :double)
 
 (export 'weighted-standard-deviation)
@@ -224,9 +224,9 @@
     \Hat\mu is replaced by the known population mean \mu,
     \Hat\sigma^2 = (1/N) \sum (x_i - \mu)^2."))
 
-(defun-gsl-stats variance-with-fixed-mean ((vector gsl-vector) mean)
+(defmfun-stats variance-with-fixed-mean ((vector gsl-vector) mean)
   "gsl_stats_variance_with_fixed_mean"
-  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size)
+  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size)
    (mean :double))
   :c-return :double)
 
@@ -236,10 +236,10 @@
     mean.  The result is the square root of the
     corresponding variance function."))
 
-(defun-gsl-stats standard-deviation-with-fixed-mean
+(defmfun-stats standard-deviation-with-fixed-mean
     ((vector gsl-vector) mean)
   "gsl_stats_sd_with_fixed_mean"
-  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size)
+  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size)
    (mean :double))
   :c-return :double)
 
@@ -256,11 +256,11 @@
     population mean \mu,
     \Hat\sigma^2 = (\sum w_i (x_i - \mu)^2) / (\sum w_i)."))
 
-(defun-gsl-stats-ds weighted-variance-with-fixed-mean
+(defmfun-stats-ds weighted-variance-with-fixed-mean
     ((vector gsl-vector) weights mean)
   "gsl_stats_wvariance_with_fixed_mean"
   (((gsl-array weights) :pointer) (1 :int)
-   ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size)
+   ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size)
    (mean :double))
   :c-return :double)
 
@@ -270,11 +270,11 @@
    "The square root of the corresponding variance
    function #'weighted-variance-with-fixed-mean."))
 
-(defun-gsl-stats-ds weighted-standard-deviation-with-fixed-mean
+(defmfun-stats-ds weighted-standard-deviation-with-fixed-mean
     ((vector gsl-vector) weights mean)
   "gsl_stats_wsd_with_fixed_mean"
   (((gsl-array weights) :pointer) (1 :int)
-   ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) :size)
+   ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size)
    (mean :double))
   :c-return :double)
 
@@ -282,14 +282,9 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test mean-variance
-  (lisp-unit:assert-equal
-   '("0.353000000000d+01" "0.282833333333d+01" "0.688807000000d+02"
-     "0.688807000000d+02" "0.849805863636d+02" "0.849805863636d+02"
-     "0.829943974013d+01" "0.829943974013d+01" "0.461413666667d+02"
-     "0.679274367739d+01")
-   (lisp-unit:fp-sequence
-    (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0)))
+#|
+(make-tests mean-variance
+  (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0)))
 	   (weights (vector-double #(3.0d0 1.0d0 2.0d0))))
       (let ((mean (mean vec))
 	    (wmean (weighted-mean vec weights)))
@@ -302,13 +297,8 @@
 	 (standard-deviation vec)
 	 (standard-deviation vec mean)
 	 (variance-with-fixed-mean vec 4.0d0)
-	 (standard-deviation-with-fixed-mean vec 4.0d0))))))
-  (lisp-unit:assert-equal
-   '("0.333333333333d+01" "0.253333333333d+02" "0.253333333333d+02"
-     "0.503322295685d+01" "0.503322295685d+01" "0.173333333333d+02"
-     "0.416333199893d+01")
-   (lisp-unit:fp-sequence
-    (letm ((vec (vector-fixnum #(8 4 -2))))
+	 (standard-deviation-with-fixed-mean vec 4.0d0))))
+  (letm ((vec (vector-fixnum #(8 4 -2))))
       (let ((mean (mean vec)))
 	(list
 	 mean
@@ -317,8 +307,43 @@
 	 (standard-deviation vec)
 	 (standard-deviation vec mean)
 	 (variance-with-fixed-mean vec 4.0d0)
-	 (standard-deviation-with-fixed-mean vec 4.0d0)))))))
+	 (standard-deviation-with-fixed-mean vec 4.0d0)))))
+|#
 
-
-
-
+(LISP-UNIT:DEFINE-TEST MEAN-VARIANCE
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 3.5300000000000002d0 2.8283333333333336d0
+	  68.88069999999999d0 68.88069999999999d0
+	  84.98058636363639d0 84.98058636363639d0
+	  8.29943974012704d0 8.29943974012704d0
+	  46.14136666666667d0 6.792743677385941d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((VEC (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0)))
+	 (WEIGHTS (VECTOR-DOUBLE #(3.0d0 1.0d0 2.0d0))))
+      (LET ((MEAN (MEAN VEC))
+	    (WMEAN (WEIGHTED-MEAN VEC WEIGHTS)))
+	(LIST MEAN WMEAN (VARIANCE VEC) (VARIANCE VEC MEAN)
+	      (WEIGHTED-VARIANCE VEC WEIGHTS)
+	      (WEIGHTED-VARIANCE VEC WEIGHTS WMEAN)
+	      (STANDARD-DEVIATION VEC)
+	      (STANDARD-DEVIATION VEC MEAN)
+	      (VARIANCE-WITH-FIXED-MEAN VEC 4.0d0)
+	      (STANDARD-DEVIATION-WITH-FIXED-MEAN VEC
+						  4.0d0))))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 3.3333333333333335d0 25.333333333333336d0
+	  25.333333333333336d0 5.033222956847167d0
+	  5.033222956847167d0 17.333333333333332d0
+	  4.163331998932265d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((VEC (VECTOR-FIXNUM #(8 4 -2))))
+      (LET ((MEAN (MEAN VEC)))
+	(LIST MEAN (VARIANCE VEC) (VARIANCE VEC MEAN)
+	      (STANDARD-DEVIATION VEC)
+	      (STANDARD-DEVIATION VEC MEAN)
+	      (VARIANCE-WITH-FIXED-MEAN VEC 4.0d0)
+	      (STANDARD-DEVIATION-WITH-FIXED-MEAN VEC
+						  4.0d0)))))))

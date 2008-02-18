@@ -1,14 +1,14 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-02-03 09:49:17EST dirichlet.lisp>
+;; Time-stamp: <2008-02-17 13:33:49EST dirichlet.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl dirichlet (generator alpha theta)
+(defmfun dirichlet (generator alpha theta)
   "gsl_ran_dirichlet"
   (((generator generator) :pointer)
-   ((dim0 alpha) :size)
+   ((dim0 alpha) size)
    ((gsl-array alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((gsl-array theta) :pointer))
@@ -29,9 +29,9 @@
   See A.M. Law, W.D. Kelton, \"Simulation Modeling and Analysis\"
   (1991).")
 
-(defun-gsl dirichlet-pdf (alpha theta)
+(defmfun dirichlet-pdf (alpha theta)
   "gsl_ran_dirichlet_pdf"
-  (((1- (dim0 alpha)) :size)
+  (((1- (dim0 alpha)) size)
    ((gsl-array alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((gsl-array theta) :pointer))
@@ -41,9 +41,9 @@
    at theta[K] for a Dirichlet distribution with parameters 
    alpha[K], using the formula given for #'dirichlet.")
 
-(defun-gsl dirichlet-log-pdf (alpha theta)
+(defmfun dirichlet-log-pdf (alpha theta)
   "gsl_ran_dirichlet_lnpdf"
-  (((1- (dim0 alpha)) :size)
+  (((1- (dim0 alpha)) size)
    ((gsl-array alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((gsl-array theta) :pointer))
@@ -55,23 +55,44 @@
    alpha[K].")
 
 ;;; Examples and unit test
-(lisp-unit:define-test dirichlet
-  (lisp-unit:assert-equal
-   '("0.392833324564d-04" "0.468176310887d+00"
-     "0.340750440311d+00" "0.191033965469d+00")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0))
+#|
+(make-tests dirichlet
+  (letm ((rng (random-number-generator *mt19937* 0))
 	   (alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
 	   (theta (vector-double 4)))
       (dirichlet rng alpha theta)
-      (data theta))))
-  (lisp-unit:assert-first-fp-equal
-   "0.288000000000d+01"
-   (letm ((alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
+      (data theta))
+  (letm ((alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
 	  (theta (vector-double #(0.1d0 0.3d0 0.4d0 0.2d0))))
-     (dirichlet-pdf alpha theta)))
-  (lisp-unit:assert-first-fp-equal
-   "0.105779029415d+01"
-   (letm ((alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
+     (dirichlet-pdf alpha theta))
+  (letm ((alpha (vector-double #(1.0d0 2.0d0 3.0d0 4.0d0)))
 	  (theta (vector-double #(0.1d0 0.3d0 0.4d0 0.2d0))))
-     (dirichlet-log-pdf alpha theta))))
+     (dirichlet-log-pdf alpha theta)))
+|#
+
+(LISP-UNIT:DEFINE-TEST DIRICHLET
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(3.9283332456352124d-5 0.468176310887376d0
+      0.34075044031099977d0 0.19103396546916782d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
+	 (ALPHA (VECTOR-DOUBLE #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	 (THETA (VECTOR-DOUBLE 4)))
+      (DIRICHLET RNG ALPHA THETA) (DATA THETA))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2.8800000000000043d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((ALPHA (VECTOR-DOUBLE #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	 (THETA (VECTOR-DOUBLE #(0.1d0 0.3d0 0.4d0 0.2d0))))
+      (DIRICHLET-PDF ALPHA THETA))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.057790294147856d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((ALPHA (VECTOR-DOUBLE #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	 (THETA (VECTOR-DOUBLE #(0.1d0 0.3d0 0.4d0 0.2d0))))
+      (DIRICHLET-LOG-PDF ALPHA THETA)))))
+

@@ -1,164 +1,170 @@
-;********************************************************
-; file:        qr.lisp                                   
-; description: QR decomposition                          
-; date:        Fri Apr 28 2006 - 16:53                   
-; author:      Liam Healy                                
-; modified:    Mon Jul  3 2006 - 23:29
-;********************************************************
-;;; $Id: $
+;; QR decomposition
+;; Liam Healy 2008-02-17 11:05:20EST qr.lisp
+;; Time-stamp: <2008-02-17 11:17:37EST qr.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
-;;; A general rectangular @math{M}-by-@math{N} matrix @math{A} has a
-;;; @math{QR} decomposition into the product of an orthogonal
-;;; @math{M}-by-@math{M} square matrix @math{Q} (where @math{Q^T Q = I}) and
-;;; an @math{M}-by-@math{N} right-triangular matrix @math{R},
-;;; A = Q R
+;;; FDL
+;;; A general rectangular M-by-N matrix A has a
+;;; QR decomposition into the product of an orthogonal
+;;; M-by-M square matrix Q (where Q^T Q = I) and
+;;; an M-by-N right-triangular matrix R, A = Q R.
 
-;;; This decomposition can be used to convert the linear system @math{A x =
-;;; b} into the triangular system @math{R x = Q^T b}, which can be solved by
-;;; back-substitution. Another use of the @math{QR} decomposition is to
-;;; compute an orthonormal basis for a set of vectors. The first @math{N}
-;;; columns of @math{Q} form an orthonormal basis for the range of @math{A},
-;;; @math{ran(A)}, when @math{A} has full column rank.
+;;; This decomposition can be used to convert the linear system A x = b
+;;; into the triangular system R x = Q^T b, which can be solved by
+;;; back-substitution. Another use of the QR decomposition is to
+;;; compute an orthonormal basis for a set of vectors. The first N
+;;; columns of Q form an orthonormal basis for the range of A,
+;;; ran(A), when A has full column rank.
 
-(defun-gsl QR-decomp (A tau)
+(defmfun QR-decomp (A tau)
   "gsl_linalg_QR_decomp"
   (((pointer A) gsl-matrix-c) ((pointer tau) gsl-vector-c))
-  :documentation "Factorize the @math{M}-by-@math{N} matrix @var{A} into
-   the @math{QR} decomposition @math{A = Q R}.  On output the diagonal and
+  :invalidate (A tau)
+  :documentation 			; FDL
+  "Factorize the M-by-N matrix A into the QR decomposition A = Q R.
+   On output the diagonal and
    upper triangular part of the input matrix contain the matrix
-   @math{R}. The vector @var{tau} and the columns of the lower triangular
-   part of the matrix @var{A} contain the Householder coefficients and
-   Householder vectors which encode the orthogonal matrix @var{Q}.  The
-   vector @var{tau} must be of length @math{k=\min(M,N)}. The matrix
-   @math{Q} is related to these components by, @math{Q = Q_k ... Q_2 Q_1}
-   where @math{Q_i = I - \tau_i v_i v_i^T} and @math{v_i} is the
-   Householder vector @math{v_i =
-   (0,...,1,A(i+1,i),A(i+2,i),...,A(m,i))}. This is the same storage scheme
-   as used by @sc{lapack}.
+   R.  The vector tau and the columns of the lower triangular
+   part of the matrix A contain the Householder coefficients and
+   Householder vectors which encode the orthogonal matrix Q.  The
+   vector tau must be of length k=min(M,N). The matrix
+   Q is related to these components by, Q = Q_k ... Q_2 Q_1
+   where Q_i = I - \tau_i v_i v_i^T and v_i is the
+   Householder vector v_i = (0,...,1,A(i+1,i),A(i+2,i),...,A(m,i)).
+   This is the same storage scheme as used by lapack.
 
    The algorithm used to perform the decomposition is Householder QR (Golub
-   & Van Loan, @cite{Matrix Computations}, Algorithm 5.2.1)."
-  :invalidate (A tau))
+   & Van Loan, Matrix Computations, Algorithm 5.2.1).")
 
-(defun-gsl QR-solve (QR tau b x)
+(defmfun QR-solve (QR tau b x)
     "gsl_linalg_QR_solve"
   (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
    ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :documentation "Solve the square system @math{A x = b} using the @math{QR}
-   decomposition of @math{A} into (@var{QR}, @var{tau}) given by
+  :invalidate (x)
+  :documentation			; FDL
+  "Solve the square system A x = b using the QR
+   decomposition of A into (QR, tau) given by
    QR-decomp. The least-squares solution for rectangular systems can
-   be found using QR-lssolve."
-  :invalidate (x))
+   be found using QR-lssolve.")
 
-(defun-gsl QR-svx (QR tau x)
+(defmfun QR-svx (QR tau x)
   "gsl_linalg_QR_svx"
   (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
    ((pointer x) gsl-vector-c))
-  :documentation "Solves the square system @math{A x = b} in-place using the
-  @math{QR} decomposition of @math{A} into (@var{QR},@var{tau}) given by
-  QR-decomp.  On input @var{x} should contain the
-  right-hand side @math{b}, which is replaced by the solution on output."
-  :invalidate (x))
+  :invalidate (x)
+  :documentation			; FDL
+  "Solves the square system A x = b in-place using the
+  QR decomposition of A into (QR, tau) given by
+  QR-decomp.  On input x should contain the
+  right-hand side b, which is replaced by the solution on output.")
 
-(defun-gsl QR-lssolve (QR tau b x residual)
+(defmfun QR-lssolve (QR tau b x residual)
   "gsl_linalg_QR_lssolve"
   (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
    ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c)
    ((pointer residual) gsl-vector-c))
-  :documentation "The least squares solution to the overdetermined
-   system @math{A x = b} where the matrix @var{A} has more rows than
+  :invalidate (x)
+  :documentation			; FDL
+  "The least squares solution to the overdetermined
+   system A x = b where the matrix A has more rows than
    columns.  The least squares solution minimizes the Euclidean norm of the
-   residual, @math{||Ax - b||}.The routine uses the @math{QR} decomposition
-   of @math{A} into (@var{QR}, @var{tau}) given by
-   @code{gsl_linalg_QR_decomp}.  The solution is returned in @var{x}.  The
-   residual is computed as a by-product and stored in @var{residual}."
-  :invalidate (x))
+   residual, ||Ax - b||.The routine uses the QR decomposition
+   of A into (QR, tau) given by #'QR-decomp.  The solution is returned in x.
+   The residual is computed as a by-product and stored in residual.")
 
-(defun-gsl QR-QTvec (QR tau v)
+(defmfun QR-QTvec (QR tau v)
   "gsl_linalg_QR_QTvec"
   (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
    ((pointer v) gsl-vector-c))
-  :documentation "Apply the matrix @math{Q^T} encoded in the decomposition
-  (@var{QR},@var{tau}) to the vector @var{v}, storing the result @math{Q^T
-  v} in @var{v}.  The matrix multiplication is carried out directly using
-  the encoding of the Householder vectors without needing to form the full
-  matrix @math{Q^T}."
-  :invalidate (v))
+  :invalidate (v)
+  :documentation			; FDL
+  "Apply the matrix Q^T encoded in the decomposition
+   (QR, tau) to the vector v, storing the result Q^T v in v.
+   The matrix multiplication is carried out directly using
+   the encoding of the Householder vectors without needing to form the full
+   matrix Q^T.")
 
-(defun-gsl QR-Qvec (QR tau v)
+(defmfun QR-Qvec (QR tau v)
   "gsl_linalg_QR_Qvec"
   (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
    ((pointer v) gsl-vector-c))
-  :documentation "Apply the matrix @math{Q} encoded in the decomposition
-   (@var{QR},@var{tau}) to the vector @var{v}, storing the result @math{Q
-   v} in @var{v}.  The matrix multiplication is carried out directly using
+  :invalidate (v)
+  :documentation			; FDL
+  "Apply the matrix Q encoded in the decomposition
+   (QR, tau) to the vector v, storing the result Q v in v.
+   The matrix multiplication is carried out directly using
    the encoding of the Householder vectors without needing to form the full
-   matrix @math{Q}."
-  :invalidate (v))
+   matrix Q.")
 
-(defun-gsl QR-Rsolve (QR b x)
+(defmfun QR-Rsolve (QR b x)
   "gsl_linalg_QR_Rsolve"
   (((pointer QR) gsl-matrix-c) ((pointer b) gsl-vector-c)
    ((pointer x) gsl-vector-c))
-  :documentation "Solve the triangular system @math{R x = b} for
-   @var{x}. It may be useful if the product @math{b' = Q^T b} has already
-   been computed using QR-QTvec}."
-  :invalidate (x))
+  :invalidate (x)
+  :documentation			; FDL
+  "Solve the triangular system R x = b for
+   x.  It may be useful if the product b' = Q^T b has already
+   been computed using QR-QTvec}.")
 
-(defun-gsl QR-Rsvx (QR x)
+(defmfun QR-Rsvx (QR x)
   "gsl_linalg_QR_Rsvx"
   (((pointer QR) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :documentation "Solve the triangular system @math{R x = b} for @var{x}
-  in-place. On input @var{x} should contain the right-hand side @math{b}
+  :invalidate (x)
+  :documentation			; FDL
+  "Solve the triangular system R x = b for x
+  in-place. On input x should contain the right-hand side b
   and is replaced by the solution on output. This function may be useful if
-  the product @math{b' = Q^T b} has already been computed using
-  QR-QTvec}."
-  :invalidate (x))
+  the product b' = Q^T b has already been computed using
+  QR-QTvec}.")
 
-(defun-gsl QR-unpack (QR tau Q R)
+(defmfun QR-unpack (QR tau Q R)
   "gsl_linalg_QR_unpack"
   (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
    ((pointer Q) gsl-matrix-c) ((pointer R) gsl-matrix-c))
-  :documentation "Unpack the encoded @math{QR} decomposition
-  (@var{QR},@var{tau}) into the matrices @var{Q} and @var{R}, where
-  @var{Q} is @math{M}-by-@math{M} and @var{R} is @math{M}-by-@math{N}."
-  :invalidate (Q R))
+  :invalidate (Q R)
+  :documentation			; FDL
+  "Unpack the encoded QR decomposition
+  (QR, tau) into the matrices Q and R where
+  Q is M-by-M and R is M-by-N.")
 
-(defun-gsl QR-QRsolve (Q R b x)
+(defmfun QR-QRsolve (Q R b x)
   "gsl_linalg_QR_QRsolve"
   (((pointer Q) gsl-matrix-c) ((pointer R) gsl-matrix-c)
    ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :documentation "Solves the system @math{R x = Q^T b} for @var{x}. It can
-  be used when the @math{QR} decomposition of a matrix is available in
-  unpacked form as (@var{Q}, @var{R})."
-  :invalidate (x))
+  :invalidate (x)
+  :documentation			; FDL
+  "Solves the system R x = Q^T b for x.  It can
+  be used when the QR decomposition of a matrix is available in
+  unpacked form as Q, R).")
 
-(defun-gsl QR-update (Q R w v)
+(defmfun QR-update (Q R w v)
   "gsl_linalg_QR_update"
   (((pointer Q) gsl-matrix-c) ((pointer R) gsl-matrix-c)
    ((pointer w) gsl-vector-c) ((pointer v) gsl-vector-c))
-  :documentation "Perform a rank-1 update @math{w v^T} of the @math{QR}
-  decomposition (@var{Q}, @var{R}). The update is given by @math{Q'R' = Q
-  R + w v^T} where the output matrices @math{Q'} and @math{R'} are also
-  orthogonal and right triangular. Note that @var{w} is destroyed by the
-  update."
   :invalidate (w Q R)
-  :return (Q R))
+  :return (Q R)
+  :documentation			; FDL
+  "Perform a rank-1 update w v^T of the QR
+  decomposition (Q, R). The update is given by Q'R' = Q R + w v^T
+  where the output matrices Q' and R' are also
+  orthogonal and right triangular. Note that w is destroyed by the
+  update.")
 
-(defun-gsl R-solve (R b x)
+(defmfun R-solve (R b x)
   "gsl_linalg_R_solve"
   (((pointer R) gsl-matrix-c) ((pointer b) gsl-vector-c)
    ((pointer x) gsl-vector-c))
-  :documentation "Solves the triangular system @math{R x = b} for the
-   @math{N}-by-@math{N} matrix @var{R}."
-  :invalidate (x))
+  :invalidate (x)
+  :documentation			; FDL
+  "Solves the triangular system R x = b for the N-by-N matrix R.")
 
-(defun-gsl R-svx (R x)
+(defmfun R-svx (R x)
   "gsl_linalg_R_svx"
   (((pointer R) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :documentation "Solve the triangular system @math{R x = b} in-place. On
-  input @var{x} should contain the right-hand side @math{b}, which is
-  replaced by the solution on output."
-  :invalidate (x))
+  :invalidate (x)
+  :documentation			; FDL
+  "Solve the triangular system R x = b in-place. On
+  input x should contain the right-hand side b, which is
+  replaced by the solution on output.")

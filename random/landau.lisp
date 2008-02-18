@@ -1,11 +1,11 @@
 ;; Landau distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-02-03 11:30:46EST landau.lisp>
+;; Time-stamp: <2008-02-17 13:01:50EST landau.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl landau (generator)
+(defmfun landau (generator)
   "gsl_ran_landau"
   (((generator generator) :pointer))
   :c-return :double
@@ -18,7 +18,7 @@
    equivalent form of the integral,
    p(x) = (1/\pi) \int_0^\infty dt \exp(-t \log(t) - x t) \sin(\pi t).")
 
-(defun-gsl landau-pdf (x)
+(defmfun landau-pdf (x)
   "gsl_ran_landau_pdf" ((x :double))
   :c-return :double
   :documentation			; FDL
@@ -27,16 +27,28 @@
    in #'landau.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test landau
-  (lisp-unit:assert-equal
-   '("0.388003742625d+04" "-0.695320031455d+00" "-0.235436464660d-01"
-     "0.213292096300d+02" "-0.306222470471d+00" "0.124241866694d+01"
-     "0.261461684796d+02" "0.433721764097d+01" "0.167995462811d+01"
-     "0.424757192183d+01" "0.468150620898d+01")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests landau
+  (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
-	    collect (landau rng)))))
-  (lisp-unit:assert-first-fp-equal
-   "0.173319689959d+00"
-   (landau-pdf 0.25d0)))
+	    collect (landau rng)))
+  (landau-pdf 0.25d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST LANDAU
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 3880.037426254597d0 -0.6953200314545297d0
+	  -0.02354364646600932d0 21.329209630030316d0
+	  -0.3062224704714883d0 1.2424186669362394d0
+	  26.146168479649152d0 4.337217640968217d0
+	  1.6799546281085946d0 4.2475719218268395d0
+	  4.681506208977819d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (LANDAU RNG)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.17331968995860203d0)
+   (MULTIPLE-VALUE-LIST (LANDAU-PDF 0.25d0))))
+

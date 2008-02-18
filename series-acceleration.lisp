@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-02-03 22:22:46EST series-acceleration.lisp>
+;; Time-stamp: <2008-02-17 18:04:12EST series-acceleration.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,9 +11,9 @@
 
 (cffi:defcstruct levin
   "The definition of Levin series acceleration for GSL."
-  (size :size)
-  (position-in-array :size)
-  (terms-used :size)
+  (size size)
+  (position-in-array size)
+  (terms-used size)
   (sum-plain :double)
   (q-num :pointer)
   (q-den :pointer)
@@ -23,9 +23,9 @@
 
 (defgo-s (levin order) allocate-levin free-levin)
 
-(defun-gsl allocate-levin (order)
+(defmfun allocate-levin (order)
   "gsl_sum_levin_u_alloc"
-  ((order :size))
+  ((order size))
   :c-return :pointer
   :export nil
   :index (letm levin)
@@ -33,7 +33,7 @@
   "Allocate a workspace for a Levin u-transform of n
    terms.  The size of the workspace is O(2n^2 + 3n).")
 
-(defun-gsl free-levin (levin)
+(defmfun free-levin (levin)
   "gsl_sum_levin_u_free"
   ((levin :pointer))
   :c-return :void		; Error in GSL manual, should be void?
@@ -42,9 +42,9 @@
   :documentation			; FDL
   "Free a previously allocated Levin acceleration.")
 
-(defun-gsl accelerate (array levin)
+(defmfun accelerate (array levin)
   "gsl_sum_levin_u_accel"
-  (((gsl-array array) :pointer) ((dim0 array) :size) (levin :pointer)
+  (((gsl-array array) :pointer) ((dim0 array) size) (levin :pointer)
    (accelerated-sum :double) (absolute-error :double))
   :documentation			; FDL
   "From the terms of a series in array, compute the extrapolated
@@ -63,18 +63,18 @@
 
 (defgo-s (levin-truncated order) allocate-levin-truncated free-levin-truncated)
 
-(defun-gsl allocate-levin-truncated (order)
+(defmfun allocate-levin-truncated (order)
   "gsl_sum_levin_utrunc_alloc"
-  ((order :size))
+  ((order size))
   :c-return :pointer
   :export nil
   :index (letm levin-truncated)
   :documentation			; FDL
-  "Allocate a workspace for a Levin @math{u}-transform of n
+  "Allocate a workspace for a Levin u-transform of n
    terms, without error estimation.  The size of the workspace is
    O(3n).")
 
-(defun-gsl free-levin-truncated (levin)
+(defmfun free-levin-truncated (levin)
   "gsl_sum_levin_utrunc_free"
   ((levin :pointer))
   :export nil
@@ -82,9 +82,9 @@
   :documentation			; FDL
   "Free a previously allocated Levin acceleration.")
 
-(defun-gsl accelerate-truncated (array levin)
+(defmfun accelerate-truncated (array levin)
   "gsl_sum_levin_utrunc_accel"
-  (((gsl-array array) :pointer) ((dim0 array) :size) (levin :pointer)
+  (((gsl-array array) :pointer) ((dim0 array) size) (levin :pointer)
    (accelerated-sum :double) (absolute-error :double))
   :documentation			; FDL
   "From the terms of a series in array, compute the extrapolated

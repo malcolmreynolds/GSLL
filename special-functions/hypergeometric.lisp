@@ -1,6 +1,6 @@
 ;; Hypergeometric function
 ;; Liam Healy, Fri Apr 28 2006 - 23:00
-;; Time-stamp: <2008-02-16 22:11:13EST hypergeometric.lisp>
+;; Time-stamp: <2008-02-17 18:30:53EST hypergeometric.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -43,7 +43,7 @@
 (defmfun hypergeometric-U ((a float) (b float) x)
   "gsl_sf_hyperg_U_e" ((a :double) (b :double) (x :double) (ret sf-result))
   :type :method
-  :documentation "The confluent hypergeometric function @math{U(a,b,x)}.")
+  :documentation "The confluent hypergeometric function U(a,b,x).")
 
 (defgeneric hypergeometric-U-e10 (m n x)
   (:documentation			; FDL

@@ -1,11 +1,11 @@
 ;; Exponential power distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-02-03 11:12:27EST exponential-power.lisp>
+;; Time-stamp: <2008-02-17 12:53:01EST exponential-power.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl exponential-power (generator a b)
+(defmfun exponential-power (generator a b)
   "gsl_ran_exppow"
   (((generator generator) :pointer) (a :double) (b :double))
   :c-return :double
@@ -17,7 +17,7 @@
    distribution.  For b = 2 it has the same form as a gaussian
    distribution, but with a = \sqrt{2} \sigma.")
 
-(defun-gsl exponential-power-pdf (x a b)
+(defmfun exponential-power-pdf (x a b)
   "gsl_ran_exppow_pdf" 
   ((x :double) (a :double) (b :double))
   :c-return :double
@@ -26,7 +26,7 @@
    for an exponential power distribution with scale parameter a
    and exponent b, using the formula given for #'exponential-power.")
 
-(defun-gsl exponential-power-P (x a b)
+(defmfun exponential-power-P (x a b)
   "gsl_cdf_exppow_P" ((x :double) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
@@ -34,7 +34,7 @@
   P(x), for the exponential power distribution with
   parameters a and b.")
 
-(defun-gsl exponential-power-Q (x a b)
+(defmfun exponential-power-Q (x a b)
   "gsl_cdf_exppow_Q" ((x :double) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
@@ -43,23 +43,39 @@
   parameters a and b.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test exponential-power
-  (lisp-unit:assert-equal
-   '("0.946947559278d-01" "-0.622968087533d-01" "0.118398553854d+01"
-     "0.518762601924d+00" "0.705356431406d+00" "-0.903330384457d+00"
-     "-0.169473362899d+01" "-0.480323610806d+00" "-0.276417363499d-01"
-     "0.631839185605d+00" "-0.124788752274d-01")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests exponential-power
+  (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (exponential-power rng 1.0d0 2.0d0)))))
-  (lisp-unit:assert-first-fp-equal
-   "0.564189583548d+00"
-   (exponential-power-pdf 0.0d0 1.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.921350396475d+00"
-   (exponential-power-P 1.0d0 1.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.786496035251d-01"
-   (exponential-power-Q 1.0d0 1.0d0 2.0d0)))
+	    (exponential-power rng 1.0d0 2.0d0)))
+  (exponential-power-pdf 0.0d0 1.0d0 2.0d0)
+  (exponential-power-P 1.0d0 1.0d0 2.0d0)
+  (exponential-power-Q 1.0d0 1.0d0 2.0d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST EXPONENTIAL-POWER
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 0.09469475592777954d0 -0.06229680875327071d0
+	  1.183985538537803d0 0.5187626019237904d0
+	  0.7053564314063956d0 -0.9033303844569821d0
+	  -1.6947336289940842d0 -0.4803236108055401d0
+	  -0.027641736349912214d0 0.6318391856046153d0
+	  -0.012478875227423025d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (EXPONENTIAL-POWER RNG 1.0d0 2.0d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.5641895835477557d0)
+   (MULTIPLE-VALUE-LIST
+    (EXPONENTIAL-POWER-PDF 0.0d0 1.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.9213503964748571d0)
+   (MULTIPLE-VALUE-LIST
+    (EXPONENTIAL-POWER-P 1.0d0 1.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.07864960352514248d0)
+   (MULTIPLE-VALUE-LIST
+    (EXPONENTIAL-POWER-Q 1.0d0 1.0d0 2.0d0))))

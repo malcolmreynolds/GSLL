@@ -1,11 +1,11 @@
 ;; Hypergeometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-02-03 10:12:46EST hypergeometric.lisp>
+;; Time-stamp: <2008-02-17 15:35:14EST hypergeometric.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl hypergeometric (generator n1 n2 tt)
+(defmfun hypergeometric (generator n1 n2 tt)
   "gsl_ran_hypergeometric"
   (((generator generator) :pointer) (n1 :uint) (n2 :uint)(tt :uint))
   :c-return :uint
@@ -23,7 +23,7 @@
    ``type 1'' in t samples from the population without
    replacement.")
 
-(defun-gsl hypergeometric-pdf (k n1 n2 tt)
+(defmfun hypergeometric-pdf (k n1 n2 tt)
   "gsl_ran_hypergeometric_pdf" ((k :uint) (n1 :uint) (n2 :uint)(tt :uint))
   :c-return :double
   :documentation			; FDL
@@ -31,14 +31,14 @@
    from a hypergeometric distribution with parameters n1, n2,
    tt, using the formula given in #'hypergeometric.")
 
-(defun-gsl hypergeometric-P (k n1 n2 tt)
+(defmfun hypergeometric-P (k n1 n2 tt)
   "gsl_cdf_hypergeometric_P" ((k :uint) (n1 :uint) (n2 :uint)(tt :uint))
   :c-return :double
   :documentation			; FDL
   "The cumulative distribution functions P(k) for the
    hypergeometric distribution with parameters n1, n2 and tt.")
 
-(defun-gsl hypergeometric-Q  (k n1 n2 tt)
+(defmfun hypergeometric-Q  (k n1 n2 tt)
   "gsl_cdf_hypergeometric_Q"  ((k :uint) (n1 :uint) (n2 :uint)(tt :uint))
   :c-return :double
   :documentation			; FDL
@@ -46,19 +46,31 @@
    hypergeometric distribution with parameters n1, n2, and tt.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test hypergeometric-randist
-  (lisp-unit:assert-equal
-   '(2 1 0 0 1 1 3 1 0 1 3)
-   (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests hypergeometric-randist
+  (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
-	   (hypergeometric rng 3 6 3))))
-  (lisp-unit:assert-first-fp-equal
-   "0.357142857143d+00"
-   (hypergeometric-pdf 0 2 6 3))
-  (lisp-unit:assert-first-fp-equal
-   "0.892857142857d+00"
-   (hypergeometric-P 1 2 6 3))
-  (lisp-unit:assert-first-fp-equal
-   "0.107142857143d+00"
-   (hypergeometric-Q 1 2 6 3)))
+	   (hypergeometric rng 3 6 3)))
+  (hypergeometric-pdf 0 2 6 3)
+  (hypergeometric-P 1 2 6 3)
+  (hypergeometric-Q 1 2 6 3))
+|#
+
+(LISP-UNIT:DEFINE-TEST HYPERGEOMETRIC-RANDIST
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST (LIST 2 1 0 0 1 1 3 1 0 1 3))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (HYPERGEOMETRIC RNG 3 6 3)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.35714285714285693d0)
+   (MULTIPLE-VALUE-LIST (HYPERGEOMETRIC-PDF 0 2 6 3)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.892857142857143d0)
+   (MULTIPLE-VALUE-LIST (HYPERGEOMETRIC-P 1 2 6 3)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.10714285714285704d0)
+   (MULTIPLE-VALUE-LIST (HYPERGEOMETRIC-Q 1 2 6 3))))
+

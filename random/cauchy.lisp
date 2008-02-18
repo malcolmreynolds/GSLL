@@ -1,11 +1,11 @@
 ;; Cauchy distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-02-03 11:02:19EST cauchy.lisp>
+;; Time-stamp: <2008-02-17 12:55:30EST cauchy.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl cauchy (generator a)
+(defmfun cauchy (generator a)
   "gsl_ran_cauchy"
   (((generator generator) :pointer) (a :double))
   :c-return :double
@@ -17,7 +17,7 @@
    for x in the range -\infty to +\infty.  The Cauchy
    distribution is also known as the Lorentz distribution.")
 
-(defun-gsl cauchy-pdf (x a)
+(defmfun cauchy-pdf (x a)
   "gsl_ran_cauchy_pdf" ((x :double) (a :double))
   :c-return :double
   :documentation			; FDL
@@ -25,28 +25,28 @@
    for a Cauchy distribution with scale parameter a, using the formula
    given for #'cauchy.")
 
-(defun-gsl cauchy-P (x a)
+(defmfun cauchy-P (x a)
   "gsl_cdf_cauchy_P" ((x :double) (a :double))
   :c-return :double
   :documentation			; FDL
   "The cumulative distribution functions
   P(x) for the Cauchy distribution with scale parameter a.")
 
-(defun-gsl cauchy-Q (x a)
+(defmfun cauchy-Q (x a)
   "gsl_cdf_cauchy_Q" ((x :double) (a :double))
   :c-return :double
   :documentation			; FDL
   "The cumulative distribution functions
   Q(x) for the Cauchy distribution with scale parameter a.")
 
-(defun-gsl cauchy-Pinv (P a)
+(defmfun cauchy-Pinv (P a)
   "gsl_cdf_cauchy_Pinv" ((P :double) (a :double))
   :c-return :double
   :documentation			; FDL
   "The inverse cumulative distribution functions
   P(x) for the Cauchy distribution with scale parameter a.")
 
-(defun-gsl cauchy-Qinv (Q a)
+(defmfun cauchy-Qinv (Q a)
   "gsl_cdf_cauchy_Qinv" ((Q :double) (a :double))
   :c-return :double
   :documentation			; FDL
@@ -54,29 +54,46 @@
    Q(x) for the Cauchy distribution with scale parameter a.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test cauchy
-  (lisp-unit:assert-equal
-   '("-0.811319915595d-02" "0.561719641059d+01" "0.122923698289d+02"
-     "-0.167410883578d+01" "0.890910448626d+01" "0.211676586154d+03"
-     "-0.134390491844d+01" "-0.103643632829d+02" "-0.790709314248d+02"
-     "-0.106520710880d+02" "-0.939394824349d+01")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests cauchy
+  (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (cauchy rng 10.0d0)))))
-  (lisp-unit:assert-first-fp-equal
-   "0.318309886184d-01"
-   (cauchy-pdf 0.0d0 10.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.647583617650d+00"
-   (cauchy-P 1.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.352416382350d+00"
-   (cauchy-Q 1.0d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "1.000000000000d+00"
-   (cauchy-Pinv 0.6475836176504333d0 2.0d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.100000000000d+01"
-   (cauchy-Qinv 0.35241638234956674d0 2.0d0)))
+	    (cauchy rng 10.0d0)))
+  (cauchy-pdf 0.0d0 10.0d0)
+  (cauchy-P 1.0d0 2.0d0)
+  (cauchy-Q 1.0d0 2.0d0)
+  (cauchy-Pinv 0.6475836176504333d0 2.0d0)
+  (cauchy-Qinv 0.35241638234956674d0 2.0d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST CAUCHY
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST -0.00811319915595434d0 5.617196410586812d0
+	  12.292369828923075d0 -1.6741088357812182d0
+	  8.909104486260928d0 211.6765861544609d0
+	  -1.3439049184367153d0 -10.364363282910663d0
+	  -79.0709314248171d0 -10.652071087998578d0
+	  -9.393948243493877d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (CAUCHY RNG 10.0d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.03183098861837907d0)
+   (MULTIPLE-VALUE-LIST (CAUCHY-PDF 0.0d0 10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.6475836176504333d0)
+   (MULTIPLE-VALUE-LIST (CAUCHY-P 1.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.35241638234956674d0)
+   (MULTIPLE-VALUE-LIST (CAUCHY-Q 1.0d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.9999999999999998d0)
+   (MULTIPLE-VALUE-LIST
+    (CAUCHY-PINV 0.6475836176504333d0 2.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.0000000000000002d0)
+   (MULTIPLE-VALUE-LIST
+    (CAUCHY-QINV 0.35241638234956674d0 2.0d0))))

@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-02-16 11:17:51EST polynomial.lisp>
+;; Time-stamp: <2008-02-17 08:49:41EST polynomial.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -12,9 +12,9 @@
 ;;;; Polynomial Evaluation
 ;;;;****************************************************************************
 
-(defun-gsl polynomial-eval (coefficients x)
+(defmfun polynomial-eval (coefficients x)
   "gsl_poly_eval"
-  (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size) (x :double))
+  (((gsl-array coefficients) :pointer) ((dim0 coefficients) size) (x :double))
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the point x."
   :c-return :double)
@@ -23,11 +23,11 @@
 ;;;; Divided Difference Representation of Polynomials
 ;;;;****************************************************************************
 
-(defun-gsl divided-difference-int (dd xa ya)
+(defmfun divided-difference-int (dd xa ya)
   "gsl_poly_dd_init"
   (((gsl-array dd) :pointer)
    ((gsl-array xa) :pointer) ((gsl-array ya) :pointer)
-   ((dim0 xa) :size))
+   ((dim0 xa) size))
   :return (dd)
   :export nil
   :index divided-difference)
@@ -46,24 +46,24 @@
      (make-data 'vector-double nil (length xa))
      xad yad)))
 
-(defun-gsl polynomial-eval-divided-difference (dd xa x)
+(defmfun polynomial-eval-divided-difference (dd xa x)
   "gsl_poly_dd_eval"
   (((gsl-array dd) :pointer)
    ((gsl-array xa) :pointer)
-   ((dim0 xa) :size)
+   ((dim0 xa) size)
    (x :double))
   :c-return :double
   :documentation			; FDL
   "Evaluate the polynomial stored in divided-difference form
    in the arrays dd and xa at the point x.")
 
-(defun-gsl taylor-divided-difference (coefs xp dd xa workspace)
+(defmfun taylor-divided-difference (coefs xp dd xa workspace)
   "gsl_poly_dd_taylor"
   (((gsl-array coefs) :pointer)
    (xp :double)
    ((gsl-array dd) :pointer)
    ((gsl-array xa) :pointer)
-   ((dim0 xa) :size)
+   ((dim0 xa) size)
    ((gsl-array workspace) :pointer))
   :invalidate (coefs)
   :documentation			; FDL
@@ -78,7 +78,7 @@
 ;;;; Quadratic Equations
 ;;;;****************************************************************************
 
-(defun-gsl solve-quadratic (a b c)
+(defmfun solve-quadratic (a b c)
   "gsl_poly_solve_quadratic"
   ((a :double) (b :double) (c :double) (root1 :double) (root2 :double))
   :c-return :number-of-answers
@@ -87,7 +87,7 @@
    Two values are always returned; if the roots are not real, these
    values are NIL.")
 
-(defun-gsl solve-quadratic-complex (a b c)
+(defmfun solve-quadratic-complex (a b c)
   "gsl_poly_complex_solve_quadratic"
   ((a :double) (b :double) (c :double) (root1 gsl-complex) (root2 gsl-complex))
   :c-return :number-of-answers
@@ -100,7 +100,7 @@
 ;;;; Cubic Equations
 ;;;;****************************************************************************
 
-(defun-gsl solve-cubic (a b c)
+(defmfun solve-cubic (a b c)
   "gsl_poly_solve_cubic"
   ((a :double) (b :double) (c :double)
    (root1 :double) (root2 :double) (root3 :double))
@@ -111,7 +111,7 @@
    in ascending order.  Three values are always returned;
    if a root is not real, the value returned for it will be NIL.")
 
-(defun-gsl solve-cubic-complex (a b c)
+(defmfun solve-cubic-complex (a b c)
   "gsl_poly_complex_solve_cubic"
   ((a :double) (b :double) (c :double)
    (root1 gsl-complex) (root2 gsl-complex) (root3 gsl-complex))
@@ -128,13 +128,13 @@
 (defgo-s (complex-workspace n)
 	 allocate-complex-workspace free-complex-workspace)
 
-(defun-gsl allocate-complex-workspace (n)
-  "gsl_poly_complex_workspace_alloc" ((n :size))
+(defmfun allocate-complex-workspace (n)
+  "gsl_poly_complex_workspace_alloc" ((n size))
   :c-return :pointer
   :export nil
   :index (letm complex-workspace))
 
-(defun-gsl free-complex-workspace (ws)
+(defmfun free-complex-workspace (ws)
   "gsl_poly_complex_workspace_free" ((ws :pointer))
   :c-return :void
   :export nil
@@ -156,9 +156,9 @@
 	   (ws (complex-workspace len)))
       (values-list (polynomial-solve-ws coef ws answer)))))
 
-(defun-gsl polynomial-solve-ws (coefficients workspace answer-pd)
+(defmfun polynomial-solve-ws (coefficients workspace answer-pd)
   "gsl_poly_complex_solve"
-  (((gsl-array coefficients) :pointer) ((dim0 coefficients) :size)
+  (((gsl-array coefficients) :pointer) ((dim0 coefficients) size)
    (workspace :pointer) ((gsl-array answer-pd) :pointer))
   :return
   ((loop for i from 0 below (dim0 answer-pd) by 2
@@ -175,35 +175,53 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test polynomial
-  (lisp-unit:assert-first-fp-equal
-   "0.200000000000d+01"
-   (letm ((vec (vector-double #(1.0d0 2.0d0 3.0d0))))
-     (polynomial-eval vec -1.0d0)))
-  (lisp-unit:assert-equal
-   '(NIL NIL)
-   (multiple-value-list (solve-quadratic 1.0d0 0.0d0 1.0d0)))
-  (lisp-unit:assert-equal
-   '(1.0d0 1.0d0)
-   (multiple-value-list (solve-quadratic 1.0d0 -2.0d0 1.0d0)))
-  (lisp-unit:assert-equal
-   '(#C(1.0d0 0.0d0) #C(1.0d0 0.0d0))
-   (multiple-value-list (solve-quadratic-complex 1.0d0 -2.0d0 1.0d0)))
-  (lisp-unit:assert-equal
-   '("-0.300000000000d+01" "0.200000000000d+01" "0.700000000000d+01")
-   (lisp-unit:fp-values (solve-cubic -6.0d0 -13.0d0 42.0d0)))
-  ;; This should use double-float-unequal
-  (lisp-unit:assert-equal
-   '(("0.000000000000d+01" "-1.000000000000d+00")
-     ("0.000000000000d+01" "1.000000000000d+00")
-     ("0.100000000000d+01" "0.000000000000d+01"))
-   (lisp-unit:fp-values (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)))
-  (lisp-unit:assert-equal
-   '(("-0.809016994375d+00" "0.587785252292d+00")
-     ("-0.809016994375d+00" "-0.587785252292d+00")
-     ("0.309016994375d+00" "0.951056516295d+00")
-     ("0.309016994375d+00" "-0.951056516295d+00")
-     ("0.100000000000d+01" "0.000000000000d+01"))
-   ;; Example from GSL manual
-   (lisp-unit:fp-values
-    (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))))
+#|
+(make-tests polynomial
+  (letm ((vec (vector-double #(1.0d0 2.0d0 3.0d0))))
+     (polynomial-eval vec -1.0d0))
+  (solve-quadratic 1.0d0 0.0d0 1.0d0)
+  (solve-quadratic 1.0d0 -2.0d0 1.0d0)
+  (solve-quadratic-complex 1.0d0 -2.0d0 1.0d0)
+  (solve-cubic -6.0d0 -13.0d0 42.0d0)
+  (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)
+  ;; Example from GSL manual
+  (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
+|#
+
+(LISP-UNIT:DEFINE-TEST POLYNOMIAL
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2.0d0)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((VEC (VECTOR-DOUBLE #(1.0d0 2.0d0 3.0d0))))
+      (POLYNOMIAL-EVAL VEC -1.0d0))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST (LIST) (LIST))
+   (MULTIPLE-VALUE-LIST
+    (SOLVE-QUADRATIC 1.0d0 0.0d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.0d0 1.0d0)
+   (MULTIPLE-VALUE-LIST (SOLVE-QUADRATIC 1.0d0 -2.0d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #C(1.0d0 0.0d0) #C(1.0d0 0.0d0))
+   (MULTIPLE-VALUE-LIST
+    (SOLVE-QUADRATIC-COMPLEX 1.0d0 -2.0d0 1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST -3.000000000000001d0 1.9999999999999996d0
+	 7.000000000000001d0)
+   (MULTIPLE-VALUE-LIST
+    (SOLVE-CUBIC -6.0d0 -13.0d0 42.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #C(-5.551115123125783d-17 -0.9999999999999999d0)
+	 #C(-5.551115123125783d-17 0.9999999999999999d0)
+	 #C(1.0d0 0.0d0))
+   (MULTIPLE-VALUE-LIST
+    (SOLVE-CUBIC-COMPLEX -1.0d0 1.0d0 -1.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #C(-0.8090169943749477d0 0.5877852522924734d0)
+	 #C(-0.8090169943749477d0 -0.5877852522924734d0)
+	 #C(0.3090169943749475d0 0.951056516295153d0)
+	 #C(0.3090169943749475d0 -0.951056516295153d0)
+	 #C(0.9999999999999999d0 0.0d0))
+   (MULTIPLE-VALUE-LIST
+    (POLYNOMIAL-SOLVE
+     #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))))

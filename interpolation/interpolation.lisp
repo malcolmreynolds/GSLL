@@ -1,6 +1,6 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2008-02-03 22:55:28EST interpolation.lisp>
+;; Time-stamp: <2008-02-17 17:45:18EST interpolation.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -17,9 +17,9 @@
        `(initialize-interpolation ,symb ,xa-or-size ,ya)))))
 
 ;;; Interpolation
-(defun-gsl allocate-interpolation (type size)
+(defmfun allocate-interpolation (type size)
   "gsl_interp_alloc"
-  ((type :pointer) (size :size))
+  ((type :pointer) (size size))
   :c-return :pointer
   :export nil
   :index (letm interpolation)
@@ -27,10 +27,10 @@
   "Allocate an interpolation object of type for size data-points,
    and return the pointer to it.")
 
-(defun-gsl initialize-interpolation (interpolation xa ya)
+(defmfun initialize-interpolation (interpolation xa ya)
   "gsl_interp_init"
   ((interpolation :pointer)
-   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) :size))
+   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) size))
   :documentation			; FDL
   "Initialize the interpolation object interp for the
   data (xa,ya) where xa and ya are gsl-arrays.  The interpolation object does not save
@@ -38,14 +38,14 @@
   computed from the data.  The xa data array is always assumed to be
   strictly ordered; the behavior for other arrangements is not defined.")
 
-(defun-gsl free-interpolation (interpolation)
+(defmfun free-interpolation (interpolation)
   "gsl_interp_free"
   ((interpolation :pointer))
   :c-return :void
   :export nil
   :index (letm interpolation)
-  :documentation
-  "Frees the interpolation object @var{interp}.")
+  :documentation			; FDL
+  "Frees the interpolation object interp.")
 
 (defgo spline (type xa-or-size &optional ya)
   (list
@@ -56,18 +56,18 @@
        `(initialize-spline ,symb ,xa-or-size ,ya)))))
 
 ;;; Spline
-(defun-gsl allocate-spline (type size)
+(defmfun allocate-spline (type size)
   "gsl_spline_alloc"
-  ((type :pointer) (size :size))
+  ((type :pointer) (size size))
   :c-return :pointer
   :documentation			; FDL
   "Allocate an interpolation object of type for size data-points,
    and return the pointer to it.")
 
-(defun-gsl initialize-spline (interpolation xa ya)
+(defmfun initialize-spline (interpolation xa ya)
   "gsl_spline_init"
   ((interpolation :pointer)
-   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) :size))
+   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) size))
   :documentation			; FDL
   "Initialize the interpolation object interp for the
   data (xa,ya) where xa and ya are gsl-arrays.  The spline object saves
@@ -75,7 +75,7 @@
   The xa data array is always assumed to be
   strictly ordered; the behavior for other arrangements is not defined.")
 
-(defun-gsl free-spline (interpolation)
+(defmfun free-spline (interpolation)
   "gsl_spline_free"
   ((interpolation :pointer))
   :c-return :void

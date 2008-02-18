@@ -31,6 +31,7 @@
    (or
      (typep result1 'vector) (typep result2 'vector)
      (typep result1 'complex) (typep result2 'complex)
+     (typep result1 'array) (typep result2 'array)
      (eql (type-of result1) (type-of result2)))
    (typecase result1
      (integer (= result1 result2))
@@ -63,7 +64,7 @@
 (defun gsl::make-test (form)
   "Make a test for lisp-unit."
   (let ((vals (multiple-value-list (ignore-errors (eval form)))))
-    (if (typep (second vals) 'error)
+    (if (typep (second vals) 'condition)
 	`(lisp-unit::assert-error
 	  ',(type-of (second vals))
 	  ,form)
@@ -75,96 +76,3 @@
   (append
    `(lisp-unit:define-test ,name)
    (mapcar #'gsl::make-test forms)))
-
-
-;;;;;;;;;;;;;; OBSOLETE
-
-(export '(assert-first-fp-equal fp-values fp-sequence))
-
-(defmacro fp-values (results)
-  `(mapcar #'fp-record (multiple-value-list ,results)))
-
-(defparameter *test-fp-decimal-digits* 12
-  "The number of decimal digits on which floating point
-   number must agree.")
-
-(defun fp-string (fp &optional (decimal-digits *test-fp-decimal-digits*))
-  "Format the floating point number as a string for comparison."
-  (if (typep fp 'complex)
-      (list (fp-string (realpart fp)) (fp-string (imagpart fp)))
-      (format nil "~,v,2,0,,,ve"
-	      decimal-digits (if (typep fp 'double-float) #\d #\e)
-	      (if (< (abs fp)  *zero-threshold*)
-		  0.0d0
-		  fp))))
-
-(defmacro assert-first-fp-equal (expected form &rest extras)
-  (lisp-unit::expand-assert
-   :equal form `(fp-string (nth-value 0 ,form)) expected extras
-   :test #'string-equal))
-
-(defmacro fp-values (results)
-  `(mapcar #'fp-string (multiple-value-list ,results)))
-
-(defun fp-sequence (results)
-  (map 'list #'fp-string results))
-
-
-
-
-
-#|
-
-
-
-;;(gsl:double-float-unequal x y double-float-epsilon)
-
-
-
-;;; Tests:
-;;; assert-float-equal: First value only
-;;; turn multiple values into a list
-;;; compare sequences including structure.
-
-
-
-(defmacro assert-fp-equal (expected form &rest extras)
-  (lisp-unit::expand-assert
-   :equal form `(fp-string (nth-value 0 ,form)) expected extras
-   :test #'fp-equal))
-
-(defun fp-record (fp)
-  "Record the floating point number for comparison."
-  (if (typep fp 'complex)
-      (list (fp-record (realpart fp)) (fp-record (imagpart fp)))
-      ;; relies on ~g printing full precision per spec
-      (format nil "~g" fp)))
-
-(defun fp-record (fp)
-  "Record the floating point number for comparison."
-  (etypecase fp
-    (complex
-     (list (fp-record (realpart fp)) (fp-record (imagpart fp))))
-    (sequence (map (type-of fp) #'fp-record))
-    ;; relies on ~g printing full precision per spec
-    (float (format nil "~g" fp))))
-
-
-(defun fp-sequence (results)
-  (map 'list #'fp-string results))
-
-
-
-;;;;;;;;;;;;;;;;;
-;;; Thinking about how to do floating point comparisons
-
-(defun gsl::equal-float (x rat)
-  "Is the float very close to the rational?"
-  (<= (abs (- rat (rationalize x)))
-      (* 4 (if (typep x 'double-float)
-	       double-float-epsilon
-	       single-float-epsilon))))
-
-
-    
-|#

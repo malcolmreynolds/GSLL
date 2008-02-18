@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-02-03 15:38:26EST linear-least-squares.lisp>
+;; Time-stamp: <2008-02-17 18:33:16EST linear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -15,11 +15,11 @@
 ;;; of "cov00" etc.  Last arg to gsl_fit_wmul is labelled sumsq but
 ;;; referred to as chisq.
 
-(defun-gsl linear-fit (x y &optional (x-stride 1) (y-stride 1))
+(defmfun linear-fit (x y &optional (x-stride 1) (y-stride 1))
   "gsl_fit_linear"
-  (((gsl-array x) :pointer) (x-stride :size)
-   ((gsl-array y) :pointer) (y-stride :size)
-   ((dim0 x) :size) (c0 :double) (c1 :double)
+  (((gsl-array x) :pointer) (x-stride size)
+   ((gsl-array y) :pointer) (y-stride size)
+   ((dim0 x) size) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
    (sumsq :double))
   :documentation			; FDL
@@ -35,13 +35,13 @@
    The sum of squares of the residuals from the best-fit line is returned
    as the final value.")
 
-(defun-gsl weighted-linear-fit
+(defmfun weighted-linear-fit
     (x weight y &optional (x-stride 1) (weight-stride 1) (y-stride 1))
   "gsl_fit_wlinear"
-  (((gsl-array x) :pointer) (x-stride :size)
-   ((gsl-array weight) :pointer) (weight-stride :size)
-   ((gsl-array y) :pointer) (y-stride :size)
-   ((dim0 x) :size) (c0 :double) (c1 :double)
+  (((gsl-array x) :pointer) (x-stride size)
+   ((gsl-array weight) :pointer) (weight-stride size)
+   ((gsl-array y) :pointer) (y-stride size)
+   ((dim0 x) size) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
    (chisq :double))
   :documentation			; FDL
@@ -59,7 +59,7 @@
    of squares of the residuals from the best-fit line, \chi^2, is
    returned in as the last value.")
 
-(defun-gsl linear-estimate (x c0 c1 cov00 cov01 cov11)
+(defmfun linear-estimate (x c0 c1 cov00 cov01 cov11)
   "gsl_fit_linear_est"
   ((x :double) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
@@ -75,11 +75,11 @@
 ;;;; Linear fitting without a constant term
 ;;;;****************************************************************************
 
-(defun-gsl multiplier-fit (x y &optional (x-stride 1) (y-stride 1))
+(defmfun multiplier-fit (x y &optional (x-stride 1) (y-stride 1))
   "gsl_fit_mul"
-  (((gsl-array x) :pointer) (x-stride :size)
-   ((gsl-array y) :pointer) (y-stride :size)
-   ((dim0 x) :size) (c1 :double) (cov11 :double)
+  (((gsl-array x) :pointer) (x-stride size)
+   ((gsl-array y) :pointer) (y-stride size)
+   ((dim0 x) size) (c1 :double) (cov11 :double)
    (sumsq :double))
   :documentation			; FDL
   "The best-fit linear regression coefficient c1 of the model Y = c_1
@@ -90,13 +90,13 @@
    squares of the residuals from the best-fit line is returned as the
    last value.")
 
-(defun-gsl weighted-multiplier-fit
+(defmfun weighted-multiplier-fit
     (x weight y &optional (x-stride 1) (weight-stride 1) (y-stride 1))
   "gsl_fit_wmul"
-  (((gsl-array x) :pointer) (x-stride :size)
-   ((gsl-array weight) :pointer) (weight-stride :size)
-   ((gsl-array y) :pointer) (y-stride :size)
-   ((dim0 x) :size) (c1 :double) (cov11 :double)
+  (((gsl-array x) :pointer) (x-stride size)
+   ((gsl-array weight) :pointer) (weight-stride size)
+   ((gsl-array y) :pointer) (y-stride size)
+   ((dim0 x) size) (c1 :double) (cov11 :double)
    (chisq :double))
   :documentation			; FDL
   "Compute the best-fit linear regression coefficient
@@ -111,7 +111,7 @@
    squares of the residuals from the best-fit line, \chi^2, is
    returned as the last value.")
 
-(defun-gsl multiplier-estimate (x c1 cov11)
+(defmfun multiplier-estimate (x c1 cov11)
   "gsl_fit_mul_est"
   ((x :double) (c1 :double) (cov11 :double)
    (y :double) (y-error :double))
@@ -128,15 +128,15 @@
 (defgo-s (fit-workspace number-of-observations number-of-parameters)
 	 allocate-fit-workspace free-fit-workspace nil 2)
 
-(defun-gsl allocate-fit-workspace (number-of-observations number-of-parameters)
+(defmfun allocate-fit-workspace (number-of-observations number-of-parameters)
   "gsl_multifit_linear_alloc"
-  ((number-of-observations :size) (number-of-parameters :size))
+  ((number-of-observations size) (number-of-parameters size))
   :c-return :pointer
   :index (letm fit-workspace)
   :documentation			; FDL
   "Allocate a workspace for fitting a linear model.")
 
-(defun-gsl free-fit-workspace (pointer)
+(defmfun free-fit-workspace (pointer)
   "gsl_multifit_linear_free"
   ((pointer :pointer))
   :c-return :void
@@ -144,7 +144,7 @@
   :documentation			; FDL
   "Free the memory associate with the workspace.")
 
-(defun-gsl linear-mfit
+(defmfun linear-mfit
     (model observations parameters covariance tolerance workspace)
   "gsl_multifit_linear"
   (((pointer model) :pointer) ((pointer observations) :pointer)
@@ -157,7 +157,7 @@
    variables X.  The variance-covariance matrix of the model
    parameters cov is estimated from the scatter of the observations
    about the best-fit.  The sum of squares of the residuals from the
-   best-fit, \chi^2, is returned.
+   best-fit, chi^2, is returned.
 
    The best-fit is found by singular value decomposition of the matrix
    X using the preallocated workspace provided. The
@@ -165,20 +165,22 @@
    improve the accuracy of the singular values. Any components which have
    zero singular value (to machine precision) are discarded from the fit.")
 
-(defun-gsl linear-mfit-svd
+(defmfun linear-mfit-svd
     (model observations parameters covariance tolerance workspace)
   "gsl_multifit_linear_svd"
   (((pointer model) :pointer) ((pointer observations) :pointer)
    (tolerance :double)
+   (rank size)
    ((pointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
+  :return ((dcref chisq) (scref rank))
   :documentation			; FDL
   "Compute the best-fit parameters c of the model
    y = X c for the observations y and the matrix of predictor
    variables X.  The variance-covariance matrix of the model
    parameters cov is estimated from the scatter of the observations
    about the best-fit.  The sum of squares of the residuals from the
-   best-fit, \chi^2, is returned.
+   best-fit, chi^2, is returned.
 
    The best-fit is found by singular value decomposition of the matrix
    X using the preallocated workspace provided. The
@@ -186,10 +188,11 @@
    improve the accuracy of the singular values. Any components which have
    zero singular value (to machine precision) are discarded from the fit.
    In the this form of the function the components are discarded if the
-   ratio of singular values @math{s_i/s_0} falls below the user-specified
-   tolerance @var{tol}, and the effective rank is returned in @var{rank}.")
+   ratio of singular values s_i/s_0 falls below the user-specified
+   tolerance tolerance, and the effective rank is returned as the
+   second value.")
 
-(defun-gsl weighted-linear-mfit
+(defmfun weighted-linear-mfit
     (model weight observations parameters covariance workspace)
   "gsl_multifit_wlinear"
   (((pointer model) :pointer)
@@ -204,21 +207,21 @@
    and the model matrix X.  The covariance matrix of
    the model parameters is computed with the given weights.  The
    weighted sum of squares of the residuals from the best-fit,
-   \chi^2, is returned as the last value.
+   chi^2, is returned as the last value.
 
    The best-fit is found by singular value decomposition of the matrix
    model using the preallocated workspace provided. Any
    components which have zero singular value (to machine precision) are
    discarded from the fit.")
 
-(defun-gsl weighted-linear-mfit-svd
+(defmfun weighted-linear-mfit-svd
     (model weight observations parameters covariance tolerance workspace)
   "gsl_multifit_wlinear_svd"
   (((pointer model) :pointer)
    ((pointer weight) :pointer)
    ((pointer observations) :pointer)
    (tolerance :double)
-   (rank :size)
+   (rank size)
    ((pointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
   :return ((dcref chisq) (scref rank))
@@ -228,7 +231,7 @@
    and the model matrix X.  The covariance matrix of
    the model parameters is computed with the given weights.  The
    weighted sum of squares of the residuals from the best-fit,
-   \chi^2, is returned as the first value.
+   chi^2, is returned as the first value.
 
    The best-fit is found by singular value decomposition of the matrix
    model using the preallocated workspace provided. Any
@@ -238,7 +241,7 @@
    falls below the user-specified tolerance, and the effective
    rank is returned as the second value.")
 
-(defun-gsl multi-linear-estimate (x coefficients covariance)
+(defmfun multi-linear-estimate (x coefficients covariance)
   "gsl_multifit_linear_est"
   ((x :double) (coefficients :pointer)
    (covariance :pointer) (y :double) (y-error :double))

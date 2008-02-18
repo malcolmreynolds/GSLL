@@ -1,6 +1,6 @@
 ;; Conversion of numbers C->CL
 ;; Liam Healy, Sun May 28 2006 - 22:04
-;; Time-stamp: <2008-01-28 22:09:08EST number-conversion.lisp>
+;; Time-stamp: <2008-02-17 18:54:32EST number-conversion.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -21,7 +21,7 @@
 
 (defmacro scref (size &optional (index 0))
   "Reference C size(s)."
-  `(cffi:mem-aref ,size :size ,index))
+  `(cffi:mem-aref ,size 'size ,index))
 
 (defmacro icref (integer &optional (index 0))
   "Reference C integer(s)."
@@ -31,7 +31,7 @@
   (case type
     (:float 'fcref)
     (:double 'dcref)
-    (:size 'scref)
+    (size 'scref)
     (:int 'icref)
     (gsl-complex 'complex-to-cl)))
 

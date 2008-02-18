@@ -1,6 +1,6 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-02-03 13:22:56EST hankel.lisp>
+;; Time-stamp: <2008-02-17 18:10:15EST hankel.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,65 +9,63 @@
 
 (defgo-s (hankel size nu xmax) allocate-hankel free-hankel init-hankel)
 
-(defun-gsl allocate-hankel (size)
+(defmfun allocate-hankel (size)
   "gsl_dht_alloc"
-  ((size :size))
+  ((size size))
   :c-return :pointer
   :export nil
   :index (letm hankel)
-  :documentation
-  "Allocate a Discrete Hankel transform object of size @var{size}.")
+  :documentation			; FDL
+  "Allocate a Discrete Hankel transform object of given size.")
 
-(defun-gsl init-hankel (hankel nu xmax)
+(defmfun init-hankel (hankel nu xmax)
   "gsl_dht_new"
   ((hankel :pointer) (nu :double) (xmax :double))
   :export nil
   :index (letm hankel)
-  :documentation
-  "Initialize the transform @var{t} for the given values of
-   @var{nu} and @var{x}.")
+  :documentation			; FDL
+  "Initialize the transform for the given values of nu and x.")
 
 ;; This seems redundant; does it effectively combine allocate-hankel
 ;; and init-hankel?  In this case we don't really need, and shouldn't
 ;; export it.
-(defun-gsl new-hankel (size nu xmax)
+(defmfun new-hankel (size nu xmax)
   "gsl_dht_new"
-  ((size :size) (nu :double) (xmax :double))
+  ((size size) (nu :double) (xmax :double))
   :c-return :pointer
-  :documentation
+  :documentation			; FDL
   "Allocate a Discrete Hankel transform object of size
-   @var{size} and initializes it for the given values of @var{nu} and
-   @var{x}.")
+   size and initializes it for the given values of nu and
+   xmax.")
 
-(defun-gsl free-hankel (hankel)
+(defmfun free-hankel (hankel)
   "gsl_dht_free"
   ((hankel :pointer))
   :c-return :void
   :export nil
   :index (letm hankel)
-  :documentation
+  :documentation			; FDL
   "Free the Hankel object.")
 
-(defun-gsl apply-hankel (hankel array-in array-out)
+(defmfun apply-hankel (hankel array-in array-out)
   "gsl_dht_apply"
   ((hankel :pointer) ((gsl-array array-in) :pointer)
    ((gsl-array array-out) :pointer))
-  :documentation
-  "Apply the transform @var{t} to the array @var{f_in}
+  :documentation			; FDL
+  "Apply the transform to the array array-in
    whose size is equal to the size of the transform.  The result is stored
-   in the array @var{f_out} which must be of the same length.")
+   in the array array-out which must be of the same length.")
 
-(defun-gsl sample-x-hankel (hankel n)
+(defmfun sample-x-hankel (hankel n)
   "gsl_dht_x_sample"
   ((hankel :pointer) (n :int))
   :c-return :double
-  :documentation
-  "The points where the function @math{f(t)} is assumed to be sampled.")
+  :documentation			; FDL
+  "The points where the function f(t) is assumed to be sampled.")
 
-(defun-gsl sample-k-hankel (hankel n)
+(defmfun sample-k-hankel (hankel n)
   "gsl_dht_k_sample"
   ((hankel :pointer) (n :int))
   :c-return :double
-  :documentation
-  "The value of the @var{n}-th sample point in k-space,
-   j_{\nu,n+1}/X}.")
+  :documentation			; FDL
+  "The value of the n-th sample point in k-space, j_{\nu,n+1}/X}.")

@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-03 23:33:15EST permutation.lisp>
+;; Time-stamp: <2008-02-17 09:56:49EST permutation.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
 
 ;;; GSL-permutation definition
 (cffi:defcstruct gsl-permutation-c
-  (size :size)
+  (size size)
   (data :pointer))
 
 ;;; Allocation, freeing, reading and writing
@@ -24,27 +24,27 @@
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defun-gsl gsl-aref ((permutation gsl-permutation) &rest indices)
+(defmfun gsl-aref ((permutation gsl-permutation) &rest indices)
   "gsl_permutation_get"
-  (((pointer permutation) :pointer) ((first indices) :size))
+  (((pointer permutation) :pointer) ((first indices) size))
   :type :method 
-  :c-return :size
+  :c-return size
   :documentation "The ith element of the permutation.")	; FDL
 
 ;;;;****************************************************************************
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defun-gsl set-identity ((permutation gsl-permutation))
+(defmfun set-identity ((permutation gsl-permutation))
   "gsl_permutation_init"
   (((pointer permutation) :pointer))
   :type :method
   :c-return :void
   :documentation			; FDL
   "Initialize the permutation p to the identity, i.e.
-   (0,1,2,@dots{},n-1).")
+   (0,1,2,...,n-1).")
 
-(defun-gsl copy ((destination gsl-permutation) (source gsl-permutation))
+(defmfun copy ((destination gsl-permutation) (source gsl-permutation))
   "gsl_permutation_memcpy"
   (((pointer destination) gsl-permutation-c)
    ((pointer source) gsl-permutation-c))
@@ -54,9 +54,9 @@
   "Copy the elements of the permutation source into the
    permutation destination.  The two permutations must have the same size.")
 
-(defun-gsl swap-elements ((p gsl-permutation) i j)
+(defmfun swap-elements ((p gsl-permutation) i j)
   "gsl_permutation_swap"
-  (((pointer p) gsl-permutation-c) (i :size) (j :size))
+  (((pointer p) gsl-permutation-c) (i size) (j size))
   :type :method
   :invalidate (p)
   :documentation			; FDL
@@ -66,14 +66,14 @@
 ;;;; Permutation properties
 ;;;;****************************************************************************
 
-(defun-gsl permutation-size (p)
+(defmfun permutation-size (p)
   "gsl_permutation_size"
   (((pointer p) gsl-permutation-c))
-  :c-return :size
+  :c-return size
   :documentation			; FDL
   "The size of the permutation p.")
 
-(defun-gsl permutation-data (p)
+(defmfun permutation-data (p)
   "gsl_permutation_data"
   (((pointer p) gsl-permutation-c))
   :c-return :pointer
@@ -81,7 +81,7 @@
   "A pointer to the array of elements in the
    permutation p.")
 
-(defun-gsl data-valid ((permutation gsl-permutation))
+(defmfun data-valid ((permutation gsl-permutation))
   "gsl_permutation_valid"
   (((pointer permutation) :pointer))
   :type :method 
@@ -95,7 +95,7 @@
 ;;;; Permutation functions
 ;;;;****************************************************************************
 
-(defun-gsl permutation-reverse (p)
+(defmfun permutation-reverse (p)
   "gsl_permutation_reverse"
   (((pointer p) gsl-permutation-c))
   :invalidate (p)
@@ -103,14 +103,14 @@
   :documentation			; FDL
   "Reverse the order of the elements of the permutation p.")
 
-(defun-gsl permutation-inverse (inv p)
+(defmfun permutation-inverse (inv p)
   "gsl_permutation_inverse"
   (((pointer inv) gsl-permutation-c) ((pointer p) gsl-permutation-c))
   :invalidate (inv)
   :documentation			; FDL
   "Find the inverse of the permutation p.")
 
-(defun-gsl permutation-next (p)
+(defmfun permutation-next (p)
   "gsl_permutation_next"
   (((pointer p) gsl-permutation-c))
   :c-return :success-failure
@@ -123,7 +123,7 @@
    repeatedly applying this function will iterate through all possible
    permutations of a given order.")
 
-(defun-gsl permutation-previous (p)
+(defmfun permutation-previous (p)
   "gsl_permutation_prev"
   (((pointer p) gsl-permutation-c))
   :c-return :success-failure
@@ -138,16 +138,16 @@
 ;;;; Applying Permutations
 ;;;;****************************************************************************
 
-(defun-gsl permute (p data stride n)
+(defmfun permute (p data stride n)
   "gsl_permute"
-  (((pointer p) gsl-permutation-c) (data :pointer) (stride :size) (n :size))
+  (((pointer p) gsl-permutation-c) (data :pointer) (stride size) (n size))
   :documentation			; FDL
   "Apply the permutation p to the array data of
    size n with stride stride.")
 
-(defun-gsl permute-inverse (p data stride n)
+(defmfun permute-inverse (p data stride n)
     "gsl_permute_inverse"
-  (((pointer p) gsl-permutation-c) (data :pointer) (stride :size) (n :size))
+  (((pointer p) gsl-permutation-c) (data :pointer) (stride size) (n size))
   :documentation			; FDL
   "Apply the inverse of the permutation p to the array data of
    size n with stride.")
@@ -162,7 +162,7 @@
    identity matrix. The permutation p and the vector v must
    have the same length."))
 
-(defun-gsl-vdsfc permute-vector (p (v gsl-vector))
+(defmfun-vdsfc permute-vector (p (v gsl-vector))
   "gsl_permute_vector"
   (((pointer p) gsl-permutation-c) ((pointer v) gsl-vector-c))
   :invalidate (v))
@@ -178,12 +178,12 @@
   the p_j-th column of the identity matrix. The permutation p
   and the vector v must have the same length."))
 
-(defun-gsl-vdsfc permute-vector-inverse (p (v gsl-vector))
+(defmfun-vdsfc permute-vector-inverse (p (v gsl-vector))
   "gsl_permute_vector_inverse"
   (((pointer p) gsl-permutation-c) ((pointer v) gsl-vector-c))
   :invalidate (v))
 
-(defun-gsl permutation* (p pa pb)
+(defmfun permutation* (p pa pb)
   "gsl_permutation_mul"
   (((pointer p) gsl-permutation-c)
    ((pointer pa) gsl-permutation-c)
@@ -198,7 +198,7 @@
 ;;;; Permutations in cyclic form
 ;;;;****************************************************************************
 
-(defun-gsl linear-to-canonical (q p)
+(defmfun linear-to-canonical (q p)
   "gsl_permutation_linear_to_canonical"
   (((pointer q) gsl-permutation-c) ((pointer p) gsl-permutation-c))
   :invalidate (q)
@@ -206,7 +206,7 @@
   "Compute the canonical form of the permutation p and
    stores it in the output argument q.")
 
-(defun-gsl canonical-to-linear (p q)
+(defmfun canonical-to-linear (p q)
   "gsl_permutation_canonical_to_linear"
   (((pointer p) gsl-permutation-c) ((pointer q) gsl-permutation-c))
   :invalidate (p)
@@ -214,9 +214,9 @@
   "Convert a permutation q in canonical form back into
    linear form storing it in the output argument p.")
 
-(defun-gsl inversions (p)
+(defmfun inversions (p)
   "gsl_permutation_inversions" (((pointer p) gsl-permutation-c))
-  :c-return :size
+  :c-return size
   :documentation			; FDL
   "Count the number of inversions in the permutation
   p.  An inversion is any pair of elements that are not in order.
@@ -224,16 +224,16 @@
   the pairs (2,0) (2,1) and (3,1).  The identity permutation has no
   inversions.")
 
-(defun-gsl linear-cycles (p)
+(defmfun linear-cycles (p)
   "gsl_permutation_linear_cycles" (((pointer p) gsl-permutation-c))
-  :c-return :size
+  :c-return size
   :documentation			; FDL
   "Count the number of cycles in the permutation p, given in linear form.")
 
-(defun-gsl canonical-cycles (p)
+(defmfun canonical-cycles (p)
   "gsl_permutation_canonical_cycles"
   (((pointer p) gsl-permutation-c))
-  :c-return :size
+  :c-return size
   :documentation			; FDL
   "Count the number of cycles in the permutation q, given in canonical form.")
 
@@ -247,62 +247,121 @@
     (loop collect (data perm 'list)
 	  while (permutation-next perm))))
 
-(lisp-unit:define-test permutation
-  (lisp-unit:assert-eql			;gsl-aref
-   2
-   (letm ((perm-1 (permutation 4 t)))
-     (set-identity perm-1)
-     (gsl-aref perm-1 2)))
-  (lisp-unit:assert-equalp		;data
-   #(0 1 2 3)
-   (letm ((perm-1 (permutation 4 t)))
-     (set-identity perm-1)
-     (data perm-1)))
-  (lisp-unit:assert-equalp		;permutation-reverse
-   #(3 2 1 0)
-   (letm ((perm-1 (permutation 4 t)))
-     (set-identity perm-1)
-     (data (permutation-reverse perm-1))))
-  (lisp-unit:assert-equalp	;permutation-next, permutation-inverse
-   #(0 3 1 2)
-   (letm ((perm-1 (permutation 4 t)) (perm-2 (permutation 4 t)))
-     (set-identity perm-1)
-     (permutation-next perm-1)
-     (permutation-next perm-1)
-     (permutation-next perm-1)
-     (permutation-inverse perm-2 perm-1)
-     (data perm-2)))
-  (lisp-unit:assert-equalp		;swap-elements
-   #(0 3 2 1)
-   (letm ((perm-1 (permutation 4 t)))
-     (set-identity perm-1)
-     (swap-elements perm-1 1 3)
-     (data perm-1)))
-  (lisp-unit:assert-equalp		;permute-vector
-   #(33 44 11 22)
-   (letm ((perm-1 (permutation 4 t))
-	  (intvec (vector-fixnum #(11 22 33 44))))
-     (set-identity perm-1)
-     (swap-elements perm-1 1 3)
-     (swap-elements perm-1 0 2)
-     (permute-vector perm-1 intvec)
-     (data intvec)))
-  (lisp-unit:assert-eql			;inversions
-   3
-   (letm ((perm-1 (permutation 4 t)))
-     (set-identity perm-1)
-     (swap-elements perm-1 1 3)
-     (inversions perm-1)))
-  (lisp-unit:assert-eql			;linear-cycles
-   3
-   (letm ((perm-1 (permutation 4 t)))
-     (set-identity perm-1)
-     (swap-elements perm-1 1 3)
-     (linear-cycles perm-1)))
-  (lisp-unit:assert-eql			;canonical-cycles
-   2
-   (letm ((perm-1 (permutation 4 t)))
-     (set-identity perm-1)
-     (swap-elements perm-1 1 3)
-     (swap-elements perm-1 0 2)
-     (canonical-cycles perm-1))))
+#|
+(make-tests
+ permutation
+ (letm ((perm-1 (permutation 4 t)))	;gsl-aref
+   (set-identity perm-1)
+   (gsl-aref perm-1 2))
+ (letm ((perm-1 (permutation 4 t)))	;data
+   (set-identity perm-1)
+   (data perm-1))
+ (letm ((perm-1 (permutation 4 t)))	;permutation-reverse
+   (set-identity perm-1)
+   (data (permutation-reverse perm-1)))
+ (letm				;permutation-next, permutation-inverse
+     ((perm-1 (permutation 4 t)) (perm-2 (permutation 4 t)))
+   (set-identity perm-1)
+   (permutation-next perm-1)
+   (permutation-next perm-1)
+   (permutation-next perm-1)
+   (permutation-inverse perm-2 perm-1)
+   (data perm-2))
+ (letm ((perm-1 (permutation 4 t)))	;swap-elements
+   (set-identity perm-1)
+   (swap-elements perm-1 1 3)
+   (data perm-1))
+ (letm ((perm-1 (permutation 4 t))	;permute-vector
+	(intvec (vector-fixnum #(11 22 33 44))))
+   (set-identity perm-1)
+   (swap-elements perm-1 1 3)
+   (swap-elements perm-1 0 2)
+   (permute-vector perm-1 intvec)
+   (data intvec))
+ (letm ((perm-1 (permutation 4 t)))	;inversions
+   (set-identity perm-1)
+   (swap-elements perm-1 1 3)
+   (inversions perm-1))
+ (letm ((perm-1 (permutation 4 t)))	;linear-cycles
+   (set-identity perm-1)
+   (swap-elements perm-1 1 3)
+   (linear-cycles perm-1))
+ (letm ((perm-1 (permutation 4 t)))	;canonical-cycles
+   (set-identity perm-1)
+   (swap-elements perm-1 1 3)
+   (swap-elements perm-1 0 2)
+   (canonical-cycles perm-1)))
+|#
+
+(LISP-UNIT:DEFINE-TEST PERMUTATION
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T)))
+      (SET-IDENTITY PERM-1)
+      (GSL-AREF PERM-1 2))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(0 1 2 3))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T)))
+      (SET-IDENTITY PERM-1)
+      (DATA PERM-1))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(3 2 1 0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T)))
+      (SET-IDENTITY
+       PERM-1)
+      (DATA (PERMUTATION-REVERSE PERM-1)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(0 3 1 2))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T))
+	 (PERM-2 (PERMUTATION 4 T)))
+      (SET-IDENTITY PERM-1)
+      (PERMUTATION-NEXT PERM-1)
+      (PERMUTATION-NEXT PERM-1)
+      (PERMUTATION-NEXT PERM-1)
+      (PERMUTATION-INVERSE PERM-2 PERM-1)
+      (DATA PERM-2))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(0 3 2 1))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T)))
+      (SET-IDENTITY PERM-1)
+      (SWAP-ELEMENTS PERM-1 1 3)
+      (DATA PERM-1))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST #(33 44 11 22))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T))
+	 (INTVEC (VECTOR-FIXNUM
+	   #(11 22 33 44))))
+      (SET-IDENTITY PERM-1)
+      (SWAP-ELEMENTS PERM-1 1 3)
+      (SWAP-ELEMENTS PERM-1 0 2)
+      (PERMUTE-VECTOR PERM-1 INTVEC)
+      (DATA INTVEC))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 3)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T)))
+      (SET-IDENTITY PERM-1)
+      (SWAP-ELEMENTS PERM-1 1 3)
+      (INVERSIONS PERM-1))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 3)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T)))
+      (SET-IDENTITY PERM-1)
+      (SWAP-ELEMENTS PERM-1 1 3)
+      (LINEAR-CYCLES PERM-1))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((PERM-1 (PERMUTATION 4 T)))
+      (SET-IDENTITY PERM-1)
+      (SWAP-ELEMENTS PERM-1 1 3)
+      (SWAP-ELEMENTS PERM-1 0 2)
+      (CANONICAL-CYCLES PERM-1)))))
+

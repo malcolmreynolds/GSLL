@@ -1,6 +1,6 @@
 ;; Covariance
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-02-03 23:19:46EST covariance.lisp>
+;; Time-stamp: <2008-02-17 16:48:17EST covariance.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -8,18 +8,18 @@
 ;;; To do: stride other than 1 when that information is availble from
 ;;; the vector.
 
-(defun-gsl covariance-nom (data1 data2)
+(defmfun covariance-nom (data1 data2)
   "gsl_stats_covariance"
   (((gsl-array data1) :pointer) (1 :int)
-   ((gsl-array data2) :pointer) (1 :int) ((dim0 data2) :size))
+   ((gsl-array data2) :pointer) (1 :int) ((dim0 data2) size))
   :c-return :double
   :index covariance
   :export nil)
 
-(defun-gsl covariance-m (data1 data2 mean1 mean2)
+(defmfun covariance-m (data1 data2 mean1 mean2)
   "gsl_stats_covariance_m"
   (((gsl-array data1) :pointer) (1 :int)
-   ((gsl-array data2) :pointer) (1 :int) ((dim0 data2) :size)
+   ((gsl-array data2) :pointer) (1 :int) ((dim0 data2) size)
    (mean1 :double) (mean2 :double))
   :c-return :double
   :index covariance
@@ -29,19 +29,33 @@
 (defun-optionals covariance (data1 data2 &optional mean1 mean2)
   -nom -m
   ;; FDL
-  "The covariance of the datasets @var{data1} and
-   @var{data2} which must both be of the same length @var{n}.
+  "The covariance of the datasets data1 and data2 which must
+   be of the same length,
    covar = {1 \over (n - 1)} \sum_{i = 1}^{n}
       (x_{i} - \Hat x) (y_{i} - \Hat y).")
 
-(lisp-unit:define-test covariance
-  (lisp-unit:assert-equal
-   '("-0.293000000000d+00" "-0.293000000000d+00")
-   (lisp-unit:fp-sequence
-    (letm ((vec1 (vector-double #(-3.21d0 1.0d0 12.8d0)))
+;;; Examples and unit test
+
+#|
+(make-tests covariance
+  (letm ((vec1 (vector-double #(-3.21d0 1.0d0 12.8d0)))
 	   (vec2 (vector-double #(1.15d0 -1.0d0 0.5d0))))
       (let ((mean1 (mean vec1))
 	    (mean2 (mean vec2)))
 	(list
 	 (covariance vec1 vec2)
-	 (covariance vec1 vec2 mean1 mean2)))))))
+	 (covariance vec1 vec2 mean1 mean2)))))
+|#
+
+(LISP-UNIT:DEFINE-TEST COVARIANCE
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST -0.2929999999999998d0 -0.2929999999999998d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((VEC1 (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0)))
+	 (VEC2 (VECTOR-DOUBLE #(1.15d0 -1.0d0 0.5d0))))
+      (LET ((MEAN1 (MEAN VEC1)) (MEAN2 (MEAN VEC2)))
+	(LIST (COVARIANCE VEC1 VEC2)
+	      (COVARIANCE VEC1 VEC2 MEAN1 MEAN2)))))))
+

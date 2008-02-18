@@ -1,6 +1,6 @@
 ;; N-tuples
 ;; Liam Healy Sat Feb  3 2007 - 12:53
-;; Time-stamp: <2008-01-20 22:37:47EST ntuple.lisp>
+;; Time-stamp: <2008-02-17 18:39:48EST ntuple.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -9,65 +9,65 @@
 ;;; has not been created, and it has not been tested.  
 
 ;;; Writing a file
-(defun-gsl create-ntuple (filename data size)
+(defmfun create-ntuple (filename data size)
   "gsl_ntuple_create"
-  ((filename :string) (data :pointer) (size :size))
+  ((filename :string) (data :pointer) (size size))
   :c-return :pointer
-  :documentation
-  "Create a new write-only ntuple file @var{filename} for
-  ntuples of size @var{size} and return a pointer to the newly created
+  :documentation			; FDL
+  "Create a new write-only ntuple file filename for
+  ntuples of size and return a pointer to the newly created
   ntuple struct.  Any existing file with the same name is truncated to
   zero length and overwritten.  A pointer to memory for the current ntuple
-  row @var{data} must be supplied---this is used to copy ntuples
+  row data must be supplied---this is used to copy ntuples
   in and out of the file.")
 
 ;;; Reading a file
-(defun-gsl open-ntuple (filename data size)
+(defmfun open-ntuple (filename data size)
   "gsl_ntuple_create"
-  ((filename :string) (data :pointer) (size :size))
+  ((filename :string) (data :pointer) (size size))
   :c-return :pointer
-  :documentation
-  "Open an existing ntuple file @var{filename} for reading
+  :documentation			; FDL
+  "Open an existing ntuple file filename for reading
   and return a pointer to a corresponding ntuple struct. The ntuples in
-  the file must have size @var{size}.  A pointer to memory for the current
-  ntuple row @var{data} must be supplied---this is used to copy
+  the file must have size size.  A pointer to memory for the current
+  ntuple row data must be supplied---this is used to copy
   ntuples in and out of the file.")
 
 ;;; Writing ntuples
-(defun-gsl write-ntuple (ntuple)
+(defmfun write-ntuple (ntuple)
   "gsl_ntuple_write"
   ((ntuple :pointer))
-  :documentation
-  "Write the current ntuple @var{ntuple->ntuple_data} of
-   size @var{ntuple->size} to the corresponding file.")
+  :documentation			; FDL
+  "Write the current ntuple ntuple->ntuple_data of
+   size ntuple->size to the corresponding file.")
 
-(defun-gsl bookdata-ntuple (ntuple)
+(defmfun bookdata-ntuple (ntuple)
   "gsl_ntuple_bookdata"
   ((ntuple :pointer))
-  :documentation
+  :documentation			; FDL
   "A synonym for #'write-ntuple}.")
 
 ;;; Reading ntuples
-(defun-gsl read-ntuple (ntuple)
+(defmfun read-ntuple (ntuple)
   "gsl_ntuple_read"
   ((ntuple :pointer))
-  :documentation
+  :documentation			; FDL
   "Read the current row of the ntuple file and stores the value.")
 
 ;;; Closing file
-(defun-gsl close-ntuple (ntuple)
+(defmfun close-ntuple (ntuple)
   "gsl_ntuple_close"
   ((ntuple :pointer))
-  :documentation
-  "Closes the ntuple file @var{ntuple} and frees its
+  :documentation			; FDL
+  "Closes the ntuple file ntupe and frees its
    associated allocated memory.")
 
 ;;; Histogramming ntuple values
-(defun-gsl project-ntuple (histogram ntuple value-function select-function)
+(defmfun project-ntuple (histogram ntuple value-function select-function)
   "gsl_ntuple_project"
   ((histogram :pointer) (ntuple :pointer)
    (value-function :pointer) (select-function :pointer))
-  :documentation
+  :documentation			; FDL
   "Update the histogram the ntuple
    using the functions value-function and select-function. For each
    ntuple row where the selection function select-function is non-zero the
@@ -82,6 +82,7 @@
 (export '(def-ntuple-select-function def-ntuple-value-function))
 
 (defmacro def-ntuple-select-function (name arg)
+  ;; FDL
   "The selection function determines which ntuple rows are selected
    for histogramming. The struct component function should return a
    non-zero value for each ntuple row that is to be included in the
@@ -89,6 +90,7 @@
   `(def-single-function ,name ,arg :int :pointer))
 
 (defmacro def-ntuple-value-function (name arg)
+  ;; FDL
   "The value function computes scalar values for those ntuple rows
    selected by the selection function which should return the value
    to be added to the histogram."

@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-02-03 16:21:50EST roots-multi.lisp>
+;;; Time-stamp: <2008-02-17 18:15:07EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -19,7 +19,7 @@
   ;; See /usr/include/gsl/gsl_multiroots.h
   "The definition of a function for multiroot finding in GSL."
   (function :pointer)
-  (dimensions :size)
+  (dimensions size)
   (parameters :pointer))
 
 (export 'def-mfunction)
@@ -36,7 +36,7 @@
   (function :pointer)
   (df :pointer)
   (fdf :pointer)
-  (dimensions :size)
+  (dimensions size)
   (parameters :pointer))
 
 ;;;;****************************************************************************
@@ -57,9 +57,9 @@
    (lambda (symb)
      `(set-mfdfsolver ,symb ,function-derivative ,initial))))
 
-(defun-gsl allocate-mfsolver (type dimension)
+(defmfun allocate-mfsolver (type dimension)
   "gsl_multiroot_fsolver_alloc"
-  ((type :pointer) (dimension :size))
+  ((type :pointer) (dimension size))
   :c-return :pointer
   :export nil
   :index (letm mfsolver)
@@ -67,9 +67,9 @@
   "Allocate an instance of a solver of the type specified for a system of
    the specified number of dimensions.")
 
-(defun-gsl allocate-mfdfsolver (type dimension)
+(defmfun allocate-mfdfsolver (type dimension)
   "gsl_multiroot_fdfsolver_alloc"
-  ((type :pointer) (dimension :size))
+  ((type :pointer) (dimension size))
   :c-return :pointer
   :export nil
   :index (letm mfdfsolver)
@@ -77,7 +77,7 @@
   "Allocate an instance of a derivative solver of the type specified for
    a system of the specified number of dimensions.")
 
-(defun-gsl set-mfsolver (solver function initial)
+(defmfun set-mfsolver (solver function initial)
   "gsl_multiroot_fsolver_set"
   ((solver :pointer) (function :pointer) ((pointer initial) :pointer))
   :export nil
@@ -86,7 +86,7 @@
   "Set or reset an existing solver to use the function and the
    initial guess gsl-vector.")
 
-(defun-gsl set-mfdfsolver (solver function-derivative initial)
+(defmfun set-mfdfsolver (solver function-derivative initial)
   "gsl_multiroot_fdfsolver_set"
   ((solver :pointer) (function-derivative :pointer)
    ((pointer initial) :pointer))
@@ -96,7 +96,7 @@
   "Set or reset an existing solver to use the function and derivative
    (fdf) and the initial guess.")
 
-(defun-gsl free-mfsolver (solver)
+(defmfun free-mfsolver (solver)
   "gsl_multiroot_fsolver_free"
   ((solver :pointer))
   :c-return :void
@@ -105,7 +105,7 @@
   :documentation			; FDL
   "Free all the memory associated with the solver.")
 
-(defun-gsl free-mfdfsolver (solver)
+(defmfun free-mfdfsolver (solver)
   "gsl_multiroot_fdfsolver_free"
   ((solver :pointer))
   :c-return :void
@@ -114,14 +114,14 @@
   :documentation			; FDL
   "Free all the memory associated with the solver.")
 
-(defun-gsl mfsolver-name (solver)
+(defmfun mfsolver-name (solver)
   "gsl_multiroot_fsolver_name"
   ((solver :pointer))
   :c-return :string
   :documentation			; FDL
   "The name of the solver.")
 
-(defun-gsl mfdfsolver-name (solver)
+(defmfun mfdfsolver-name (solver)
   "gsl_multiroot_fdfsolver_name"
   ((solver :pointer))
   :c-return :string
@@ -132,7 +132,7 @@
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defun-gsl iterate-mfsolver (solver)
+(defmfun iterate-mfsolver (solver)
   "gsl_multiroot_fsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
@@ -143,7 +143,7 @@
    :EZERODIV, the derivative of the function vanished at the iteration point,
    preventing the algorithm from continuing without a division by zero.")
 
-(defun-gsl iterate-mfdfsolver (solver)
+(defmfun iterate-mfdfsolver (solver)
   "gsl_multiroot_fdfsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
@@ -154,7 +154,7 @@
    :EZERODIV, the derivative of the function vanished at the iteration point,
    preventing the algorithm from continuing without a division by zero.")
 
-(defun-gsl mfsolver-root (solver)
+(defmfun mfsolver-root (solver)
   "gsl_multiroot_fsolver_root"
   ((solver :pointer))
   :c-return (canswer :pointer)
@@ -162,7 +162,7 @@
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
-(defun-gsl mfdfsolver-root (solver)
+(defmfun mfdfsolver-root (solver)
   "gsl_multiroot_fdfsolver_root"
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
@@ -170,7 +170,7 @@
   :documentation
   "The current estimate of the root for the solver.")
 
-(defun-gsl mfsolver-f (solver)
+(defmfun mfsolver-f (solver)
   "gsl_multiroot_fsolver_f"
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
@@ -178,7 +178,7 @@
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
-(defun-gsl mfdfsolver-f (solver)
+(defmfun mfdfsolver-f (solver)
   "gsl_multiroot_fdfsolver_f"
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
@@ -186,7 +186,7 @@
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
-(defun-gsl mfsolver-dx (solver)
+(defmfun mfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
@@ -194,7 +194,7 @@
   :documentation			; FDL
   "The last step dx taken by the solver.")
 
-(defun-gsl mfdfsolver-dx (solver)
+(defmfun mfdfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
   ((solver :pointer))
   :c-return (canswer gsl-vector-c)
@@ -221,7 +221,7 @@
 (defun multiroot-slot (solver slot)
   (cffi:foreign-slot-value solver 'gsl-multiroot-fsolver slot))
 
-(defun-gsl multiroot-test-delta (solver absolute-error relative-error)
+(defmfun multiroot-test-delta (solver absolute-error relative-error)
   "gsl_multiroot_test_delta"
   (((multiroot-slot solver 'dx) :pointer)
    ((multiroot-slot solver 'x) :pointer)
@@ -235,7 +235,7 @@
    |dx_i| < epsabs + epsrel |x_i|
    for each component of x and returns NIL otherwise.")
 
-(defun-gsl multiroot-test-residual (solver absolute-error)
+(defmfun multiroot-test-residual (solver absolute-error)
   "gsl_multiroot_test_residual"
   (((multiroot-slot solver 'f) :pointer) (absolute-error :double))
   :c-return :success-failure
@@ -252,10 +252,10 @@
 ;;;; Algorithms using derivatives
 ;;;;****************************************************************************
 
-(defvariable *powells-hybrid* "gsl_multiroot_fdfsolver_hybridsj"
+(defmpar *powells-hybrid* "gsl_multiroot_fdfsolver_hybridsj"
   ;; FDL
   "This is a modified version of Powell's Hybrid method as implemented in
-   the hybrj algorithm in @sc{minpack}.  Minpack was written by Jorge
+   the hybrj algorithm in minpack.  Minpack was written by Jorge
    J. More, Burton S. Garbow and Kenneth E. Hillstrom.  The Hybrid
    algorithm retains the fast convergence of Newton's method but will also
    reduce the residual when Newton's method is unreliable. 
@@ -298,14 +298,14 @@
    re-evaluations of the Jacobian indicate that the iteration is not
    making any progress, preventing the algorithm from continuing.")
 
-(defvariable *powells-hybrid-unscaled* "gsl_multiroot_fdfsolver_hybridj"
+(defmpar *powells-hybrid-unscaled* "gsl_multiroot_fdfsolver_hybridj"
   ;; FDL
   "This algorithm is an unscaled version of *powells-hybrid*.  The steps are
    controlled by a spherical trust region |x' - x| < \delta, instead
    of a generalized region.  This can be useful if the generalized region
    estimated by *powells-hybrid* is inappropriate.")
 
-(defvariable *newton-mfdfsolver* "gsl_multiroot_fdfsolver_newton"
+(defmpar *newton-mfdfsolver* "gsl_multiroot_fdfsolver_newton"
   ;; FDL
   "Newton's Method is the standard root-polishing algorithm.  The algorithm
    begins with an initial guess for the location of the solution.  On each
@@ -319,7 +319,7 @@
    J dx = - f(x)
    using LU decomposition.")
 
-(defvariable *gnewton-mfdfsolver* "gsl_multiroot_fdfsolver_gnewton"
+(defmpar *gnewton-mfdfsolver* "gsl_multiroot_fdfsolver_gnewton"
   ;; FDL
   "A modified version of Newton's method which attempts to improve
    global convergence by requiring every step to reduce the Euclidean norm
@@ -334,7 +334,7 @@
 ;;;; Algorithms without derivatives
 ;;;;****************************************************************************
 
-(defvariable *hybrid-scaled* "gsl_multiroot_fsolver_hybrids"
+(defmpar *hybrid-scaled* "gsl_multiroot_fsolver_hybrids"
   ;; FDL
   "This is a version of the Hybrid algorithm which replaces calls to the
      Jacobian function by its finite difference approximation.  The finite
@@ -343,12 +343,12 @@
 ;; Where is this function and parameter?  Only thing that shows in the
 ;; library is gsl_multiroot_fdjacobian.
  
-(defvariable *hybrid-unscaled* "gsl_multiroot_fsolver_hybrid"
+(defmpar *hybrid-unscaled* "gsl_multiroot_fsolver_hybrid"
   ;; FDL
   "A finite difference version of the Hybrid algorithm without
    internal scaling.")
 
-(defvariable *discrete-newton* "gsl_multiroot_fsolver_dnewton"
+(defmpar *discrete-newton* "gsl_multiroot_fsolver_dnewton"
   ;; FDL
   "The discrete Newton algorithm is the simplest method of solving a
    multidimensional system.  It uses the Newton iteration
@@ -365,7 +365,7 @@
    iteration.  The algorithm may become unstable if the finite differences
    are not a good approximation to the true derivatives.")
 
-(defvariable *broyden* "gsl_multiroot_fsolver_broyden"
+(defmpar *broyden* "gsl_multiroot_fsolver_broyden"
   ;; FDL
   "The Broyden algorithm is a version of the discrete Newton
    algorithm which attempts to avoids the expensive update of the Jacobian

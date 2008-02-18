@@ -1,11 +1,11 @@
 ;; Gaussian bivariate distribution
 ;; Liam Healy, Sat Sep  2 2006 - 16:32
-;; Time-stamp: <2008-02-03 10:30:48EST gaussian-bivariate.lisp>
+;; Time-stamp: <2008-02-17 12:32:10EST gaussian-bivariate.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl bivariate-gaussian (generator sigma-x sigma-y rho)
+(defmfun bivariate-gaussian (generator sigma-x sigma-y rho)
   "gsl_ran_bivariate_gaussian"
   (((generator generator) :pointer) (sigma-x :double) (sigma-y :double) (rho :double)
    (x :double) (y :double))
@@ -22,7 +22,7 @@
    for x,y in the range -\infty to +\infty.  The
    correlation coefficient rho should lie between 1 and -1.")
 
-(defun-gsl bivariate-gaussian-pdf (x y sigma-x sigma-y rho)
+(defmfun bivariate-gaussian-pdf (x y sigma-x sigma-y rho)
   "gsl_ran_bivariate_gaussian_pdf"
   ((x :double) (y :double) (sigma-x :double) (sigma-y :double) (rho :double))
   :c-return :double
@@ -33,18 +33,31 @@
    rho, using the formula given for bivariate-gaussian.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test gaussian-bivariate
-  (lisp-unit:assert-equal
-   '("-0.650971612449d-01" "-0.157332077491d+01" "0.279427401723d+00"
-     "0.120215283589d+01" "-0.604153062691d+00" "0.758270271941d-01"
-     "-0.544622941217d+00" "-0.659202684161d+00" "-0.110295166108d+00"
-     "0.179318404121d+00" "0.210251049803d+01")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests gaussian-bivariate
+  (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
-	    (bivariate-gaussian rng 1.0d0 0.75d0 0.25d0)))))
-  (lisp-unit:assert-first-fp-equal
-   "0.554826555797d+00"
-   (bivariate-gaussian-pdf 0.25d0 0.5d0 0.25d0
-			   0.4d0 0.2d0)))
+	    (bivariate-gaussian rng 1.0d0 0.75d0 0.25d0)))
+  (bivariate-gaussian-pdf 0.25d0 0.5d0 0.25d0
+			   0.4d0 0.2d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST GAUSSIAN-BIVARIATE
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST -0.06509716124488897d0 -1.5733207749096374d0
+	  0.27942740172325414d0 1.2021528358889673d0
+	  -0.6041530626907894d0 0.07582702719413444d0
+	  -0.5446229412165632d0 -0.6592026841613081d0
+	  -0.11029516610819164d0 0.17931840412143885d0
+	  2.1025104980291696d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (BIVARIATE-GAUSSIAN RNG 1.0d0 0.75d0 0.25d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.5548265557970462d0)
+   (MULTIPLE-VALUE-LIST
+    (BIVARIATE-GAUSSIAN-PDF 0.25d0 0.5d0 0.25d0 0.4d0 0.2d0))))
+

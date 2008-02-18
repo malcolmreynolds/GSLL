@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-02-03 14:14:10EST eigensystems.lisp>
+;; Time-stamp: <2008-02-17 11:32:46EST eigensystems.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,8 +11,8 @@
 
 (defgo-s (eigen-symm n) eigen-symm-alloc eigen-symm-free)
 
-(defun-gsl eigen-symm-alloc (n)
-  "gsl_eigen_symm_alloc" ((n :size))
+(defmfun eigen-symm-alloc (n)
+  "gsl_eigen_symm_alloc" ((n size))
   :c-return :pointer
   :export nil
   :index '(letm eigen-symm)
@@ -21,7 +21,7 @@
   n-by-n real symmetric matrices.  The size of the workspace
   is O(2n).")
 
-(defun-gsl eigen-symm-free (w)
+(defmfun eigen-symm-free (w)
   "gsl_eigen_symm_free" ((w :pointer))
   :c-return :void
   :export nil
@@ -31,8 +31,8 @@
 
 (defgo-s (eigen-symmv n) eigen-symmv-alloc eigen-symmv-free)
 
-(defun-gsl eigen-symmv-alloc (n)
-  "gsl_eigen_symmv_alloc" ((n :size))
+(defmfun eigen-symmv-alloc (n)
+  "gsl_eigen_symmv_alloc" ((n size))
   :c-return :pointer
   :export nil
   :index '(letm eigen-symmv)
@@ -41,26 +41,26 @@
   eigenvectors of n-by-n real symmetric matrices.  The size of
   the workspace is O(4n).")
 
-(defun-gsl eigen-symmv-free (w)
+(defmfun eigen-symmv-free (w)
   "gsl_eigen_symmv_free" ((w :pointer))
   :index '(letm eigen-symmv)
   :c-return :void
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
 
-(defun-gsl eigenvalues-symmetric (A eval ws)
+(defmfun eigenvalues-symmetric (A eval ws)
   "gsl_eigen_symm" ((A gsl-matrix-c) (eval gsl-vector-c) (ws :pointer))
   :documentation			; FDL
   "Eigenvalues of the real symmetric matrix
   A.  Additional workspace of the appropriate size must be provided
   in w.  The diagonal and lower triangular part of A are
   destroyed during the computation, but the strict upper triangular part
-  is not referenced.  The eigenvalues are stored in the vector @var{eval}
+  is not referenced.  The eigenvalues are stored in the vector eval
   and are unordered."
   :invalidate (A eval)
   :return (eval))
 
-(defun-gsl eigenvalues-eigenvectors-symmetric (A eval evec ws)
+(defmfun eigenvalues-eigenvectors-symmetric (A eval evec ws)
   "gsl_eigen_symmv"
   (((pointer A) :pointer) ((pointer eval) :pointer)
    ((pointer evec) :pointer) (ws :pointer))
@@ -84,21 +84,21 @@
 
 (defgo-s (eigen-herm n) eigen-herm-alloc eigen-herm-free)
 
-(defun-gsl eigen-herm-alloc (n)
-  "gsl_eigen_herm_alloc" ((n :size))
+(defmfun eigen-herm-alloc (n)
+  "gsl_eigen_herm_alloc" ((n size))
   :documentation			; FDL
   "Allocate a workspace for computing eigenvalues of
   n-by-n complex hermitian matrices.  The size of the workspace
   is O(3n)."
   :c-return :pointer)
 
-(defun-gsl eigen-herm-free (w)
+(defmfun eigen-herm-free (w)
   "gsl_eigen_herm_free" ((w :pointer))
   :c-return :void
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
 
-(defun-gsl eigenvalues-hermitian (A eval w)
+(defmfun eigenvalues-hermitian (A eval w)
   "gsl_eigen_herm"
   (((pointer A) gsl-matrix-c) ((pointer eval) gsl-vector-c) (w :pointer))
   :documentation			; FDL
@@ -108,27 +108,27 @@
    destroyed during the computation, but the strict upper triangular part
    is not referenced.  The imaginary parts of the diagonal are assumed to be
    zero and are not referenced. The eigenvalues are stored in the vector
-   @var{eval} and are unordered."
+   eval and are unordered."
   :invalidate (eval A)
   :return (eval))
 
 (defgo-s (eigen-hermv n) eigen-hermv-alloc eigen-hermv-free)
 
-(defun-gsl eigen-hermv-alloc (n)
-  "gsl_eigen_hermv_alloc" ((n :size))
+(defmfun eigen-hermv-alloc (n)
+  "gsl_eigen_hermv_alloc" ((n size))
   :documentation			; FDL
   "Allocate a workspace for computing eigenvalues and
   eigenvectors of n-by-n complex hermitian matrices.  The size of
   the workspace is O(5n)."
   :c-return :pointer)
 
-(defun-gsl eigen-hermv-free (w)
+(defmfun eigen-hermv-free (w)
   "gsl_eigen_hermv_free" ((w :pointer))
   :c-return :void
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
 
-(defun-gsl eigenvalues-eigenvectors-hermitian (A eval evec w)
+(defmfun eigenvalues-eigenvectors-hermitian (A eval evec w)
   "gsl_eigen_hermv"
   (((pointer A) gsl-matrix-c) ((pointer eval) gsl-vector-c)
    ((pointer evec) gsl-matrix-c) (w :pointer))
@@ -164,14 +164,14 @@
   the value of the parameter sort-type: :value-ascending,
   :value-descending, :absolute-ascending, :absolute-descending."))
 
-(defun-gsl sort-eigenvalues-eigenvectors
+(defmfun sort-eigenvalues-eigenvectors
     ((eval gsl-vector-double) evec sort-type)
   "gsl_eigen_symmv_sort"
   ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
   :type :method
   :invalidate (eval evec))
 
-(defun-gsl sort-eigenvalues-eigenvectors
+(defmfun sort-eigenvalues-eigenvectors
     ((eval gsl-vector-complex) evec sort-type)
   "gsl_eigen_hermv_sort"
   ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
@@ -194,9 +194,16 @@
     (values (data evals) (data evecs))))
 
 #|
-#(13.819660112501051d0 36.180339887498945d0 40.0d0)
-#2A((0.8506508083520399d0 -0.5257311121191336d0 0.0d0)
-    (0.5257311121191336d0 0.8506508083520399d0 0.0d0)
-    (0.0d0 0.0d0 1.0d0))
-
+(make-tests eigensystems
+	    (eigenvalue-eigenvectors-example))
 |#
+
+(LISP-UNIT:DEFINE-TEST EIGENSYSTEMS
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #(13.819660112501051d0 36.180339887498945d0 40.0d0)
+    #2A((0.8506508083520399d0 -0.5257311121191337d0 0.0d0)
+	(0.5257311121191337d0 0.8506508083520399d0 0.0d0)
+	(0.0d0 0.0d0 1.0d0)))
+   (MULTIPLE-VALUE-LIST
+    (EIGENVALUE-EIGENVECTORS-EXAMPLE))))

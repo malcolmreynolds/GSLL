@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-02-03 13:22:51EST minimization-one.lisp>
+;; Time-stamp: <2008-02-17 18:37:39EST minimization-one.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -12,65 +12,65 @@
 (defgo-s (fminimizer type function minimum lower upper)
 	 allocate-fminimizer free-fminimizer set-fminimizer)
 
-(defun-gsl allocate-fminimizer (type)
+(defmfun allocate-fminimizer (type)
   "gsl_min_fminimizer_alloc"
   ((type :pointer))
   :c-return :pointer
   :export nil
   :index (letm fminimizer)
-  :documentation
+  :documentation			; FDL
   "Allocate an instance of a minimizer of the given type.")
 
-(defun-gsl set-fminimizer (minimizer function minimum lower upper)
+(defmfun set-fminimizer (minimizer function minimum lower upper)
   "gsl_min_fminimizer_set"
   ((minimizer :pointer) (function :pointer)
    (minimum :double) (lower :double) (upper :double))
   :export nil
   :index (letm fminimizer)
-  :documentation
+  :documentation			; FDL
   "Set, or reset, an existing minimizer to use the
    function and the initial search interval [lower,
    upper], with a guess for the location of the minimum.")
 
 ;;; Use this in letm macro in any way?
-(defun-gsl set-fminimizer-with-values
+(defmfun set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
 	       f-minimum f-lower f-upper)
   "gsl_min_fminimizer_set_with_values"
   ((minimizer :pointer) (function :pointer)
    (x-minimum :double) (x-lower :double) (x-upper :double)
    (f-minimum :double) (f-lower :double) (f-upper :double))
-  :documentation
+  :documentation			; FDL
   "Set, or reset, an existing minimizer to use the
    function and the initial search interval [lower,
    upper], with a guess for the location of the minimum, using
    supplied rather than computed values of the function.")
 
-(defun-gsl free-fminimizer (minimizer)
+(defmfun free-fminimizer (minimizer)
   "gsl_min_fminimizer_free"
   ((minimizer :pointer))
   :c-return :void
   :export nil
   :index (letm fminimizer)
-  :documentation
+  :documentation			; FDL
   "Free all the memory associated with the minimizer.")
 
-(defun-gsl fminimizer-name (minimizer)
+(defmfun fminimizer-name (minimizer)
   "gsl_min_fminimizer_name"
   ((minimizer :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the minimizer.")
 
 ;;;;****************************************************************************
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defun-gsl iterate-fminimizer (minimizer)
+(defmfun iterate-fminimizer (minimizer)
   "gsl_min_fminimizer_iterate"
   ((minimizer :pointer))
   :c-return :success-continue
-  :documentation
+  :documentation			; FDL
   "Perform a single iteration of the minimizer.  The following
    errors may be signalled: :EBADFUNC,
    the iteration encountered a singular point where the function or its
@@ -78,48 +78,48 @@
    :FAILURE, the algorithm could not improve the current best approximation or
    bounding interval.")
 
-(defun-gsl fminimizer-x-minimum (minimizer)
+(defmfun fminimizer-x-minimum (minimizer)
   "gsl_min_fminimizer_x_minimum"
   ((minimizer :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The current estimate of the position of the minimum for the minimizer.")
 
-(defun-gsl fminimizer-x-lower (minimizer)
+(defmfun fminimizer-x-lower (minimizer)
   "gsl_min_fminimizer_x_lower"
   ((minimizer :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The current lower bound of the interval for the minimizer.")
 
-(defun-gsl fminimizer-x-upper (minimizer)
+(defmfun fminimizer-x-upper (minimizer)
   "gsl_min_fminimizer_x_upper"
   ((minimizer :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The current upper bound of the interval for the minimizer.")
 
-(defun-gsl fminimizer-f-minimum (minimizer)
+(defmfun fminimizer-f-minimum (minimizer)
   "gsl_min_fminimizer_f_minimum"
   ((minimizer :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The value of the function at the current estimate of the minimum for the
    minimizer.")
 
-(defun-gsl fminimizer-f-lower (minimizer)
+(defmfun fminimizer-f-lower (minimizer)
   "gsl_min_fminimizer_f_lower"
   ((minimizer :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The value of the function at the current estimate of the lower bound
    for the minimizer.")
 
-(defun-gsl fminimizer-f-upper (minimizer)
+(defmfun fminimizer-f-upper (minimizer)
   "gsl_min_fminimizer_f_upper"
   ((minimizer :pointer))
   :c-return :double
-  :documentation
+  :documentation			; FDL
   "The value of the function at the current estimate of the upper bound
    for the minimizer.")
 
@@ -127,12 +127,13 @@
 ;;;; Stopping parameters
 ;;;;****************************************************************************
 
-(defun-gsl min-test-interval (lower upper absolute-error relative-error)
+(defmfun
+ min-test-interval (lower upper absolute-error relative-error)
   "gsl_min_test_interval"
   ((lower :double) (upper :double)
    (absolute-error :double) (relative-error :double))
   :c-return :success-continue		; guess that this is s-c, not s-f
-  :documentation
+  :documentation			; FDL
   "Test for the convergence of the interval [lower,upper]
    with absolute error and relative error specified.
    The test returns T if the following condition is achieved:
@@ -153,7 +154,7 @@
 ;;;; Minimization algorithms
 ;;;;****************************************************************************
 
-(defvariable *golden-section-fminimizer* "gsl_min_fminimizer_goldensection"
+(defmpar *golden-section-fminimizer* "gsl_min_fminimizer_goldensection"
   "The golden section algorithm is the simplest method of bracketing
    the minimum of a function.  It is the slowest algorithm provided by the
    library, with linear convergence.
@@ -169,7 +170,7 @@
    golden section as the bisection ratio can be shown to provide the
    fastest convergence for this type of algorithm.")
 
-(defvariable *brent-fminimizer* "gsl_min_fminimizer_brent"
+(defmpar *brent-fminimizer* "gsl_min_fminimizer_brent"
   "The Brent minimization algorithm combines a parabolic
    interpolation with the golden section algorithm.  This produces a fast
    algorithm which is still robust.

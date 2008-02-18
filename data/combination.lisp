@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-04 19:25:57EST combination.lisp>
+;; Time-stamp: <2008-02-17 10:01:38EST combination.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -11,8 +11,8 @@
 
 ;;; GSL-combination definition
 (cffi:defcstruct gsl-combination-c
-  (n :size)
-  (k :size)
+  (n size)
+  (k size)
   (data :pointer))
 
 ;;; Allocation, freeing, reading and writing
@@ -25,11 +25,11 @@
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defun-gsl gsl-aref ((combination gsl-combination) &rest indices)
+(defmfun gsl-aref ((combination gsl-combination) &rest indices)
   "gsl_combination_get"
-  (((pointer combination) :pointer) ((first indices) :size))
+  (((pointer combination) :pointer) ((first indices) size))
   :type :method 
-  :c-return :size
+  :c-return size
   :documentation			; FDL
   "The ith element of the combination.")
 
@@ -45,7 +45,7 @@
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defun-gsl init-first (combination)
+(defmfun init-first (combination)
   "gsl_combination_init_first"
   (((pointer combination) gsl-combination-c))
   :c-return :void
@@ -54,7 +54,7 @@
   "Initialize the combination c to the lexicographically
       first combination, i.e.  (0,1,2,...,k-1).")
 
-(defun-gsl init-last (combination)
+(defmfun init-last (combination)
   "gsl_combination_init_last"
   (((pointer combination) gsl-combination-c))
   :c-return :void
@@ -63,7 +63,7 @@
   "Initialize the combination c to the lexicographically
    last combination, i.e. (n-k,n-k+1,...,n-1).")
 
-(defun-gsl copy (destination source)
+(defmfun copy (destination source)
   "gsl_combination_memcpy"
   (((pointer destination) gsl-combination-c)
    ((pointer source) gsl-combination-c))
@@ -77,23 +77,23 @@
 ;;;; Combination properties
 ;;;;****************************************************************************
 
-(defun-gsl combination-range (c)
+(defmfun combination-range (c)
   "gsl_combination_n"
   (((pointer c) gsl-combination-c))
-  :c-return :size
+  :c-return size
   :documentation			; FDL
   "The range (n) of the combination c.")
 
-(defun-gsl combination-size (c)
+(defmfun combination-size (c)
   "gsl_combination_k"
   (((pointer c) gsl-combination-c))
-  :c-return :size
+  :c-return size
   :documentation			; FDL
   "The number of elements (k) in the combination c.")
 
 #|
 ;;; Unnecessary, gsl-array serves this function.
-(defun-gsl combination-data (c)
+(defmfun combination-data (c)
   "gsl_combination_data"
   (((pointer c) gsl-combination-c))
   :c-return :pointer
@@ -101,7 +101,7 @@
   "A pointer to the array of elements in the combination.")
 |#
 
-(defun-gsl data-valid ((combination gsl-combination))
+(defmfun data-valid ((combination gsl-combination))
   "gsl_combination_valid"
   (((pointer combination) :pointer))
   :type :method 
@@ -115,7 +115,7 @@
 ;;;; Combination functions
 ;;;;****************************************************************************
 
-(defun-gsl combination-next (c)
+(defmfun combination-next (c)
   "gsl_combination_next" (((pointer c) gsl-combination-c))
   :c-return :success-failure
   :invalidate (c)
@@ -127,7 +127,7 @@
    repeatedly applying this function will iterate through all possible
    combinations of a given order.")
 
-(defun-gsl combination-previous (c)
+(defmfun combination-previous (c)
   "gsl_combination_prev"
   (((pointer c) gsl-combination-c))
   :c-return :success-failure
@@ -142,33 +142,64 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(lisp-unit:define-test combination
-  (lisp-unit:assert-eql			; combination-range
-   4
-   (letm ((comb (combination 4 2 t)))
-     (combination-range comb)))
-  (lisp-unit:assert-eql			; combination-size
-   2
-   (letm ((comb (combination 4 2 t)))
-     (combination-size comb)))
-  (lisp-unit:assert-equal		; init-first, combination-next
-   '((0 1) (0 2) (0 3) (1 2) (1 3) (2 3))
-   (letm ((comb (combination 4 2 t)))
-     (init-first comb)
-     (loop collect (data comb)
-	   while (combination-next comb))))
-  (lisp-unit:assert-equal	     ; init-last, combination-previous
-   '((2 3) (1 3) (1 2) (0 3) (0 2) (0 1))
-   (letm ((comb (combination 4 2 t)))
-     (init-last comb)
-     (loop collect (data comb)
-	   while (combination-previous comb))))
-  (lisp-unit:assert-equal		; combination-next
-   '(NIL (0) (1) (2) (3) (0 1) (0 2) (0 3) (1 2) (1 3) (2 3)
-     (0 1 2) (0 1 3) (0 2 3) (1 2 3) (0 1 2 3))
-   (loop for i from 0 to 4
-	 append
-	 (letm ((comb (combination 4 i t)))
-	   (init-first comb)
-	   (loop collect (data comb)
-		 while (combination-next comb))))))
+#|
+(make-tests combination
+ (letm ((comb (combination 4 2 t)))	; combination-range
+   (combination-range comb))
+ (letm ((comb (combination 4 2 t)))	; combination-size
+   (combination-size comb))
+ (letm ((comb (combination 4 2 t)))	; init-first, combination-next
+   (init-first comb)
+   (loop collect (data comb)
+	 while (combination-next comb)))
+ (letm ((comb (combination 4 2 t)))  ; init-last, combination-previous
+   (init-last comb)
+   (loop collect (data comb)
+	 while (combination-previous comb)))
+ (loop for i from 0 to 4		; combination-next
+       append
+       (letm ((comb (combination 4 i t)))
+	 (init-first comb)
+	 (loop collect (data comb)
+	       while (combination-next comb)))))
+|#
+
+(LISP-UNIT:DEFINE-TEST COMBINATION
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 4)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((COMB (COMBINATION 4 2 T)))
+      (COMBINATION-RANGE COMB))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 2)
+   (MULTIPLE-VALUE-LIST
+    (LETM ((COMB (COMBINATION 4 2 T)))
+      (COMBINATION-SIZE COMB))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST (LIST 0 1) (LIST 0 2) (LIST 0 3) (LIST 1 2)
+	  (LIST 1 3) (LIST 2 3)))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((COMB (COMBINATION 4 2 T))) (INIT-FIRST COMB)
+	  (LOOP COLLECT (DATA COMB) WHILE
+		(COMBINATION-NEXT COMB)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST (LIST (LIST 2 3) (LIST 1 3) (LIST 1 2) (LIST 0 3)
+	       (LIST 0 2) (LIST 0 1)))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((COMB (COMBINATION 4 2 T))) (INIT-LAST COMB)
+	  (LOOP COLLECT (DATA COMB) WHILE
+		(COMBINATION-PREVIOUS COMB)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST (LIST) (LIST 0) (LIST 1) (LIST 2) (LIST 3)
+	  (LIST 0 1) (LIST 0 2) (LIST 0 3) (LIST 1 2)
+	  (LIST 1 3) (LIST 2 3) (LIST 0 1 2) (LIST 0 1 3)
+	  (LIST 0 2 3) (LIST 1 2 3) (LIST 0 1 2 3)))
+   (MULTIPLE-VALUE-LIST
+    (LOOP FOR I FROM 0 TO 4 APPEND
+	  (LETM ((COMB (COMBINATION 4 I T)))
+	    (INIT-FIRST COMB)
+	    (LOOP COLLECT (DATA COMB) WHILE
+		  (COMBINATION-NEXT COMB)))))))
+

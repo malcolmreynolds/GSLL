@@ -1,11 +1,11 @@
 ;; Geometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-02-03 11:04:00EST geometric.lisp>
+;; Time-stamp: <2008-02-17 13:45:43EST geometric.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl geometric (generator p)
+(defmfun geometric (generator p)
   "gsl_ran_geometric"
   (((generator generator) :pointer) (p :double))
   :c-return :uint
@@ -18,7 +18,7 @@
    definition.  There is another convention in which the exponent k-1
    is replaced by k.")
 
-(defun-gsl geometric-pdf (k p)
+(defmfun geometric-pdf (k p)
   "gsl_ran_geometric_pdf" ((k :uint) (p :double))
   :c-return :double
   :documentation			; FDL
@@ -26,14 +26,14 @@
    from a geometric distribution with probability parameter p, using
    the formula given in #'geometric.")
 
-(defun-gsl geometric-P (k p)
+(defmfun geometric-P (k p)
   "gsl_cdf_geometric_P" ((k :uint) (p :double))
   :c-return :double
   :documentation			; FDL
   "The cumulative distribution functions
   P(k) for the geometric distribution with parameter p.")
 
-(defun-gsl geometric-Q (k p)
+(defmfun geometric-Q (k p)
   "gsl_cdf_geometric_Q" ((k :uint) (p :double))
   :c-return :double
   :documentation			; FDL
@@ -41,19 +41,31 @@
   Q(k) for the geometric distribution with parameters p.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test geometric
-  (lisp-unit:assert-equal
-   '(1 4 3 1 3 2 1 1 2 1 1)
-   (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests geometric
+  (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
-	   (geometric rng 0.4d0))))
-  (lisp-unit:assert-first-fp-equal
-   "0.240000000000d+00"
-   (geometric-pdf 2 0.4d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.640000000000d+00"
-   (geometric-P 2 0.4d0))
-  (lisp-unit:assert-first-fp-equal
-   "0.360000000000d+00"
-   (geometric-Q 2 0.4d0)))
+	   (geometric rng 0.4d0)))
+  (geometric-pdf 2 0.4d0)
+  (geometric-P 2 0.4d0)
+  (geometric-Q 2 0.4d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST GEOMETRIC
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST (LIST 1 4 3 1 3 2 1 1 2 1 1))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (GEOMETRIC RNG 0.4d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.24d0)
+   (MULTIPLE-VALUE-LIST (GEOMETRIC-PDF 2 0.4d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.64d0)
+   (MULTIPLE-VALUE-LIST (GEOMETRIC-P 2 0.4d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.36d0)
+   (MULTIPLE-VALUE-LIST (GEOMETRIC-Q 2 0.4d0))))
+

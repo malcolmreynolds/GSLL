@@ -1,11 +1,11 @@
 ;; Gaussian tail distribution
 ;; Liam Healy, Mon Aug 21 2006 - 21:52
-;; Time-stamp: <2008-02-03 10:15:01EST gaussian-tail.lisp>
+;; Time-stamp: <2008-02-17 12:28:20EST gaussian-tail.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl gaussian-tail (generator a sigma)
+(defmfun gaussian-tail (generator a sigma)
   "gsl_ran_gaussian_tail"
   (((generator generator) :pointer) (a :double) (sigma :double))
   :c-return :double
@@ -22,7 +22,7 @@
    for x > a where N(a;\sigma) is the normalization constant,
    N(a;\sigma) = (1/2) erfc(a / sqrt(2 sigma^2)).")
 
-(defun-gsl gaussian-tail-pdf (x a sigma)
+(defmfun gaussian-tail-pdf (x a sigma)
   "gsl_ran_gaussian_tail_pdf" ((x :double) (a :double) (sigma :double))
   :c-return :double
   :documentation			; FDL
@@ -30,44 +30,64 @@
   for a Gaussian tail distribution with standard deviation sigma and
   lower limit a, using the formula given for gaussian-tail.")
 
-(defun-gsl ugaussian-tail (generator a)
+(defmfun ugaussian-tail (generator a)
   "gsl_ran_ugaussian_tail"
   (((generator generator) :pointer) (a :double))
   :c-return :double
   :documentation			; FDL
   "Equivalent to gaussian-tail with sigma=1.")
 
-(defun-gsl ugaussian-tail-pdf (x a)
+(defmfun ugaussian-tail-pdf (x a)
   "gsl_ran_ugaussian_tail_pdf" ((x :double) (a :double))
   :c-return :double
   :documentation			; FDL
   "Equivalent to gaussian-tail-pdf with sigma=1.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test gaussian-tail
-  (lisp-unit:assert-equal
-   '("0.501083703038d+02" "0.514269594531d+02" "0.505871602700d+02"
-     "0.505987522244d+02" "0.508283057286d+02" "0.504334311213d+02"
-     "0.534422862873d+02" "0.518376171418d+02" "0.530010742143d+02"
-     "0.521497741699d+02" "0.501157244350d+02")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0)))
-      (loop for i from 0 to 10
-	    collect
-	    (gaussian-tail rng 50.0d0 10.0d0)))))
-  (lisp-unit:assert-first-fp-equal
-   "0.187022708773d+00"
-   (gaussian-tail-pdf 52.0d0 50.0d0 10.0d0))
-  (lisp-unit:assert-equal
-   '("0.501083703038d+01" "0.514269594531d+01" "0.505871602700d+01"
-     "0.505987522244d+01" "0.508283057286d+01" "0.504334311213d+01"
-     "0.534422862873d+01" "0.518376171418d+01" "0.530010742143d+01"
-     "0.521497741699d+01" "0.501157244350d+01")
-   (lisp-unit:fp-sequence
-    (letm ((rng (random-number-generator *mt19937* 0)))
-      (loop for i from 0 to 10
-	    collect
-	    (ugaussian-tail rng 5.0d0)))))
-  (lisp-unit:assert-first-fp-equal
-   "0.187022708773d+01"
-   (ugaussian-tail-pdf 5.2d0 5.0d0)))
+#|
+(make-tests
+ gaussian-tail
+ (letm ((rng (random-number-generator *mt19937* 0)))
+   (loop for i from 0 to 10
+	 collect
+	 (gaussian-tail rng 50.0d0 10.0d0)))
+ (gaussian-tail-pdf 52.0d0 50.0d0 10.0d0)
+ (letm ((rng (random-number-generator *mt19937* 0)))
+     (loop for i from 0 to 10
+	   collect
+	   (ugaussian-tail rng 5.0d0)))
+ (ugaussian-tail-pdf 5.2d0 5.0d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST GAUSSIAN-TAIL
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 50.10837030381376d0 51.42695945309931d0
+	  50.587160269982604d0 50.59875222444504d0
+	  50.82830572864337d0 50.43343112125345d0
+	  53.442286287287374d0 51.83761714183811d0
+	  53.00107421429086d0 52.149774169929884d0
+	  50.11572443504253d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (GAUSSIAN-TAIL RNG 50.0d0 10.0d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.18702270877331703d0)
+   (MULTIPLE-VALUE-LIST
+    (GAUSSIAN-TAIL-PDF 52.0d0 50.0d0 10.0d0)))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 5.010837030381376d0 5.142695945309931d0
+	  5.05871602699826d0 5.0598752224445045d0
+	  5.082830572864337d0 5.043343112125345d0
+	  5.344228628728738d0 5.183761714183811d0
+	  5.300107421429086d0 5.214977416992989d0
+	  5.011572443504253d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (UGAUSSIAN-TAIL RNG 5.0d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 1.8702270877331704d0)
+   (MULTIPLE-VALUE-LIST (UGAUSSIAN-TAIL-PDF 5.2d0 5.0d0))))

@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-02-03 20:01:09EST minimization-multi.lisp>
+;; Time-stamp: <2008-02-17 18:39:48EST minimization-multi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -54,9 +54,9 @@
 (defgo-s (mfdfminimizer type dimension function-derivative intitial step-size tolerance)
 	 allocate-mfdfminimizer free-mfdfminimizer set-mfdfminimizer 2)
 
-(defun-gsl allocate-mfminimizer (type dimension)
+(defmfun allocate-mfminimizer (type dimension)
   "gsl_multimin_fminimizer_alloc"
-  ((type :pointer) (dimension :size))
+  ((type :pointer) (dimension size))
   :c-return :pointer
   :export nil
   :index (letm mfminimizer)
@@ -64,9 +64,9 @@
   "Allocate an instance of a minimizer of the given for an
    function of the given dimensions.")
 
-(defun-gsl allocate-mfdfminimizer (type dimension)
+(defmfun allocate-mfdfminimizer (type dimension)
   "gsl_multimin_fdfminimizer_alloc"
-  ((type :pointer) (dimension :size))
+  ((type :pointer) (dimension size))
   :c-return :pointer
   :export nil
   :index (letm mfdfminimizer)
@@ -74,7 +74,7 @@
   "Allocate an instance of a derivative-based minimizer of the given for an
    function of the given dimensions.")
 
-(defun-gsl set-mfminimizer (minimizer function initial step-size)
+(defmfun set-mfminimizer (minimizer function initial step-size)
   "gsl_multimin_fminimizer_set"
   ((minimizer :pointer) (function :pointer)
    ((pointer initial) :pointer) ((pointer step-size) :pointer))
@@ -87,7 +87,7 @@
    step-size. The precise meaning of this parameter depends on the
    method used.")
 
-(defun-gsl set-mfdfminimizer
+(defmfun set-mfdfminimizer
     (minimizer function-derivative initial step-size tolerance)
   "gsl_multimin_fdfminimizer_set"
   ((minimizer :pointer) (function-derivative :pointer)
@@ -105,7 +105,7 @@
    orthogonal to the current search direction p to a relative
    accuracy of tolerance, where dot(p,g) < tol |p| |g|.")
 
-(defun-gsl free-mfminimizer (minimizer)
+(defmfun free-mfminimizer (minimizer)
   "gsl_multimin_fminimizer_free"
   ((minimizer :pointer))
   :c-return :void
@@ -114,7 +114,7 @@
   :documentation			; FDL
   "Free all the memory associated with the minimizer.")
 
-(defun-gsl free-mfdfminimizer (minimizer)
+(defmfun free-mfdfminimizer (minimizer)
   "gsl_multimin_fdfminimizer_free"
   ((minimizer :pointer))
   :c-return :void
@@ -123,25 +123,25 @@
   :documentation			; FDL
   "Free all the memory associated with the minimizer.")
 
-(defun-gsl mfminimizer-name (minimizer)
+(defmfun mfminimizer-name (minimizer)
   "gsl_multimin_fminimizer_name"
   ((minimizer :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the minimizer.")
 
-(defun-gsl mfdfminimizer-name (minimizer)
+(defmfun mfdfminimizer-name (minimizer)
   "gsl_multimin_fdfminimizer_name"
   ((minimizer :pointer))
   :c-return :string
-  :documentation
+  :documentation			; FDL
   "The name of the minimizer.")
 
 ;;;;****************************************************************************
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defun-gsl iterate-mfminimizer (minimizer)
+(defmfun iterate-mfminimizer (minimizer)
   "gsl_multimin_fminimizer_iterate"
   ((minimizer :pointer))
   :documentation			; FDL
@@ -149,7 +149,7 @@
    encounters an unexpected problem then an error code will be
    returned.")
 
-(defun-gsl iterate-mfdfminimizer (minimizer)
+(defmfun iterate-mfdfminimizer (minimizer)
   "gsl_multimin_fdfminimizer_iterate"
   ((minimizer :pointer))
   :documentation			; FDL
@@ -157,7 +157,7 @@
    encounters an unexpected problem then an error code will be
    returned.")
 
-(defun-gsl mfminimizer-x (minimizer)
+(defmfun mfminimizer-x (minimizer)
   "gsl_multimin_fminimizer_x"
   ((minimizer :pointer))
   :c-return (canswer :pointer)
@@ -165,7 +165,7 @@
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
-(defun-gsl mfdfminimizer-x (minimizer)
+(defmfun mfdfminimizer-x (minimizer)
   "gsl_multimin_fdfminimizer_x"
   ((minimizer :pointer))
   :c-return (canswer :pointer)
@@ -173,28 +173,28 @@
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
-(defun-gsl mfminimizer-minimum (minimizer)
+(defmfun mfminimizer-minimum (minimizer)
   "gsl_multimin_fminimizer_minimum"
   ((minimizer :pointer))
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
-(defun-gsl mfdfminimizer-minimum (minimizer)
+(defmfun mfdfminimizer-minimum (minimizer)
   "gsl_multimin_fdfminimizer_minimum"
   ((minimizer :pointer))
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
-(defun-gsl mfminimizer-size (minimizer)
+(defmfun mfminimizer-size (minimizer)
   "gsl_multimin_fminimizer_size"
   ((minimizer :pointer))
   :c-return :double
   :documentation			; FDL
   "A minimizer-specific characteristic size for the minimizer.")
 
-(defun-gsl mfdfminimizer-gradient (minimizer)
+(defmfun mfdfminimizer-gradient (minimizer)
   "gsl_multimin_fdfminimizer_gradient"
   ((minimizer :pointer))
   :c-return (canswer :pointer)
@@ -202,7 +202,7 @@
   :documentation			; FDL
   "The current best estimate of the gradient for the minimizer.")
 
-(defun-gsl mfdfminimizer-restart (minimizer)
+(defmfun mfdfminimizer-restart (minimizer)
   "gsl_multimin_fdfminimizer_restart"
   ((minimizer :pointer))
   :documentation			; FDL
@@ -213,7 +213,7 @@
 ;;;; Stopping criteria
 ;;;;****************************************************************************
 
-(defun-gsl min-test-gradient (gradient absolute-error)
+(defmfun min-test-gradient (gradient absolute-error)
   "gsl_multimin_test_gradient"
   (((pointer gradient) :pointer) (absolute-error :double))
   :c-return :success-continue
@@ -226,20 +226,20 @@
    small variations in x.  The relationship between these quantities
    \delta f = g \delta x.")
 
-(defun-gsl min-test-size (size absolute-error)
+(defmfun min-test-size (size absolute-error)
   "gsl_multimin_test_size"
   ((size :double) (absolute-error :double))
   :c-return :success-continue
   :documentation			; FDL
   "Test the minimizer specific characteristic size (if applicable to
-   the used minimizer) against absolute tolerance @var{epsabs}.  The test
+   the used minimizer) against absolute tolerance absolute-error.  The test
    returns T if the size is smaller than tolerance, and NIL otherwise.")
 
 ;;;;****************************************************************************
 ;;;; Algorithms
 ;;;;****************************************************************************
 
-(defvariable *conjugate-fletcher-reeves*
+(defmpar *conjugate-fletcher-reeves*
     "gsl_multimin_fdfminimizer_conjugate_fr"
   ;; FDL
   "The Fletcher-Reeves conjugate gradient algorithm. The conjugate
@@ -257,7 +257,7 @@
    and the line minimization is then repeated for the new search
    direction.")
 
-(defvariable *conjugate-polak-ribiere*
+(defmpar *conjugate-polak-ribiere*
     "gsl_multimin_fdfminimizer_conjugate_pr"
   ;; FDL
   "The Polak-Ribiere conjugate gradient algorithm.  It is similar to
@@ -266,7 +266,7 @@
    close enough to the minimum of the objective function that it is well
    approximated by a quadratic hypersurface.")
 
-(defvariable *vector-bfgs*
+(defmpar *vector-bfgs*
     "gsl_multimin_fdfminimizer_vector_bfgs"
   ;; FDL
   "The vector Broyden-Fletcher-Goldfarb-Shanno (BFGS) conjugate
@@ -277,7 +277,7 @@
    steps towards the function minimum, assuming quadratic behavior in
    that region.")
 
-(defvariable *simplex-nelder-mead*
+(defmpar *simplex-nelder-mead*
     "gsl_multimin_fminimizer_nmsimplex"
   ;; FDL
   "The Simplex algorithm of Nelder and Mead. It constructs 

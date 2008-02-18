@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2008-01-28 22:19:40EST simulated-annealing.lisp>
+;; Time-stamp: <2008-02-17 18:29:20EST simulated-annealing.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -51,7 +51,7 @@
      ,t-min)
     ,@body))
 
-(defun-gsl simulated-annealing
+(defmfun simulated-annealing
     (generator x0-p
 	       Ef take-step distance-function
 	        print-position
@@ -69,13 +69,13 @@
    ;;((cffi:get-callback copy-function) :pointer)
    ;;((cffi:get-callback copy-constructor) :pointer)
    ;;((cffi:get-callback destructor) :pointer)
-   (element-size :size) (parameters simulated-annealing-parameters))
+   (element-size size) (parameters simulated-annealing-parameters))
   :c-return :void
-  :documentation
+  :documentation			; FDL
   "Perform a simulated annealing search through a given
-   space.  The space is specified by providing the functions @var{Ef} and
-   @var{distance}.  The simulated annealing steps are generated using the
-   random number generator @var{r} and the function @var{take_step}.
+   space.  The space is specified by providing the functions Ef and
+   distance.  The simulated annealing steps are generated using the
+   random number generator r and the function take-step.
 
    The starting configuration of the system should be given by x0-p
    The routine offers two modes for updating configurations, a fixed-size
@@ -86,7 +86,7 @@
    fixed-size mode.  In the variable-size mode the functions
    copy-function, copy-constructor and destructor are used to
    create, copy and destroy configurations internally.  The variable
-   @var{element_size} should be zero in the variable-size mode.
+   element-size should be zero in the variable-size mode.
 
    The parameters structure (described below) controls the run by
    providing the temperature schedule and other tunable parameters to the
@@ -96,11 +96,11 @@
    x0-p.  If the annealing process has been successful this
    should be a good approximation to the optimal point in the space.
 
-   If the function pointer @var{print_position} is not null, a debugging
-   log will be printed to @code{stdout} with the following columns:
+   If the function pointer print-position is not null, a debugging
+   log will be printed to standard output with the following columns:
    number_of_iterations temperature x x-x0p Ef(x)
-   and the output of the function @var{print_position} itself.  If
-   @var{print_position} is null then no information is printed.
+   and the output of the function print-position itself.  If
+   print-position is null then no information is printed.
    The simulated annealing routines require several user-specified
    functions to define the configuration space and energy function.")
 

@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-02-03 13:22:46EST quasi.lisp>
+;; Time-stamp: <2008-02-17 12:19:07EST quasi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -27,7 +27,7 @@
 	  :generator generator)))
     (if (eq generator t) (alloc instance) instance)))
 
-(defun-gsl alloc ((generator quasi-random-number-generator))
+(defmfun alloc ((generator quasi-random-number-generator))
   "gsl_qrng_alloc"
   (((rng-type generator) :pointer) ((qr-dimension generator) :uint))
   :type :method
@@ -41,7 +41,7 @@
    *default-seed*.  This is zero by default but can be changed
    either directly or by using the environment variable GSL_RNG_SEED.")
 
-(defun-gsl free ((generator quasi-random-number-generator))
+(defmfun free ((generator quasi-random-number-generator))
   "gsl_qrng_free" (((generator generator) :pointer))
   :type :method
   :c-return :void
@@ -49,7 +49,7 @@
   :documentation			; FDL
   "Free all the memory associated with the generator.")
 
-(defun-gsl init (generator)
+(defmfun init (generator)
   "gsl_qrng_init" (((generator generator) :pointer))
   :c-return :void
   :documentation			; FDL
@@ -57,7 +57,7 @@
    Note that quasi-random sequences do not use a seed and always produce
    the same set of values.")
 
-(defun-gsl qrng-get (generator return-vector)
+(defmfun qrng-get (generator return-vector)
   "gsl_qrng_get"
   (((generator generator) :pointer) ((gsl-array return-vector) :pointer))
   :documentation			; FDL
@@ -67,26 +67,26 @@
    0 < x_i < 1 for each x_i."
   :invalidate (return-vector))
 
-(defun-gsl rng-name ((instance quasi-random-number-generator))
+(defmfun rng-name ((instance quasi-random-number-generator))
   "gsl_qrng_name" (((generator instance) :pointer))
   :type :method
   :c-return :string)
 
-(defun-gsl rng-state ((instance quasi-random-number-generator))
+(defmfun rng-state ((instance quasi-random-number-generator))
   "gsl_qrng_state" (((generator instance) :pointer))
   :c-return :pointer
   :type :method
   :export nil
   :index gsl-random-state)
 
-(defun-gsl rng-size ((instance quasi-random-number-generator))
+(defmfun rng-size ((instance quasi-random-number-generator))
   "gsl_qrng_size" (((generator instance) :pointer))
-  :c-return :size
+  :c-return size
   :type :method
   :export nil
   :index gsl-random-state)
 
-(defun-gsl copy
+(defmfun copy
     ((destination quasi-random-number-generator)
      (source quasi-random-number-generator))
   "gsl_qrng_memcpy"
@@ -97,7 +97,7 @@
    pre-existing generator dest, making dest into an exact copy
    of src.  The two generators must be of the same type.")
 
-(defun-gsl clone-generator ((instance quasi-random-number-generator))
+(defmfun clone-generator ((instance quasi-random-number-generator))
   "gsl_qrng_clone" (((generator instance) :pointer))
   :c-return :pointer
   :type :method
@@ -119,17 +119,30 @@
 (def-rng-type *sobol*
     ;; FDL
     "This generator uses the Sobol sequence described in Antonov, Saleev,
-    @cite{USSR Comput. Maths. Math. Phys.} 19, 252 (1980). It is valid up to
+    USSR Comput. Maths. Math. Phys. 19, 252 (1980). It is valid up to
     40 dimensions."
   "gsl_qrng_sobol")
 
 ;;; Examples and unit test
-(lisp-unit:define-test quasi-random-number-generators
+#|
+(make-tests quasi-random-number-generators
   ;; This example is given in the GSL documentation
-  (lisp-unit:assert-equal
-   '(0.5d0 0.5d0 0.75d0 0.25d0 0.25d0 0.75d0 0.375d0 0.375d0 0.875d0 0.875d0)
-   (letm ((gen (quasi-random-number-generator 2 *sobol*))
+  (letm ((gen (quasi-random-number-generator 2 *sobol*))
 	  (vec (vector-double 2)))
      (loop repeat 5
 	   do (qrng-get gen vec)
-	   append (coerce (data vec) 'list)))))
+	   append (coerce (data vec) 'list))))
+|#
+
+(LISP-UNIT:DEFINE-TEST QUASI-RANDOM-NUMBER-GENERATORS
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    (LIST 0.5d0 0.5d0 0.75d0 0.25d0 0.25d0 0.75d0 0.375d0
+	  0.375d0 0.875d0 0.875d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((GEN (QUASI-RANDOM-NUMBER-GENERATOR 2 *SOBOL*))
+	 (VEC (VECTOR-DOUBLE 2)))
+      (LOOP REPEAT 5 DO (QRNG-GET GEN VEC) APPEND
+	    (COERCE (DATA VEC) 'LIST))))))
+

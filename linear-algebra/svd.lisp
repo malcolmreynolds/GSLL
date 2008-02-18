@@ -1,39 +1,19 @@
-;********************************************************
-; file:        svd.lisp                                  
-; description: Singular Value Decomposition              
-; date:        Tue May  2 2006 - 12:15                   
-; author:      Liam Healy                                
-; modified:    Mon Jul  3 2006 - 23:34
-;********************************************************
-;;; $Id: $
+;; Singular Value Decomposition
+;; Liam Healy, Tue May  2 2006 - 12:15
+;; Time-stamp: <2008-02-17 11:29:50EST svd.lisp>
+;; $Id: $
 
 (in-package :gsl)
 
-;;; A general rectangular @math{M}-by-@math{N} matrix @math{A} has a
-;;; singular value decomposition (@sc{svd}) into the product of an
-;;; @math{M}-by-@math{N} orthogonal matrix @math{U}, an @math{N}-by-@math{N}
-;;; diagonal matrix of singular values @math{S} and the transpose of an
-;;; @math{N}-by-@math{N} orthogonal square matrix @math{V},
-;;; @tex
-;;; \beforedisplay
-;;; $$
-;;; A = U S V^T
-;;; $$
-;;; \afterdisplay
-;;; @end tex
-;;; @ifinfo
-
-;;; @example
-;;; A = U S V^T
-;;; @end example
-;;; @end ifinfo
-;;; @noindent
-;;; The singular values
-;;; @c{$\sigma_i = S_{ii}$}
-;;; @math{\sigma_i = S_@{ii@}} are all non-negative and are
+;;; FDL
+;;; A general rectangular M-by-N matrix A has a
+;;; singular value decomposition (svd) into the product of an
+;;; M-by-N orthogonal matrix U, an N-by- diagonal matrix of
+;;; singular values S and the transpose of an
+;;; N-by-N orthogonal square matrix V, A = U S V^T
+;;; The singular values sigma_i = S_{ii} are all non-negative and are
 ;;; generally chosen to form a non-increasing sequence 
-;;; @c{$\sigma_1 \ge \sigma_2 \ge ... \ge \sigma_N \ge 0$}
-;;; @math{\sigma_1 >= \sigma_2 >= ... >= \sigma_N >= 0}.
+;;; sigma_1 >= sigma_2 >= ... >= sigma_N >= 0.
 
 ;;; The singular value decomposition of a matrix has many practical uses.
 ;;; The condition number of the matrix is given by the ratio of the largest
@@ -45,60 +25,60 @@
 ;;; precision. Small singular values should be edited by choosing a suitable
 ;;; tolerance.
 
-(defun-gsl SV-decomp (A V S work)
+(defmfun SV-decomp (A V S work)
   "gsl_linalg_SV_decomp"
   (((pointer A) gsl-matrix-c) ((pointer V) gsl-matrix-c)
    ((pointer S) gsl-vector-c) ((pointer work) gsl-vector-c))
-  :documentation
-  "Factorize the @math{M}-by-@math{N} matrix @var{A} into
-  the singular value decomposition @math{A = U S V^T} for @c{$M \ge N$}
-  @math{M >= N}.  On output the matrix @var{A} is replaced by
-  @math{U}. The diagonal elements of the singular value matrix @math{S}
-  are stored in the vector @var{S}. The singular values are non-negative
-  and form a non-increasing sequence from @math{S_1} to @math{S_N}. The
-  matrix @var{V} contains the elements of @math{V} in untransposed
-  form. To form the product @math{U S V^T} it is necessary to take the
-  transpose of @var{V}.  A workspace of length @var{N} is required in
-  @var{work}.
-  This routine uses the Golub-Reinsch SVD algorithm."
-  :invalidate (A))
+  :invalidate (A)
+  :documentation			; FDL
+  "Factorize the M-by-N matrix A into
+  the singular value decomposition A = U S V^T for M >= N.
+  On output the matrix A is replaced by U.  The diagonal elements
+  of the singular value matrix S
+  are stored in the vector S.  The singular values are non-negative
+  and form a non-increasing sequence from S_1 to S_N. The
+  matrix V contains the elements of V in untransposed
+  form. To form the product U S V^T it is necessary to take the
+  transpose of V.  A workspace of length N is required in work.
+  This routine uses the Golub-Reinsch SVD algorithm.")
 
-(defun-gsl SV-decomp-mod (A X V S work)
+(defmfun SV-decomp-mod (A X V S work)
   "gsl_linalg_SV_decomp_mod"
   (((pointer A) gsl-matrix-c) ((pointer X) gsl-matrix-c)
    ((pointer V) gsl-matrix-c)
    ((pointer S) gsl-vector-c) ((pointer work) gsl-vector-c))
-  :documentation
-  "The SVD using the modified Golub-Reinsch algorithm, which is faster for @c{$M \gg N$}
-  @math{M>>N}.  It requires the vector @var{work} of length @var{N} and the
-  @math{N}-by-@math{N} matrix @var{X} as additional working space."
-  :invalidate (A))
+  :invalidate (A)
+  :documentation			; FDL
+  "The SVD using the modified Golub-Reinsch algorithm, which is
+   faster for M >> N.  It requires the vector work of length N and the
+   N-by-N matrix X as additional working space.")
 
-(defun-gsl SV-decomp-jacobi (A V S)
+(defmfun SV-decomp-jacobi (A V S)
   "gsl_linalg_SV_decomp_jacobi"
   (((pointer A) gsl-matrix-c) ((pointer V) gsl-matrix-c)
    ((pointer S) gsl-vector-c))
-  :documentation "The SVD of the @math{M}-by-@math{N} matrix @var{A}
-   using one-sided Jacobi orthogonalization for @c{$M \ge N$} 
-   @math{M >= N}.  The Jacobi method can compute singular values to higher
-   relative accuracy than Golub-Reinsch algorithms (see references for
-   details)."
-  :invalidate (A))
+  :invalidate (A)
+  :documentation			; FDL
+  "The SVD of the M-by-N matrix A using one-sided Jacobi
+   orthogonalization for M >= N.  The Jacobi method can compute singular
+   values to higher relative accuracy than Golub-Reinsch algorithms (see
+   references for details).")
 
-(defun-gsl SV-solve (U V S b x)
+(defmfun SV-solve (U V S b x)
   "gsl_linalg_SV_solve"
   (((pointer U) gsl-matrix-c) ((pointer V) gsl-matrix-c)
    ((pointer S) gsl-vector-c)
    ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :documentation "Solve the system @math{A x = b} using the singular value
-   decomposition (@var{U}, @var{S}, @var{V}) of @math{A} given by #'SV-decomp.
+  :invalidate (x)
+  :documentation			; FDL
+  "Solve the system A x = b using the singular value
+   decomposition (U, S, V) of A given by #'SV-decomp.
 
    Only non-zero singular values are used in computing the solution. The
    parts of the solution corresponding to singular values of zero are
    ignored.  Other singular values can be edited out by setting them to
    zero before calling this function. 
 
-   In the over-determined case where @var{A} has more rows than columns the
+   In the over-determined case where A has more rows than columns the
    system is solved in the least squares sense, returning the solution
-   @var{x} which minimizes @math{||A x - b||_2}."
-  :invalidate (x))
+   x which minimizes ||A x - b||_2.")

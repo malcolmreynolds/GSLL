@@ -1,11 +1,11 @@
 ;; Bernoulli distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:59
-;; Time-stamp: <2008-02-03 11:16:35EST bernoulli.lisp>
+;; Time-stamp: <2008-02-17 13:39:15EST bernoulli.lisp>
 ;; $Id: $
 
 (in-package :gsl)
 
-(defun-gsl bernoulli (generator p)
+(defmfun bernoulli (generator p)
   "gsl_ran_bernoulli"
   (((generator generator) :pointer) (p :double))
   :c-return :uint
@@ -16,7 +16,7 @@
    p(0) = 1 - p
    p(1) = p.")
 
-(defun-gsl bernoulli-pdf (k p)
+(defmfun bernoulli-pdf (k p)
   "gsl_ran_bernoulli_pdf" ((k :uint) (p :double))
   :c-return :double
   :documentation			; FDL
@@ -25,13 +25,23 @@
   p, using the formula given in #'bernoulli.")
 
 ;;; Examples and unit test
-(lisp-unit:define-test bernoulli
-  (lisp-unit:assert-equal
-   '(0 1 1 0 1 1 0 0 0 0 0)
-   (letm ((rng (random-number-generator *mt19937* 0)))
+#|
+(make-tests bernoulli
+  (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
-	   (bernoulli rng 0.5d0))))
-  (lisp-unit:assert-first-fp-equal
-   "0.500000000000d+00"
-   (bernoulli-pdf 0 0.5d0)))
+	   (bernoulli rng 0.5d0)))
+  (bernoulli-pdf 0 0.5d0))
+|#
+
+(LISP-UNIT:DEFINE-TEST BERNOULLI
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST (LIST 0 1 1 0 1 1 0 0 0 0 0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+      (LOOP FOR I FROM 0 TO 10 COLLECT
+	    (BERNOULLI RNG 0.5d0)))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST 0.5d0)
+   (MULTIPLE-VALUE-LIST (BERNOULLI-PDF 0 0.5d0))))
+
