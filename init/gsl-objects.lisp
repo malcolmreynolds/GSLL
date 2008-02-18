@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-02-16 10:35:20EST gsl-objects.lisp>
+;; Time-stamp: <2008-02-18 11:46:20EST gsl-objects.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -14,6 +14,7 @@
 
 (defvar *not-for-users* nil)
 
+(export 'letm)
 (defmacro letm (bindings &body body)
   "A macro to bind variables to GSL objects, possibly setting
    initial values, and freeing them when done.  The binding is as

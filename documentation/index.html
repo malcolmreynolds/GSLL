@@ -1,0 +1,138 @@
+<!-- -*- mode: HTML; time-stamp-line-limit: -8; -*- -->
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+       <title>GSLL, the GNU Scientific Library for Lisp</title>
+  </head>
+  <body>
+    <div class="body">
+
+ <div class="header">
+  <h1>GSLL</h1>
+  <h2>GNU Scientific Library for Lisp</h2>
+ </div>
+
+ <h3>Introduction</h3>
+ <div class="content">
+      <p>The GNU Scientific Library for Lisp (GSLL) allows you to use
+      the <a href="http://www.gnu.org/software/gsl/">GNU Scientific
+      Library (GSL)</a> from Common Lisp.  This library provides a
+      full range of common mathematical operations useful to
+      scientific and engineering applications.  The design of the GSLL
+      interface is such that access to most of the GSL library is
+      possible in a Lisp-natural way; the intent is that the user not
+      be hampered by the restrictions of the C language in which GSL
+      has been written.  GSLL thus provides interactive use of GSL for
+      getting quick answers, even for someone not intending
+      to program in Lisp.
+      </p>
+      <p>This code should be considered alpha but it is largely usable
+      now, with some GSL capability not yet available. See
+      Development section below.</p>
+ <p>This software is distributed under the <a
+	  href="http://www.cliki.net/LLGPL">LLGPL</a>
+	  and <a href="http://www.gnu.org/copyleft/fdl.html">FDL</a>.
+	  See COPYING.</p> 
+ </div>
+ 
+ <h3>Examples</h3>
+ <div class="content">
+ <p>The <a href="http://www.gnu.org/software/gsl/manual/html_node/Elliptic-Functions-_0028Jacobi_0029.html">Jacobian elliptic functions</a> <i>sn</i>, <i>cn</i>, and
+ <i>dn</i> are special functions (Chapter 7):</p> 
+<pre>
+(jacobian-elliptic-functions 0.2d0 0.81d0)
+0.19762082367187703d0
+0.9802785369736752d0
+0.9840560289645665d0
+1.828927267118668d-318
+1.4821969375237396d-321
+2.023692885365746d-320
+</pre>
+      <p>which returns the three function values in succession, along
+      with the estimated errors of each.  The functions are defined
+      only if the second argument <i>m</i> is not greater than 1,
+      so an error is signalled if this parameter is out of range: </p>
+<pre>
+(jacobian-elliptic-functions 0.61802d0 1.5d0)
+debugger invoked on a GSL-ERROR in thread #<THREAD "initial thread" {10032258C1}>:
+  Input domain error (EDOM), |m| > 1.0 in elljac.c at line 46
+</pre>
+ </div>
+
+<h3>Requirements and Platforms</h3>
+ <div class="content">
+  <p> GSLL should work in
+      any Common Lisp implementation and platform combination
+      that has <a href="http://common-lisp.net/project/cffi/">CFFI</a>
+       with callbacks and defcfun support.  You will need
+      </p>
+        <ul>
+        <li><a href="http://www.gnu.org/software/gsl/">GSL</a></li>
+        <li><a href="http://common-lisp.net/project/cffi/">CFFI</a></li>
+        <li><a href="http://www.cliki.net/asdf">ASDF</a>
+          </ul>
+      <p>
+        In <a href="http://www.debian.org">Debian</a>,
+        the following should work:</p>
+      <blockquote><pre>apt-get install libgsl0 cl-cffi</pre></blockquote>
+      (asdf is automatically installed with your CL implementation).
+      Once your CL implementation is running, do
+      <code>(asdf:operate 'asdf:compile-op :gsll)</code> 
+      or, if using Debian with the
+      <a href="http://packages.debian.org/common-lisp-controller">
+      common-lisp-controller</a>, install with
+        <code>clc-register-user-package</code> and then within Lisp
+      <code>(clc:clc-require :gsll)</code>.
+  <p>GSLL has been tested with SBCL on Debian i386 and amd64.</p>
+ </div>
+
+ <h3>Additional information</h3>
+Please see <a href="documentation.html">documentation</a> and 
+<a href="development.html">development</a> information.
+
+ <h3>Downloads</h3>
+ <div class="content">
+ <p>You may browse or download the <a
+	    href="http://subversion.tigris.org/">Subversion</a>
+	  repository at
+	  svn://common-lisp.net/project/gsll/subversion/trunk.  For
+	  example, 
+	   </p>
+	<pre>svn list svn://common-lisp.net/project/gsll/subversion/trunk
+svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>.</p>
+ </div>
+ 
+ <h3>Similar or related projects from others</h3>
+  <div class="content">
+  A partial automatically-generated interface to GSL is provided in <a
+  href="http://common-lisp.net/project/cl-gsl/">cl-gsl</a>.
+  A matlab-like array syntax and plotting is provided by
+  <a href="http://nlisp.info/">NLISP</a> which might work well with
+  GSLL.  Some math functions implemented natively in CL are provided
+  in <a
+  href="http://www.princeton.edu/%7Etpapp/software.html#cl-numlib">cl-numlib</a>. 
+  </div>
+
+ <div class="footer">
+    <hr>
+    <address><a href="mailto:">Liam Healy</a></address>
+<!-- Created: Feb 25 2005 -->
+<!-- hhmts start -->
+    <small>
+       Time-stamp: <2008-02-18 12:51:51EST index.html>
+       </small>
+<!-- hhmts end -->
+ </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-3669275-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+ </body>
+</html>

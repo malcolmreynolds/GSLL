@@ -1,9 +1,12 @@
-GSLL is distributed under the terms of the GNU General
-Public License (GPL).
+GSLL is distributed under the terms of the GNU Lesser General
+Public License (LGPL), with the preamble defined by Franz, Inc.
+http://opensource.franz.com/preamble.html
+to address specific issues about Lisp, except see below.
 
-Most of the :documentation strings used as arguments to defun-gsl, and
+Most of the :documentation strings used as arguments to defmfun, and
 some comments in the Common Lisp source code are derived from the GSL
-documentation.  The following applies to these:
+documentation.  These are usually preceeded by a comment "; FDL"
+in the source code.  The following applies to these:
 
 Permission is granted to copy, distribute and/or modify this
 document under the terms of the GNU Free Documentation License,
@@ -11,8 +14,7 @@ Version 1.2 or any later version published by the Free Software
 Foundation; with the Invariant Sections being "GNU General Public
 License" and "Free Software Needs Free Documentation", the
 Front-Cover text being "A GNU Manual", and with the Back-Cover
-Text being (a) (see below). A copy of the license is included in
-the section entitled "GNU Free Documentation License."
+Text being (a) (see below). 
 
 (a) The Back-Cover Text is: "You have freedom to copy and modify
 this GNU Manual, like GNU software."

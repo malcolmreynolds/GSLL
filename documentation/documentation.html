@@ -1,0 +1,131 @@
+<!-- -*- mode: HTML; time-stamp-line-limit: -8; -*- -->
+<?xml version="1.0" encoding="iso-8859-1"?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <link rel="stylesheet" href="style.css" type="text/css"/>
+       <title>GSLL Documentation</title>
+  </head>
+  <body>
+    <div class="body">
+
+ <div class="header">
+  <h1>GSLL Documentation</h1>
+  <h2>GSLL</h2>
+ </div>
+
+ <h3>General Advice</h3>
+ <div class="content">
+
+ <p>There is little separate documentation for GSLL.  Instead, the
+ following techniques for using the API are advised:</p>
+ <ul>
+ <li>Find the appropriate function(s) in the <a
+ href="http://www.gnu.org/software/gsl/manual/">GSL
+ documentation</a>.</li>
+ <li>Use the GSLL function <code>gsl-lookup</code>
+  to find the equivalent GSLL function, for example
+<pre>
+(gsl-lookup "gsl_sf_elljac_e")
+JACOBIAN-ELLIPTIC-FUNCTIONS
+T
+</pre>
+to find that the Lisp function name is <code>#'jacobian-elliptic-functions</code>.  
+  </li>
+ <li>Look at the documentation for that Lisp function, e.g.
+   <pre>(documentation #'jacobian-elliptic-functions 'function)
+"The Jacobian elliptic functions sn(u|m),
+  cn(u|m), dn(u|m) computed by descending Landen transformations."
+   </pre>
+   to get an explanation of the arguments etc.
+ </li>
+ <li>Look at the end of the Lisp source file, or in an "example" file
+ in the same directory, for examples.  Often, the examples are placed
+ in a <code>make-tests</code> form (which will be commented out with
+ a #| |# block).</li>
+ </ul>
+ It is advisable to look at the examples first for calculations that
+ require more complex setup (generally, the later chapters in the GSL
+ manual) because often there are convenience macros defined to make
+ the setup simpler.
+ </div>
+
+ <h3>GSL objects and letm </h3>
+There are a number of GSL structures available that must be manually
+allocated, possibly set, and freed.  In
+order to make this as convenient as possible, the macro
+<code>letm</code> is provided.  This macro acts as a
+<code><a
+href="http://www.lispworks.com/documentation/HyperSpec/Body/s_let_l.htm#letST">let*</a></code>,
+with the additional feature that if the init-form is one of GSL objects
+
+<pre>
+acceleration basis-spline block-complex block-double block-fixnum
+block-single chebyshev combination complex-workspace discrete-random
+eigen-herm eigen-hermv eigen-symm eigen-symmv fdfsolver fit-workspace
+fminimizer fsolver hankel histogram integration-workspace
+interpolation levin levin-truncated matrix-complex matrix-double
+matrix-fixnum matrix-single mfdfminimizer mfdfsolver mfminimizer
+mfsolver monte-carlo-miser monte-carlo-plain monte-carlo-vegas
+nonlinear-fdffit nonlinear-ffit permutation
+quasi-random-number-generator random-number-generator spline
+vector-complex vector-double vector-fixnum vector-single wavelet
+wavelet-workspace
+</pre>
+the appropriate object will be allocated and bound to the variable,
+optionally set, and then freed when the body of the let is exited.
+For Lisp environments with arglist prompting (such as SLIME), these
+are functions whose symbols are exported so that an arglist prompt
+will be visible; however, the function should not be used outside a
+let binding.
+
+ <h3>Status</h3>
+ <div class="content">
+ Consistent with the <a href="development.html">development</a>
+ philosophy, most of the interface to the library is done.  Notes
+ particular chapters:
+<ul>
+<li><a href="Vectors-and-Matrices.html">Vectors and Matrices</a>
+	are done for integer, real, double, complex.
+	 Subvectors and views don't work.  Other element types may be
+        difficult to port due to lack of CL definition.
+	      <base href="http://www.gnu.org/software/gsl/manual/html_node/">
+<li>Some <a href="Sorting.html">sorting</a> functions fail on amd64 platforms,
+ perhaps because of lack of unsigned integer vectors.
+<li><a href="BLAS-Support.html">BLAS</a> is completed, but with only very
+ limited testing.
+ <li><a href="Fast-Fourier-Transforms.html">FFTs</a> has not been done
+ because GSL does not supply an example and it is not clear how it
+ used.  Contributions welcome. 
+<li><a href="Simulated-Annealing.html">Simulated Annealing</a> has
+ been done but does not work.
+<li><a href="Wavelet-Transforms.html">Wavelet Transforms</a> has been
+ done but the results of the example do not agree with the GSL manual.
+<li><a href="Discrete-Hankel-Transforms.html">Discrete Hankel
+ Transforms</a> has been done but there is no example given in the GSL
+ manual. 
+<li><a href="Basis-Splines.html">Basis splines</a> have yet to be tested.
+</ul>
+
+
+ <div class="footer">
+    <hr>
+    <address><a href="mailto:">Liam Healy</a></address>
+<!-- Created: Feb 25 2005 -->
+<!-- hhmts start -->
+    <small>
+       Time-stamp: <2008-02-18 14:56:02EST documentation.html>
+       </small>
+<!-- hhmts end -->
+ </div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-3669275-1");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
+ </body>
+</html>
