@@ -74,22 +74,22 @@ debugger invoked on a GSL-ERROR in thread #<THREAD "initial thread" {10032258C1}
   to find the equivalent GSLL function, for example
 <pre>
 (gsl-lookup "gsl_sf_elljac_e")
-((JACOBIAN-ELLIPTIC-FUNCTIONS . "gsl_sf_elljac_e"))
+JACOBIAN-ELLIPTIC-FUNCTIONS
+T
 </pre>
 to find that the Lisp function name is <code>#'jacobian-elliptic-functions</code>.  
   </li>
  <li>Look at the documentation for that Lisp function, e.g.
    <pre>(documentation #'jacobian-elliptic-functions 'function)
-  "The Jacobian elliptic functions @math{sn(u|m)},
-  @math{cn(u|m)}, @math{dn(u|m)} computed by descending Landen
-  transformations."
+"The Jacobian elliptic functions sn(u|m),
+  cn(u|m), dn(u|m) computed by descending Landen transformations."
    </pre>
    to get an explanation of the arguments etc.
  </li>
  <li>Look at the end of the Lisp source file, or in an "example" file
  in the same directory, for examples.  Often, the examples are placed
- in a <code>lisp-unit:define-test</code> form, and therefore show the answer
- expected.</li>
+ in a <code>make-tests</code> form (which will be commented out with
+ a #| |# block).</li>
  </ul>
  It is advisable to look at the examples first for calculations that
  require more complex setup (generally, the later chapters in the GSL
@@ -339,7 +339,7 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>.</p>
     </table>
  </div>
 
-<h3>Regression Tests</h3>
+<h3>Regression tests</h3>
   <div class="content">
    <p>Regression tests using <a
    href="http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html">lisp-unit</a>
@@ -352,12 +352,10 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>.</p>
 <pre>
 (lisp-unit:run-tests)
 </pre>
-and expect a few failures on amd64 (four), none? on i386.  Often, the
-   failures aren't really failures, just floating point numbers that
-   aren't close enough to pass.
+and expect a two failures on amd64, none? on i386.
 </p>
 
- <h3>Related projects from others</h3>
+ <h3>Similar or related projects from others</h3>
   <div class="content">
   A partial automatically-generated interface to GSL is provided in <a
   href="http://common-lisp.net/project/cl-gsl/">cl-gsl</a>.
@@ -374,7 +372,7 @@ and expect a few failures on amd64 (four), none? on i386.  Often, the
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-02-10 23:25:02EST index.html>
+       Time-stamp: <2008-02-18 00:25:04EST index.html>
        </small>
 <!-- hhmts end -->
  </div>

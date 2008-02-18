@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-02-17 18:41:29EST gsll.asd>
+;; Time-stamp: <2008-02-18 11:27:00EST gsll.asd>
 ;; $Id: $
 
 (asdf:defsystem "gsll"
@@ -23,6 +23,10 @@
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
 	     (:file "tests" :depends-on (init lisp-unit))))
+   (:module floating-point
+	    :depends-on (init)
+	    :components
+	    ((:file "ieee-modes")))
    (:file "mathematical" :depends-on (init))
    ;; complex numbers not necessary?  Just make a struct.
    (:module data
