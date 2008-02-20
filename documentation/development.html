@@ -11,12 +11,12 @@
 
  <div class="header">
   <h1>GSLL Development</h1>
-  <h2>GNU Scientific Library for Lisp Development Status</h2>
+  <h2>GSLL Development</h2>
  </div>
 
  <h3>Goals</h3>
   <p>The goal of this project is to provide as complete an interface
-  to the GSL as possible in as Lisp-natural a way as possible.  It is
+  to the GSL as possible in as Lisp-natural a way as is reasonable.  It is
   written only in Common Lisp (no C), with access to the foreign library
   through CFFI.
 
@@ -51,6 +51,12 @@
   It is possible that the library API will change but probably not
    substantially; most of the remaining work involves added functions.
 
+   <p>
+   There seem to be differences in the random number generators
+   between amd64 and i386, so many regression tests fail as the
+   sequences are not the same.
+
+   <p>
   In addition to the chapters below, it would be nice if the following
   were done<ul>
   <li>Native vectors like <code>sb-sys:vector-sap</code> in SBCL.
@@ -77,13 +83,6 @@
   me at this address: <code>lhealy</code> -at-
   <code>common-lisp</code> -dot- <code>net</code>.</p> 
   <p>
- <p>The following is the status of the project by <a
-  href="http://www.gnu.org/software/gsl/manual/html_node/">GSL
-  manual</a> chapter.  When marked "Done" it means that all or a
-  substantial portion
-  that is planned that GSLL will cover has been defined and <i>some</i> of those
-  definitions have been tested.  Improvements may still be
-  desirable.</p> 
  </div>
 
 <h3>Regression tests</h3>

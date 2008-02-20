@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-02-17 16:51:35EST histogram.lisp>
+;; Time-stamp: <2008-02-19 22:33:01EST histogram.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -59,16 +59,14 @@
 (defmfun free-histo-1 (object)
   "gsl_histogram_free"
   (((pointer object) :pointer))
-  :c-return (cr :pointer)
-  :return ((assign-pointer object cr))
+  :c-return :void
   :export nil
   :index (letm histogram))
 
 (defmfun free-histo-2 (object)
   "gsl_histogram2d_free"
   (((pointer object) :pointer))
-  :c-return (cr :pointer)
-  :return ((assign-pointer object cr))
+  :c-return :void
   :export nil
   :index (letm histogram))
 

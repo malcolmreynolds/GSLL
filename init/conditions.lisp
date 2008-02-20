@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2008-01-14 22:22:55 liam conditions.lisp>
+;; Time-stamp: <2008-02-19 22:20:37EST conditions.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -52,17 +52,17 @@
     (32 . "End of file")))
 
 ;;; It would be nice to be able to return, or give the option to return,
-;;; the portrable equivalent of #.SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY
+;;; the portable equivalent of #.SB-EXT:DOUBLE-FLOAT-POSITIVE-INFINITY
 ;;; for :EOVRFLW.
 
 (define-condition gsl-error (arithmetic-error)
   ((gsl-errno :initarg :gsl-errno :reader gsl-errno)
    (gsl-reason :initarg :gsl-reason :reader gsl-reason)
-   (gsl-source-file :initarg :gsl-source-file :reader gsl-source-file)
-   (gsl-line-number :initarg :gsl-line-number :reader gsl-line-number))
+   (gsl-source-file :initform nil :initarg :gsl-source-file :reader gsl-source-file)
+   (gsl-line-number :initform 0 :initarg :gsl-line-number :reader gsl-line-number))
   (:report
    (lambda (condition stream)
-     (format stream "~a (~a), ~a in ~a at line ~d"
+     (format stream "~a (~a), ~a ~@[in ~a at line ~d~]"
 	     (rest (assoc (gsl-errno condition) *gsl-error-alist*))
 	     (cffi:foreign-enum-keyword 'gsl-errorno (gsl-errno condition))
 	     (gsl-reason condition)

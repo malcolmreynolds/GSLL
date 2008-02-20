@@ -11,7 +11,7 @@
 
  <div class="header">
   <h1>GSLL Documentation</h1>
-  <h2>GSLL</h2>
+  <h2>GSLL Documentation</h2>
  </div>
 
  <h3>General Advice</h3>
@@ -78,6 +78,16 @@ For Lisp environments with arglist prompting (such as SLIME), these
 are functions whose symbols are exported so that an arglist prompt
 will be visible; however, the function should not be used outside a
 let binding.
+
+ <h3>Data</h3>
+ <div class="content">
+ Collectively, vectors, matrices, histograms and the like are called
+ <i>data</i>.  There many different types supported by GSL, but GSLL
+ has implemented only a few of these: complex, double-float,
+ single-float, and fixnum, because those types are defined by
+ the Common Lisp standard.  Others may be added but it may be
+ difficult to do so in a portable way.  There are several macros that
+ should make this relatively easy.
 
  <h3>Status</h3>
  <div class="content">
