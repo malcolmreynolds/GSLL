@@ -1,4 +1,4 @@
-<!-- -*- mode: HTML; time-stamp-line-limit: -8; -*- -->
+<!-- -*- mode: HTML; time-stamp-line-limit: -18; -*- -->
 <?xml version="1.0" encoding="iso-8859-1"?> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -28,13 +28,14 @@
       getting quick answers, even for someone not intending
       to program in Lisp.
       </p>
-      <p>This code should be considered alpha but it is largely usable
+      <p>This code should be considered alpha and is still under
+      development, but it is largely usable
       now, with some GSL capability not yet available. See
       Development section below.</p>
  <p>This software is distributed under the <a
 	  href="http://www.cliki.net/LLGPL">LLGPL</a>
 	  and <a href="http://www.gnu.org/copyleft/fdl.html">FDL</a>.
-	  See COPYING.</p> 
+	  See COPYING.  There is absolutely no warranty.</p> 
  </div>
  
  <h3>Examples</h3>
@@ -85,7 +86,9 @@ debugger invoked on a GSL-ERROR in thread #<THREAD "initial thread" {10032258C1}
       common-lisp-controller</a>, install with
         <code>clc-register-user-package</code> and then within Lisp
       <code>(clc:clc-require :gsll)</code>.
-  <p>GSLL has been tested with SBCL on Debian i386 and amd64.</p>
+  <p>GSLL has been tested with <a
+ href="http://sbcl.sourceforge.net/">SBCL</a> and <a
+ href="http://clisp.cons.org/">CLISP</a> on Debian i386 and amd64.</p>
  </div>
 
  <h3>Additional information</h3>
@@ -121,7 +124,7 @@ svn checkout svn://common-lisp.net/project/gsll/subversion/trunk</pre>.</p>
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-02-18 12:51:51EST index.html>
+       Time-stamp: <2008-02-23 19:02:16EST index.html>
        </small>
 <!-- hhmts end -->
  </div>

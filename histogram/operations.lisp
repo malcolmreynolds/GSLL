@@ -1,6 +1,6 @@
 ;; Histogram operations
 ;; Liam Healy, Mon Jan  1 2007 - 16:47
-;; Time-stamp: <2008-02-17 17:10:53EST operations.lisp>
+;; Time-stamp: <2008-02-23 18:57:17EST operations.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -30,11 +30,11 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl+-1 (histogram1 histogram2)
+(defmfun m+-1 (histogram1 histogram2)
   "gsl_histogram_add"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl+
+  :index m+
   :documentation			; FDL
   "Add the contents of the bins in histogram2 to the
    corresponding bins of histogram1 i.e. h'_1(i) =
@@ -43,32 +43,32 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl+-2 (histogram1 histogram2)
+(defmfun m+-2 (histogram1 histogram2)
   "gsl_histogram2d_add"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl+
+  :index m+
   :documentation			; FDL
   "Add the contents of the bins in histogram2 to the
    corresponding bins of histogram1 i.e. h'_1(i) =
    h_1(i) + h_2(i).  The two histograms must have identical bin
    ranges.")
 
-(defmethod gsl+ ((histogram1 histogram) (histogram2 histogram))
+(defmethod m+ ((histogram1 histogram) (histogram2 histogram))
   ;; FDL
   "Add the contents of the bins in histogram2 to the
    corresponding bins of histogram1 i.e. h'_1(i) =
    h_1(i) + h_2(i).  The two histograms must have identical bin
    ranges."
-  (histo-1d2d histogram1 gsl+ (histogram2)))
+  (histo-1d2d histogram1 m+ (histogram2)))
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl--1 (histogram1 histogram2)
+(defmfun m--1 (histogram1 histogram2)
   "gsl_histogram_sub"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl-
+  :index m-
   :documentation			; FDL
   "Subtract the contents of the bins in histogram2 from the
    corresponding bins of histogram1 i.e. h'_1(i) = h_1(i) -
@@ -76,17 +76,17 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl--2 (histogram1 histogram2)
+(defmfun m--2 (histogram1 histogram2)
   "gsl_histogram2d_sub"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl-
+  :index m-
   :documentation			; FDL
   "Subtract the contents of the bins in histogram2 from the
    corresponding bins of histogram1 i.e. h'_1(i) = h_1(i) -
    h_2(i).  The two histograms must have identical bin ranges.")
 
-(defmethod gsl- ((histogram1 histogram) (histogram2 histogram))
+(defmethod m- ((histogram1 histogram) (histogram2 histogram))
   ;; FDL
   "Subtract the contents of the bins in histogram2 from the
    corresponding bins of histogram1 i.e. h'_1(i) = h_1(i) -
@@ -95,11 +95,11 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl*-1 (histogram1 histogram2)
+(defmfun m*-1 (histogram1 histogram2)
   "gsl_histogram_mul"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl*
+  :index m*
   :documentation			; FDL
   "Multiply the contents of the bins of histogram1 by the
    contents of the corresponding bins in histogram2
@@ -108,32 +108,32 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl*-2 (histogram1 histogram2)
+(defmfun m*-2 (histogram1 histogram2)
   "gsl_histogram2d_mul"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl*
+  :index m*
   :documentation			; FDL
   "Multiply the contents of the bins of histogram1 by the
    contents of the corresponding bins in histogram2
    i.e. h'_1(i) = h_1(i) * h_2(i).  The two histograms
    must have identical bin ranges.")
 
-(defmethod gsl* ((histogram1 histogram) (histogram2 histogram))
+(defmethod m* ((histogram1 histogram) (histogram2 histogram))
   ;; FDL
   "Multiply the contents of the bins of histogram1 by the
    contents of the corresponding bins in histogram2
    i.e. h'_1(i) = h_1(i) * h_2(i).  The two histograms
    must have identical bin ranges."
-  (histo-1d2d histogram1 gsl* (histogram2)))
+  (histo-1d2d histogram1 m* (histogram2)))
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl/-1 (histogram1 histogram2)
+(defmfun m/-1 (histogram1 histogram2)
   "gsl_histogram_div"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl/
+  :index m/
   :documentation			; FDL
   "Divide the contents of the bins of histogram1 by the
    contents of the corresponding bins in histogram2
@@ -142,24 +142,24 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun gsl/-2 (histogram1 histogram2)
+(defmfun m/-2 (histogram1 histogram2)
   "gsl_histogram2d_div"
   (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
   :export nil
-  :index gsl/
+  :index m/
   :documentation			; FDL
   "Divide the contents of the bins of histogram1 by the
    contents of the corresponding bins in histogram2
    i.e. h'_1(i) = h_1(i) / h_2(i).  The two histograms
    must have identical bin ranges.")
 
-(defmethod gsl/ ((histogram1 histogram) (histogram2 histogram))
+(defmethod m/ ((histogram1 histogram) (histogram2 histogram))
   ;; FDL
   "Divide the contents of the bins of histogram1 by the
    contents of the corresponding bins in histogram2
    i.e. h'_1(i) = h_1(i) / h_2(i).  The two histograms
    must have identical bin ranges."
-  (histo-1d2d histogram1 gsl/ (histogram2)))
+  (histo-1d2d histogram1 m/ (histogram2)))
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.

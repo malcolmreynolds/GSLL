@@ -1,6 +1,6 @@
 ;; Using GSL bulk data (vectors, matrices, etc.) storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-02-17 09:18:27EST data.lisp>
+;; Time-stamp: <2008-02-23 18:57:18EST data.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -57,11 +57,11 @@
   (:documentation "The CL type of an element."))
 
 ;;; Accessing elements
-(export 'gsl-aref)
-(defgeneric gsl-aref (object &rest indices)
+(export 'maref)
+(defgeneric maref (object &rest indices)
   (:documentation "An element of the data."))
 
-(defgeneric (setf gsl-aref) (value object &rest indices)
+(defgeneric (setf maref) (value object &rest indices)
   (:method :after (value (object gsl-data) &rest indices)
     (push indices (cl-invalid object)))
   (:documentation "Set an element of the data."))
@@ -300,13 +300,13 @@
 		  (t sequence))))
 	  (loop for i from 0
 	     below (min (length seq) total-size)
-	     do (setf (elt seq i) (gsl-aref object i)))
+	     do (setf (elt seq i) (maref object i)))
 	  seq)
 	;; set selected
 	(let ((seq (data-cache object)))
 	  (mapc (lambda (is)
 		  (let ((i (first is)))
-		    (setf (elt seq i) (gsl-aref object i))))
+		    (setf (elt seq i) (maref object i))))
 		(cl-invalid object))
 	  seq)))
   ;; Around method looks for cached value and returns it if valid;
@@ -330,7 +330,7 @@
   (:method (sequence (object gsl-data))
     (loop for i from 0
        below (min (length sequence) (apply #'* (storage-size object)))
-       do (setf (gsl-aref object i) (elt sequence i))))
+       do (setf (maref object i) (elt sequence i))))
   (:method :after (source (object gsl-data))
 	   (setf (cl-invalid object) t)))
 
@@ -372,24 +372,24 @@
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(export '(gsl+ gsl- gsl* gsl/ gsl*c gsl+c))
+(export '(m+ m- m* m/ m*c m+c))
 
-(defgeneric gsl+ (a b)
+(defgeneric m+ (a b)
   (:documentation "Add."))
 
-(defgeneric gsl- (a b)
+(defgeneric m- (a b)
   (:documentation "Subtract."))
 
-(defgeneric gsl* (a b)
+(defgeneric m* (a b)
   (:documentation "Multiply."))
 
-(defgeneric gsl/ (a b)
+(defgeneric m/ (a b)
   (:documentation "Divide."))
 
-(defgeneric gsl+c (a x)
+(defgeneric m+c (a x)
   (:documentation "Add scalar."))
 
-(defgeneric gsl*c (a x)
+(defgeneric m*c (a x)
   (:documentation "Multiply by scalar."))
 
 ;;;;****************************************************************************

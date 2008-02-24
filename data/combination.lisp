@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-17 10:01:38EST combination.lisp>
+;; Time-stamp: <2008-02-23 18:49:21EST combination.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -25,7 +25,7 @@
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun gsl-aref ((combination gsl-combination) &rest indices)
+(defmfun maref ((combination gsl-combination) &rest indices)
   "gsl_combination_get"
   (((pointer combination) :pointer) ((first indices) size))
   :type :method 
@@ -38,7 +38,7 @@
 		 (make-sequence 'list (combination-size object)))))
     (loop for i from 0
 	  below (min (length seq) (combination-size object))
-	  do (setf (elt seq i) (gsl-aref object i)))
+	  do (setf (elt seq i) (maref object i)))
     seq))
 
 ;;;;****************************************************************************

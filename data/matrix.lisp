@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-17 09:45:48EST matrix.lisp>
+;; Time-stamp: <2008-02-23 18:57:17EST matrix.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -67,7 +67,7 @@
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun-mdsfc gsl-aref ((matrix gsl-matrix) &rest indices)
+(defmfun-mdsfc maref ((matrix gsl-matrix) &rest indices)
   "gsl_matrix_get"
   (((pointer matrix) :pointer)
    ((first indices) size)
@@ -104,14 +104,14 @@
 	  below
 	  (min (array-dimension arr 1) (second (storage-size object)))
 	  do
-	  (setf (aref arr i j) (gsl-aref object i j))))
+	  (setf (aref arr i j) (maref object i j))))
     arr))
 
 ;;;;****************************************************************************
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defmfun-mdsfc (setf gsl-aref) (value (matrix gsl-matrix) &rest indices)
+(defmfun-mdsfc (setf maref) (value (matrix gsl-matrix) &rest indices)
   "gsl_matrix_set"
   (((pointer matrix) :pointer)
    ((first indices) size)
@@ -138,7 +138,7 @@
 	      below
 	      (min (array-dimension array 1) (second (storage-size object)))
 	      do
-	      (setf (gsl-aref object i j) (aref array i j)))))
+	      (setf (maref object i j) (aref array i j)))))
 
 (defmfun-mdsfc set-all ((object gsl-matrix) value)
   "gsl_matrix_set_all"
@@ -457,7 +457,7 @@
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(defmfun-mdsfc gsl+ ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m+ ((a gsl-matrix) (b gsl-matrix))
     "gsl_matrix_add"
   (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
@@ -466,7 +466,7 @@
    a'_i = a_i + b_i. The two matrices must have the
    same dimensions.")
 
-(defmfun-mdsfc gsl- ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m- ((a gsl-matrix) (b gsl-matrix))
   "gsl_matrix_sub" (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
   :documentation			; FDL
@@ -474,7 +474,7 @@
    a, a'_i = a_i - b_i. The two matrices must have the
    same dimensions.")
 
-(defmfun-mdsfc gsl* ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m* ((a gsl-matrix) (b gsl-matrix))
   "gsl_matrix_mul_elements"
   (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
@@ -483,7 +483,7 @@
   matrix b, a'(i,j) = a(i,j) * b(i,j). The two matrices must have the
   same dimensions.")
 
-(defmfun-mdsfc gsl/ ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m/ ((a gsl-matrix) (b gsl-matrix))
   "gsl_matrix_div_elements"
   (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
@@ -492,14 +492,14 @@
    matrix b, a'(i,j) = a(i,j) / b(i,j). The two matrices must have the
    same dimensions.")
 
-(defmfun-mdsfc gsl*c ((a gsl-matrix) x)
+(defmfun-mdsfc m*c ((a gsl-matrix) x)
   "gsl_matrix_scale" (((pointer a) gsl-matrix-c) (x :c-base-type))
   :invalidate (a)
   :documentation			; FDL
   "Multiply the elements of matrix a by the constant
   factor x, a'(i,j) = x a(i,j).")
 
-(defmfun-mdsfc gsl+c ((a gsl-matrix) x)
+(defmfun-mdsfc m+c ((a gsl-matrix) x)
   "gsl_matrix_add_constant" (((pointer a) gsl-matrix-c) (x :c-base-type))
   :invalidate (a)
   :documentation			; FDL
@@ -577,9 +577,9 @@
 
 #|
 (make-tests matrix-fixnum
- (letm ((intmat (matrix-fixnum 2 2)))	;(setf gsl-aref), gsl-aref
-   (setf (gsl-aref intmat 0 1) 77)
-   (gsl-aref intmat 0 1))
+ (letm ((intmat (matrix-fixnum 2 2)))	;(setf maref), maref
+   (setf (maref intmat 0 1) 77)
+   (maref intmat 0 1))
  (letm ((intmat (matrix-fixnum 2 2)))	;(setf data)
    (setf (data intmat) #2A((4 6) (8 2)))
    (data intmat))
@@ -637,8 +637,8 @@
    (LIST 77)
    (MULTIPLE-VALUE-LIST
     (LETM ((INTMAT (MATRIX-FIXNUM 2 2)))
-      (SETF (GSL-AREF INTMAT 0 1) 77)
-      (GSL-AREF INTMAT 0 1))))
+      (SETF (MAREF INTMAT 0 1) 77)
+      (MAREF INTMAT 0 1))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #2A((4 6) (8 2)))
    (MULTIPLE-VALUE-LIST
@@ -741,14 +741,14 @@
    (loop for i from 0 below 10
 	 do
 	 (loop for j from 0 below 3
-	       do (setf (gsl-aref mat i j) (+ 0.23d0 j (* 100 i)))))
+	       do (setf (maref mat i j) (+ 0.23d0 j (* 100 i)))))
    (data mat))
  (letm ((mat (matrix-double #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
 	(ans (matrix-double 2 2)))
    (copy ans mat)
    (data ans))
  (letm ((mat (matrix-double #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
-   (gsl* mat mat)
+   (m* mat mat)
    (data mat)))
 |#
 
@@ -769,7 +769,7 @@
     (LETM ((MAT (MATRIX-DOUBLE 10 3)))
       (LOOP FOR I FROM 0 BELOW 10 DO
 	    (LOOP FOR J FROM 0 BELOW 3 DO
-		  (SETF (GSL-AREF MAT I J)
+		  (SETF (MAREF MAT I J)
 			(+ 0.23d0 J (* 100 I)))))
       (DATA MAT))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -782,5 +782,5 @@
    (LIST #2A((1.0d0 4.0d0) (9.0d0 16.0d0)))
    (MULTIPLE-VALUE-LIST
     (LETM ((MAT (MATRIX-DOUBLE #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
-      (GSL* MAT MAT) (DATA MAT)))))
+      (M* MAT MAT) (DATA MAT)))))
 

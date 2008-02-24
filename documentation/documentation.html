@@ -1,4 +1,4 @@
-<!-- -*- mode: HTML; time-stamp-line-limit: -8; -*- -->
+<!-- -*- mode: HTML; time-stamp-line-limit: -18; -*- -->
 <?xml version="1.0" encoding="iso-8859-1"?> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -79,32 +79,47 @@ are functions whose symbols are exported so that an arglist prompt
 will be visible; however, the function should not be used outside a
 let binding.
 
- <h3>Data</h3>
+ <h3>Data: vectors, matrices, etc.</h3>
  <div class="content">
+ <p>
  Collectively, vectors, matrices, histograms and the like are called
- <i>data</i>.  There many different types supported by GSL, but GSLL
- has implemented only a few of these: complex, double-float,
- single-float, and fixnum, because those types are defined by
- the Common Lisp standard.  Others may be added but it may be
- difficult to do so in a portable way.  There are several macros that
- should make this relatively easy.
+ <i>data</i>.  There are many different types of vectors and matrices
+ supported by GSL, but GSLL has implemented only a few of these:
+ complex, double-float, single-float, and fixnum, because those types
+ are defined by the Common Lisp standard.
+ <p>Vectors and matrices can be converted to and from their Lisp
+ counterparts with <code>data</code> and <code>(setf data)</code>.
+ Setting the GSL value to a Lisp value at initialization
+ can be done within the <code>letm</code> by giving the Lisp value as
+ the first argument after the type, for example
+<pre>
+(letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+   (data vec))
+</pre>
+ Individual elements of data may be accessed with <code>maref</code>,
+ either directly or in a <code>setf</code>.
 
  <h3>Status</h3>
  <div class="content">
  Consistent with the <a href="development.html">development</a>
  philosophy, most of the interface to the library is done.  Notes
- particular chapters:
+ on particular chapters:
 <ul>
 <li><a href="Vectors-and-Matrices.html">Vectors and Matrices</a>
 	are done for integer, real, double, complex.
 	 Subvectors and views don't work.  Other element types may be
         difficult to port due to lack of CL definition.
-	      <base href="http://www.gnu.org/software/gsl/manual/html_node/">
+	      <base
+ href="http://www.gnu.org/software/gsl/manual/html_node/">
+<li>Functions that provide file input and output to files are not tested and
+ likely will need other definitions (perhaps in C) to function
+ properly, unless CFFI and the CL platform provide C stream
+ compatibility.
 <li>Some <a href="Sorting.html">sorting</a> functions fail on amd64 platforms,
  perhaps because of lack of unsigned integer vectors.
 <li><a href="BLAS-Support.html">BLAS</a> is completed, but with only very
  limited testing.
- <li><a href="Fast-Fourier-Transforms.html">FFTs</a> has not been done
+ <li><a href="Fast-Fourier-Transforms.html">FFTs</a> have not been done
  because GSL does not supply an example and it is not clear how it
  used.  Contributions welcome. 
 <li><a href="Simulated-Annealing.html">Simulated Annealing</a> has
@@ -114,17 +129,30 @@ let binding.
 <li><a href="Discrete-Hankel-Transforms.html">Discrete Hankel
  Transforms</a> has been done but there is no example given in the GSL
  manual. 
-<li><a href="Basis-Splines.html">Basis splines</a> have yet to be tested.
+<li><a href="Basis-Splines.html">Basis splines</a> example runs, but
+ the GSL documentation does not provide the result for comparison.
+</ul>
+<p>
+There are failures observed in the regression tests
+<code>(lisp-unit:run-tests)</code>:
+<ul>
+<li>CLISP shows three "foreign callout errors". Remedy unknown.
+<li>Sorting shows two failures on amd64 platforms.  This is possibly
+because of the use of integer vectors to store unsigned integer
+vectors.
+<li>There are several regression failures that are apparently due to
+changes in GSL between versions 1.8 and 1.10.  These are:
+beta, chi-squared, dirichlet, elliptic-functions, fdist,
+gamma-randist, negative-binomial.
 </ul>
 
 
  <div class="footer">
     <hr>
     <address><a href="mailto:">Liam Healy</a></address>
-<!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-02-18 14:56:02EST documentation.html>
+       Time-stamp: <2008-02-23 19:45:14EST documentation.html>
        </small>
 <!-- hhmts end -->
  </div>

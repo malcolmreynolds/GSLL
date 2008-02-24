@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-02-17 18:26:44EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-02-23 18:49:18EST nonlinear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -393,7 +393,7 @@
 	       exponential-residual
 	       init)))
     (macrolet ((fitx (i) `(vref (fdffit-slot fit 'x) ,i))
-	       (err (i) `(sqrt (gsl-aref covariance ,i ,i))))
+	       (err (i) `(sqrt (maref covariance ,i ,i))))
       (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
 	      0 (fitx 0) (fitx 1) (fitx 2)
 	      (norm (make-data-from-pointer (fdffit-slot fit 'f))))

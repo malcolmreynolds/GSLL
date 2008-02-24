@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-02-17 08:49:41EST polynomial.lisp>
+;; Time-stamp: <2008-02-23 18:49:15EST polynomial.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -162,8 +162,8 @@
    (workspace :pointer) ((gsl-array answer-pd) :pointer))
   :return
   ((loop for i from 0 below (dim0 answer-pd) by 2
-	 collect (complex (gsl-aref answer-pd i)
-			  (gsl-aref answer-pd (1+ i)))))
+	 collect (complex (maref answer-pd i)
+			  (maref answer-pd (1+ i)))))
   :documentation			; FDL
   "Arguments are:
    a GSL array of coefficients, a workspace, a gsl-array of doubles."

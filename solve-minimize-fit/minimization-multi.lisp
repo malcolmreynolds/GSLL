@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-02-17 18:39:48EST minimization-multi.lisp>
+;; Time-stamp: <2008-02-23 18:49:17EST minimization-multi.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -360,11 +360,11 @@
 		      1.0d-3)))
 	  (let ((x (mfdfminimizer-x minimizer)))
 	    (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f"
-		    iter (gsl-aref x 0) (gsl-aref x 1)
+		    iter (maref x 0) (maref x 1)
 		    (mfdfminimizer-minimum minimizer)))
 	  finally (return
 		    (let ((x (mfdfminimizer-x minimizer)))
-		      (values (gsl-aref x 0) (gsl-aref x 1)))))))
+		      (values (maref x 0) (maref x 1)))))))
 
 ;;; Because def-minimization-functions bind a symbol
 ;;; of the same name as the first function, and we want both to run,
@@ -390,9 +390,9 @@
 		  (not (min-test-size size 1.0d-2)))
 	    (let ((x (mfminimizer-x minimizer)))
 	      (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f"
-		      iter (gsl-aref x 0) (gsl-aref x 1)
+		      iter (maref x 0) (maref x 1)
 		      (mfminimizer-minimum minimizer)
 		      size))
 	    finally (return
 		      (let ((x (mfminimizer-x minimizer)))
-			(values (gsl-aref x 0) (gsl-aref x 1))))))))
+			(values (maref x 0) (maref x 1))))))))

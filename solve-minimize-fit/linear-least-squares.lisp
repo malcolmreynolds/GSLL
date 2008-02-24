@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-02-17 18:33:16EST linear-least-squares.lisp>
+;; Time-stamp: <2008-02-23 19:43:59EST linear-least-squares.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -243,8 +243,8 @@
 
 (defmfun multi-linear-estimate (x coefficients covariance)
   "gsl_multifit_linear_est"
-  ((x :double) (coefficients :pointer)
-   (covariance :pointer) (y :double) (y-error :double))
+  (((pointer x) :pointer) ((pointer coefficients) :pointer)
+   ((pointer covariance) :pointer) (y :double) (y-error :double))
   :documentation			; FDL
   "Use the best-fit multilinear regression coefficients
    and their covariance matrix to compute the fitted function value
@@ -270,15 +270,15 @@
 	  (loop for i from 0 below (dim0 x)
 		do
 		(format t "~&data: ~12,5f ~12,5f ~12,5f"
-			(gsl-aref x i)
-			(gsl-aref y i)
-			(/ (gsl-aref w i))))
+			(maref x i)
+			(maref y i)
+			(/ (maref w i))))
 	  (loop for i from -30 below 130 by 10 ; don't print everything
 		for
-		xf = (+ (gsl-aref x 0)
+		xf = (+ (maref x 0)
 			(* (/ i 100)
-			   (- (gsl-aref x (1- (dim0 x)))
-			      (gsl-aref x 0))))
+			   (- (maref x (1- (dim0 x)))
+			      (maref x 0))))
 		do
 		(multiple-value-bind (yf yferr)
 		    (linear-estimate xf c0 c1 cov00 cov01 cov11)
@@ -308,26 +308,26 @@
 	 (c (vector-double 3)))
     (loop for i from 0
 	  for row in data do
-	  (setf (gsl-aref X i 0) 1.0d0
-		(gsl-aref X i 1) (first row)
-		(gsl-aref X i 2) (expt (first row) 2)
-		(gsl-aref y i) (second row)
-		(gsl-aref w i) (/ (expt (third row) 2))))
+	  (setf (maref X i 0) 1.0d0
+		(maref X i 1) (first row)
+		(maref X i 2) (expt (first row) 2)
+		(maref y i) (second row)
+		(maref w i) (/ (expt (third row) 2))))
     (letm ((ws (fit-workspace n 3)))
       (setf chisq
 	    (weighted-linear-mfit X w y c cov ws)))
     (format t "~&Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2"
-	    (gsl-aref c 0) (gsl-aref c 1) (gsl-aref c 2))
+	    (maref c 0) (maref c 1) (maref c 2))
     (format t "~&Covariance matrix:")
     (format
      t "~&~10,8f ~10,8f ~10,8f"
-     (gsl-aref cov 0 0) (gsl-aref cov 0 1) (gsl-aref cov 0 2))
+     (maref cov 0 0) (maref cov 0 1) (maref cov 0 2))
     (format
      t "~&~10,8f ~10,8f ~10,8f"
-     (gsl-aref cov 1 0) (gsl-aref cov 1 1) (gsl-aref cov 1 2))
+     (maref cov 1 0) (maref cov 1 1) (maref cov 1 2))
     (format
      t "~&~10,8f ~10,8f ~10,8f"
-     (gsl-aref cov 2 0) (gsl-aref cov 2 1) (gsl-aref cov 2 2))
+     (maref cov 2 0) (maref cov 2 1) (maref cov 2 2))
     (format t "~&Chisq = ~10,6f" chisq)))
 
 ;;; (mv-linear-least-squares-example (mv-linear-least-squares-data))

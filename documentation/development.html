@@ -1,7 +1,7 @@
-<!-- -*- mode: HTML; time-stamp-line-limit: -8; -*- -->
+<!-- -*- mode: HTML; time-stamp-line-limit: -18; -*- -->
 <?xml version="1.0" encoding="iso-8859-1"?> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.nw3.org/1999/xhtml">
   <head>
     <link rel="stylesheet" href="style.css" type="text/css"/>
        <title>GSLL Development</title>
@@ -39,6 +39,11 @@
   equivalent probably won't be done, unless there is a need to have it
   present for some other GSL functionality that isn't present in CL.
   </li>
+  <li>Data types that are not defined in Common Lisp portably (such as
+ uint) may not be well supported.  Others may be added but it
+ may be difficult to do so in a portable way.  There are several
+ macros that should make this relatively easy.
+ </li>
   </ul>
 
  <h3>Status</h3>
@@ -50,6 +55,10 @@
   href="documentation.html">documentation</a> for details.
   It is possible that the library API will change but probably not
    substantially; most of the remaining work involves added functions.
+
+   Although many of the file output functions have been ported, none
+   have been tested, and they likely will need additional C or support
+   from other libraries.
 
    <p>
    There seem to be differences in the random number generators
@@ -96,16 +105,13 @@
 <pre>
 (lisp-unit:run-tests)
 </pre>
-and expect a two failures on amd64, none? on i386.
+See <a href="documentation.html">documentation</a> regarding known failures.
 </p>
 
     <hr>
     <address><a href="mailto:">Liam Healy</a></address>
     <small>
-       Time-stamp: <2008-02-18 00:25:04EST index.html>
-<!-- Liam Healy 2008-02-18 11:36:11EST development.html -->
-<!-- Time-stamp: <2008-02-18 12:50:26EST development.html> -->
-<!-- $Id: $ -->
+       Time-stamp: <2008-02-23 19:08:21EST development.html>
        </small>
 <!-- hhmts end -->
  </div>

@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-17 16:19:47EST vector.lisp>
+;; Time-stamp: <2008-02-23 18:57:18EST vector.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -25,7 +25,7 @@
 
 ;;; Need to build real vector out of view pointer.
 
-;;; Need to #'cl-invalidate when (setf gsl-aref) called, see Mon Nov 26 2007.
+;;; Need to #'cl-invalidate when (setf maref) called, see Mon Nov 26 2007.
 
 
 ;;;;****************************************************************************
@@ -116,7 +116,7 @@ deallocated with the vector.
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun-vdsfc gsl-aref ((vector gsl-vector) &rest indices)
+(defmfun-vdsfc maref ((vector gsl-vector) &rest indices)
     "gsl_vector_get"
   (((pointer vector) :pointer) ((first indices) size))
   :c-return :c-base-type
@@ -140,7 +140,7 @@ deallocated with the vector.
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defmfun-vdsfc (setf gsl-aref) (value (vector gsl-vector) &rest indices)
+(defmfun-vdsfc (setf maref) (value (vector gsl-vector) &rest indices)
   "gsl_vector_set"
   (((pointer vector) :pointer) ((first indices) size) (value :c-base-type))
   :c-return :void
@@ -293,7 +293,7 @@ deallocated with the vector.
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(defmfun-vdsf gsl+ ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m+ ((a gsl-vector) (b gsl-vector))
   "gsl_vector_add" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
@@ -301,34 +301,34 @@ deallocated with the vector.
   vector a, a'_i = a_i + b_i. The two vectors must have the
   same length.")
 
-(defmfun-vdsf gsl- ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m- ((a gsl-vector) (b gsl-vector))
   "gsl_vector_sub" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
   "Subtract the elements of vector b from the elements of
    vector a, a'_i = a_i - b_i.  The two vectors must have the same length.")
 
-(defmfun-vdsf gsl* ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m* ((a gsl-vector) (b gsl-vector))
   "gsl_vector_mul" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
   "Multiply the elements of vector a by the elements of
   vector b, a'_i = a_i * b_i. The two vectors must have the same length.")
 
-(defmfun-vdsf gsl/ ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m/ ((a gsl-vector) (b gsl-vector))
   "gsl_vector_div" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
   "Divide the elements of vector a by the elements of
   vector b, a'_i = a_i / b_i. The two vectors must have the same length.")
 
-(defmfun-vdsf gsl*c ((a gsl-vector) x)
+(defmfun-vdsf m*c ((a gsl-vector) x)
   "gsl_vector_scale" (((pointer a) gsl-vector-c) (x :double))
   :invalidate (a)
   :documentation			; FDL
   "Multiply the elements of vector a by the constant factor x, a'_i = x a_i.")
 
-(defmfun-vdsf gsl+c ((a gsl-vector) x)
+(defmfun-vdsf m+c ((a gsl-vector) x)
   "gsl_vector_add_constant" (((pointer a) gsl-vector-c) (x :double))
   :invalidate (a)
   :documentation			; FDL
@@ -398,9 +398,9 @@ deallocated with the vector.
 #|
 (make-tests
  vector-fixnum
- (letm ((intvec (vector-fixnum 4)))	;(setf gsl-aref), gsl-aref
-   (setf (gsl-aref intvec 1) 77)
-   (gsl-aref intvec 1))
+ (letm ((intvec (vector-fixnum 4)))	;(setf maref), maref
+   (setf (maref intvec 1) 77)
+   (maref intvec 1))
  (letm ((intvec (vector-fixnum 4)))	;(setf data)
    (setf (data intvec) #(4 6 8 2))
    (data intvec))
@@ -446,8 +446,8 @@ deallocated with the vector.
    (LIST 77)
    (MULTIPLE-VALUE-LIST
     (LETM ((INTVEC (VECTOR-FIXNUM 4)))
-      (SETF (GSL-AREF INTVEC 1) 77)
-      (GSL-AREF INTVEC 1))))
+      (SETF (MAREF INTVEC 1) 77)
+      (MAREF INTVEC 1))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(4 6 8 2))
    (MULTIPLE-VALUE-LIST
@@ -536,9 +536,9 @@ deallocated with the vector.
 (make-tests
  vector-double
  (letm ((vec (vector-double 3)))
-   (setf (gsl-aref vec 0) -3.21d0
-	 (gsl-aref vec 1) 1.0d0
-	 (gsl-aref vec 2) 12.8d0
+   (setf (maref vec 0) -3.21d0
+	 (maref vec 1) 1.0d0
+	 (maref vec 2) 12.8d0
 	 (cl-invalid vec) t)
    (data vec))
  (letm ((vec (vector-double 3)))
@@ -560,9 +560,9 @@ deallocated with the vector.
    (LIST #(-3.21d0 1.0d0 12.8d0))
    (MULTIPLE-VALUE-LIST
     (LETM ((VEC (VECTOR-DOUBLE 3)))
-      (SETF (GSL-AREF VEC 0) -3.21d0
-	    (GSL-AREF VEC 1) 1.0d0
-	    (GSL-AREF VEC 2) 12.8d0
+      (SETF (MAREF VEC 0) -3.21d0
+	    (MAREF VEC 1) 1.0d0
+	    (MAREF VEC 2) 12.8d0
 	    (CL-INVALID VEC) T)
       (DATA VEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

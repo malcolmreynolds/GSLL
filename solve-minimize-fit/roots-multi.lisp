@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-02-17 18:15:07EST roots-multi.lisp>
+;;; Time-stamp: <2008-02-23 18:49:17EST roots-multi.lisp>
 ;;; $Id: $
 
 (in-package :gsl)
@@ -392,11 +392,11 @@
 (defparameter *powell-A* 1.0d4)
 (defun powell (argument return)
   "Powell's test function."
-  (setf (gsl-aref return 0)
-	(- (* *powell-A* (gsl-aref argument 0) (gsl-aref argument 1))
+  (setf (maref return 0)
+	(- (* *powell-A* (maref argument 0) (maref argument 1))
 	   1)
-	(gsl-aref return 1)
-	(+ (exp (- (gsl-aref argument 0))) (exp (- (gsl-aref argument 1)))
+	(maref return 1)
+	(+ (exp (- (maref argument 0))) (exp (- (maref argument 1)))
 	   (- (1+ (/ *powell-A*))))))
 
 ;;; (def-mfunction powell 2)
@@ -443,15 +443,15 @@
 		(iterate-mfsolver solver)
 		(format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
 			iter
-			(gsl-aref argval 0)
-			(gsl-aref argval 1)
-			(gsl-aref fnval 0)
-			(gsl-aref fnval 1))
+			(maref argval 0)
+			(maref argval 1)
+			(maref fnval 0)
+			(maref fnval 1))
 		finally (return
-			  (values (gsl-aref argval 0)
-				  (gsl-aref argval 1)
-				  (gsl-aref fnval 0)
-				  (gsl-aref fnval 1)))))))))
+			  (values (maref argval 0)
+				  (maref argval 1)
+				  (maref fnval 0)
+				  (maref fnval 1)))))))))
 
 
 (defun rosenbrock-df (argument jacobian)
@@ -479,10 +479,10 @@
   (flet ((print-state (iter argval fnval)
 	   (format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
 		   iter
-		   (gsl-aref argval 0)
-		   (gsl-aref argval 1)
-		   (gsl-aref fnval 0)
-		   (gsl-aref fnval 1))))
+		   (maref argval 0)
+		   (maref argval 1)
+		   (maref fnval 0)
+		   (maref fnval 1))))
     (let ((max-iter 1000))
       (letm ((vect (vector-double #(-10.0d0 -5.0d0))))
 	(letm
@@ -497,7 +497,7 @@
 		  (iterate-mfdfsolver solver)
 		  (print-state iter argval fnval)
 		  finally (return
-			    (values (gsl-aref argval 0)
-				    (gsl-aref argval 1)
-				    (gsl-aref fnval 0)
-				    (gsl-aref fnval 1))))))))))
+			    (values (maref argval 0)
+				    (maref argval 1)
+				    (maref fnval 0)
+				    (maref fnval 1))))))))))

@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-02-17 18:37:40EST wavelet.lisp>
+;; Time-stamp: <2008-02-23 18:49:16EST wavelet.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -394,13 +394,13 @@
     (letm ((absvector (vector-double n))
 	   (permutation (permutation n)))
       (dotimes (i n)
-	(setf (gsl-aref absvector i) (abs (gsl-aref vector i))))
+	(setf (maref absvector i) (abs (maref vector i))))
       ;; Sort and set to 0 all but the largest 20.
       (sort-vector-index permutation absvector)
       (dotimes (i (- n 20))
-	(setf (gsl-aref vector (gsl-aref permutation i))
+	(setf (maref vector (maref permutation i))
 	      0.0d0))) ;; Transform back
-    (dotimes (i n) (format t "~&~a" (gsl-aref vector i)))
+    (dotimes (i n) (format t "~&~a" (maref vector i)))
     (cl-invalidate vector)
     (wavelet-transform-inverse wavelet vector 1 workspace)
     (data vector)))

@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-02-17 18:04:12EST series-acceleration.lisp>
+;; Time-stamp: <2008-02-23 18:49:18EST series-acceleration.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -112,8 +112,8 @@
     (letm ((levin (levin maxterms))
 	   (array (vector-double maxterms)))
       (dotimes (n maxterms)
-	(setf (gsl-aref array n) (coerce (/ (expt (1+ n) 2)) 'double-float))
-	(incf sum (gsl-aref array n)))
+	(setf (maref array n) (coerce (/ (expt (1+ n) 2)) 'double-float))
+	(incf sum (maref array n)))
       (multiple-value-bind (accelerated-sum error)
 	  (accelerate array levin)
 	(format t "~&term-by-term sum =~f using ~d terms" sum maxterms)

@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-17 09:56:49EST permutation.lisp>
+;; Time-stamp: <2008-02-23 18:49:22EST permutation.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -24,7 +24,7 @@
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun gsl-aref ((permutation gsl-permutation) &rest indices)
+(defmfun maref ((permutation gsl-permutation) &rest indices)
   "gsl_permutation_get"
   (((pointer permutation) :pointer) ((first indices) size))
   :type :method 
@@ -250,9 +250,9 @@
 #|
 (make-tests
  permutation
- (letm ((perm-1 (permutation 4 t)))	;gsl-aref
+ (letm ((perm-1 (permutation 4 t)))	;maref
    (set-identity perm-1)
-   (gsl-aref perm-1 2))
+   (maref perm-1 2))
  (letm ((perm-1 (permutation 4 t)))	;data
    (set-identity perm-1)
    (data perm-1))
@@ -299,7 +299,7 @@
    (MULTIPLE-VALUE-LIST
     (LETM ((PERM-1 (PERMUTATION 4 T)))
       (SET-IDENTITY PERM-1)
-      (GSL-AREF PERM-1 2))))
+      (MAREF PERM-1 2))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(0 1 2 3))
    (MULTIPLE-VALUE-LIST

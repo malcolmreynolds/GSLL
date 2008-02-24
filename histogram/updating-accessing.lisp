@@ -1,6 +1,6 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-02-17 17:04:08EST updating-accessing.lisp>
+;; Time-stamp: <2008-02-23 18:49:16EST updating-accessing.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -34,7 +34,7 @@
    histograms for a small range of a larger dataset, ignoring the values
    outside the range of interest.")
 
-(defmfun gsl-aref ((histogram histogram) &rest i)
+(defmfun maref ((histogram histogram) &rest i)
   "gsl_histogram_get"
   (((pointer histogram) :pointer) ((first i) size))
   :type :method 
@@ -127,22 +127,22 @@
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
-   (gsl-aref histo 1))
+   (maref histo 1))
  (letm ((histo (histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
-   (gsl-aref histo 2))
+   (maref histo 2))
  (letm ((histo (histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
-   (gsl-aref histo 6))
+   (maref histo 6))
  (letm ((histo (histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
-   (gsl-aref histo 16))
+   (maref histo 16))
  (letm ((histo (histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
@@ -174,7 +174,7 @@
       (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
       (INCREMENT HISTO 2.7d0)
       (INCREMENT HISTO 6.9d0 2.0d0)
-      (GSL-AREF HISTO 1))))
+      (MAREF HISTO 1))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 1.0d0)
    (MULTIPLE-VALUE-LIST
@@ -182,7 +182,7 @@
       (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
       (INCREMENT HISTO 2.7d0)
       (INCREMENT HISTO 6.9d0 2.0d0)
-      (GSL-AREF HISTO 2))))
+      (MAREF HISTO 2))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 2.0d0)
    (MULTIPLE-VALUE-LIST
@@ -190,14 +190,14 @@
       (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
       (INCREMENT HISTO 2.7d0)
       (INCREMENT HISTO 6.9d0 2.0d0)
-      (GSL-AREF HISTO 6))))
+      (MAREF HISTO 6))))
   (LISP-UNIT:ASSERT-ERROR
    'GSL-ERROR
    (LETM ((HISTO (HISTOGRAM 10)))
      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
      (INCREMENT HISTO 2.7d0)
      (INCREMENT HISTO 6.9d0 2.0d0)
-     (GSL-AREF HISTO 16)))
+     (MAREF HISTO 16)))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.0d0 10.0d0)
    (MULTIPLE-VALUE-LIST
@@ -223,6 +223,3 @@
       (INCREMENT HISTO 2.7d0)
       (INCREMENT HISTO 6.9d0 2.0d0)
       (HISTOGRAM-FIND HISTO 5.5d0)))))
-
-
-  

@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-02-18 15:48:50EST basis-splines.lisp>
+;; Time-stamp: <2008-02-23 19:36:35EST basis-splines.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -51,7 +51,7 @@
 
 (defmfun evaluate-bspline (x B workspace)
   "gsl_bspline_eval"
-  ((x :double) (B :pointer) (workspace :pointer))
+  ((x :double) ((pointer B) :pointer) (workspace :pointer))
   :documentation			; FDL
   "Evaluate all B-spline basis functions at the position x and store
    them in the GSL vector B, so that the ith element of B is B_i(x).
@@ -84,21 +84,21 @@
 	 (sigma 0.1d0))
     ;; The data to be fitted.
     (dotimes (i ndata)
-      (let* ((xi (* i (/ 15 (1- ndata))))
+      (let* ((xi (coerce (* i (/ 15 (1- ndata))) 'double-float))
 	     (yi (+ (* (cos xi) (exp (* -0.1d0 xi)))
 		    (gaussian rng sigma))))
-	(setf (gsl-aref x i) xi
-	      (gsl-aref y i) yi
-	      (gsl-aref w i) (/ (expt sigma 2)))))
+	(setf (maref x i) xi
+	      (maref y i) yi
+	      (maref w i) (/ (expt sigma 2)))))
     ;; Uniform breakpoints [0, 15]
     (uniform-knots 0.0d0 15.0d0 bw)
     ;; Fit matrix
     (dotimes (i ndata)
       ;; Compute B_j
-      (evaluate-bspline (gsl-aref x i) B bw)
+      (evaluate-bspline (maref x i) B bw)
       ;; Fill in row i of X
       (dotimes (j ncoeffs)
-	(setf (gsl-aref Xmatrix i j) (gsl-aref B j))))
+	(setf (maref Xmatrix i j) (maref B j))))
     ;; Do the fit
     (weighted-linear-mfit Xmatrix w y c cov mw)
     ;; Return the smoothed curve
