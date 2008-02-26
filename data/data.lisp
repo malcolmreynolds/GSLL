@@ -1,7 +1,7 @@
 ;; Using GSL bulk data (vectors, matrices, etc.) storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
 ;; Time-stamp: <2008-02-23 18:57:18EST data.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

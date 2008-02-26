@@ -1,7 +1,7 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
 ;; Time-stamp: <2008-02-17 18:44:18EST interface.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

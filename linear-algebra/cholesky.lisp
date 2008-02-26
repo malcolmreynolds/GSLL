@@ -1,7 +1,7 @@
 ;; Cholesky Decomposition
 ;; Liam Healy, Wed May  3 2006 - 16:38
 ;; Time-stamp: <2008-02-17 10:43:34EST cholesky.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Trigonometry
 ;; Liam Healy, Thu May  4 2006 - 22:58
 ;; Time-stamp: <2008-02-17 18:30:19EST trigonometry.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

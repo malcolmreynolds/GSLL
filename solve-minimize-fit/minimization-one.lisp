@@ -1,7 +1,7 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
 ;; Time-stamp: <2008-02-17 18:37:39EST minimization-one.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

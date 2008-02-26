@@ -1,7 +1,7 @@
 ;; Example spline
 ;; Liam Healy, Sat Nov 10 2007 - 21:18
 ;; Time-stamp: <2008-02-03 22:59:29EST spline-example.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

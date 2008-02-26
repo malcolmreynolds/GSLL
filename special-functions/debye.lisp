@@ -1,7 +1,7 @@
 ;; Deybe functions
 ;; Liam Healy, Sun Mar 19 2006 - 14:34
 ;; Time-stamp: <2008-02-16 20:07:26EST debye.lisp>
-;; $Id: $
+;; $Id$
 
 #|
 ;;; FDL

@@ -1,7 +1,7 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
 ;; Time-stamp: <2008-02-23 18:49:16EST wavelet.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Bernoulli distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:59
 ;; Time-stamp: <2008-02-17 13:39:15EST bernoulli.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

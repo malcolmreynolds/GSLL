@@ -1,7 +1,7 @@
 ;; Structures returned by special functions.
 ;; Liam Healy, Mon Jan  1 2007 - 11:35
 ;; Time-stamp: <2008-02-16 22:45:31EST return-structures.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

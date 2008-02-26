@@ -1,7 +1,7 @@
 ;; Elementary functions
 ;; Liam Healy, Mon Mar 20 2006 - 21:43
 ;; Time-stamp: <2008-02-16 20:22:17EST elementary.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
 ;; Time-stamp: <2008-02-17 12:19:07EST quasi.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

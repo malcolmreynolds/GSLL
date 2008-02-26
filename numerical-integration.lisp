@@ -1,7 +1,7 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
 ;; Time-stamp: <2008-02-17 11:43:47EST numerical-integration.lisp>
-;; $Id: $
+;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
 

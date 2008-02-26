@@ -1,7 +1,7 @@
 ;; Matrices
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
 ;; Time-stamp: <2008-02-23 18:57:17EST matrix.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

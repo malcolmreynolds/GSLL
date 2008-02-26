@@ -1,7 +1,7 @@
 ;; Exponential distribution
 ;; Liam Healy, Sun Sep 17 2006
 ;; Time-stamp: <2008-02-17 12:50:28EST laplace.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
 ;; Time-stamp: <2008-02-18 11:46:20EST gsl-objects.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

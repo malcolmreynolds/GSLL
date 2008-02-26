@@ -1,7 +1,7 @@
 ;; Negative binomial and Pascal distributions
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
 ;; Time-stamp: <2008-02-17 13:44:16EST negative-binomial.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

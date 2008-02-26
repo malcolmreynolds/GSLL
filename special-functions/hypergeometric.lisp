@@ -1,7 +1,7 @@
 ;; Hypergeometric function
 ;; Liam Healy, Fri Apr 28 2006 - 23:00
 ;; Time-stamp: <2008-02-17 18:30:53EST hypergeometric.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

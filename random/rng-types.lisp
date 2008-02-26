@@ -1,7 +1,7 @@
 ;; Random number generation
 ;; Liam Healy, Tue Jul 11 2006 - 23:39
 ;; Time-stamp: <2008-02-17 12:07:47EST rng-types.lisp>
-;; $Id: $
+;; $Id$
 
 ;;; Random number generator types and information functions.
 

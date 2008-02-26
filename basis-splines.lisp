@@ -1,7 +1,7 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
 ;; Time-stamp: <2008-02-23 19:36:35EST basis-splines.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

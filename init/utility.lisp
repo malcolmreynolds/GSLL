@@ -1,7 +1,7 @@
 ;; Utility definitions
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
 ;; Time-stamp: <2008-02-16 10:35:30EST utility.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

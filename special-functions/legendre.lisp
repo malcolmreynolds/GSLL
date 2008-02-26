@@ -1,7 +1,7 @@
 ;; Legendre functions
 ;; Liam Healy, Sat Apr 29 2006 - 19:16
 ;; Time-stamp: <2008-02-16 22:30:23EST legendre.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Jacobian elliptic functions
 ;; Liam Healy, Mon Mar 20 2006 - 22:21
 ;; Time-stamp: <2008-02-16 20:42:55EST elliptic-functions.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

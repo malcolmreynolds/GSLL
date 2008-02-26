@@ -1,7 +1,7 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
 ;; Time-stamp: <2008-02-23 19:43:59EST linear-least-squares.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

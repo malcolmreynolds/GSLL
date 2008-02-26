@@ -1,7 +1,7 @@
 ;; Error functions
 ;; Liam Healy, Mon Mar 20 2006 - 22:31
 ;; Time-stamp: <2008-02-16 20:54:49EST error-functions.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

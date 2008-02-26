@@ -1,7 +1,7 @@
 ;; Exponential functions
 ;; Liam Healy, Tue Mar 21 2006 - 17:05
 ;; Time-stamp: <2008-02-16 21:01:05EST exponential-functions.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

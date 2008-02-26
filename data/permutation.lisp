@@ -1,7 +1,7 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
 ;; Time-stamp: <2008-02-23 18:49:22EST permutation.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

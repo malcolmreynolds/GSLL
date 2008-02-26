@@ -1,7 +1,7 @@
 ;; Weibull distribution
 ;; Liam Healy, Sun Oct 22 2006
 ;; Time-stamp: <2008-02-17 13:30:33EST weibull.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

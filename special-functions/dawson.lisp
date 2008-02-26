@@ -1,7 +1,7 @@
 ;; Dawson function
 ;; Liam Healy, Sun Mar 19 2006 - 14:31
 ;; Time-stamp: <2008-02-16 20:04:51EST dawson.lisp>
-;; $Id: $
+;; $Id$
 
 #|
 ;;; FDL

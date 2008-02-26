@@ -1,7 +1,7 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
 ;; Time-stamp: <2008-02-17 10:36:36EST blas2.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

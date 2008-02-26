@@ -1,7 +1,7 @@
 ;; Chi-squared distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
 ;; Time-stamp: <2008-02-17 13:12:43EST chi-squared.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

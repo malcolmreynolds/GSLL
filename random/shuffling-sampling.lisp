@@ -1,7 +1,7 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
 ;; Time-stamp: <2008-02-17 16:31:02EST shuffling-sampling.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Pareto distribution
 ;; Liam Healy, Sat Oct  8 2006 - 21:23
 ;; Time-stamp: <2008-02-17 13:23:00EST pareto.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

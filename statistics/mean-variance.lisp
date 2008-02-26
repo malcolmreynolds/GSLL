@@ -1,7 +1,7 @@
 ;; Mean, standard deviation, and variance    
 ;; Liam Healy, Sat Dec  2 2006 - 22:15
 ;; Time-stamp: <2008-02-17 16:35:48EST mean-variance.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

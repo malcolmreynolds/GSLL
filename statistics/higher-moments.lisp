@@ -1,7 +1,7 @@
 ;; Skewness and kurtosis.
 ;; Liam Healy, Sun Dec 31 2006 - 14:20
 ;; Time-stamp: <2008-02-17 16:42:59EST higher-moments.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 ;;; To do: stride other than 1 when that information is availble from

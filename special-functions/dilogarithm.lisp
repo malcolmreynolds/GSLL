@@ -1,7 +1,7 @@
 ;; Dilogarithm
 ;; Liam Healy, Fri Mar 17 2006 - 18:44
 ;; Time-stamp: <2008-02-16 20:19:55EST dilogarithm.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

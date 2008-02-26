@@ -1,7 +1,7 @@
 ;; Singular Value Decomposition
 ;; Liam Healy, Tue May  2 2006 - 12:15
 ;; Time-stamp: <2008-02-17 11:29:50EST svd.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

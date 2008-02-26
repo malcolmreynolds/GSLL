@@ -1,7 +1,7 @@
 ;; Zeta functions
 ;; Liam Healy, Sat May 13 2006 - 23:27
 ;; Time-stamp: <2008-02-16 23:04:22EST zeta.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

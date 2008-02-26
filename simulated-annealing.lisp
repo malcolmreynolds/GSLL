@@ -1,7 +1,7 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
 ;; Time-stamp: <2008-02-17 18:29:20EST simulated-annealing.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

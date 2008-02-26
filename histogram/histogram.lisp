@@ -1,7 +1,7 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
 ;; Time-stamp: <2008-02-19 22:33:01EST histogram.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

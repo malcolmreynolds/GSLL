@@ -1,7 +1,7 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
 ;; Time-stamp: <2008-02-23 18:49:18EST series-acceleration.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

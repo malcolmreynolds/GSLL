@@ -1,7 +1,7 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
 ;; Time-stamp: <2008-02-17 10:24:18EST blas1.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

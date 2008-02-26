@@ -1,7 +1,7 @@
 ;; Median and percentile
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
 ;; Time-stamp: <2008-02-17 16:50:24EST median-percentile.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Fdist distribution
 ;; Liam Healy, Sat Sep 30 2006
 ;; Time-stamp: <2008-02-17 13:14:44EST fdist.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

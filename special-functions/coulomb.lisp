@@ -1,7 +1,7 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
 ;; Time-stamp: <2008-02-17 18:33:52EST coulomb.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

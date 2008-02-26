@@ -1,7 +1,7 @@
 ;; Integer powers
 ;; Liam Healy, Sun Apr 30 2006 - 22:46
 ;; Time-stamp: <2008-02-16 22:39:17EST power.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

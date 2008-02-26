@@ -1,7 +1,7 @@
 ;; Tdist distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
 ;; Time-stamp: <2008-02-17 13:16:23EST tdist.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

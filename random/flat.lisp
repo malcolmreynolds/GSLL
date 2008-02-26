@@ -1,7 +1,7 @@
 ;; Flat distribution
 ;; Liam Healy, Oct  7 2006
 ;; Time-stamp: <2008-02-17 13:08:10EST flat.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

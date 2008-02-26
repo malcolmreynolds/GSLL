@@ -1,7 +1,7 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
 ;; Time-stamp: <2008-02-17 17:29:49EST stepping.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

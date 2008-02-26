@@ -1,7 +1,7 @@
 ;; Index lookup and acceleration
 ;; Liam Healy, Sun Nov  4 2007 - 18:09
 ;; Time-stamp: <2008-02-17 17:50:25EST lookup.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

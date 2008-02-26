@@ -1,7 +1,7 @@
 ;; Numerical differentiation.                
 ;; Liam Healy Mon Nov 12 2007 - 22:07
 ;; Time-stamp: <2008-02-17 18:36:19EST numerical-differentiation.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

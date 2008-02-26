@@ -1,7 +1,7 @@
 ;; Mathematical functions
 ;; Liam Healy, Wed Mar  8 2006 - 22:09
 ;; Time-stamp: <2008-02-17 09:13:19EST mathematical.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

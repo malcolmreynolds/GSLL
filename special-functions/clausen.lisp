@@ -1,7 +1,7 @@
 ;; Clausen function
 ;; Liam Healy, Sat Mar 18 2006 - 23:18
 ;; Time-stamp: <2008-02-16 19:20:29EST clausen.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

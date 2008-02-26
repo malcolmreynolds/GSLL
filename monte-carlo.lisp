@@ -1,7 +1,7 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
 ;; Time-stamp: <2008-02-17 18:29:59EST monte-carlo.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

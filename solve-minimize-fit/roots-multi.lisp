@@ -1,7 +1,7 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
 ;;; Time-stamp: <2008-02-23 18:49:17EST roots-multi.lisp>
-;;; $Id: $
+;;; $Id$
 
 (in-package :gsl)
 

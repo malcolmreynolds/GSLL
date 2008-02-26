@@ -1,7 +1,7 @@
 ;; Gaussian distribution
 ;; Liam Healy, Sun Jul 16 2006 - 22:09
 ;; Time-stamp: <2008-02-17 12:23:52EST gaussian.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Rayleigh distribution
 ;; Liam Healy, Sat Sep 30 2006
 ;; Time-stamp: <2008-02-17 18:45:41EST rayleigh.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

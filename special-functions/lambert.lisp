@@ -1,7 +1,7 @@
 ;; Lambert's W functions
 ;; Liam Healy, Fri Apr 28 2006 - 20:40
 ;; Time-stamp: <2008-02-16 22:19:40EST lambert.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

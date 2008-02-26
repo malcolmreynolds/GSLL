@@ -1,7 +1,7 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
 ;; Time-stamp: <2008-02-17 18:39:49EST probability-distribution.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

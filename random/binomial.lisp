@@ -1,7 +1,7 @@
 ;; Binomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
 ;; Time-stamp: <2008-02-17 13:46:01EST binomial.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

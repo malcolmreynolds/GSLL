@@ -1,7 +1,7 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
 ;; Time-stamp: <2008-02-17 18:02:26EST chebyshev.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

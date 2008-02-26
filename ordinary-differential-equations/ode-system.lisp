@@ -1,7 +1,7 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
 ;; Time-stamp: <2008-02-17 17:25:09EST ode-system.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

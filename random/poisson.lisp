@@ -1,7 +1,7 @@
 ;; Poisson distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
 ;; Time-stamp: <2008-02-17 13:38:14EST poisson.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

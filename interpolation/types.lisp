@@ -1,7 +1,7 @@
 ;; Interpolation types
 ;; Liam Healy, Sun Nov  4 2007 - 17:41
 ;; Time-stamp: <2008-02-17 17:47:53EST types.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

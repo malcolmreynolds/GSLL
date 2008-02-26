@@ -1,7 +1,7 @@
 ;; Absolute deviation
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
 ;; Time-stamp: <2008-02-17 16:39:38EST absolute-deviation.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

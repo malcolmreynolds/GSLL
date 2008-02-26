@@ -1,7 +1,7 @@
 ;; Coupling coefficients
 ;; Liam Healy, Sun Mar 19 2006 - 13:30
 ;; Time-stamp: <2008-02-16 20:02:09EST coupling.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

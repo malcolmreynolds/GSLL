@@ -1,7 +1,7 @@
 ;; Cauchy distribution
 ;; Liam Healy, Sat Sep 30 2006
 ;; Time-stamp: <2008-02-17 12:55:30EST cauchy.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

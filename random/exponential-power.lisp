@@ -1,7 +1,7 @@
 ;; Exponential power distribution
 ;; Liam Healy, Sat Sep 30 2006
 ;; Time-stamp: <2008-02-17 12:53:01EST exponential-power.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

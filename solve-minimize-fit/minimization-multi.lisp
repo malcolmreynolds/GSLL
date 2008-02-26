@@ -1,7 +1,7 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
 ;; Time-stamp: <2008-02-23 18:49:17EST minimization-multi.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
 ;; Time-stamp: <2008-02-17 11:32:46EST eigensystems.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

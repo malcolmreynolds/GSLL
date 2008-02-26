@@ -1,7 +1,7 @@
 ;; Elliptic integrals
 ;; Liam Healy, Mon Mar 20 2006 - 21:50
 ;; Time-stamp: <2008-02-16 20:47:06EST elliptic-integrals.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

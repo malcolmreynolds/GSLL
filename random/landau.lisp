@@ -1,7 +1,7 @@
 ;; Landau distribution
 ;; Liam Healy, Sat Sep 30 2006
 ;; Time-stamp: <2008-02-17 13:01:50EST landau.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
 ;; Time-stamp: <2008-02-25 19:31:49EST init.lisp>
-;; $Id: $
+;; $Id$
 
 (defpackage gsll
   (:nicknames :gsl)

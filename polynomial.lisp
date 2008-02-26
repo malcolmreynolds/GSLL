@@ -1,7 +1,7 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
 ;; Time-stamp: <2008-02-23 18:49:15EST polynomial.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

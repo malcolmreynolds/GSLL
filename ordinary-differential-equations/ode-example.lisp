@@ -1,7 +1,7 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
 ;; Time-stamp: <2008-01-28 22:21:07EST ode-example.lisp>
-;; $Id: $
+;; $Id$
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
 ;;; reproduce that example, (integrate-vanderpol 100.0d0)

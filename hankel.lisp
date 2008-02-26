@@ -1,7 +1,7 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
 ;; Time-stamp: <2008-02-17 18:10:15EST hankel.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

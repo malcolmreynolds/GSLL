@@ -1,7 +1,7 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
 ;; Time-stamp: <2008-02-18 16:59:30EST gsll.asd>
-;; $Id: $
+;; $Id$
 
 (asdf:defsystem "gsll"
   :name "gsll"

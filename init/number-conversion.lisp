@@ -1,7 +1,7 @@
 ;; Conversion of numbers C->CL
 ;; Liam Healy, Sun May 28 2006 - 22:04
 ;; Time-stamp: <2008-02-17 18:54:32EST number-conversion.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

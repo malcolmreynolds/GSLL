@@ -1,7 +1,7 @@
 ;; Reading and writing histograms.
 ;; Liam Healy 2008-02-17 17:11:23EST read-write.lisp
 ;; Time-stamp: <2008-02-17 17:13:15EST read-write.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

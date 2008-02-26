@@ -1,7 +1,7 @@
 ;; Fermi-Dirac function.
 ;; Liam Healy, Sat Apr 22 2006 - 16:12
 ;; Time-stamp: <2008-02-16 21:37:25EST fermi-dirac.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

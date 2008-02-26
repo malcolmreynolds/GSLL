@@ -1,7 +1,7 @@
 ;; Airy functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:41
 ;; Time-stamp: <2008-02-16 17:57:19EST airy.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

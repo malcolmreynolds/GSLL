@@ -1,7 +1,7 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
 ;; Time-stamp: <2008-02-17 11:05:06EST lu.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
 ;; Time-stamp: <2008-02-17 13:36:26EST discrete.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
 ;; Time-stamp: <2008-02-19 22:20:37EST conditions.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

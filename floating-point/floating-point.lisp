@@ -1,7 +1,7 @@
 ;; Comparison of floating point numbers
 ;; Liam Healy 2008-01-22 19:00:17EST floating-point.lisp
 ;; Time-stamp: <2008-01-29 21:34:52EST floating-point.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 (export '(float-as-integer integer-as-float format-IEEE754-bits))

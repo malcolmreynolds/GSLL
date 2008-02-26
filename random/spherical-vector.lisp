@@ -1,7 +1,7 @@
 ;; Spherical Vector distribution
 ;; Liam Healy, Sun Oct  22 2006
 ;; Time-stamp: <2008-02-17 13:25:44EST spherical-vector.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

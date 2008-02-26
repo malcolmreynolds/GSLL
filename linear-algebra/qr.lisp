@@ -1,7 +1,7 @@
 ;; QR decomposition
 ;; Liam Healy 2008-02-17 11:05:20EST qr.lisp
 ;; Time-stamp: <2008-02-17 11:17:37EST qr.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

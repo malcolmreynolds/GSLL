@@ -1,7 +1,7 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
 ;; Time-stamp: <2008-02-17 17:45:18EST interpolation.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

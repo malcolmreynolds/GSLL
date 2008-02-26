@@ -1,7 +1,7 @@
 ;; Exponential distribution
 ;; Liam Healy, Sat Sep  2 2006 - 19:04
 ;; Time-stamp: <2008-02-17 12:34:11EST exponential.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

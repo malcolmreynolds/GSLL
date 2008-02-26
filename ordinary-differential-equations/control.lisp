@@ -1,7 +1,7 @@
 ;; Adaptive step-size control
 ;; Liam Healy 2008-02-17 17:30:04EST control.lisp
 ;; Time-stamp: <2008-02-17 17:41:02EST control.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

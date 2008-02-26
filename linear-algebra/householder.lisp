@@ -1,7 +1,7 @@
 ;; Householder Transformations
 ;; Liam Healy, Wed May 10 2006 - 10:03
 ;; Time-stamp: <2008-02-17 11:00:45EST householder.lisp>
-;; $Id: $
+;; $Id$
 
 ;;; For householder-transform, it would be nice to be able to pick the
 ;;; order of arguments returned (reverse).

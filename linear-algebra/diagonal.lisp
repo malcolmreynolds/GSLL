@@ -1,7 +1,7 @@
 ;; Tridiagonal and Bidiagonal matrices
 ;; Liam Healy, Thu May  4 2006 - 15:43
 ;; Time-stamp: <2008-02-17 10:55:01EST diagonal.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

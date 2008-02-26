@@ -1,7 +1,7 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
 ;; Time-stamp: <2008-02-17 10:39:56EST blas3.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

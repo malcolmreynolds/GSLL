@@ -1,7 +1,7 @@
 ;; Gaussian bivariate distribution
 ;; Liam Healy, Sat Sep  2 2006 - 16:32
 ;; Time-stamp: <2008-02-17 12:32:10EST gaussian-bivariate.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

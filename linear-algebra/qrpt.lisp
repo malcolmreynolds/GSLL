@@ -1,7 +1,7 @@
 ;; QR with column pivoting
 ;; Liam Healy, Fri Apr 28 2006 - 16:53
 ;; Time-stamp: <2008-02-17 11:24:34EST qrpt.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

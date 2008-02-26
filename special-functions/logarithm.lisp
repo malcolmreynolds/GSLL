@@ -1,7 +1,7 @@
 ;; Logarithm
 ;; Liam Healy, Sun Apr 30 2006 - 22:08
 ;; Time-stamp: <2008-02-16 22:34:59EST logarithm.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

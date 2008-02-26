@@ -1,7 +1,7 @@
 ;; Gaussian tail distribution
 ;; Liam Healy, Mon Aug 21 2006 - 21:52
 ;; Time-stamp: <2008-02-17 12:28:20EST gaussian-tail.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

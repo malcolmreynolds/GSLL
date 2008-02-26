@@ -1,7 +1,7 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
 ;; Time-stamp: <2008-02-23 18:49:18EST nonlinear-least-squares.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

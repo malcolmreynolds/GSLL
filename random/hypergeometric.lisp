@@ -1,7 +1,7 @@
 ;; Hypergeometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
 ;; Time-stamp: <2008-02-17 15:35:14EST hypergeometric.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

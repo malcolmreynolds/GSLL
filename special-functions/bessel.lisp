@@ -1,7 +1,7 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
 ;; Time-stamp: <2008-02-16 19:16:11EST bessel.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

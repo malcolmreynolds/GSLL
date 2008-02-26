@@ -1,7 +1,7 @@
 ;; Histogram operations
 ;; Liam Healy, Mon Jan  1 2007 - 16:47
 ;; Time-stamp: <2008-02-23 18:57:17EST operations.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

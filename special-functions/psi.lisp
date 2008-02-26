@@ -1,7 +1,7 @@
 ;; Psi (digamma) functions
 ;; Liam Healy, Mon May  1 2006 - 22:11
 ;; Time-stamp: <2008-02-16 22:43:28EST psi.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

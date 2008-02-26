@@ -5,7 +5,7 @@
 ; author:      Liam M. Healy                             
 ; modified:    Tue Jul 18 2006 - 22:36
 ;********************************************************
-;;; $Id: $
+;;; $Id$
 
 ;;; Interface with lisp-unit, add a definition for comparing floating
 ;;; point numbers and a form for generating floating point tests.

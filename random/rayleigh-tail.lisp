@@ -1,7 +1,7 @@
 ;; Rayleigh tail distribution
 ;; Liam Healy, Sat Sep 30 2006
 ;; Time-stamp: <2008-02-17 13:00:06EST rayleigh-tail.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

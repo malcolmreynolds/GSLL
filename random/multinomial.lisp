@@ -1,7 +1,7 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
 ;; Time-stamp: <2008-02-17 18:31:31EST multinomial.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

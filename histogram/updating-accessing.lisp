@@ -1,7 +1,7 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
 ;; Time-stamp: <2008-02-23 18:49:16EST updating-accessing.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

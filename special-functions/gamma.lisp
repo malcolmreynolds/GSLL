@@ -1,7 +1,7 @@
 ;; Gamma functions
 ;; Liam Healy, Thu Apr 27 2006 - 22:06
 ;; Time-stamp: <2008-02-16 21:58:18EST gamma.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

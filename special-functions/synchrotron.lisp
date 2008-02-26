@@ -1,7 +1,7 @@
 ;; Synchrotron functions
 ;; Liam Healy, Mon May  1 2006 - 22:29
 ;; Time-stamp: <2008-02-16 22:48:24EST synchrotron.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

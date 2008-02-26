@@ -1,7 +1,7 @@
 ;; IEEE 754 Modes and masks
 ;; Liam Healy 2008-01-29 21:35:50EST ieee-modes.lisp
 ;; Time-stamp: <2008-02-17 18:36:37EST ieee-modes.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

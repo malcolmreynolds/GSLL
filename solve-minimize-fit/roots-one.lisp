@@ -1,7 +1,7 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
 ;; Time-stamp: <2008-02-17 18:13:47EST roots-one.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

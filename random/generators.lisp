@@ -1,7 +1,7 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
 ;; Time-stamp: <2008-02-17 12:15:46EST generators.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

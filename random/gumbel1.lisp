@@ -1,7 +1,7 @@
 ;; The Gumbel type 1 random number distribution
 ;; Liam Healy, Sun Oct 29 2006
 ;; Time-stamp: <2008-02-17 13:30:24EST gumbel1.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

@@ -1,7 +1,7 @@
 ;; Statistics of histograms.
 ;; Liam Healy, Mon Jan  1 2007 - 16:13
 ;; Time-stamp: <2008-02-17 17:07:06EST statistics.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

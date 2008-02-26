@@ -1,7 +1,7 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
 ;; Time-stamp: <2008-02-17 13:33:49EST dirichlet.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 

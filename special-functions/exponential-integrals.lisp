@@ -1,7 +1,7 @@
 ;; Exponential integrals
 ;; Liam Healy, Tue Mar 21 2006 - 17:37
 ;; Time-stamp: <2008-02-16 22:16:29EST exponential-integrals.lisp>
-;; $Id: $
+;; $Id$
 
 (in-package :gsl)
 
