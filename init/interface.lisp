@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-02-17 18:44:18EST interface.lisp>
+;; Time-stamp: <2008-03-02 21:43:02EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -258,11 +258,13 @@
        ,documentation
        (if ,(first optional-arglist)
 	   (,(intern
-	      (concatenate 'string (string name) (string optionals)))
+	      (concatenate 'string (string name) (string optionals))
+	      :gsl)
 	     ,@mandatory-arglist ,@optional-arglist)
 	   (,(intern
 	      (concatenate 'string (string name)
-			   (if no-optional (string no-optional) "")))
+			   (if no-optional (string no-optional) ""))
+	      :gsl)
 	     ,@mandatory-arglist)))))
 
 ;;;;****************************************************************************
