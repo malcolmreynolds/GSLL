@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2008-02-19 22:20:37EST conditions.lisp>
+;; Time-stamp: <2008-03-03 22:06:11EST conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -92,10 +92,17 @@
 	 :gsl-source-file file
 	 :gsl-line-number line))
 
-(cffi:foreign-funcall
- "gsl_set_error_handler"
- :pointer (cffi:callback gsl-error))
+(defun establish-handler ()
+  (cffi:foreign-funcall
+   "gsl_set_error_handler"
+   :pointer (cffi:callback gsl-error)))
 
+(establish-handler)
+
+;;; This insures that conditions will be signalled if GSLL is dumped
+;;; in save-lisp-and-die.
+#+sbcl
+(push #'establish-handler sb-ext:*init-hooks*)
 
 (defmacro gsl-errorno-sm (keyword)
   `(define-symbol-macro
