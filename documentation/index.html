@@ -36,7 +36,7 @@
 	random distributions, statistics, histograms, N-tuples,
 	Monte Carlo integration, simulated annealing, differential
  	equations, interpolation, numerical differentiation,
-	chebyshev approximation, series acceleration,
+	Chebyshev approximation, series acceleration,
 	discrete Hankel transforms, root-finding, minimization
 	least-squares fitting, IEEE floating-point,
 	discrete wavelet transforms.  See documentation on status of
@@ -109,14 +109,24 @@ debugger invoked on a GSL-ERROR in thread #<THREAD "initial thread" {10032258C1}
 
  <h3>Downloads</h3>
  <div class="content">
- <p>You may browse or download the <a
-	    href="http://subversion.tigris.org/">Subversion</a>
-	  repository at
+ <p>You may browse or download as follows:</p>
+ <ul>
+ <li><a href="http://subversion.tigris.org/">Subversion</a>:
+	  Repository at
 	  svn://common-lisp.net/project/gsll/svn/trunk.  For
 	  example, 
-	   </p>
-	<pre>svn list svn://common-lisp.net/project/gsll/svn/trunk
-svn checkout svn://common-lisp.net/project/gsll/svn/trunk gsll</pre></p>
+<pre>
+svn list svn://common-lisp.net/project/gsll/svn/trunk
+svn checkout svn://common-lisp.net/project/gsll/svn/trunk gsll
+</pre>
+ <li>Web:
+	<a href="http://trac.common-lisp.net/gsll/browser/trunk">browse</a>
+	using Trac.
+ <li>Git: Thanks to Leonardo Varuzza, who is maintaining a 
+ <a href="http://www.lambdatau.com/git/gsll.git">git mirror</a>
+ of the Subversion repository.
+ </ul>
+ <p>Due to frequent changes, no tarballs are yet available.</p>
  </div>
  
  <h3>Additional information</h3>
@@ -136,7 +146,7 @@ svn checkout svn://common-lisp.net/project/gsll/svn/trunk gsll</pre></p>
   <div class="content">
   A partial automatically-generated interface to GSL is provided in <a
   href="http://common-lisp.net/project/cl-gsl/">cl-gsl</a>.
-  A matlab-like array syntax and plotting is provided by
+  A Matlab-like array syntax and plotting is provided by
   <a href="http://nlisp.info/">NLISP</a> which might work well with
   GSLL.  Other numerical mathematics software for Lisp may be found 
   <a href="http://www.cliki.net/Mathematics">on Clicki</a>. 
@@ -144,11 +154,11 @@ svn checkout svn://common-lisp.net/project/gsll/svn/trunk gsll</pre></p>
 
  <div class="footer">
     <hr>
-    <address><a href="mailto:">Liam Healy</a></address>
+    <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-03-03 22:26:28EST index.html>
+       Time-stamp: <2008-03-08 11:22:52EST index.html>
        </small>
 <!-- hhmts end -->
  </div>
