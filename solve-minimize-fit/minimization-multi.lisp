@@ -1,13 +1,13 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-02-23 18:49:17EST minimization-multi.lisp>
+;; Time-stamp: <2008-03-09 19:29:20EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;; In the parabaloid example, I notice that the consruct 
 ;; (min-test-gradient (mfdfminimizer-gradient minimizer) 1.0d-3)
-;; is constructing a CL vector-double (in mfdfminimizer-gradient) and
+;; is constructing a CL vector-double-float (in mfdfminimizer-gradient) and
 ;; then immediately pulling out the pointer (in min-test-gradient).  It
 ;; is easy enough to eliminate this, but then mfdfminimizer-gradient
 ;; would not be useful to a CL user.
@@ -348,7 +348,7 @@
   (letm ((minimizer
 	  (mfdfminimizer *conjugate-fletcher-reeves* 2 parabaloid
 			 initial 0.01d0 1.0d-4))
-	 (initial (vector-double #(5.0d0 7.0d0))))
+	 (initial (vector-double-float #(5.0d0 7.0d0))))
     (loop with status = T
 	  for iter from 0 below 100
 	  while status
@@ -375,8 +375,8 @@
 (def-minimization-functions parabaloid-f 2)
 
 (defun multimin-example-nelder-mead ()
-  (letm ((initial (vector-double #(5.0d0 7.0d0)))
-	 (step-size (vector-double 2)))
+  (letm ((initial (vector-double-float #(5.0d0 7.0d0)))
+	 (step-size (vector-double-float 2)))
     (set-all step-size 1.0d0)
     (letm ((minimizer
 	    (mfminimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size)))

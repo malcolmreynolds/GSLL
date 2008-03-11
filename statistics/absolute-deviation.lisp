@@ -1,6 +1,6 @@
 ;; Absolute deviation
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-02-17 16:39:38EST absolute-deviation.lisp>
+;; Time-stamp: <2008-03-09 19:21:48EDT absolute-deviation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -80,8 +80,8 @@
 
 #|
 (make-tests absolute-deviation
-  (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0)))
-	   (weights (vector-double #(3.0d0 1.0d0 2.0d0))))
+  (letm ((vec (vector-double-float #(-3.21d0 1.0d0 12.8d0)))
+	   (weights (vector-double-float #(3.0d0 1.0d0 2.0d0))))
       (let ((mean (mean vec)))
 	(list
 	 (absolute-deviation vec)
@@ -93,8 +93,8 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST (LIST 6.18d0 6.647777777777779d0 6.18d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0)))
-	   (WEIGHTS (VECTOR-DOUBLE #(3.0d0 1.0d0 2.0d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(-3.21d0 1.0d0 12.8d0)))
+	   (WEIGHTS (VECTOR-DOUBLE-FLOAT #(3.0d0 1.0d0 2.0d0))))
       (LET ((MEAN (MEAN VEC)))
 	(LIST (ABSOLUTE-DEVIATION VEC)
 	      (WEIGHTED-ABSOLUTE-DEVIATION VEC WEIGHTS)

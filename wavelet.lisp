@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-02-23 18:49:16EST wavelet.lisp>
+;; Time-stamp: <2008-03-09 19:29:17EDT wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -387,11 +387,11 @@
    256) using the 20 largest components of the wavelet transform, while
    setting the others to zero.  See GSL manual Section 30.4."
   (letm ((n (length cl-data))
-	 (vector (vector-double cl-data))
+	 (vector (vector-double-float cl-data))
 	 (wavelet (wavelet *daubechies-wavelet* 4))
 	 (workspace (wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
-    (letm ((absvector (vector-double n))
+    (letm ((absvector (vector-double-float n))
 	   (permutation (permutation n)))
       (dotimes (i n)
 	(setf (maref absvector i) (abs (maref vector i))))
@@ -408,7 +408,7 @@
 (defun wavelet-forward-example (&optional (cl-data *wavelet-sample*))
   "Simpler example, with only a Daubechies wavelet forward transformation."
   (letm ((n (length cl-data))
-	 (vector (vector-double cl-data))
+	 (vector (vector-double-float cl-data))
 	 (wavelet (wavelet *daubechies-wavelet* 4))
 	 (workspace (wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)

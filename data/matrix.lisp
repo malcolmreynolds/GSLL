@@ -1,13 +1,13 @@
 ;; Matrices
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-23 18:57:17EST matrix.lisp>
+;; Time-stamp: <2008-03-10 21:15:53EDT matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; Matrices are specified in a letm binding with
-;;;  (matrix-double size-or-initial &optional zero)
-;;;  (matrix-single size-or-initial &optional zero)
+;;;  (matrix-double-float size-or-initial &optional zero)
+;;;  (matrix-single-float size-or-initial &optional zero)
 ;;;  (matrix-fixnum size-or-initial &optional zero)
 ;;;  (matrix-complex size-or-initial &optional zero)
 ;;; where size-or-initial is a length-2 list of positive integers
@@ -28,33 +28,26 @@
   (block :pointer)
   (owner :int))
 
-(defclass gsl-matrix (gsl-data) ())
+(defclass matrix (gsl-data) ())
+(add-data-class matrix double-float matrix-double-float matrix "matrix")
+(add-data-class matrix single-float matrix-single-float matrix "matrix")
+(add-data-class matrix fixnum matrix-fixnum matrix "matrix")
+(add-data-class matrix complex matrix-complex matrix "matrix")
 
-;;; Allocation, freeing, reading and writing
-(defdata "matrix" matrix-double double-float gsl-matrix 2)
-(defdata "matrix_float" matrix-single single-float gsl-matrix 2)
-(defdata "matrix_int" matrix-fixnum fixnum gsl-matrix 2)
-(defdata "matrix_complex" matrix-complex complex gsl-matrix 2)
+(defdata matrix double-float 2)
+(defdata matrix single-float 2)
+(defdata matrix fixnum 2)
+(defdata matrix complex 2)
 
 (defmacro defmfun-mdsfc (&rest args)
   "A defmfun for matrices of double, single, fixnum, and complex."
-  (defmfun-all
-      '(double single fixnum complex)
-      '(:double :float :int gsl-complex)
-    "matrix"
-    'gsl-matrix
-    args))
+  (defmfun-all '(matrix vector) '(double-float single-float fixnum complex) args))
 
 (defmacro defmfun-mdsf (&rest args)
   "A defmfun for matrices of double, single, and fixnum."
-  (defmfun-all
-      '(double single fixnum)
-      '(:double :float :int)
-    "matrix"
-    'gsl-matrix
-    args))
+  (defmfun-all '(matrix vector) '(double-float single-float fixnum) args))
 
-(defmethod gsl-array ((object gsl-matrix))
+(defmethod gsl-array ((object matrix))
   (foreign-slot-value (pointer object) 'gsl-matrix-c 'data))
 
 (export 'matrix-data)
@@ -67,7 +60,7 @@
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun-mdsfc maref ((matrix gsl-matrix) &rest indices)
+(defmfun-mdsfc maref ((matrix matrix) &rest indices)
   "gsl_matrix_get"
   (((pointer matrix) :pointer)
    ((first indices) size)
@@ -89,14 +82,14 @@
   (:documentation
    "A pointer to the i,j-th element of a matrix."))
 
-(defmfun-mdsfc gsl-matrix-ptr ((matrix gsl-matrix) i j)
+(defmfun-mdsfc gsl-matrix-ptr ((matrix matrix) i j)
   "gsl_matrix_ptr" (((pointer matrix) :pointer) (i size) (j size))
   :c-return :pointer)
 
-(defmethod data ((object gsl-matrix) &optional array)
+(defmethod data ((object matrix) &optional array)
   (let ((arr (or array
 		 (make-array (storage-size object)
-			     :element-type (cl-base-type object)))))
+			     :element-type (cl-elt-type object)))))
     (loop for i from 0
        below (min (array-dimension arr 0) (first (storage-size object)))
        do
@@ -111,7 +104,7 @@
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defmfun-mdsfc (setf maref) (value (matrix gsl-matrix) &rest indices)
+(defmfun-mdsfc (setf maref) (value (matrix matrix) &rest indices)
   "gsl_matrix_set"
   (((pointer matrix) :pointer)
    ((first indices) size)
@@ -129,7 +122,7 @@
   :documentation			; FDL
   "Set an element of the matrix of doubles, using its pointer.")
 
-(defmethod (setf data) (array (object gsl-matrix))
+(defmethod (setf data) (array (object matrix))
   (loop for i from 0
 	below
 	(min (array-dimension array 0) (first (storage-size object)))
@@ -140,17 +133,17 @@
 	      do
 	      (setf (maref object i j) (aref array i j)))))
 
-(defmfun-mdsfc set-all ((object gsl-matrix) value)
+(defmfun-mdsfc set-all ((object matrix) value)
   "gsl_matrix_set_all"
   (((pointer object) :pointer) (value :c-base-type))
   :c-return :void)
 
-(defmfun-mdsfc set-zero ((object gsl-matrix))
+(defmfun-mdsfc set-zero ((object matrix))
   "gsl_matrix_set_zero"
   (((pointer object) :pointer))
   :c-return :void)
 
-(defmfun-mdsfc set-identity ((matrix gsl-matrix))
+(defmfun-mdsfc set-identity ((matrix matrix))
   "gsl_matrix_set_identity" (((pointer matrix) gsl-matrix-c))
   :c-return :void
   :documentation			; FDL
@@ -175,7 +168,7 @@
    rows and n2 columns.  The physical number of columns in memory
    is unchanged."))
 
-(defmfun-mdsfc submatrix ((matrix gsl-matrix) k1 k2 n1 n2)
+(defmfun-mdsfc submatrix ((matrix matrix) k1 k2 n1 n2)
   "gsl_matrix_submatrix"
   (((pointer matrix) gsl-matrix-c) (k1 size) (k2 size) (n1 size) (n2 size))
   :c-return gsl-matrix-view)
@@ -187,7 +180,7 @@
   matrix has n1 rows and n2 columns.  The physical number of
   columns in memory is also given by n2."))
 
-(defmfun-mdsfc matrix-array ((matrix gsl-matrix) n1 n2)
+(defmfun-mdsfc matrix-array ((matrix matrix) n1 n2)
   "gsl_matrix_view_array"
   (((pointer matrix) gsl-matrix-c) (n1 size) (n2 size))
   :c-return gsl-matrix-view)
@@ -201,7 +194,7 @@
   columns, and the physical number of columns in memory is given by
   tda."))
 
-(defmfun-mdsfc matrix-array-tda ((matrix gsl-matrix) n1 n2 tda)
+(defmfun-mdsfc matrix-array-tda ((matrix matrix) n1 n2 tda)
   "gsl_matrix_view_array_with_tda"
   (((pointer matrix) gsl-matrix-c) (n1 size) (n2 size) (tda size))
   :c-return gsl-matrix-view)
@@ -210,11 +203,8 @@
   "A defmfun for vectors of double, single, fixnum, and complex,
   translating to a GSL function named matrix_*."
   (defmfun-all
-      '(double single fixnum complex)
-      '(:double :float :int gsl-complex)
-    "matrix"
-    'gsl-vector
-    args))
+      'vector '(double-float single-float fixnum complex) args
+      "matrix"))
 
 (export 'matrix-vector)
 (defgeneric matrix-vector (vector n1 n2)
@@ -232,7 +222,7 @@
   vector.  Of course, the original vector should not be deallocated while
   the view is still in use."))
 
-(defmfun-mvdsfc matrix-vector ((v gsl-vector) n1 n2)
+(defmfun-mvdsfc matrix-vector ((v vector) n1 n2)
   "gsl_matrix_view_vector"
   (((pointer v) gsl-vector-c) (n1 size) (n2 size))
   :c-return gsl-matrix-view)
@@ -255,7 +245,7 @@
   vector.  Of course, the original vector should not be deallocated while
   the view is still in use."))
 
-(defmfun-mvdsfc matrix-vector-tda ((v gsl-vector) n1 n2 tda)
+(defmfun-mvdsfc matrix-vector-tda ((v vector) n1 n2 tda)
     "gsl_matrix_view_vector_with_tda"
   (((pointer v) gsl-vector-c) (n1 size) (n2 size) (tda size))
   :c-return gsl-matrix-view)
@@ -269,7 +259,7 @@
   (:documentation			; FDL
    "A vector view of the ith row of the matrix."))
 
-(defmfun-mdsfc row-view ((matrix gsl-matrix) i) 
+(defmfun-mdsfc row-view ((matrix matrix) i) 
   "gsl_matrix_row" (((pointer matrix) gsl-matrix-c) (i size))
   :c-return gsl-vector-view
   :null-pointer-info (:EFAULT (format nil "index ~d out of range" i)))
@@ -279,7 +269,7 @@
   (:documentation			; FDL
    "A vector view of the jth column of the matrix."))
 
-(defmfun-mdsfc column-view ((matrix gsl-matrix) j)
+(defmfun-mdsfc column-view ((matrix matrix) j)
   "gsl_matrix_column" ((matrix gsl-matrix-c) (j size))
   :c-return gsl-matrix-view
   :null-pointer-info (:EFAULT (format nil "index ~d out of range" j)))
@@ -292,7 +282,7 @@
    For a rectangular matrix the length of the diagonal is the same as the smaller
    dimension of the matrix."))
 
-(defmfun-mdsfc diagonal-view ((matrix gsl-matrix))
+(defmfun-mdsfc diagonal-view ((matrix matrix))
   "gsl_matrix_diagonal" ((matrix gsl-matrix-c))
   :c-return gsl-matrix-view)
 
@@ -303,7 +293,7 @@
    required to be square.  The diagonal of the matrix corresponds to
    k = 0."))
 
-(defmfun-mdsfc subdiagonal-view ((matrix gsl-matrix) k)
+(defmfun-mdsfc subdiagonal-view ((matrix matrix) k)
   "gsl_matrix_subdiagonal" ((matrix gsl-matrix-c) (k size))
   :c-return gsl-matrix-view)
 
@@ -313,7 +303,7 @@
   "A vector view of the kth superdiagonal of the matrix; it is not
    required to be square. The diagonal of the matrix corresponds to k = 0."))
 
-(defmfun-mdsfc superdiagonal-view ((matrix gsl-matrix) k)
+(defmfun-mdsfc superdiagonal-view ((matrix matrix) k)
   "gsl_matrix_superdiagonal"
   ((matrix gsl-matrix-c) (k size))
   :c-return gsl-matrix-view)
@@ -322,7 +312,7 @@
 ;;;; Copying
 ;;;;****************************************************************************
 
-(defmfun-mdsfc copy ((destination gsl-matrix) (source gsl-matrix))
+(defmfun-mdsfc copy ((destination matrix) (source matrix))
   "gsl_matrix_memcpy"
   (((pointer destination) gsl-matrix-c) ((pointer source) gsl-matrix-c))
   :invalidate (destination)
@@ -330,7 +320,7 @@
   "Copy the elements of the matrix source into the
    matrix destination.  The two matrices must have the same size.")
 
-(defmfun-mdsfc swap ((m1 gsl-matrix) (m2 gsl-matrix))
+(defmfun-mdsfc swap ((m1 matrix) (m2 matrix))
   "gsl_matrix_swap"
   (((pointer m1) gsl-matrix-c) ((pointer m2) gsl-matrix-c))
   :invalidate (m1 m2)
@@ -349,7 +339,7 @@
    into the vector.  The length of the vector must be the
    same as the length of the row."))
 
-(defmfun-mdsfc row ((vector gsl-vector) (matrix gsl-matrix) i)
+(defmfun-mdsfc row ((vector vector) (matrix matrix) i)
   "gsl_matrix_get_row"
   (((pointer vector) gsl-vector-c) ((pointer matrix) gsl-matrix-c) (i size))
   :invalidate (vector))
@@ -361,7 +351,7 @@
    into the vector.  The length of the vector must be the
    same as the length of the column."))
 
-(defmfun-mdsfc column ((vector gsl-vector) (matrix gsl-matrix) j)
+(defmfun-mdsfc column ((vector vector) (matrix matrix) j)
   "gsl_matrix_get_col"
   (((pointer vector) gsl-vector-c) ((pointer matrix) gsl-matrix-c) (j size))
   :invalidate (vector))
@@ -373,7 +363,7 @@
    ith row of the matrix.  The length of the vector must be
    the same as the length of the row."))
 
-(defmfun-mdsfc set-row ((matrix gsl-matrix) i (vector gsl-vector))
+(defmfun-mdsfc set-row ((matrix matrix) i (vector vector))
   "gsl_matrix_set_row"
   (((pointer matrix) gsl-matrix-c) (i size) ((pointer vector) gsl-vector-c))
   :invalidate (matrix))
@@ -384,7 +374,7 @@
    "Copy the elements of the vector into the jth column of the matrix.
   The length of the vector must be the same as the length of the column."))
 
-(defmfun-mdsfc set-column ((matrix gsl-matrix) j (vector gsl-vector))
+(defmfun-mdsfc set-column ((matrix matrix) j (vector vector))
   "gsl_matrix_set_col"
   (((pointer matrix) gsl-matrix-c) (j size) ((pointer vector) gsl-vector-c))
   :invalidate (matrix))
@@ -401,7 +391,7 @@
   (:documentation 			; FDL
   "Exchange the ith and jth rows of the matrix in-place."))
 
-(defmfun-mdsfc swap-rows ((matrix gsl-matrix) i j)
+(defmfun-mdsfc swap-rows ((matrix matrix) i j)
   "gsl_matrix_swap_rows"
   (((pointer matrix) gsl-matrix-c) (i size) (j size))
   :invalidate (matrix))
@@ -411,7 +401,7 @@
   (:documentation 			; FDL
   "Exchange the ith and jth columns of the matrix in-place."))
 
-(defmfun-mdsfc swap-columns ((matrix gsl-matrix) i j)
+(defmfun-mdsfc swap-columns ((matrix matrix) i j)
   "gsl_matrix_swap_columns"
   (((pointer matrix) gsl-matrix-c) (i size) (j size))
   :invalidate (matrix))
@@ -423,7 +413,7 @@
    matrix in-place.  The matrix must be square for this operation to
    be possible."))
 
-(defmfun-mdsfc swap-rowcol ((matrix gsl-matrix) i j)
+(defmfun-mdsfc swap-rowcol ((matrix matrix) i j)
   "gsl_matrix_swap_rowcol"
   (((pointer matrix) gsl-matrix-c) (i size) (j size))
   :invalidate (matrix))
@@ -436,7 +426,7 @@
    matrix must match the transposed dimensions of the source."))
 
 (defmfun-mdsfc matrix-transpose-copy
-    ((destination gsl-matrix) (source gsl-matrix))
+    ((destination matrix) (source matrix))
   "gsl_matrix_transpose_memcpy"
   (((pointer destination) gsl-matrix-c) ((pointer source) gsl-matrix-c))
   :invalidate (destination))
@@ -448,7 +438,7 @@
    of the matrix in-place.  The matrix must be square for this
    operation to be possible."))
 
-(defmfun-mdsfc matrix-transpose ((matrix gsl-matrix))
+(defmfun-mdsfc matrix-transpose ((matrix matrix))
   "gsl_matrix_transpose"
   (((pointer matrix) gsl-matrix-c))
   :invalidate (matrix))
@@ -457,7 +447,7 @@
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(defmfun-mdsfc m+ ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m+ ((a matrix) (b matrix))
     "gsl_matrix_add"
   (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
@@ -466,7 +456,7 @@
    a'_i = a_i + b_i. The two matrices must have the
    same dimensions.")
 
-(defmfun-mdsfc m- ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m- ((a matrix) (b matrix))
   "gsl_matrix_sub" (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
   :documentation			; FDL
@@ -474,7 +464,7 @@
    a, a'_i = a_i - b_i. The two matrices must have the
    same dimensions.")
 
-(defmfun-mdsfc m* ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m* ((a matrix) (b matrix))
   "gsl_matrix_mul_elements"
   (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
@@ -483,7 +473,7 @@
   matrix b, a'(i,j) = a(i,j) * b(i,j). The two matrices must have the
   same dimensions.")
 
-(defmfun-mdsfc m/ ((a gsl-matrix) (b gsl-matrix))
+(defmfun-mdsfc m/ ((a matrix) (b matrix))
   "gsl_matrix_div_elements"
   (((pointer a) gsl-matrix-c) ((pointer b) gsl-matrix-c))
   :invalidate (a)
@@ -492,14 +482,14 @@
    matrix b, a'(i,j) = a(i,j) / b(i,j). The two matrices must have the
    same dimensions.")
 
-(defmfun-mdsfc m*c ((a gsl-matrix) x)
+(defmfun-mdsfc m*c ((a matrix) x)
   "gsl_matrix_scale" (((pointer a) gsl-matrix-c) (x :c-base-type))
   :invalidate (a)
   :documentation			; FDL
   "Multiply the elements of matrix a by the constant
   factor x, a'(i,j) = x a(i,j).")
 
-(defmfun-mdsfc m+c ((a gsl-matrix) x)
+(defmfun-mdsfc m+c ((a matrix) x)
   "gsl_matrix_add_constant" (((pointer a) gsl-matrix-c) (x :c-base-type))
   :invalidate (a)
   :documentation			; FDL
@@ -510,26 +500,26 @@
 ;;;; Maximum and minimum elements
 ;;;;****************************************************************************
 
-(defmfun-mdsf gsl-max ((m gsl-matrix))
+(defmfun-mdsf gsl-max ((m matrix))
   "gsl_matrix_max" (((pointer m) gsl-matrix-c))
   :documentation			; FDL
   "The maximum value in the matrix m."
   :c-return :c-base-type)
 
-(defmfun-mdsf gsl-min ((m gsl-matrix))
+(defmfun-mdsf gsl-min ((m matrix))
   "gsl_matrix_min" (((pointer m) gsl-matrix-c))
   :documentation			; FDL
   "The minimum value in the matrix m."
   :c-return :c-base-type)
 
-(defmfun-mdsf gsl-minmax ((m gsl-matrix))
+(defmfun-mdsf gsl-minmax ((m matrix))
   "gsl_matrix_minmax"
   (((pointer m) gsl-matrix-c) (min :c-base-type) (max :c-base-type))
   :documentation			; FDL
   "The minimum and maximum values in the matrix m."
   :c-return :void)
 
-(defmfun-mdsf gsl-max-index ((m gsl-matrix))
+(defmfun-mdsf gsl-max-index ((m matrix))
   "gsl_matrix_max_index"
   (((pointer m) gsl-matrix-c) (imax size) (jmax size))
   :documentation			; FDL
@@ -539,7 +529,7 @@
   :c-return :void
   :return ((list (scref imax) (scref jmax))))
 
-(defmfun-mdsf gsl-min-index ((m gsl-matrix))
+(defmfun-mdsf gsl-min-index ((m matrix))
   "gsl_matrix_min_index"
   (((pointer m) gsl-matrix-c) (imin size) (jmin size))
   :documentation			; FDL
@@ -549,7 +539,7 @@
   :c-return :void
   :return ((list (scref imin) (scref jmin))))
 
-(defmfun-mdsf gsl-minmax-index ((m gsl-matrix))
+(defmfun-mdsf gsl-minmax-index ((m matrix))
   "gsl_matrix_minmax_index"
   (((pointer m) gsl-matrix-c)
    (imin size) (jmin size) (imax size) (jmax size))
@@ -565,8 +555,8 @@
 ;;;; Properties
 ;;;;****************************************************************************
 
-(defmfun-mdsfc gsl-zerop ((m gsl-matrix))
-  "gsl_matrix_isnull" ((m gsl-matrix-c))
+(defmfun-mdsfc gsl-zerop ((m matrix))
+  "gsl_matrix_isnull" (((pointer m) gsl-matrix-c))
   :documentation			; FDL
   "All elements of matrix m are zero."
   :c-return :boolean)
@@ -737,17 +727,17 @@
 #|
 (make-tests
  matrix-double
- (letm ((mat (matrix-double 10 3)))
+ (letm ((mat (matrix-double-float 10 3)))
    (loop for i from 0 below 10
 	 do
 	 (loop for j from 0 below 3
 	       do (setf (maref mat i j) (+ 0.23d0 j (* 100 i)))))
    (data mat))
- (letm ((mat (matrix-double #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
-	(ans (matrix-double 2 2)))
+ (letm ((mat (matrix-double-float #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
+	(ans (matrix-double-float 2 2)))
    (copy ans mat)
    (data ans))
- (letm ((mat (matrix-double #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
+ (letm ((mat (matrix-double-float #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
    (m* mat mat)
    (data mat)))
 |#
@@ -766,7 +756,7 @@
 	(800.23d0 801.23d0 802.23d0)
 	(900.23d0 901.23d0 902.23d0)))
    (MULTIPLE-VALUE-LIST
-    (LETM ((MAT (MATRIX-DOUBLE 10 3)))
+    (LETM ((MAT (MATRIX-DOUBLE-FLOAT 10 3)))
       (LOOP FOR I FROM 0 BELOW 10 DO
 	    (LOOP FOR J FROM 0 BELOW 3 DO
 		  (SETF (MAREF MAT I J)
@@ -775,12 +765,12 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))
    (MULTIPLE-VALUE-LIST
-    (LETM ((MAT (MATRIX-DOUBLE #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
-	 (ANS (MATRIX-DOUBLE 2 2)))
+    (LETM ((MAT (MATRIX-DOUBLE-FLOAT #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
+	 (ANS (MATRIX-DOUBLE-FLOAT 2 2)))
       (COPY ANS MAT) (DATA ANS))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #2A((1.0d0 4.0d0) (9.0d0 16.0d0)))
    (MULTIPLE-VALUE-LIST
-    (LETM ((MAT (MATRIX-DOUBLE #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
+    (LETM ((MAT (MATRIX-DOUBLE-FLOAT #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
       (M* MAT MAT) (DATA MAT)))))
 

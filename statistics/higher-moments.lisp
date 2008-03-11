@@ -1,6 +1,6 @@
 ;; Skewness and kurtosis.
 ;; Liam Healy, Sun Dec 31 2006 - 14:20
-;; Time-stamp: <2008-02-17 16:42:59EST higher-moments.lisp>
+;; Time-stamp: <2008-03-09 19:21:48EDT higher-moments.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -120,7 +120,7 @@
 
 #|
 (make-tests higher-moments
-  (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+  (letm ((vec (vector-double-float #(-3.21d0 1.0d0 12.8d0))))
       (let* ((mean (mean vec))
 	     (sd (standard-deviation vec mean)))
 	(list
@@ -136,7 +136,7 @@
     (LIST 0.2765118983985497d0 0.2765118983985497d0
 	  -2.333333333333333d0 -2.333333333333333d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(-3.21d0 1.0d0 12.8d0))))
       (LET* ((MEAN (MEAN VEC))
 	     (SD (STANDARD-DEVIATION VEC MEAN)))
 	(LIST (SKEWNESS VEC) (SKEWNESS VEC MEAN SD)

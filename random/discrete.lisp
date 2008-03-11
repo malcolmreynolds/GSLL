@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-02-17 13:36:26EST discrete.lisp>
+;; Time-stamp: <2008-03-09 19:29:15EDT discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -60,13 +60,13 @@
 (make-tests discrete
    ;; Must have two letms because the vector value is not set until
    ;; the body, but the discrete-random needs that set value.
-   (letm ((probabilities (vector-double #(0.25d0 0.5d0 0.25d0))))
+   (letm ((probabilities (vector-double-float #(0.25d0 0.5d0 0.25d0))))
      (letm ((table (discrete-random probabilities))
 	    (rng (random-number-generator *mt19937* 0)))
        (loop for i from 0 to 10
 	     collect
 	     (discrete rng table))))
-   (letm ((probabilities (vector-double #(0.25d0 0.5d0 0.25d0))))
+   (letm ((probabilities (vector-double-float #(0.25d0 0.5d0 0.25d0))))
       (letm ((table (discrete-random probabilities)))
 	(discrete-pdf 1 table))))
 |#
@@ -76,7 +76,7 @@
    (LIST (LIST 1 0 1 1 0 1 1 2 1 2 2))
    (MULTIPLE-VALUE-LIST
     (LETM ((PROBABILITIES
-	    (VECTOR-DOUBLE #(0.25d0 0.5d0 0.25d0))))
+	    (VECTOR-DOUBLE-FLOAT #(0.25d0 0.5d0 0.25d0))))
       (LETM ((TABLE (DISCRETE-RANDOM PROBABILITIES))
 	     (RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
 	(LOOP FOR I FROM 0 TO 10 COLLECT
@@ -84,7 +84,7 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.5d0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((PROBABILITIES (VECTOR-DOUBLE #(0.25d0 0.5d0 0.25d0))))
+    (LETM ((PROBABILITIES (VECTOR-DOUBLE-FLOAT #(0.25d0 0.5d0 0.25d0))))
       (LETM ((TABLE (DISCRETE-RANDOM PROBABILITIES)))
 	(DISCRETE-PDF 1 TABLE))))))
 

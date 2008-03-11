@@ -1,6 +1,6 @@
 ;; Legendre functions
 ;; Liam Healy, Sat Apr 29 2006 - 19:16
-;; Time-stamp: <2008-02-16 22:30:23EST legendre.lisp>
+;; Time-stamp: <2008-03-09 19:29:17EDT legendre.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -259,26 +259,26 @@
   (legendre-Pl -4 0.3d0)
   (legendre-Pl 4 3.0d0)
   (legendre-Pl 4 0.3d0)
-  (letm ((arr (vector-double 4)))
+  (letm ((arr (vector-double-float 4)))
       (legendre-Pl-array 0.5d0 arr)
       (data arr))
   (legendre-Q0 3.3d0)
   (legendre-Q1 3.3d0)
   (legendre-Ql 2 3.3d0)
   (legendre-Plm 4 3 0.5d0)
-  (letm ((arr (vector-double 4)))
+  (letm ((arr (vector-double-float 4)))
       (legendre-Plm-array 2 0.5d0 arr)
       (data arr))
-  (letm ((val (vector-double 4))
-	   (deriv (vector-double 4)))
+  (letm ((val (vector-double-float 4))
+	   (deriv (vector-double-float 4)))
       (legendre-Plm-deriv-array 2 0.5d0 val deriv)
       (data deriv))
   (legendre-sphplm 1200 1100 0.3d0)
-  (letm ((arr (vector-double 4)))
+  (letm ((arr (vector-double-float 4)))
       (legendre-sphPlm-array 4 0.5d0 arr)
       (data arr))
-  (letm ((val (vector-double 4))
-	   (deriv (vector-double 4)))
+  (letm ((val (vector-double-float 4))
+	   (deriv (vector-double-float 4)))
 	(legendre-sphPlm-deriv-array 4 0.5d0 val deriv)
 	(data deriv))
   (legendre-conicalp-half 3.5d0 10.0d0)
@@ -290,7 +290,7 @@
   (legendre-h3d-0 1.0d0 0.5d0)
   (legendre-h3d-1 1.0d0 0.5d0)
   (legendre-h3d 4 1.0d0 0.5d0)
-  (letm ((arr (vector-double 4)))
+  (letm ((arr (vector-double-float 4)))
       (legendre-h3d-array 1.0d0 0.5d0 arr)
       (data arr)))
 |#
@@ -316,7 +316,7 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(1.0d0 0.5d0 -0.125d0 -0.4375d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((ARR (VECTOR-DOUBLE 4)))
+    (LETM ((ARR (VECTOR-DOUBLE-FLOAT 4)))
       (LEGENDRE-PL-ARRAY 0.5d0 ARR) (DATA ARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.3128529498822064d0 1.3893461931245028d-16)
@@ -333,13 +333,13 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(2.25d0 5.625d0 4.21875d0 -4.921875d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((ARR (VECTOR-DOUBLE 4)))
+    (LETM ((ARR (VECTOR-DOUBLE-FLOAT 4)))
       (LEGENDRE-PLM-ARRAY 2 0.5d0 ARR) (DATA ARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(-3.0d0 3.75d0 33.75d0 55.78125d0))
    (MULTIPLE-VALUE-LIST
     (LETM
-	((VAL (VECTOR-DOUBLE 4)) (DERIV (VECTOR-DOUBLE 4)))
+	((VAL (VECTOR-DOUBLE-FLOAT 4)) (DERIV (VECTOR-DOUBLE-FLOAT 4)))
       (LEGENDRE-PLM-DERIV-ARRAY 2 0.5d0 VAL DERIV)
       (DATA DERIV))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -351,7 +351,7 @@
     #(0.24892463950030283d0 0.4127948151484927d0
       0.35120655562190445d0 0.051599351893561574d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((ARR (VECTOR-DOUBLE 4)))
+    (LETM ((ARR (VECTOR-DOUBLE-FLOAT 4)))
       (LEGENDRE-SPHPLM-ARRAY 4 0.5d0 ARR)
       (DATA ARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -360,7 +360,7 @@
       1.2710332489173686d0 2.648766730536161d0))
    (MULTIPLE-VALUE-LIST
     (LETM
-	((VAL (VECTOR-DOUBLE 4)) (DERIV (VECTOR-DOUBLE 4)))
+	((VAL (VECTOR-DOUBLE-FLOAT 4)) (DERIV (VECTOR-DOUBLE-FLOAT 4)))
       (LEGENDRE-SPHPLM-DERIV-ARRAY 4 0.5d0 VAL DERIV)
       (DATA DERIV))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -402,6 +402,6 @@
     #(0.9200342692589379d0 0.21694026450392115d0
       0.04795066048830776d0 0.010663769096144337d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((ARR (VECTOR-DOUBLE 4)))
+    (LETM ((ARR (VECTOR-DOUBLE-FLOAT 4)))
       (LEGENDRE-H3D-ARRAY 1.0d0 0.5d0 ARR)
       (DATA ARR)))))

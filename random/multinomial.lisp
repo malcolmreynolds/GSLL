@@ -1,6 +1,6 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-02-17 18:31:31EST multinomial.lisp>
+;; Time-stamp: <2008-03-09 19:29:15EDT multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -51,15 +51,15 @@
 #|
 (make-tests multinomial
   (letm ((rng (random-number-generator *mt19937* 0))
-	  (p (vector-double #(0.1d0 0.2d0 0.3d0 0.4d0)))
+	  (p (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0)))
 	  (n (vector-fixnum 4)))
      (multinomial rng 8 p n)
      (data n))
-  (letm ((p (vector-double #(0.1d0 0.2d0 0.3d0 0.4d0)))
+  (letm ((p (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0)))
 	  (n (vector-fixnum 4)))
      (setf (data n) #(5 0 1 2))
      (multinomial-pdf p N))
-  (letm ((p (vector-double #(0.1d0 0.2d0 0.3d0 0.4d0)))
+  (letm ((p (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0)))
 	  (n (vector-fixnum 4)))
      (setf (data n) #(5 0 1 2))
      (multinomial-log-pdf p n)))
@@ -70,7 +70,7 @@
    (LIST #(5 0 1 2))
    (MULTIPLE-VALUE-LIST
     (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
-	 (P (VECTOR-DOUBLE #(0.1d0 0.2d0 0.3d0 0.4d0)))
+	 (P (VECTOR-DOUBLE-FLOAT #(0.1d0 0.2d0 0.3d0 0.4d0)))
 	 (N (VECTOR-FIXNUM 4)))
       (MULTINOMIAL RNG 8 P N)
       (DATA N))))
@@ -78,14 +78,14 @@
    (LIST 8.064000000000026d-5)
    (MULTIPLE-VALUE-LIST
     (LETM
-	((P (VECTOR-DOUBLE #(0.1d0 0.2d0 0.3d0 0.4d0)))
+	((P (VECTOR-DOUBLE-FLOAT #(0.1d0 0.2d0 0.3d0 0.4d0)))
 	 (N (VECTOR-FIXNUM 4)))
       (SETF (DATA N) #(5 0 1 2)) (MULTINOMIAL-PDF P N))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST -9.425515753641212d0)
    (MULTIPLE-VALUE-LIST
     (LETM
-	((P (VECTOR-DOUBLE #(0.1d0 0.2d0 0.3d0 0.4d0)))
+	((P (VECTOR-DOUBLE-FLOAT #(0.1d0 0.2d0 0.3d0 0.4d0)))
 	 (N (VECTOR-FIXNUM 4)))
       (SETF (DATA N) #(5 0 1 2))
       (MULTINOMIAL-LOG-PDF P N)))))

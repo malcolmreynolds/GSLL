@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-02-17 11:32:46EST eigensystems.lisp>
+;; Time-stamp: <2008-03-10 21:20:59EDT eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -165,14 +165,13 @@
   :value-descending, :absolute-ascending, :absolute-descending."))
 
 (defmfun sort-eigenvalues-eigenvectors
-    ((eval gsl-vector-double) evec sort-type)
+    ((eval vector-double-float) evec sort-type)
   "gsl_eigen_symmv_sort"
   ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
   :type :method
   :invalidate (eval evec))
 
-(defmfun sort-eigenvalues-eigenvectors
-    ((eval gsl-vector-complex) evec sort-type)
+(defmfun sort-eigenvalues-eigenvectors ((eval vector-complex) evec sort-type)
   "gsl_eigen_hermv_sort"
   ((eval gsl-vector-c) (evec gsl-matrix-c) (sort-type eigen-sort-type))
   :type :method
@@ -183,10 +182,10 @@
 ;;;;****************************************************************************
  
 (defun eigenvalue-eigenvectors-example ()
-  (letm ((evecs (matrix-double 3 3))
-	 (evals (vector-double 3))
+  (letm ((evecs (matrix-double-float 3 3))
+	 (evals (vector-double-float 3))
 	 (ws (eigen-symmv 3))
-	 (mat (matrix-double
+	 (mat (matrix-double-float
 	       #2A((20.0d0 -10.0d0 0.0d0)
 		   (-10.0d0 30.0d0 0.0d0)
 		   (0.0d0 0.0d0 40.0d0)))))

@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-02-17 10:36:36EST blas2.lisp>
+;; Time-stamp: <2008-03-09 14:15:02EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -105,47 +105,47 @@
 
 (defmfun gemv
     (TransA alpha
-	    (A gsl-matrix-single) (x gsl-vector-single) beta (y gsl-vector-single))
+	    (A matrix-single-float) (x vector-single-float) beta (y vector-single-float))
   "gsl_blas_sgemv"
   ((transa cblas-transpose) (alpha :float) ((pointer A) gsl-matrix-c)
    ((pointer x) gsl-vector-c) (beta :float) ((pointer y) gsl-vector-c))
   :type :method)
 
-(defmfun trmv (uplo transa diag (A gsl-matrix-single) (x gsl-vector-single))
+(defmfun trmv (uplo transa diag (A matrix-single-float) (x vector-single-float))
   "gsl_blas_strmv"
   ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
    ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
   :type :method)
 
-(defmfun trsv (uplo transa diag (A gsl-matrix-single) (x gsl-vector-single))
+(defmfun trsv (uplo transa diag (A matrix-single-float) (x vector-single-float))
   "gsl_blas_strsv"
   ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
    ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
   :type :method)
 
 (defmfun symv
-    (uplo alpha (A gsl-matrix-single) (x gsl-vector-single)
-	  beta (y gsl-vector-single))
+    (uplo alpha (A matrix-single-float) (x vector-single-float)
+	  beta (y vector-single-float))
   "gsl_blas_ssymv"
   ((uplo cblas-uplo) (alpha :float) ((pointer A) gsl-matrix-c)
    ((pointer x) gsl-vector-c) (beta :float) ((pointer y) gsl-vector-c))
   :type :method)
 
 (defmfun ger
-    (alpha (x gsl-vector-single) (y gsl-vector-single) (A gsl-matrix-single))
+    (alpha (x vector-single-float) (y vector-single-float) (A matrix-single-float))
   "gsl_blas_sger"
   ((alpha :float) ((pointer x) gsl-vector-c)
    ((pointer y) gsl-vector-c) ((pointer A) gsl-matrix-c))
   :type :method)
 
-(defmfun syr (uplo alpha (x gsl-vector-single) (A gsl-matrix-single))
+(defmfun syr (uplo alpha (x vector-single-float) (A matrix-single-float))
   "gsl_blas_ssyr"
   ((uplo cblas-uplo) (alpha :float)
    ((pointer x) gsl-vector-c) ((pointer A) gsl-matrix-c))
   :type :method)
 
 (defmfun syr2
-    (uplo alpha (x gsl-vector-single) (y gsl-vector-single) (A gsl-matrix-single))
+    (uplo alpha (x vector-single-float) (y vector-single-float) (A matrix-single-float))
   "gsl_blas_ssyr2"
   ((uplo cblas-uplo) (alpha :float)
    ((pointer x) gsl-vector-c) ((pointer y) gsl-vector-c)
@@ -158,47 +158,47 @@
 
 (defmfun gemv
     (TransA alpha
-	    (A gsl-matrix-double) (x gsl-vector-double) beta (y gsl-vector-double))
+    (A matrix-double-float) (x vector-double-float) beta (y vector-double-float))
   "gsl_blas_dgemv"
   ((transa cblas-transpose) (alpha :double) ((pointer A) gsl-matrix-c)
    ((pointer x) gsl-vector-c) (beta :double) ((pointer y) gsl-vector-c))
   :type :method)
 
-(defmfun trmv (uplo transa diag (A gsl-matrix-double) (x gsl-vector-double))
+(defmfun trmv (uplo transa diag (A matrix-double-float) (x vector-double-float))
   "gsl_blas_dtrmv"
   ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
    ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
   :type :method)
 
-(defmfun trsv (uplo transa diag (A gsl-matrix-double) (x gsl-vector-double))
+(defmfun trsv (uplo transa diag (A matrix-double-float) (x vector-double-float))
   "gsl_blas_dtrsv"
   ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
    ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
   :type :method)
 
 (defmfun symv
-    (uplo alpha (A gsl-matrix-double) (x gsl-vector-double)
-	  beta (y gsl-vector-double))
+    (uplo alpha (A matrix-double-float) (x vector-double-float)
+	  beta (y vector-double-float))
   "gsl_blas_dsymv"
   ((uplo cblas-uplo) (alpha :double) ((pointer A) gsl-matrix-c)
    ((pointer x) gsl-vector-c) (beta :double) ((pointer y) gsl-vector-c))
   :type :method)
 
 (defmfun ger
-    (alpha (x gsl-vector-double) (y gsl-vector-double) (A gsl-matrix-double))
+    (alpha (x vector-double-float) (y vector-double-float) (A matrix-double-float))
   "gsl_blas_dger"
   ((alpha :double) ((pointer x) gsl-vector-c)
    ((pointer y) gsl-vector-c) ((pointer A) gsl-matrix-c))
   :type :method)
 
-(defmfun syr (uplo alpha (x gsl-vector-double) (A gsl-matrix-double))
+(defmfun syr (uplo alpha (x vector-double-float) (A matrix-double-float))
   "gsl_blas_dsyr"
   ((uplo cblas-uplo) (alpha :double)
    ((pointer x) gsl-vector-c) ((pointer A) gsl-matrix-c))
   :type :method)
 
 (defmfun syr2
-    (uplo alpha (x gsl-vector-double) (y gsl-vector-double) (A gsl-matrix-double))
+    (uplo alpha (x vector-double-float) (y vector-double-float) (A matrix-double-float))
   "gsl_blas_dsyr2"
   ((uplo cblas-uplo) (alpha :double)
    ((pointer x) gsl-vector-c) ((pointer y) gsl-vector-c)

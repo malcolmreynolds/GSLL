@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-02-17 11:05:06EST lu.lisp>
+;; Time-stamp: <2008-03-09 14:34:41EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -82,13 +82,13 @@
   decomposition, LU. The determinant is computed as the product of the
   diagonal elements of U and the sign of the row permutation signum."))
 
-(defmfun LU-det ((LU gsl-matrix-double) signum)
+(defmfun LU-det ((LU matrix-double-float) signum)
   "gsl_linalg_LU_det"
   (((pointer LU) gsl-matrix-c) (signum :int))
   :type :method
   :c-return :double)
 
-(defmfun LU-det ((LU gsl-matrix-complex) signum)
+(defmfun LU-det ((LU matrix-complex) signum)
   "gsl_linalg_complex_LU_det"
   (((pointer LU) gsl-matrix-c) (signum :int))
   :type :method

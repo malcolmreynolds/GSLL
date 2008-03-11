@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-23 18:49:21EST combination.lisp>
+;; Time-stamp: <2008-03-09 22:07:29EDT combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,16 +16,17 @@
   (data :pointer))
 
 ;;; Allocation, freeing, reading and writing
-(defdata "combination" combination unsigned-byte gsl-data 2)
+(add-data-class combination fixnum combination gsl-data "combination")
+(defdata combination fixnum 2 "")
 
-(defmethod gsl-array ((object gsl-combination))
+(defmethod gsl-array ((object combination))
   (foreign-slot-value (pointer object) 'gsl-combination-c 'data))
 
 ;;;;****************************************************************************
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun maref ((combination gsl-combination) &rest indices)
+(defmfun maref ((combination combination) &rest indices)
   "gsl_combination_get"
   (((pointer combination) :pointer) ((first indices) size))
   :type :method 
@@ -33,7 +34,7 @@
   :documentation			; FDL
   "The ith element of the combination.")
 
-(defmethod data ((object gsl-combination) &optional sequence)
+(defmethod data ((object combination) &optional sequence)
   (let ((seq (or sequence
 		 (make-sequence 'list (combination-size object)))))
     (loop for i from 0
@@ -101,7 +102,7 @@
   "A pointer to the array of elements in the combination.")
 |#
 
-(defmfun data-valid ((combination gsl-combination))
+(defmfun data-valid ((combination combination))
   "gsl_combination_valid"
   (((pointer combination) :pointer))
   :type :method 

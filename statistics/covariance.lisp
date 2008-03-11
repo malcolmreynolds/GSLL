@@ -1,6 +1,6 @@
 ;; Covariance
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-02-17 16:48:17EST covariance.lisp>
+;; Time-stamp: <2008-03-09 19:21:49EDT covariance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -38,8 +38,8 @@
 
 #|
 (make-tests covariance
-  (letm ((vec1 (vector-double #(-3.21d0 1.0d0 12.8d0)))
-	   (vec2 (vector-double #(1.15d0 -1.0d0 0.5d0))))
+  (letm ((vec1 (vector-double-float #(-3.21d0 1.0d0 12.8d0)))
+	   (vec2 (vector-double-float #(1.15d0 -1.0d0 0.5d0))))
       (let ((mean1 (mean vec1))
 	    (mean2 (mean vec2)))
 	(list
@@ -53,8 +53,8 @@
     (LIST -0.2929999999999998d0 -0.2929999999999998d0))
    (MULTIPLE-VALUE-LIST
     (LETM
-	((VEC1 (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0)))
-	 (VEC2 (VECTOR-DOUBLE #(1.15d0 -1.0d0 0.5d0))))
+	((VEC1 (VECTOR-DOUBLE-FLOAT #(-3.21d0 1.0d0 12.8d0)))
+	 (VEC2 (VECTOR-DOUBLE-FLOAT #(1.15d0 -1.0d0 0.5d0))))
       (LET ((MEAN1 (MEAN VEC1)) (MEAN2 (MEAN VEC2)))
 	(LIST (COVARIANCE VEC1 VEC2)
 	      (COVARIANCE VEC1 VEC2 MEAN1 MEAN2)))))))

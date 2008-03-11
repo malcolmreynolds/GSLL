@@ -1,6 +1,6 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2008-02-25 19:31:49EST init.lisp>
+;; Time-stamp: <2008-03-09 12:30:38EDT init.lisp>
 ;; $Id$
 
 (defpackage gsll
@@ -20,17 +20,3 @@
   (t (:default "libgsl")))
    
 (cffi:use-foreign-library libgsl)
-
-;;; The following define :size, from cffi-unix which became cffi-net,
-;;; which is apparently turning into something even bigger and more
-;;; irrelevant.  All we need is the definition of :size.  This is
-;;; not in the keyword package to suppress warnings from CFFI.
-
-(cffi:defctype uint32 :unsigned-int)
-(cffi:defctype uint64 :unsigned-long)
-(cffi:defctype gsll::size
-   #-cffi-features:no-long-long uint64
-   #+cffi-features:no-long-long
-   #.(progn (cerror "Use uint32 instead."
-   "This platform does not support long long types.")
-   uint32))

@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-23 18:49:22EST permutation.lisp>
+;; Time-stamp: <2008-03-09 21:52:16EDT permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,17 +14,17 @@
   (size size)
   (data :pointer))
 
-;;; Allocation, freeing, reading and writing
-(defdata "permutation" permutation unsigned-byte)
+(add-data-class permutation fixnum permutation gsl-data "permutation")
+(defdata permutation fixnum 1 "")
 
-(defmethod gsl-array ((object gsl-permutation))
+(defmethod gsl-array ((object permutation))
   (foreign-slot-value (pointer object) 'gsl-permutation-c 'data))
 
 ;;;;****************************************************************************
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun maref ((permutation gsl-permutation) &rest indices)
+(defmfun maref ((permutation permutation) &rest indices)
   "gsl_permutation_get"
   (((pointer permutation) :pointer) ((first indices) size))
   :type :method 
@@ -35,7 +35,7 @@
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defmfun set-identity ((permutation gsl-permutation))
+(defmfun set-identity ((permutation permutation))
   "gsl_permutation_init"
   (((pointer permutation) :pointer))
   :type :method
@@ -44,7 +44,7 @@
   "Initialize the permutation p to the identity, i.e.
    (0,1,2,...,n-1).")
 
-(defmfun copy ((destination gsl-permutation) (source gsl-permutation))
+(defmfun copy ((destination permutation) (source permutation))
   "gsl_permutation_memcpy"
   (((pointer destination) gsl-permutation-c)
    ((pointer source) gsl-permutation-c))
@@ -54,7 +54,7 @@
   "Copy the elements of the permutation source into the
    permutation destination.  The two permutations must have the same size.")
 
-(defmfun swap-elements ((p gsl-permutation) i j)
+(defmfun swap-elements ((p permutation) i j)
   "gsl_permutation_swap"
   (((pointer p) gsl-permutation-c) (i size) (j size))
   :type :method
@@ -81,7 +81,7 @@
   "A pointer to the array of elements in the
    permutation p.")
 
-(defmfun data-valid ((permutation gsl-permutation))
+(defmfun data-valid ((permutation permutation))
   "gsl_permutation_valid"
   (((pointer permutation) :pointer))
   :type :method 
@@ -162,7 +162,7 @@
    identity matrix. The permutation p and the vector v must
    have the same length."))
 
-(defmfun-vdsfc permute-vector (p (v gsl-vector))
+(defmfun-vdsfc permute-vector (p (v vector))
   "gsl_permute_vector"
   (((pointer p) gsl-permutation-c) ((pointer v) gsl-vector-c))
   :invalidate (v))
@@ -178,7 +178,7 @@
   the p_j-th column of the identity matrix. The permutation p
   and the vector v must have the same length."))
 
-(defmfun-vdsfc permute-vector-inverse (p (v gsl-vector))
+(defmfun-vdsfc permute-vector-inverse (p (v vector))
   "gsl_permute_vector_inverse"
   (((pointer p) gsl-permutation-c) ((pointer v) gsl-vector-c))
   :invalidate (v))

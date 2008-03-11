@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-02-23 18:49:15EST polynomial.lisp>
+;; Time-stamp: <2008-03-09 19:29:15EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -40,10 +40,10 @@
   the arrays xa and ya.  The output is the
   divided-differences of (xa,ya) stored in an gsl-vector
   of the same length as xa and ya."
-  (letm ((xad (vector-double xa))
-	 (yad (vector-double ya)))
+  (letm ((xad (vector-double-float xa))
+	 (yad (vector-double-float ya)))
     (divided-difference-int
-     (make-data 'vector-double nil (length xa))
+     (make-data 'vector-double-float nil (length xa))
      xad yad)))
 
 (defmfun polynomial-eval-divided-difference (dd xa x)
@@ -151,8 +151,8 @@
   the packed complex array z of length 2(n-1), alternating
   real and imaginary parts."
   (let ((len (length coefficients)))
-    (letm ((coef (vector-double coefficients))
-	   (answer (vector-double (* 2 (1- len))))
+    (letm ((coef (vector-double-float coefficients))
+	   (answer (vector-double-float (* 2 (1- len))))
 	   (ws (complex-workspace len)))
       (values-list (polynomial-solve-ws coef ws answer)))))
 
@@ -177,7 +177,7 @@
 
 #|
 (make-tests polynomial
-  (letm ((vec (vector-double #(1.0d0 2.0d0 3.0d0))))
+  (letm ((vec (vector-double-float #(1.0d0 2.0d0 3.0d0))))
      (polynomial-eval vec -1.0d0))
   (solve-quadratic 1.0d0 0.0d0 1.0d0)
   (solve-quadratic 1.0d0 -2.0d0 1.0d0)
@@ -192,7 +192,7 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 2.0d0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE #(1.0d0 2.0d0 3.0d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0))))
       (POLYNOMIAL-EVAL VEC -1.0d0))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST (LIST) (LIST))

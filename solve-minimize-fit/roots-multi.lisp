@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-02-23 18:49:17EST roots-multi.lisp>
+;;; Time-stamp: <2008-03-09 19:29:20EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -406,9 +406,6 @@
 (defparameter *rosenbrock-a* 1.0d0)
 (defparameter *rosenbrock-b* 10.0d0)
 
-(defparameter *gsl-vector*
-  (make-instance 'gsl-vector-double :pointer nil :storage-size nil))
-
 #|
 ;;; One alternative way of writing the function, not recommended.
 (defun rosenbrock (argument return)
@@ -432,7 +429,7 @@
 (defun roots-multi-example ()
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000))
-    (letm ((vect (vector-double #(-10.0d0 -5.0d0))))
+    (letm ((vect (vector-double-float #(-10.0d0 -5.0d0))))
       (letm ((solver (mfsolver *hybrid-scaled* rosenbrock vect)))
 	(let ((fnval (mfsolver-f solver))
 	      (argval (mfsolver-root solver)))
@@ -484,7 +481,7 @@
 		   (maref fnval 0)
 		   (maref fnval 1))))
     (let ((max-iter 1000))
-      (letm ((vect (vector-double #(-10.0d0 -5.0d0))))
+      (letm ((vect (vector-double-float #(-10.0d0 -5.0d0))))
 	(letm
 	    ((solver (mfdfsolver *gnewton-mfdfsolver* rosenbrock-f vect)))
 	  (let ((fnval (mfdfsolver-f solver))

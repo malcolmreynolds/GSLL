@@ -62,17 +62,18 @@ href="http://www.lispworks.com/documentation/HyperSpec/Body/s_let_l.htm#letST">l
 with the additional feature that if the init-form is one of GSL objects
 
 <pre>
-acceleration basis-spline block-complex block-double block-fixnum
-block-single chebyshev combination complex-workspace discrete-random
-eigen-herm eigen-hermv eigen-symm eigen-symmv fdfsolver fit-workspace
-fminimizer fsolver hankel histogram integration-workspace
-interpolation levin levin-truncated matrix-complex matrix-double
-matrix-fixnum matrix-single mfdfminimizer mfdfsolver mfminimizer
-mfsolver monte-carlo-miser monte-carlo-plain monte-carlo-vegas
+acceleration basis-spline block-complex block-double-float block-fixnum
+block-single-float chebyshev combination complex-workspace
+discrete-random eigen-herm eigen-hermv eigen-symm eigen-symmv
+fdfsolver fit-workspace fminimizer fsolver hankel histogram
+integration-workspace interpolation levin levin-truncated
+matrix-complex matrix-double-float matrix-fixnum
+matrix-single-float mfdfminimizer mfdfsolver mfminimizer mfsolver
+monte-carlo-miser monte-carlo-plain monte-carlo-vegas
 nonlinear-fdffit nonlinear-ffit permutation
 quasi-random-number-generator random-number-generator spline
-vector-complex vector-double vector-fixnum vector-single wavelet
-wavelet-workspace
+vector-complex vector-double-float vector-fixnum
+vector-single-float wavelet wavelet-workspace
 </pre>
 the appropriate object will be allocated and bound to the variable,
 optionally set, and then freed when the body of the let is exited.
@@ -95,7 +96,7 @@ let binding.
  can be done within the <code>letm</code> by giving the Lisp value as
  the first argument after the type, for example
 <pre>
-(letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+(letm ((vec (vector-double-float #(-3.21d0 1.0d0 12.8d0))))
    (data vec))
 </pre>
  Individual elements of data may be accessed with <code>maref</code>,
@@ -154,7 +155,7 @@ gamma-randist, negative-binomial.
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-03-08 11:07:51EST documentation.html>
+       Time-stamp: <2008-03-09 22:21:24EDT documentation.html>
        </small>
 <!-- hhmts end -->
  </div>

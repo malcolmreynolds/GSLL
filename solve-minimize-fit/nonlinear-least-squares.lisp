@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-02-23 18:49:18EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-03-09 19:30:55EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -383,9 +383,9 @@
     exponential-residual-derivative exponential-residual-fdf)
 
 (defun solve-nonlinear-least-squares-example ()
-  (letm ((init (vector-double #(1.0d0 0.0d0 0.0d0)))
+  (letm ((init (vector-double-float #(1.0d0 0.0d0 0.0d0)))
 	 (covariance
-	  (matrix-double *number-of-parameters* *number-of-parameters*))
+	  (matrix-double-float *number-of-parameters* *number-of-parameters*))
 	 (fit (nonlinear-fdffit
 	       *levenberg-marquardt*
 	       *number-of-observations*

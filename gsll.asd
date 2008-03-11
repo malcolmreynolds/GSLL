@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-02-18 16:59:30EST gsll.asd>
+;; Time-stamp: <2008-03-09 22:13:36EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -15,7 +15,6 @@
 	    :components
 	    ((:file "init")
 	     (:file "conditions" :depends-on (init))
-	     (:file "utility" :depends-on (init))
 	     (:file "gsl-objects" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
 	     (:file "interface" :depends-on (init conditions number-conversion))
@@ -165,7 +164,7 @@
 	     (:file "types")
 	     (:file "lookup")
 	     (:file "evaluation")
-	     (:file "spline-example")))
+	     (:file "spline-example" :depends-on (types))))
    (:file "numerical-differentiation" :depends-on (init))
    (:file "chebyshev" :depends-on (init))
    (:file "series-acceleration" :depends-on (init))

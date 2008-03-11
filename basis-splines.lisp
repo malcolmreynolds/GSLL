@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-02-23 19:36:35EST basis-splines.lisp>
+;; Time-stamp: <2008-03-09 19:30:56EDT basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -74,13 +74,13 @@
 	 (bw (basis-spline order nbreak))
 	 (mw (fit-workspace ndata ncoeffs))
 	 (rng (random-number-generator *mt19937* 0))
-	 (B (vector-double ncoeffs))
-	 (c (vector-double ncoeffs))
-	 (cov (matrix-double ncoeffs ncoeffs))
-	 (w (vector-double ndata))
-	 (x (vector-double ndata))
-	 (y (vector-double ndata))
-	 (Xmatrix (matrix-double ndata ncoeffs))
+	 (B (vector-double-float ncoeffs))
+	 (c (vector-double-float ncoeffs))
+	 (cov (matrix-double-float ncoeffs ncoeffs))
+	 (w (vector-double-float ndata))
+	 (x (vector-double-float ndata))
+	 (y (vector-double-float ndata))
+	 (Xmatrix (matrix-double-float ndata ncoeffs))
 	 (sigma 0.1d0))
     ;; The data to be fitted.
     (dotimes (i ndata)

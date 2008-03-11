@@ -1,6 +1,6 @@
 ;; Median and percentile
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-02-17 16:50:24EST median-percentile.lisp>
+;; Time-stamp: <2008-03-09 19:19:28EDT median-percentile.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,7 +30,7 @@
    (fraction :double))
   :c-return :double
   :documentation			; FDL
-  "A quantile value of sorted-data, gsl-vector-double.  The
+  "A quantile value of sorted-data, vector-double-float.  The
    elements of the array must be in ascending numerical order.  The
    quantile is determined by a fraction between 0 and 1.  For
    example, to compute the value of the 75th percentile
@@ -50,9 +50,10 @@
 
 #|
 (make-tests median-percentile
-  (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+  (letm ((vec (vector-double-float #(-3.21d0 1.0d0 12.8d0))))
      (median vec))
-  (letm ((vec (vector-double #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
+  (letm ((vec (vector-double-float
+	       #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
      (quantile vec 0.75d0)))
 |#
 
@@ -60,11 +61,12 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 1.0d0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(-3.21d0 1.0d0 12.8d0))))
       (MEDIAN VEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 1.85d0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT
+		 #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
       (QUANTILE VEC 0.75d0)))))
 

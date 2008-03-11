@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2008-02-16 19:16:11EST bessel.lisp>
+;; Time-stamp: <2008-03-09 19:29:18EDT bessel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -462,61 +462,61 @@
 	    (cylindrical-bessel-J0 4.0d0)
 	    (cylindrical-bessel-J1 4.0d0)
 	    (cylindrical-bessel-Jn 2 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (cylindrical-bessel-Jn-array 2.0d0 besarr 2)
 	      (data besarr))
 	    (cylindrical-bessel-Y0 4.0d0)
 	    (cylindrical-bessel-Y1 4.0d0)
 	    (cylindrical-bessel-Yn 3 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (cylindrical-bessel-Yn-array 2.0d0 besarr 2)
 	      (data besarr))
 	    (cylindrical-bessel-I0 4.0d0)
 	    (cylindrical-bessel-I1 4.0d0)
 	    (cylindrical-bessel-In 3 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (cylindrical-bessel-In-array 2.0d0 besarr 2)
 	      (data besarr))
 	    (cylindrical-bessel-I0-scaled 4.0d0)
 	    (cylindrical-bessel-I1-scaled 4.0d0)
 	    (cylindrical-bessel-In-scaled 3 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (cylindrical-bessel-In-scaled-array 2.0d0 besarr 2)
 	      (data besarr))
 	    (cylindrical-bessel-K0 4.0d0)
 	    (cylindrical-bessel-K1 4.0d0)
 	    (cylindrical-bessel-Kn 2 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
 	      (data besarr))
 	    (cylindrical-bessel-K0-scaled 4.0d0)
 	    (cylindrical-bessel-K1-scaled 4.0d0)
 	    (cylindrical-bessel-Kn-scaled 2 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
 	      (data besarr))
 	    (spherical-bessel-j0 4.0d0)
 	    (spherical-bessel-j1 4.0d0)
 	    (spherical-bessel-j2 4.0d0)
 	    (spherical-bessel-jl 3 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (spherical-bessel-jl-array 4.0d0 besarr)
 	      (data besarr))
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (spherical-bessel-jl-steed-array 4.0d0 besarr)
 	      (data besarr))
 	    (spherical-bessel-y0 4.0d0)
 	    (spherical-bessel-y1 4.0d0)
 	    (spherical-bessel-y2 4.0d0)
 	    (spherical-bessel-yl 2 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (spherical-bessel-yl-array 4.0d0 besarr)
 	      (data besarr))
 	    (spherical-bessel-i0-scaled 4.0d0)
 	    (spherical-bessel-i1-scaled 4.0d0)
 	    (spherical-bessel-i2-scaled 4.0d0)
 	    (spherical-bessel-il-scaled 3 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (spherical-bessel-il-scaled-array 4.0d0 besarr)
 	      (data besarr))
 	    (spherical-bessel-k0-scaled 4.0d0)
@@ -524,11 +524,11 @@
 
 	    (spherical-bessel-k2-scaled 4.0d0)
 	    (spherical-bessel-kl-scaled 3 4.0d0)
-	    (letm ((besarr (vector-double 4)))
+	    (letm ((besarr (vector-double-float 4)))
 	      (spherical-bessel-kl-scaled-array 4.0d0 besarr)
 	      (data besarr))
 	    (bessel-jnu 3.0d0 4.0d0)
-	    (letm ((besarr (vector-double #(1.0d0 2.0d0 3.0d0))))
+	    (letm ((besarr (vector-double-float #(1.0d0 2.0d0 3.0d0))))
 	      (spherical-Jnu-array 0.5d0 besarr)
 	      (data besarr))
 	    (bessel-Ynu 3.0d0 4.0d0)
@@ -558,7 +558,7 @@
     #(0.35283402861563773d0 0.12894324947440206d0
       0.033995719807568436d0 0.007039629755871686d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (CYLINDRICAL-BESSEL-JN-ARRAY 2.0d0 BESARR 2)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -575,7 +575,7 @@
     #(-0.6174081041906827d0 -1.127783776840428d0
       -2.7659432263306014d0 -9.935989128481978d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (CYLINDRICAL-BESSEL-YN-ARRAY 2.0d0 BESARR 2)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -592,7 +592,7 @@
     #(0.6889484476987382d0 0.21273995923985267d0
       0.05072856997918024d0 0.009825679323131702d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (CYLINDRICAL-BESSEL-IN-ARRAY 2.0d0 BESARR 2)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -612,7 +612,7 @@
     #(0.09323903330473338d0 0.028791222639470898d0
       0.006865365386320685d0 0.0013297610941881578d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (CYLINDRICAL-BESSEL-IN-SCALED-ARRAY 2.0d0 BESARR
 					  2)
       (DATA BESARR))))
@@ -630,7 +630,7 @@
     #(0.2537597545660558d0 0.6473853909486341d0
       2.1959159274119586d0 9.431049100596468d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (CYLINDRICAL-BESSEL-KN-ARRAY 2.0d0 BESARR 2)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -650,7 +650,7 @@
     #(0.2537597545660558d0 0.6473853909486341d0
       2.1959159274119586d0 9.431049100596468d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (CYLINDRICAL-BESSEL-KN-ARRAY 2.0d0 BESARR 2)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -670,7 +670,7 @@
     #(-0.18920062382698202d0 0.11611074925915743d0
       0.2762836857713501d0 0.22924385795503022d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (SPHERICAL-BESSEL-JL-ARRAY 4.0d0 BESARR)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -678,7 +678,7 @@
     #(-0.18920062382698208d0 0.11611074925915742d0
       0.27628368577135015d0 0.22924385795503024d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (SPHERICAL-BESSEL-JL-STEED-ARRAY 4.0d0 BESARR)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -698,7 +698,7 @@
     #(0.16341090521590299d0 0.2300533501309578d0
       0.009129107382315343d0 -0.21864196590306362d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (SPHERICAL-BESSEL-YL-ARRAY 4.0d0 BESARR)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -722,7 +722,7 @@
     #(0.12495806717151212d0 0.09380241603560971d0
       0.05460625514480483d0 0.02554459710460367d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (SPHERICAL-BESSEL-IL-SCALED-ARRAY 4.0d0 BESARR)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -746,7 +746,7 @@
     #(0.39269908169872414d0 0.4908738521234052d0
       0.760854470791278d0 1.4419419406125027d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE 4)))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT 4)))
       (SPHERICAL-BESSEL-KL-SCALED-ARRAY 4.0d0 BESARR)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -757,7 +757,7 @@
     #(0.6713967071418024d0 0.5130161365618323d0
       0.06500818287738516d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BESARR (VECTOR-DOUBLE #(1.0d0 2.0d0 3.0d0))))
+    (LETM ((BESARR (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0))))
       (SPHERICAL-JNU-ARRAY 0.5d0 BESARR)
       (DATA BESARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

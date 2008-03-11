@@ -1,13 +1,13 @@
 ;; Vectors
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-02-23 18:57:18EST vector.lisp>
+;; Time-stamp: <2008-03-09 21:45:37EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; Vectors are specified in a letm binding with
-;;;  (vector-double size-or-initial &optional zero)
-;;;  (vector-single size-or-initial &optional zero)
+;;;  (vector-double-float size-or-initial &optional zero)
+;;;  (vector-single-float size-or-initial &optional zero)
 ;;;  (vector-fixnum size-or-initial &optional zero)
 ;;;  (vector-complex size-or-initial &optional zero)
 ;;; where size-or-initial is a positive integer indicating the
@@ -55,43 +55,30 @@ deallocated with the vector.
   (block :pointer)
   (owner :int))
 
-(defclass gsl-vector (gsl-data) ())
+(defclass mvector (gsl-data) ())
+(add-data-class vector double-float vector-double-float mvector "vector")
+(add-data-class vector single-float vector-single-float mvector "vector")
+(add-data-class vector fixnum vector-fixnum mvector "vector")
+(add-data-class vector complex vector-complex mvector "vector")
 
 ;;; Allocation, freeing, reading and writing
-(defdata "vector" vector-double double-float gsl-vector)
-(defdata "vector_float" vector-single single-float gsl-vector)
-(defdata "vector_int" vector-fixnum fixnum gsl-vector)
-(defdata "vector_complex" vector-complex complex gsl-vector)
-
-;;; (defdata "vector_uint" vector-unsigned-fixnum (unsigned-byte 64) gsl-vector)
-;;; doesn't work 2007-03-04.
-;;; (deftype unsigned-fixnum () `(integer 0 ,most-positive-fixnum))
-;;; (defdata "vector_uint" vector-unsigned-fixnum unsigned-fixnum gsl-vector)
-;;; doesn't work either 2008-02-10.
-
+(defdata vector double-float)
+(defdata vector single-float)
+(defdata vector fixnum)
+(defdata vector complex)
 
 (defmacro defmfun-vdsfc (&rest args)
-  "A defmfun for vectors of double, single, fixnum, and complex."
-  (defmfun-all
-      '(double single fixnum complex)
-      '(:double :float :int gsl-complex)
-    "vector"
-    'gsl-vector
-    args))
+  "A defmfun for vectors of double, single, fixnum, complex, unsigned-fixnum."
+  (defmfun-all 'vector '(double-float single-float fixnum complex) args))
 
 (defmacro defmfun-vdsf (&rest args)
   "A defmfun for vectors of double, single, and fixnum."
-  (defmfun-all
-      '(double single fixnum)
-      '(:double :float :int)
-    "vector"
-    'gsl-vector
-    args))
+  (defmfun-all 'vector '(double-float single-float fixnum) args))
 
-(defmethod gsl-array ((object gsl-vector))
+(defmethod gsl-array ((object mvector))
   (cffi:foreign-slot-value (pointer object) 'gsl-vector-c 'data))
 
-(defun make-data-from-pointer (pointer &optional (class 'gsl-vector-double) size)
+(defun make-data-from-pointer (pointer &optional (class 'vector-double-float) size)
   "Given a C pointer to a GSL data type, make the CL object."
   (make-instance
    class
@@ -108,7 +95,7 @@ deallocated with the vector.
 (defun element-size (object)
   "The size of each element as stored in C."
   (cffi:foreign-type-size
-   (rest (assoc (cl-base-type object)
+   (rest (assoc (cl-elt-type object)
 		'((double . :double) (single . :float)
 		  (fixnum . :int) (complex . gsl-complex))))))
 
@@ -116,7 +103,7 @@ deallocated with the vector.
 ;;;; Getting values
 ;;;;****************************************************************************
 
-(defmfun-vdsfc maref ((vector gsl-vector) &rest indices)
+(defmfun-vdsfc maref ((vector vector) &rest indices)
     "gsl_vector_get"
   (((pointer vector) :pointer) ((first indices) size))
   :c-return :c-base-type
@@ -140,7 +127,7 @@ deallocated with the vector.
 ;;;; Setting values
 ;;;;****************************************************************************
 
-(defmfun-vdsfc (setf maref) (value (vector gsl-vector) &rest indices)
+(defmfun-vdsfc (setf maref) (value (vector vector) &rest indices)
   "gsl_vector_set"
   (((pointer vector) :pointer) ((first indices) size) (value :c-base-type))
   :c-return :void
@@ -155,16 +142,16 @@ deallocated with the vector.
   :documentation			; FDL
  "Set an element of the vector of doubles, using its pointer.")
 
-(defmfun-vdsfc set-all ((object gsl-vector) value)
+(defmfun-vdsfc set-all ((object vector) value)
   "gsl_vector_set_all"
   (((pointer object) :pointer) (value :c-base-type))
   :c-return :void)
 
-(defmfun-vdsfc set-zero ((object gsl-vector))
+(defmfun-vdsfc set-zero ((object vector))
   "gsl_vector_set_zero" (((pointer object) :pointer))
   :c-return :void)
 
-(defmfun-vdsfc set-basis ((vector gsl-vector) index)
+(defmfun-vdsfc set-basis ((vector vector) index)
   "gsl_vector_set_basis" (((pointer vector) gsl-vector-c) (index size))
   :invalidate (vector)
   :documentation			; FDL
@@ -178,7 +165,7 @@ deallocated with the vector.
   (vector gsl-vector-c))
 
 ;;; broken
-;;; (letm ((vec (vector-double  #(-3.21d0 1.0d0 12.8d0)))) (subvector vec 1 2))
+;;; (letm ((vec (vector-double-float  #(-3.21d0 1.0d0 12.8d0)))) (subvector vec 1 2))
 
 (export '(subvector subvector-stride))
 
@@ -202,12 +189,12 @@ deallocated with the vector.
   Note that subvector views give direct access to the underlying elements
   of the original vector."))
 
-(defmfun-vdsfc subvector ((vector gsl-vector) offset size)
+(defmfun-vdsfc subvector ((vector vector) offset size)
     "gsl_vector_subvector"
   (((pointer vector) gsl-vector-c) (offset size) (size size))
   :c-return :pointer)
 
-(defmfun-vdsfc subvector-stride ((vector gsl-vector) offset stride size)
+(defmfun-vdsfc subvector-stride ((vector vector) offset stride size)
   "gsl_vector_subvector_with_stride"
   (((pointer vector) gsl-vector-c)
    (offset size) (stride size) (size size))
@@ -247,7 +234,7 @@ deallocated with the vector.
 ;;;; Copying
 ;;;;****************************************************************************
 
-(defmfun-vdsfc copy ((destination gsl-vector) (source gsl-vector))
+(defmfun-vdsfc copy ((destination vector) (source vector))
   "gsl_vector_memcpy"
   (((pointer destination) gsl-vector-c) ((pointer source) gsl-vector-c))
   :invalidate (destination)
@@ -255,7 +242,7 @@ deallocated with the vector.
   "Copy the elements of the vector source into the
    vector destination.  The two vectors must have the same length.")
 
-(defmfun-vdsfc swap ((v gsl-vector) (w gsl-vector))
+(defmfun-vdsfc swap ((v vector) (w vector))
   "gsl_vector_swap" (((pointer v) gsl-vector-c) ((pointer w) gsl-vector-c))
   :invalidate (v w)
   :documentation			; FDL
@@ -276,14 +263,14 @@ deallocated with the vector.
   (:documentation
    "Exchange the i-th and j-th elements of the vector vec in-place."))
 
-(defmfun-vdsfc swap-elements ((vec gsl-vector) i j)
+(defmfun-vdsfc swap-elements ((vec vector) i j)
   "gsl_vector_swap_elements" (((pointer vec) gsl-vector-c) (i size) (j size))
   :after ((when (listp (cl-invalid vec))
 	    (push (list i) (cl-invalid vec))
 	    (push (list j) (cl-invalid vec))))
   :return (vec))
 
-(defmfun-vdsfc vector-reverse ((vec gsl-vector))
+(defmfun-vdsfc vector-reverse ((vec vector))
   "gsl_vector_reverse" (((pointer vec) gsl-vector-c))
   :invalidate (vec)
   :documentation			; FDL
@@ -293,7 +280,7 @@ deallocated with the vector.
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(defmfun-vdsf m+ ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m+ ((a vector) (b vector))
   "gsl_vector_add" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
@@ -301,34 +288,34 @@ deallocated with the vector.
   vector a, a'_i = a_i + b_i. The two vectors must have the
   same length.")
 
-(defmfun-vdsf m- ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m- ((a vector) (b vector))
   "gsl_vector_sub" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
   "Subtract the elements of vector b from the elements of
    vector a, a'_i = a_i - b_i.  The two vectors must have the same length.")
 
-(defmfun-vdsf m* ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m* ((a vector) (b vector))
   "gsl_vector_mul" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
   "Multiply the elements of vector a by the elements of
   vector b, a'_i = a_i * b_i. The two vectors must have the same length.")
 
-(defmfun-vdsf m/ ((a gsl-vector) (b gsl-vector))
+(defmfun-vdsf m/ ((a vector) (b vector))
   "gsl_vector_div" (((pointer a) gsl-vector-c) ((pointer b) gsl-vector-c))
   :invalidate (a)
   :documentation			; FDL
   "Divide the elements of vector a by the elements of
   vector b, a'_i = a_i / b_i. The two vectors must have the same length.")
 
-(defmfun-vdsf m*c ((a gsl-vector) x)
+(defmfun-vdsf m*c ((a vector) x)
   "gsl_vector_scale" (((pointer a) gsl-vector-c) (x :double))
   :invalidate (a)
   :documentation			; FDL
   "Multiply the elements of vector a by the constant factor x, a'_i = x a_i.")
 
-(defmfun-vdsf m+c ((a gsl-vector) x)
+(defmfun-vdsf m+c ((a vector) x)
   "gsl_vector_add_constant" (((pointer a) gsl-vector-c) (x :double))
   :invalidate (a)
   :documentation			; FDL
@@ -338,26 +325,26 @@ deallocated with the vector.
 ;;;; Maximum and minimum elements
 ;;;;****************************************************************************
 
-(defmfun-vdsf gsl-max ((v gsl-vector))
+(defmfun-vdsf gsl-max ((v vector))
   "gsl_vector_max" (((pointer v) gsl-vector-c))
   :c-return :c-base-type
   :documentation			; FDL
   "The maximum value in the vector v.")
 
-(defmfun-vdsf gsl-min ((v gsl-vector))
+(defmfun-vdsf gsl-min ((v vector))
   "gsl_vector_min" (((pointer v) gsl-vector-c))
   :c-return :c-base-type
   :documentation			; FDL
   "The minimum value in the vector v.")
 
-(defmfun-vdsf gsl-minmax ((v gsl-vector))
+(defmfun-vdsf gsl-minmax ((v vector))
   "gsl_vector_minmax"
   (((pointer v) gsl-vector-c) (min :c-base-type) (max :c-base-type))
   :c-return :void
   :documentation			; FDL
   "The minimum and maximum values in the vector v.")
 
-(defmfun-vdsf gsl-max-index ((v gsl-vector))
+(defmfun-vdsf gsl-max-index ((v vector))
   "gsl_vector_max_index" (((pointer v) gsl-vector-c))
   :c-return size
   :documentation			; FDL
@@ -365,14 +352,14 @@ deallocated with the vector.
    When there are several equal minimum elements then the lowest index is
    returned.")
 
-(defmfun-vdsf gsl-min-index ((v gsl-vector))
+(defmfun-vdsf gsl-min-index ((v vector))
   "gsl_vector_min_index" (((pointer v) gsl-vector-c))
   :c-return size
   :documentation			; FDL
   "The index of the minimum value in the vector v.  When there are several
   equal minimum elements then the lowest index is returned.")
 
-(defmfun-vdsf gsl-minmax-index ((v gsl-vector))
+(defmfun-vdsf gsl-minmax-index ((v vector))
   "gsl_vector_minmax_index"
   (((pointer v) gsl-vector-c) (imin size) (imax size))
   :c-return :void
@@ -385,7 +372,7 @@ deallocated with the vector.
 ;;;; Properties
 ;;;;****************************************************************************
 
-(defmfun-vdsfc gsl-zerop ((v gsl-vector))
+(defmfun-vdsfc gsl-zerop ((v vector))
   "gsl_vector_isnull" (((pointer v) gsl-vector-c))
   :c-return :boolean
   :documentation			; FDL
@@ -535,31 +522,31 @@ deallocated with the vector.
 #|
 (make-tests
  vector-double
- (letm ((vec (vector-double 3)))
+ (letm ((vec (vector-double-float 3)))
    (setf (maref vec 0) -3.21d0
 	 (maref vec 1) 1.0d0
 	 (maref vec 2) 12.8d0
 	 (cl-invalid vec) t)
    (data vec))
- (letm ((vec (vector-double 3)))
+ (letm ((vec (vector-double-float 3)))
    (setf (data vec) #(-3.21d0 1.0d0 12.8d0))
    (data vec))
- (letm ((vec (vector-double #(-3.21d0 1.0d0 12.8d0))))
+ (letm ((vec (vector-double-float #(-3.21d0 1.0d0 12.8d0))))
    (data vec))
- (letm ((base (vector-double 5)))
+ (letm ((base (vector-double-float 5)))
    (set-basis base 1)
    (data base))
- (letm ((vec1 (vector-double #(-3.21d0 1.0d0 12.8d0)))
-	(vec2 (vector-double 3)))
+ (letm ((vec1 (vector-double-float #(-3.21d0 1.0d0 12.8d0)))
+	(vec2 (vector-double-float 3)))
    (copy vec2 vec1)
    (data vec2)))
 |#
 
-(LISP-UNIT:DEFINE-TEST VECTOR-DOUBLE
+(LISP-UNIT:DEFINE-TEST VECTOR-DOUBLE-FLOAT
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(-3.21d0 1.0d0 12.8d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE 3)))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT 3)))
       (SETF (MAREF VEC 0) -3.21d0
 	    (MAREF VEC 1) 1.0d0
 	    (MAREF VEC 2) 12.8d0
@@ -568,23 +555,23 @@ deallocated with the vector.
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(-3.21d0 1.0d0 12.8d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE 3)))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT 3)))
       (SETF (DATA VEC) #(-3.21d0 1.0d0 12.8d0))
       (DATA VEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(-3.21d0 1.0d0 12.8d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(-3.21d0 1.0d0 12.8d0))))
       (DATA VEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(0.0d0 1.0d0 0.0d0 0.0d0 0.0d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((BASE (VECTOR-DOUBLE 5))) (SET-BASIS BASE 1)
+    (LETM ((BASE (VECTOR-DOUBLE-FLOAT 5))) (SET-BASIS BASE 1)
 	  (DATA BASE))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(-3.21d0 1.0d0 12.8d0))
    (MULTIPLE-VALUE-LIST
     (LETM
-	((VEC1 (VECTOR-DOUBLE #(-3.21d0 1.0d0 12.8d0)))
-	 (VEC2 (VECTOR-DOUBLE 3)))
+	((VEC1 (VECTOR-DOUBLE-FLOAT #(-3.21d0 1.0d0 12.8d0)))
+	 (VEC2 (VECTOR-DOUBLE-FLOAT 3)))
       (COPY VEC2 VEC1) (DATA VEC2)))))

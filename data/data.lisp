@@ -1,6 +1,6 @@
 ;; Using GSL bulk data (vectors, matrices, etc.) storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-02-23 18:57:18EST data.lisp>
+;; Time-stamp: <2008-03-10 21:15:40EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,10 +36,12 @@
 (defmethod print-object ((object gsl-data) stream)
   (print-data-object object *print-array* stream))
 
+(defparameter *print-data-contents* t)
+
 (defun print-data-object (object contents stream)
   "Print the data object to the stream, possibly showing contents."
   (print-unreadable-object (object stream :type t :identity t)
-    (when contents
+    (when (and contents *print-data-contents*)
       (princ (data object) stream))))
 
 (defgeneric gsl-array (object)
@@ -53,7 +55,7 @@
   "The second dimension of the object."
   (second (storage-size object)))
 
-(defgeneric cl-base-type (object)
+(defgeneric cl-elt-type (object)
   (:documentation "The CL type of an element."))
 
 ;;; Accessing elements
@@ -95,13 +97,6 @@
 
 ;;; (args (loop for i below dimensions collect (intern (format nil "I~d" i))))
 ;;; (mapcar (lambda (v) `(,v size))			    args)
-
-(defparameter *data-name-alist*
-  '((FIXNUM . "_int")
-    (SINGLE . "_float")
-    (DOUBLE . "")
-    ;;(LONG-DOUBLE . "_long_double")
-    (COMPLEX . "_complex")))
 
 (defmacro data-go (type matrixp)
   "Define the letm function for data types."
@@ -151,96 +146,108 @@
 	      (lambda (symb) `(unless (numberp ,argsymb) (setf (data ,symb) ,argsymb)))
 	      (lambda () (list argsymb size-or-initial)))))))))
 
-(defmacro defdata
-    (c-string cl-symbol cl-base-type
-     &optional (superclass 'gsl-data) (dimensions 1))
+(defparameter *data-class-name* nil
+  "A list classes, each consisting of a list
+   superclass, CL element type, class, GSL splice name.")
+(defmacro add-data-class (category element-type class superclass GSL-string)
+  `(eval-when (:compile-toplevel :load-toplevel :execute)
+      (pushnew (list ',category ',element-type ',class ',superclass ',GSL-string)
+	       *data-class-name*
+	       :test #'equal)))
+(defun data-type-lookup (category element-type)
+  (find (list category element-type)
+	*data-class-name*
+	:key (lambda (l) (subseq l 0 2))
+	:test #'equal))
+(defun data-class-name (category element-type)
+  (third (data-type-lookup category element-type)))
+(defun data-superclass-name (category element-type)
+  (fourth (data-type-lookup category element-type)))
+(defun data-gsl-string (category element-type)
+  (fifth (data-type-lookup category element-type)))
+
+(defmacro defdata (category cl-elt-type &optional (dimensions 1) splice-name)
   "For the type named in the string,
    define the allocator (gsl-*-alloc), zero allocator (gsl-*-calloc),
    freeing (gsl-*-free), binary writing (binary-*-write) and
    reading (binary-*-read), formatted writing (write-*-formatted)
    and reading (read-*-formatted) functions."
-  ;; Need to remove duplicates from *data-name-alist*
   (flet ((gsl-name (function-name)
-	   (format nil "gsl_~a_~a" c-string function-name)))
+	   (format nil "gsl_~a~a_~a"
+		   (data-gsl-string category cl-elt-type)
+		   (or splice-name
+		       (lookup-splice-name cl-elt-type)) function-name)))
     (let* ((cargs (loop for i below dimensions
 			collect `((nth ,i (storage-size object)) size)))
-	   (object-name (make-symbol-from-strings *gsl-prefix* cl-symbol)))
+	   (class-name (data-class-name category cl-elt-type)))
       `(progn
-	(defclass ,object-name (,superclass)
-	  ((cl-base-type :initform ',cl-base-type :reader cl-base-type
-			 :allocation :class)))
-	(data-go ,cl-symbol
-	 ,(or (member superclass '(gsl-matrix)) (member object-name '(gsl-combination))))
-	(defmfun alloc ((object ,object-name))
+	(defclass ,class-name (,(data-superclass-name category cl-elt-type))
+	  ((cl-elt-type :initform ',cl-elt-type :reader cl-elt-type
+			:allocation :class)))
+	(data-go ,class-name
+	 ,(or (member category '(matrix combination))))
+	(defmfun alloc ((object ,class-name))
 	  ,(gsl-name "alloc") ,cargs
 	  :type :method
 	  :c-return (cr :pointer)
 	  :return ((assign-pointer object cr)))
-	(defmfun calloc ((object ,object-name))
+	(defmfun calloc ((object ,class-name))
 	  ,(gsl-name "calloc") ,cargs
 	  :type :method
 	  :c-return (cr :pointer)
 	  :return ((assign-pointer object cr)))
-	(defmfun free ((object ,object-name))
+	(defmfun free ((object ,class-name))
 	  ,(gsl-name "free") (((pointer object) :pointer))
 	  :type :method
 	  :c-return :void)
-	(defmfun write-binary ((object ,object-name) stream)
+	(defmfun write-binary ((object ,class-name) stream)
 	  ,(gsl-name "fwrite") ((stream :pointer) ((pointer object) :pointer))
 	  :type :method)
-	(defmfun read-binary ((object ,object-name) stream)
+	(defmfun read-binary ((object ,class-name) stream)
 	  ,(gsl-name "fread") ((stream :pointer) ((pointer object) :pointer))
 	  :type :method)
-	(defmfun write-formatted ((object ,object-name) stream format)
+	(defmfun write-formatted ((object ,class-name) stream format)
 	  ,(gsl-name "fprintf")
 	  ((stream :pointer) ((pointer object) :pointer) (format :string))
 	  :type :method)
-	(defmfun read-formatted ((object ,object-name) stream format)
+	(defmfun read-formatted ((object ,class-name) stream format)
 	  ,(gsl-name "fscanf")
 	  ((stream :pointer) ((pointer object) :pointer) (format :string))
 	  :type :method)))))
 
-(defun splice-name (base-name keyword symbol)
-  "Make a new C name for a data function from a base name." 
-  (let* ((insert (+ (search keyword base-name) (length keyword))))
-    (concatenate 'string
-		 (subseq base-name 0 insert)
-		 (rest (assoc symbol *data-name-alist*))
-		 (subseq base-name insert))))
-
-;;; (splice-name "gsl_vector_get" "vector" 'vector-fixnum)
-;;; "gsl_vector_int_get"
-;;; (make-symbol-from-strings *gsl-prefix* 'vector-fixnum)
-;;; GSL-VECTOR-FIXNUM
-
-(defun defmfun-all (types ctypes string general-class args)
+(defun defmfun-all (category cl-types args &optional key-string)
   "A defmfun for each of the declared data types."
-  `(progn
-     ,@(loop for type in types
-	  for ctype in ctypes
-	  collect
-	  `(defmfun ,(first args)
-	       ;; Set the class name for the arglist
-	       ,(mapcar
-		 (lambda (x)
-		   (if (and (listp x) (eq (second x) general-class))
-		       (list (first x)
-			     (make-symbol-from-strings general-class type))
-		       x))
-		 (second args))
-	     ;; Create the correct GSL C library function name
-	     ,(splice-name (third args) string type)
-	     ,(mapcar
-	       (lambda (x)
-		 (if (eq (st-type x) :c-base-type)
-		     (list (st-symbol x) ctype)
-		     x))
-	       (fourth args))
-	     ,@(let ((restargs (copy-list (nthcdr 4 args))))
-		    (when (eq (getf restargs :c-return) :c-base-type)
-		      (setf (getf restargs :c-return) ctype))
-		    (setf (getf restargs :type) :method)
-		    restargs)))))
+  (let ((categories (if (listp category) category (list category))))
+    `(progn
+      ,@(loop for type in cl-types
+	      for ctype = (lookup-C-type type) 
+	      collect
+	      `(defmfun ,(first args)
+		;; Set the class name for the arglist
+		,(mapcar
+		  (lambda (x)
+		    (if (and (listp x) (member (second x) categories))
+			(list (first x)
+			      (data-class-name (second x) type))
+			x))
+		  (second args))
+		;; Create the correct GSL C library function name
+		,(splice-name
+		  (third args)
+		  ;; Use key-string to override the lookup of the category.
+		  (or key-string (data-gsl-string (first categories) type))
+		  type)
+		,(mapcar
+		  (lambda (x)
+		    (if (eq (st-type x) :c-base-type)
+			(list (st-symbol x) ctype)
+			x))
+		  (fourth args))
+		,@(let ((restargs (copy-list (nthcdr 4 args))))
+		       (when (eq (getf restargs :c-return) :c-base-type)
+			 (setf (getf restargs :c-return) ctype))
+		       (setf (getf restargs :type) :method)
+		       restargs))))))
 
 ;;;;****************************************************************************
 ;;;; Making data objects and initializing storage
@@ -263,10 +270,7 @@
   "Make the GSL data object, including the allocation of space.
    The user is responsible for calling #'free to free the foreign
    memory when done."
-  (let ((obj
-         (make-instance
-          (make-symbol-from-strings *gsl-prefix* type)
-          :storage-size size)))
+  (let ((obj (make-instance type :storage-size size)))
     (if zero (calloc obj) (alloc obj))
     obj))
 
@@ -296,7 +300,7 @@
 		  (list (make-list total-size))
 		  ((nil vector)
 		   (make-array (list total-size)
-			       :element-type (cl-base-type object)))
+			       :element-type (cl-elt-type object)))
 		  (t sequence))))
 	  (loop for i from 0
 	     below (min (length seq) total-size)

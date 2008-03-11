@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-02-23 19:43:59EST linear-least-squares.lisp>
+;; Time-stamp: <2008-03-09 19:30:56EDT linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -258,9 +258,9 @@
 (defun univariate-linear-least-squares-example ()
   "First example in Section 36.5 of the GSL manual."
   ;; Results not given in manual so not verified yet.
-  (letm ((x (vector-double #(1970.0d0 1980.0d0 1990.0d0 2000.0d0)))
-	 (y (vector-double #(12.0d0 11.0d0 14.0d0 13.0d0)))
-	 (w (vector-double #(0.1d0 0.2d0 0.3d0 0.4d0))))
+  (letm ((x (vector-double-float #(1970.0d0 1980.0d0 1990.0d0 2000.0d0)))
+	 (y (vector-double-float #(12.0d0 11.0d0 14.0d0 13.0d0)))
+	 (w (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0))))
 	(multiple-value-bind (c0 c1 cov00 cov01 cov11 chisq)
 	    (weighted-linear-fit x w y)
 	  (format t "~&Best fit: Y = ~8,5f + ~8,5f X" c0 c1)
@@ -301,11 +301,11 @@
 (defun mv-linear-least-squares-example (data)
   "Second example in Section 36.5 of the GSL manual."
   (letm ((n (length data)) chisq
-	 (x (matrix-double n 3))
-	 (cov (matrix-double 3 3))
-	 (y (vector-double n))
-	 (w (vector-double n))
-	 (c (vector-double 3)))
+	 (x (matrix-double-float n 3))
+	 (cov (matrix-double-float 3 3))
+	 (y (vector-double-float n))
+	 (w (vector-double-float n))
+	 (c (vector-double-float 3)))
     (loop for i from 0
 	  for row in data do
 	  (setf (maref X i 0) 1.0d0
