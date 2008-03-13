@@ -1,6 +1,6 @@
 ;; Elliptic integrals
 ;; Liam Healy, Mon Mar 20 2006 - 21:50
-;; Time-stamp: <2008-02-16 20:47:06EST elliptic-integrals.lisp>
+;; Time-stamp: <2008-03-13 17:27:04EDT elliptic-integrals.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,12 +12,16 @@
 (defmfun elliptic-integral-K-complete (k)
   "gsl_sf_ellint_Kcomp_e" ((k :double) :mode (ret sf-result))
   :documentation			; FDL
-  "The complete elliptic integral K(k).")
+  "The complete elliptic integral of the first kind, K(k).  Note that
+  Abramowitz & Stegun define this function in terms of the parameter m
+  = k^2.")
 
 (defmfun elliptic-integral-E-complete (k)
   "gsl_sf_ellint_Ecomp_e" ((k :double) :mode (ret sf-result))
   :documentation			; FDL
-  "The complete elliptic integral E(k).")
+  "The complete elliptic integral of the second kind, E(k).
+   Note that Abramowitz & Stegun define this function in terms of the
+   parameter m = k^2.")
 
 ;;;;****************************************************************************
 ;;;; Legendre form of incomplete elliptic integrals
@@ -26,18 +30,25 @@
 (defmfun elliptic-integral-F (phi k)
   "gsl_sf_ellint_F_e" ((phi :double) (k :double) :mode (ret sf-result))
   :documentation			; FDL
-  "The incomplete elliptic integral F(\phi,k).")
+  "The incomplete elliptic integral of the first kind, F(phi,k).  Note
+  that Abramowitz & Stegun define this function in terms of the
+  parameter m = k^2.")
 
 (defmfun elliptic-integral-E (phi k)
   "gsl_sf_ellint_E_e" ((phi :double) (k :double) :mode (ret sf-result))
   :documentation			; FDL
-  "The incomplete elliptic integral E(\phi,k).")
+  "The incomplete elliptic integral of the second kind, E(phi,k).  Note
+  that Abramowitz & Stegun define this function in terms of the
+  parameter m = k^2.")
 
 (defmfun elliptic-integral-P (phi k n)
   "gsl_sf_ellint_P_e"
   ((phi :double) (k :double) (n :double) :mode (ret sf-result))
   :documentation			; FDL
-  "The incomplete elliptic integral P(\phi,k,n).")
+  "The incomplete elliptic integral of the third kind, P(phi,k,n).
+  Note that Abramowitz & Stegun define this function in terms of the
+  parameters m = k^2 and sin^2(alpha) = k^2, with the change of sign
+  n to -n.")
 
 (defmfun elliptic-integral-D (phi k n)
   "gsl_sf_ellint_D_e"
