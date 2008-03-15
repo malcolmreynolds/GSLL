@@ -1,13 +1,13 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-03-09 14:34:41EDT lu.lisp>
+;; Time-stamp: <2008-03-15 15:51:20EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; Not ported: those functions that use complex vectors or matrices
 
-(defmfun LU-decomp (A p signum)
+(defmfun LU-decomp (A p)
   "gsl_linalg_LU_decomp"
   (((pointer A) gsl-matrix-c) ((pointer p) gsl-permutation-c) (signum :int))
   :invalidate (A p)
@@ -112,3 +112,28 @@
   :documentation 			; FDL
   "Compute the sign or phase factor of the determinant of a matrix A,
   det(A)/|det(A)|, from its LU decomposition, LU.")
+
+;;; Examples and unit test
+
+(defun invert-matrix (mat)
+  "Invert the matrix."
+  (letm ((mmat (matrix-double-float mat))
+	 (dim (array-dimension mat 0))
+	 (per (permutation dim))
+	 (inv (matrix-double-float dim dim)))
+    (lu-decomp mmat per)
+    (lu-invert mmat per inv)
+    (data inv)))
+
+#|
+(make-tests lu
+   (invert-matrix #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
+|#
+
+(LISP-UNIT:DEFINE-TEST LU
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #2A((-1.9999999999999998d0 1.0d0)
+	(1.4999999999999998d0 -0.49999999999999994d0)))
+   (MULTIPLE-VALUE-LIST
+    (INVERT-MATRIX #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))))
