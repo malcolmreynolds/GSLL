@@ -118,8 +118,6 @@ let binding.
  likely will need other definitions (perhaps in C) to function
  properly, unless CFFI and the CL platform provide C stream
  compatibility.
-<li>Some <a href="Sorting.html">sorting</a> functions fail on amd64 platforms,
- perhaps because of lack of unsigned integer vectors.
 <li><a href="BLAS-Support.html">BLAS</a> is completed, but with only very
  limited testing.
  <li><a href="Fast-Fourier-Transforms.html">FFTs</a> have not been done
@@ -140,9 +138,6 @@ There are failures observed in the regression tests
 <code>(lisp-unit:run-tests)</code>:
 <ul>
 <li>CLISP shows three "foreign callout errors". Remedy unknown.
-<li>Sorting shows two failures on amd64 platforms.  This is possibly
-because of the use of integer vectors to store unsigned integer
-vectors.
 <li>There are several regression failures that are apparently due to
 changes in GSL between versions 1.8 and 1.10.  These are:
 beta, chi-squared, dirichlet, elliptic-functions, fdist,
@@ -155,7 +150,7 @@ gamma-randist, negative-binomial.
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-03-09 22:21:24EDT documentation.html>
+       Time-stamp: <2008-03-15 21:59:58EDT documentation.html>
        </small>
 <!-- hhmts end -->
  </div>

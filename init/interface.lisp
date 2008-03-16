@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-03-02 21:43:02EST interface.lisp>
+;; Time-stamp: <2008-03-15 21:51:07EDT interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -149,12 +149,14 @@
 ;;; invalidate   Invalidate the CL array/matrix cache.
 ;;; after        After method.
 ;;; enumeration  The name of the enumeration return.
+;;; global     Bind variable(s) in a let* enclosing the whole body.
 (defmacro defmfun
     (name arglist gsl-name c-arguments
      &key (c-return :error-code)
      (return nil return-supplied-p)
      (type :function) (index t) (export (not (eq type :method)))
-     null-pointer-info documentation invalidate after enumeration)
+     null-pointer-info documentation invalidate after enumeration
+     global)
   (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
 	 (carg-symbs
 	  (remove-if-not #'symbolp
@@ -170,7 +172,9 @@
 	 (cret-name
 	  (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
 	 (allocated		     ; Foreign objects to be allocated
-	  (remove-if (lambda (s) (member s arglist-symbs)) carg-symbs))
+	  (remove-if
+	   (lambda (s) (or (member s arglist-symbs) (member s global :key #'first)))
+	   carg-symbs))
 	 (allocated-decl
 	  (mapcar
 	   (lambda (s) (find s cargs :key #'st-symbol))
@@ -184,9 +188,13 @@
     `(progn
       (,(if (eq type :function) 'defun 'defmethod)
        ,name
-       ,(if (member :mode c-arguments)
-	    `(,@clargs &optional (mode :double-prec))
-	    `(,@clargs))
+       ,(let ((noaux
+	       (if (member :mode c-arguments)
+		   `(,@clargs &optional (mode :double-prec))
+		   `(,@clargs))))
+	     (if global
+		 (append noaux (cons '&aux global))
+		 noaux))
        ,(declaration-form clargs-types)
        ,@(when documentation (list documentation))
        (,@(if allocated

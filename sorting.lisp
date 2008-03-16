@@ -1,17 +1,12 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-03-09 21:42:24EDT sorting.lisp>
+;; Time-stamp: <2008-03-15 22:09:56EDT sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; #'heapsort has just a cursory port, use CL's #'sort.
 ;;; Raw C array functions not ported, not policy.
-
-;;; Errors:
-;;; sort-vector-smallest-index and sort-vector-largest-index
-;;; do not work on amd64/SBCL, and should be defined in terms of
-;;; vector-unsigned-fixnum anyway
 
 ;;;;****************************************************************************
 ;;;; Heapsort, not recommended
@@ -92,21 +87,29 @@
   :c-return :void
   :invalidate (dest))
 
-;;; p should be gsl-vector-unsigned-fixnum, if that can be made to
-;;; work (see vector.lisp).
 (export 'sort-vector-smallest-index)
-(defgeneric sort-vector-smallest-index (p vector)
-  (:documentation			; FDL
-   "The indices of the smallest elements of the vector stored
-   in the array p."))
+(defgeneric sort-vector-smallest-index (indices vector)
+  (:documentation
+   "The indices of the smallest elements of the vector stored,
+    returned as a CL vector of element type fixnum.  If
+    indices is a positive initeger, a vector will be
+    allocated and returned.  If it is a CL vector,
+    it will be filled with the indices."))
 
 (defmfun-vdsf sort-vector-smallest-index
-    ((p vector-fixnum) (v vector))
+    (indices (v vector))
   "gsl_sort_vector_smallest_index"
-  (((gsl-array p) :pointer) ((dim0 p) size)
-   ((pointer v) gsl-vector-c))
+  ((p (size number)) (number size) ((pointer v) :pointer))
+  :type :method
+  :global ((number (if (numberp indices) indices (length indices))))
   :c-return :void
-  :invalidate (p))
+  :return
+  ((let* ((vector
+	   (if (numberp indices)
+	       (make-array (list indices) :element-type 'fixnum)
+	       indices)))
+     (dotimes (i number vector)
+       (setf (aref vector i) (scref p i))))))
 
 (export 'sort-vector-largest)
 (defgeneric sort-vector-largest (dest vector)
@@ -124,18 +127,27 @@
 (export 'sort-vector-largest-index)
 ;;; p should be gsl-vector-unsigned-fixnum, if that can be made to
 ;;; work (see vector.lisp).
-(defgeneric sort-vector-largest-index (p vector)
-  (:documentation			; FDL
-   "The indices of the largest elements of the vector stored
-   in the array p."))
+(defgeneric sort-vector-largest-index (indices vector)
+  (:documentation		
+   "The indices of the largest elements of the vector stored,
+    returned as a CL vector of element type fixnum.  If
+    indices is a positive initeger, a vector will be
+    allocated and returned.  If it is a CL vector,
+    it will be filled with the indices."))
 
-(defmfun-vdsf sort-vector-largest-index
-    ((p vector-fixnum) (v vector))
+(defmfun-vdsf sort-vector-largest-index (indices (v vector))
   "gsl_sort_vector_largest_index"
-  (((gsl-array p) :pointer) ((dim0 p) size)
-   ((pointer v) gsl-vector-c))
+  ((p (size number)) (number size) ((pointer v) :pointer))
+  :type :method
+  :global ((number (if (numberp indices) indices (length indices))))
   :c-return :void
-  :invalidate (p))
+  :return
+  ((let* ((vector
+	   (if (numberp indices)
+	       (make-array (list indices) :element-type 'fixnum)
+	       indices)))
+     (dotimes (i number vector)
+       (setf (aref vector i) (scref p i))))))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -154,58 +166,53 @@
 	(smallest (vector-double-float 3)))
    (sort-vector-smallest smallest vec)
    (data smallest))
- (letm ((vec (vector-double-float #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	(smallest (vector-fixnum 3)))
-   (sort-vector-smallest-index smallest vec)
-   (data smallest))
+ (letm ((vec (vector-double-float #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
+   (sort-vector-smallest-index 3 vec))
  (letm ((vec (vector-double-float #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
 	(largest (vector-double-float 3)))
    (sort-vector-largest largest vec)
    (data largest))
- (letm ((vec (vector-double-float #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	(largest (vector-fixnum 3)))
-   (sort-vector-largest-index largest vec)
-   (data largest)))
+ (letm ((vec (vector-double-float #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
+   (sort-vector-largest-index 3 vec)))
 |#
+
 
 (LISP-UNIT:DEFINE-TEST SORTING
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(-3.21d0 -2.0d0 1.0d0 7.1d0 12.8d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
+    (LETM
+	((VEC
+	  (VECTOR-DOUBLE-FLOAT
+	   #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
       (SORT-VECTOR VEC) (DATA VEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(3 1 4 0 2))
    (MULTIPLE-VALUE-LIST
     (LETM ((PERM (PERMUTATION 5))
-	 (VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
+	   (VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
       (SORT-VECTOR-INDEX PERM VEC)
       (DATA PERM))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(-3.21d0 -2.0d0 1.0d0))
    (MULTIPLE-VALUE-LIST
     (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	 (SMALLEST (VECTOR-DOUBLE-FLOAT 3)))
+	   (SMALLEST (VECTOR-DOUBLE-FLOAT 3)))
       (SORT-VECTOR-SMALLEST SMALLEST VEC)
       (DATA SMALLEST))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(3 1 4))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	 (SMALLEST (VECTOR-FIXNUM 3)))
-      (SORT-VECTOR-SMALLEST-INDEX
-       SMALLEST VEC)
-      (DATA SMALLEST))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
+      (SORT-VECTOR-SMALLEST-INDEX 3 VEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(12.8d0 7.1d0 1.0d0))
    (MULTIPLE-VALUE-LIST
     (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	 (LARGEST (VECTOR-DOUBLE-FLOAT 3)))
+	   (LARGEST (VECTOR-DOUBLE-FLOAT 3)))
       (SORT-VECTOR-LARGEST LARGEST VEC) (DATA LARGEST))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(2 0 4))
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	 (LARGEST (VECTOR-FIXNUM 3)))
-      (SORT-VECTOR-LARGEST-INDEX LARGEST VEC)
-      (DATA LARGEST)))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
+      (SORT-VECTOR-LARGEST-INDEX 3 VEC)))))
