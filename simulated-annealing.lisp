@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2008-02-17 18:29:20EST simulated-annealing.lisp>
+;; Time-stamp: <2008-03-15 23:10:25EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -140,6 +140,8 @@
   (with-c-double (cx x)
     (with-c-double (cy y)
       (abs (- x y)))))
+
+(defvar *sa-function-calls*)
 
 (defun E2 (arg)
   (with-c-double (arg x)
