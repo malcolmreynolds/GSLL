@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-03-09 19:29:15EDT polynomial.lisp>
+;; Time-stamp: <2008-03-17 21:35:52EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,28 +23,12 @@
 ;;;; Divided Difference Representation of Polynomials
 ;;;;****************************************************************************
 
-(defmfun divided-difference-int (dd xa ya)
+(defmfun divided-difference (dd xa ya)
   "gsl_poly_dd_init"
   (((gsl-array dd) :pointer)
    ((gsl-array xa) :pointer) ((gsl-array ya) :pointer)
    ((dim0 xa) size))
-  :return (dd)
-  :export nil
-  :index divided-difference)
-
-(export '(divided-difference))
-(defun divided-difference (xa ya)
-  ;; FDL
-  "Compute a divided-difference representation of the
-  interpolating polynomial for the points (xa, ya) stored in
-  the arrays xa and ya.  The output is the
-  divided-differences of (xa,ya) stored in an gsl-vector
-  of the same length as xa and ya."
-  (letm ((xad (vector-double-float xa))
-	 (yad (vector-double-float ya)))
-    (divided-difference-int
-     (make-data 'vector-double-float nil (length xa))
-     xad yad)))
+  :return (dd))
 
 (defmfun polynomial-eval-divided-difference (dd xa x)
   "gsl_poly_dd_eval"
@@ -177,18 +161,40 @@
 
 #|
 (make-tests polynomial
-  (letm ((vec (vector-double-float #(1.0d0 2.0d0 3.0d0))))
-     (polynomial-eval vec -1.0d0))
-  (solve-quadratic 1.0d0 0.0d0 1.0d0)
-  (solve-quadratic 1.0d0 -2.0d0 1.0d0)
-  (solve-quadratic-complex 1.0d0 -2.0d0 1.0d0)
-  (solve-cubic -6.0d0 -13.0d0 42.0d0)
-  (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)
-  ;; Example from GSL manual
-  (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
+ (letm ((xa (vector-double-float #(0.0d0 1.0d0 2.0d0 3.0d0)))
+	(ya (vector-double-float #(2.5d0 7.2d0 32.7d0 91.0d0)))
+	(dd (vector-double-float 4)))
+   (divided-difference dd xa ya)
+   (list
+    (polynomial-eval-divided-difference dd xa 0.0d0)
+    (polynomial-eval-divided-difference dd xa 1.0d0)
+    (polynomial-eval-divided-difference dd xa 2.0d0)
+    (polynomial-eval-divided-difference dd xa 3.0d0)))
+ (letm ((vec (vector-double-float #(1.0d0 2.0d0 3.0d0))))
+   (polynomial-eval vec -1.0d0))
+ (solve-quadratic 1.0d0 0.0d0 1.0d0)
+ (solve-quadratic 1.0d0 -2.0d0 1.0d0)
+ (solve-quadratic-complex 1.0d0 -2.0d0 1.0d0)
+ (solve-cubic -6.0d0 -13.0d0 42.0d0)
+ (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)
+ ;; Example from GSL manual
+ (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
 |#
 
 (LISP-UNIT:DEFINE-TEST POLYNOMIAL
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST (LIST 2.5d0 7.2d0 32.7d0 91.0d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM
+	((XA (VECTOR-DOUBLE-FLOAT #(0.0d0 1.0d0 2.0d0 3.0d0)))
+	 (YA (VECTOR-DOUBLE-FLOAT #(2.5d0 7.2d0 32.7d0 91.0d0)))
+	 (DD (VECTOR-DOUBLE-FLOAT 4)))
+      (DIVIDED-DIFFERENCE DD XA YA)
+      (LIST
+       (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 0.0d0)
+       (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 1.0d0)
+       (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 2.0d0)
+       (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 3.0d0)))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 2.0d0)
    (MULTIPLE-VALUE-LIST
