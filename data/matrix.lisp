@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-03-10 21:15:53EDT matrix.lisp>
+;; Time-stamp: <2008-03-18 21:16:41EDT matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -739,7 +739,9 @@
    (data ans))
  (letm ((mat (matrix-double-float #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
    (m* mat mat)
-   (data mat)))
+   (data mat))
+ (letm ((mat (matrix-double-float #2A((1.0d0 2.0d0) (-3.0d0 4.0d0)))))
+   (list (maref mat 0 0) (maref mat 0 1) (maref mat 1 0) (maref mat 1 1))))
 |#
 
 (LISP-UNIT:DEFINE-TEST MATRIX-DOUBLE
@@ -766,11 +768,16 @@
    (LIST #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))
    (MULTIPLE-VALUE-LIST
     (LETM ((MAT (MATRIX-DOUBLE-FLOAT #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
-	 (ANS (MATRIX-DOUBLE-FLOAT 2 2)))
+	   (ANS (MATRIX-DOUBLE-FLOAT 2 2)))
       (COPY ANS MAT) (DATA ANS))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #2A((1.0d0 4.0d0) (9.0d0 16.0d0)))
    (MULTIPLE-VALUE-LIST
     (LETM ((MAT (MATRIX-DOUBLE-FLOAT #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
-      (M* MAT MAT) (DATA MAT)))))
+      (M* MAT MAT) (DATA MAT))))
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST (LIST 1.0d0 2.0d0 -3.0d0 4.0d0))
+   (MULTIPLE-VALUE-LIST
+    (LETM ((MAT (MATRIX-DOUBLE-FLOAT #2A((1.0d0 2.0d0) (-3.0d0 4.0d0)))))
+      (LIST (MAREF MAT 0 0) (MAREF MAT 0 1) (MAREF MAT 1 0) (MAREF MAT 1 1))))))
 

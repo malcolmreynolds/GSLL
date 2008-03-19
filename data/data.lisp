@@ -1,6 +1,6 @@
 ;; Using GSL bulk data (vectors, matrices, etc.) storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-03-10 21:15:40EDT data.lisp>
+;; Time-stamp: <2008-03-18 21:19:05EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -102,23 +102,33 @@
   "Define the letm function for data types."
   (if matrixp				; Matrix (two indices)
       `(defgo ,type (size-or-initial &optional size-or-zero zero)
-	(if (and (numberp size-or-initial) (numberp size-or-zero))
-	    ;; Array dimensions are given as literal numbers for matrix
-	    (list
-	     `(make-data ',',type ,zero ,size-or-initial ,size-or-zero)
-	     'free)
-	    ;; Determine at runtime whether first arg is initial or dimension
-	    (let ((argsymb (gensym "ARG")))
-	      (list
-	       `(apply #'make-data ',',type nil
-		 (if (and (numberp ,argsymb) (numberp ,size-or-zero))
-		     (list ,argsymb ,size-or-zero)
-		     (array-dimensions ,argsymb)))
-	       'free
-	       (lambda (symb)
-		 `(unless (and (numberp ,argsymb) (numberp ,size-or-zero))
-		   (setf (data ,symb) ,argsymb)))
-	       (lambda () (list argsymb size-or-initial))))))
+	(cond ((and (numberp size-or-initial) (numberp size-or-zero))
+	       ;; Array dimensions are given as literal numbers for matrix
+	       (list
+		`(make-data ',',type ,zero ,size-or-initial ,size-or-zero)
+		'free))
+	      ((typep size-or-initial 'array)
+	       (let ((argsymb (gensym "ARG")))
+		 (list
+		  `(apply #'make-data
+		    ',',type ,size-or-zero (array-dimensions ,argsymb))
+		  'free
+		  (lambda (symb)
+		    `(setf (data ,symb) ,argsymb))
+		  (lambda () (list argsymb size-or-initial)))))
+	      (t
+	       ;; Determine at runtime whether first arg is initial or dimension
+	       (let ((argsymb (gensym "ARG")))
+		 (list
+		  `(apply #'make-data ',',type nil
+		    (if (and (numberp ,argsymb) (numberp ,size-or-zero))
+			(list ,argsymb ,size-or-zero)
+			(array-dimensions ,argsymb)))
+		  'free
+		  (lambda (symb)
+		    `(unless (and (numberp ,argsymb) (numberp ,size-or-zero))
+		      (setf (data ,symb) ,argsymb)))
+		  (lambda () (list argsymb size-or-initial)))))))
       ;; Vector or other one-index object
       `(defgo ,type (size-or-initial &optional zero)
 	(typecase size-or-initial
