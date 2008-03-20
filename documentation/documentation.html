@@ -108,12 +108,11 @@ let binding.
  philosophy, most of the interface to the library is done.  Notes
  on particular chapters:
 <ul>
+<base href="http://www.gnu.org/software/gsl/manual/html_node/">
 <li><a href="Vectors-and-Matrices.html">Vectors and Matrices</a>
 	are done for integer, real, double, complex.
 	 Subvectors and views don't work.  Other element types may be
         difficult to port due to lack of CL definition.
-	      <base
- href="http://www.gnu.org/software/gsl/manual/html_node/">
 <li>Functions that provide file input and output to files are not tested and
  likely will need other definitions (perhaps in C) to function
  properly, unless CFFI and the CL platform provide C stream
@@ -124,9 +123,9 @@ let binding.
  because GSL does not supply an example and it is not clear how it is
  used.  Contributions welcome. 
 <li><a href="Simulated-Annealing.html">Simulated Annealing</a> is
- known have problems in GSL and <a
+ known to have problems in GSL and a replacement <a
  href="https://gna.org/projects/annealing">is being redesigned</a>; 
- the distributed version has been ported in GSLL but does not work.
+ the version distributed has been ported in GSLL but does not work.
 <li><a href="Wavelet-Transforms.html">Wavelet Transforms</a> has been
  done but the results of the example do not agree with the GSL manual.
 <li><a href="Discrete-Hankel-Transforms.html">Discrete Hankel
@@ -139,20 +138,19 @@ let binding.
 There are failures observed in the regression tests
 <code>(lisp-unit:run-tests)</code>:
 <ul>
-<li>CLISP shows three "foreign callout errors". Remedy unknown.
+<li>CLISP shows three "foreign callout errors." Remedy unknown.
 <li>There are several regression failures that are apparently due to
 changes in GSL between versions 1.8 and 1.10.  These are:
 beta, chi-squared, dirichlet, elliptic-functions, fdist,
 gamma-randist, negative-binomial.
 </ul>
 
-
  <div class="footer">
     <hr>
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-03-16 09:28:03EDT documentation.html>
+       Time-stamp: <2008-03-20 19:09:57EDT documentation.html>
        </small>
 <!-- hhmts end -->
  </div>
