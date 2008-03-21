@@ -1,7 +1,15 @@
-;; Comparison of floating point numbers
+;; Comparison of floating point numbers using sequence integers
 ;; Liam Healy 2008-01-22 19:00:17EST floating-point.lisp
-;; Time-stamp: <2008-01-29 21:34:52EST floating-point.lisp>
+;; Time-stamp: <2008-03-21 15:04:15EDT floating-point.lisp>
 ;; $Id$
+
+;;; All floats can be represented by integers.  There are two slightly
+;;; different ways of doing this.  The sequence integer
+;;; has the same sign as the float; the IEEE754 integer is the
+;;; unsigned version of the sequence integer, with the sign marked in
+;;; the high order bit.  The sequence integer is used for comparing
+;;; numbers, where order preservation is important; the IEEE754 integer
+;;; is used when reading a float storage location as an integer.
 
 (in-package :gsl)
 (export '(float-as-integer integer-as-float format-IEEE754-bits))
@@ -46,8 +54,13 @@
     (format stream "~1d ~v,'0b ~v,'0b"
 	    (if (minusp sign) 1 0) expbits exp sigbits mant)))
 
-(defun float-as-integer (float)
-  "An integer corresponding to the float which satisfies three properties:
+(defun ieee754-sign-bit (float-type)
+  "The bytespec to access the sign bit in the IEEE754 specification."
+  (byte 1 (if (eq float-type 'double-float) 63 31)))
+		  
+(defun float-as-integer (float &optional ieee754)
+  "The sequence integer corresponding to the float 
+   which satisfies three properties: 
    1) For two floats (< a b), then
       (< (float-as-integer a) (float-as-integer b)).
    2) If two floats (< a b) are adjacent, then
@@ -55,11 +68,15 @@
    3) (zerop (float-as-integer 0.0))
    The absolute value of the integer is the integer of the
    IEEE754 representation without the sign bit, and the
-   sign of the integer agrees with the sign of the float."
+   sign of the integer agrees with the sign of the float.
+   To get the IEEE754 integer, specify 'single-float or 
+   'double-float to ieee754."
   (multiple-value-bind (mant exp sign sigbits expbits)
       (decode-ieee754 float)
     (declare (ignore expbits))
-    (* sign (+ (ash exp sigbits) mant))))
+    (if ieee754
+	(* (dpb 1 (ieee754-sign-bit ieee754) (+ (ash exp sigbits) mant)))
+	(* sign (+ (ash exp sigbits) mant)))))
 
 ;; (float-as-integer most-negative-single-float)
 ;; -2139095039
@@ -79,8 +96,12 @@
 ;; 2139095039
 
 (defun integer-as-float (integer float-type)
-  "Construct the floating point number from its integer representation.
-   Also return the number in rational form."
+  "Construct the floating point number from its integer representation, 
+   either sequence or IEEE754.
+   Also return the number in rational form.
+   The integer may be either a signed integer produced by
+   float-as-integer, or an IEEE754 integer.  Acceptable
+   float-type is either 'double-float or 'single-float."
   (let ((expbits (if (eq float-type 'double-float) 11 8))
 	(sigbits (if (eq float-type 'double-float) 52 23)))
     (let* ((pinteger (abs integer))
@@ -96,7 +117,12 @@
 		  (expt 2 (- (+ (if normalizedp 1 0) pos)))
 		  0)))
       (let ((result
-	     (* (signum integer)	; preserve the sign
+	     (* (signum integer)	; accept negative integer
+		(if			; accept IEEE754 negative
+		 (ldb-test
+		  (ieee754-sign-bit float-type)
+		  pinteger)
+		 -1 1)
 		(expt 2 (- bexponent (1- (expt 2 (1- expbits)))))
 		frac)))
 	(values (coerce result float-type) result)))))
