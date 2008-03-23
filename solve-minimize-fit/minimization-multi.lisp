@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-03-09 19:29:20EDT minimization-multi.lisp>
+;; Time-stamp: <2008-03-23 17:50:49EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -345,10 +345,10 @@
     parabaloid 2 parabaloid-derivative parabaloid-and-derivative)
 
 (defun multimin-example-fletcher-reeves ()
-  (letm ((minimizer
+  (letm ((initial (vector-double-float #(5.0d0 7.0d0)))
+	 (minimizer
 	  (mfdfminimizer *conjugate-fletcher-reeves* 2 parabaloid
-			 initial 0.01d0 1.0d-4))
-	 (initial (vector-double-float #(5.0d0 7.0d0))))
+			 initial 0.01d0 1.0d-4)))
     (loop with status = T
 	  for iter from 0 below 100
 	  while status
