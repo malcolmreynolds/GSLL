@@ -1,7 +1,7 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT ffa.lisp
 ;; Time-stamp: <2008-03-23 17:59:10EDT foreign-friendly.lisp>
-;; $Id: $
+;; $Id$
 
 ;;; Use Papp's Foreign-friendly arrays
 ;;; http://www.princeton.edu/~tpapp/software.html
