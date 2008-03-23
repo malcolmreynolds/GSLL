@@ -1,0 +1,30 @@
+Some things that have been added to GSL since 1.8 that should be added
+to GSLL:
+
+GSL 1.9
+http://lists.gnu.org/archive/html/info-gsl/2007-02/msg00000.html
+** Added support for nonsymmetric eigensystems (Patrick Alken)
+** Added Mathieu functions (Lowell Johnson)
+** Added a new BFGS2 minimisation method, requires substantially fewer
+function and gradient evaluations that the existing BFGS minimiser.
+** Added updated Knuth generator, gsl_rng_knuthran2002, from 9th
+printing of "The Art of Computer Programming".  Fixes various
+weaknesses in the earlier version gsl_rng_knuthran. 
+** Added new functions for testing the sign of vectors and matrices,
+gsl_vector_ispos, gsl_vector_isneg, gsl_matrix_ispos and
+gsl_matrix_isneg.
+
+
+GSL 1.10
+http://lists.gnu.org/archive/html/info-gsl/2007-09/msg00000.html
+** Added support for generalized eigensystems (Patrick Alken)
+** Extended Cholesky routines to complex matrices (Patrick Alken)
+** Added functions gsl_matrix_subrow and gsl_matrix_subcolumn
+** Added function gsl_stats_correlation to compute Pearson correlation
+of two datasets
+** Added the new function gsl_sf_expint(n,x) for computing the n-th
+order exponential integral.
+** Added functions gsl_vector_isnonneg and gsl_matrix_isnonneg.
+** Added support in gsl_ieee_set_mode for controlling SSE exceptions
+and rounding through the MXCSR control word on x86 processors.
+[Modify existing GSLL function.]
