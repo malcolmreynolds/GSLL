@@ -1,6 +1,6 @@
 ;; Exponential integrals
 ;; Liam Healy, Tue Mar 21 2006 - 17:37
-;; Time-stamp: <2008-02-16 22:16:29EST exponential-integrals.lisp>
+;; Time-stamp: <2008-03-27 21:29:32EDT exponential-integrals.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -104,7 +104,7 @@
 |#
 
 (LISP-UNIT:DEFINE-TEST EXPONENTIAL-INTEGRALS
-  (LISP-UNIT:ASSERT-ERROR 'GSL-ERROR (EXPINT-E1 0.0d0))
+  (LISP-UNIT:ASSERT-ERROR 'GSL-CONDITION (EXPINT-E1 0.0d0))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.21938393439552029d0 2.6541220085226265d-16)
    (MULTIPLE-VALUE-LIST (EXPINT-E1 1.0d0)))

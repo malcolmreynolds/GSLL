@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-03-09 19:35:09EDT blas1.lisp>
+;; Time-stamp: <2008-03-28 10:35:04EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -173,7 +173,9 @@
 ;;;;****************************************************************************
 
 #|
-(make-tests blas1
+;;; Before expanding, set 
+;;; (setf *read-default-float-format* 'double-float)
+(make-tests blas1-single
  ;; single
  (letm ((a (vector-single-float #(1.0f0 2.0f0 3.0f0)))
 	(b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
@@ -197,8 +199,11 @@
  (letm ((a (vector-single-float #(1.0f0 3.0f0)))
 	 (b (vector-single-float #(8.0f0 9.0f0))))
     (rot a b (/ (sqrt 2.0f0)) (/ (sqrt 2.0f0)))
-    (data b))
- ;; double
+    (data b)))
+
+;;; Before expanding, set 
+;;; (setf *read-default-float-format* 'single-float)
+(make-tests blas1-double
  (letm ((a (vector-double-float #(1.0d0 2.0d0 3.0d0)))
 	(b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
    (dot a b))
@@ -229,50 +234,58 @@
 	(b (vector-double-float #(8.0d0 9.0d0))))
    (rot a b (/ (sqrt 2.0d0)) (/ (sqrt 2.0d0)))
    (data b)))
+
 |#
 
-(LISP-UNIT:DEFINE-TEST BLAS1
+(LISP-UNIT:DEFINE-TEST BLAS1-SINGLE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 26.0)
+   (LIST 26.0f0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-SINGLE-FLOAT #(1.0 2.0 3.0)))
-	   (B (VECTOR-SINGLE-FLOAT #(3.0 4.0 5.0))))
+    (LETM ((A (VECTOR-SINGLE-FLOAT #(1.0f0 2.0f0 3.0f0)))
+	   (B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
       (DOT A B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 7.071068)
+   (LIST 7.071068f0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0 4.0 5.0))))
+    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
       (NORM B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 12.0)
+   (LIST 12.0f0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0 4.0 5.0))))
+    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
       (ASUM B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 1)
    (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0 5.0 4.0))))
+    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 5.0f0 4.0f0))))
       (IMAX B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(5.0 8.0 11.0))
+   (LIST #(5.0f0 8.0f0 11.0f0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-SINGLE-FLOAT #(1.0 2.0 3.0)))
-	   (B (VECTOR-SINGLE-FLOAT #(3.0 4.0 5.0))))
-      (SETF (DATA A) #(1.0 2.0 3.0)
-	    (DATA B) #(3.0 4.0 5.0))
-      (AXPY 2.0 A B) (DATA B))))
+    (LETM
+	((A (VECTOR-SINGLE-FLOAT #(1.0f0 2.0f0 3.0f0)))
+	 (B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
+      (SETF (DATA A)
+	    #(1.0f0 2.0f0 3.0f0)
+	    (DATA B)
+	    #(3.0f0 4.0f0 5.0f0))
+      (AXPY 2.0f0 A B) (DATA B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(6.0 8.0 10.0))
+   (LIST #(6.0f0 8.0f0 10.0f0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0 4.0 5.0))))
-      (SETF (DATA B) #(3.0 4.0 5.0)) (SCAL 2.0 B)
-      (DATA B))))
+    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
+      (SETF (DATA B) #(3.0f0 4.0f0 5.0f0))
+      (SCAL 2.0f0 B) (DATA B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(4.9497476 4.2426405))
+   (LIST #(4.9497476f0 4.2426405f0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-SINGLE-FLOAT #(1.0 3.0)))
-	   (B (VECTOR-SINGLE-FLOAT #(8.0 9.0))))
-      (ROT A B (/ (SQRT 2.0)) (/ (SQRT 2.0))) (DATA B))))
+    (LETM
+	((A (VECTOR-SINGLE-FLOAT #(1.0f0 3.0f0)))
+	 (B (VECTOR-SINGLE-FLOAT #(8.0f0 9.0f0))))
+      (ROT A B (/ (SQRT 2.0f0)) (/ (SQRT 2.0f0)))
+      (DATA B)))))
+
+(LISP-UNIT:DEFINE-TEST BLAS1-DOUBLE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 26.0d0)
    (MULTIPLE-VALUE-LIST
@@ -299,8 +312,9 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(3.0d0 4.0d0 5.0d0))
    (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0)))
-	   (B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
+    (LETM
+	((A (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0)))
+	 (B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
       (BLAS-SWAP A B) (DATA A))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(3.0d0 4.0d0 5.0d0))
@@ -326,4 +340,5 @@
 	   (B (VECTOR-DOUBLE-FLOAT #(8.0d0 9.0d0))))
       (ROT A B (/ (SQRT 2.0d0)) (/ (SQRT 2.0d0)))
       (DATA B)))))
+
 

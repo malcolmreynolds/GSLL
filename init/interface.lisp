@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions.
 ;; Liam Healy 
-;; Time-stamp: <2008-03-15 21:51:07EDT interface.lisp>
+;; Time-stamp: <2008-03-27 22:36:35EDT interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -73,15 +73,12 @@
 (defun check-gsl-status (status-code context)
   "Check the return status code from a GSL function and signal a warning
    if it is not :SUCCESS."
-  (unless (eql :success (cffi:foreign-enum-keyword 'gsl-errorno status-code))
-    (warn 'gsl-warning
-	  :gsl-errno status-code :gsl-context context)))
+  (unless (eql status-code success)
+    (signal-gsl-warning status-code (format nil "in ~a" context))))
 
 (defun check-null-pointer (pointer error-code reason)
   (when (cffi:null-pointer-p pointer)
-    (error 'gsl-error
-	   :gsl-errno (cffi:foreign-enum-value 'gsl-errorno error-code)
-	   :gsl-reason reason)))
+    (signal-gsl-error error-code reason)))
 
 (defun success-failure (value)
   "If status indicates failure, return NIL, othewise return T."

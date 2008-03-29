@@ -1,6 +1,6 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-02-23 18:49:16EST updating-accessing.lisp>
+;; Time-stamp: <2008-03-27 23:09:26EDT updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -116,11 +116,16 @@
 	      ((first values))
 	      ((first values) (second values))))
 
+ (letm ((histo (histogram 10)))		; should be a gsl-warning here, how to check?
+     (set-ranges-uniform histo 0.0d0 10.0d0)
+     (increment histo -2.0d0))
 ;;; Examples and unit test
 
 #|
 (make-tests histogram
- (letm ((histo (histogram 10)))		; should be a gsl-warning here, how to check?
+   ;; The first one gives a warning while compiling in SBCL,
+   ;; should only give a warning while runnin.
+ (letm ((histo (histogram 10)))
      (set-ranges-uniform histo 0.0d0 10.0d0)
      (increment histo -2.0d0))
  (letm ((histo (histogram 10)))
@@ -161,12 +166,11 @@
 |#
 
 (LISP-UNIT:DEFINE-TEST HISTOGRAM
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((HISTO (HISTOGRAM 10)))
-      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-      (INCREMENT HISTO -2.0d0))))
+  (LISP-UNIT:ASSERT-ERROR
+   'GSL-CONDITION
+   (LETM ((HISTO (HISTOGRAM 10)))
+     (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
+     (INCREMENT HISTO -2.0d0)))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.0d0)
    (MULTIPLE-VALUE-LIST
@@ -192,7 +196,7 @@
       (INCREMENT HISTO 6.9d0 2.0d0)
       (MAREF HISTO 6))))
   (LISP-UNIT:ASSERT-ERROR
-   'GSL-ERROR
+   'GSL-CONDITION
    (LETM ((HISTO (HISTOGRAM 10)))
      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
      (INCREMENT HISTO 2.7d0)
