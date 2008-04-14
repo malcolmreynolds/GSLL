@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-03-15 15:51:20EDT lu.lisp>
+;; Time-stamp: <2008-03-30 18:51:01EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,7 +10,8 @@
 (defmfun LU-decomp (A p)
   "gsl_linalg_LU_decomp"
   (((pointer A) gsl-matrix-c) ((pointer p) gsl-permutation-c) (signum :int))
-  :invalidate (A p)
+  :inputs (A)
+  :outputs (A p)
   :documentation			; FDL
   "Factorize the square matrix A into the LU
   decomposition PA = LU.  On output the diagonal and upper

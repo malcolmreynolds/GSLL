@@ -1,6 +1,6 @@
 ;; Conversion of numbers C->CL
 ;; Liam Healy, Sun May 28 2006 - 22:04
-;; Time-stamp: <2008-03-09 14:17:34EDT number-conversion.lisp>
+;; Time-stamp: <2008-04-13 12:47:10EDT number-conversion.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -70,6 +70,13 @@
        (err ,(st-symbol decl) 'sf-result-e10)))
     (t `((,(cl-convert-function (st-type decl)) ,(st-symbol decl))))))
 
+#|
+
+
+;;;;;;;;;;;; Superseded by init/element-types.lisp; eventually eliminate
+;;;;;;;;;;;
+
+
 ;;;;****************************************************************************
 ;;;; Types
 ;;;;****************************************************************************
@@ -125,3 +132,4 @@
 		 (subseq base-name 0 insert)
 		 (lookup-splice-name symbol)
 		 (subseq base-name insert))))
+|#

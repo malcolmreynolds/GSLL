@@ -1,6 +1,6 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2008-03-09 12:30:38EDT init.lisp>
+;; Time-stamp: <2008-04-06 22:17:32EDT init.lisp>
 ;; $Id$
 
 (defpackage gsll
@@ -20,3 +20,7 @@
   (t (:default "libgsl")))
    
 (cffi:use-foreign-library libgsl)
+
+#+sbcl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (pushnew :native *features*))

@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-03-09 22:13:36EDT gsll.asd>
+;; Time-stamp: <2008-04-13 15:23:33EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -8,16 +8,17 @@
   :description "GNU Scientific Library for Lisp."
   :version "0"
   :author "Liam M. Healy"
-  :licence "GPL v3, FDL"
-  :depends-on (cffi)
+  :licence "LLGPL v3, FDL"
+  :depends-on (cffi ffa)
   :components
   ((:module init
 	    :components
 	    ((:file "init")
 	     (:file "conditions" :depends-on (init))
 	     (:file "gsl-objects" :depends-on (init))
+	     (:file "element-types" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
-	     (:file "interface" :depends-on (init conditions number-conversion))
+	     (:file "interface" :depends-on (init conditions element-types number-conversion))
 	     (:file "callback" :depends-on (init))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
@@ -31,13 +32,27 @@
    (:module data
 	    :depends-on (init)
 	    :components
+	    ((:file "foreign-friendly")
+	     (:file "data-ffa")
+	     (:file "vector-ffa" :depends-on (data-ffa))
+
+	     ;;(:file "data")
+	     ;;(:file "block" :depends-on (data))
+	     ;;(:file "vector" :depends-on (data))
+	     ))
+   #+no
+   (:module data
+	    :depends-on (init)
+	    :components
 	    ((:file "data")
 	     (:file "block" :depends-on (data))
 	     (:file "vector" :depends-on (data))
 	     (:file "matrix" :depends-on (data vector))
 	     (:file "permutation" :depends-on (data vector))
 	     (:file "combination" :depends-on (data))))
+   #+no
    (:file "polynomial" :depends-on (init data))
+   #+no
    (:module special-functions
 	    :depends-on (init)
 	    :components
@@ -70,7 +85,9 @@
 	     (:file "transport" :depends-on (return-structures))
 	     (:file "trigonometry" :depends-on (return-structures))
 	     (:file "zeta" :depends-on (return-structures))))
+   #+no
    (:file "sorting" :depends-on (init data))
+   #+no
    (:module linear-algebra
 	    :depends-on (init data)
 	    :components
@@ -84,9 +101,12 @@
 	     (:file "cholesky")
 	     (:file "diagonal")
 	     (:file "householder")))
+   #+no
    (:file "eigensystems" :depends-on (init data))
    ;; Skip fft for now, I'm not sure how it works in C
+   #+no
    (:file "numerical-integration" :depends-on (init))
+   #+no
    (:module random
 	    :depends-on (init)
 	    :components
@@ -128,6 +148,7 @@
 	     (:file "hypergeometric" :depends-on (rng-types))
 	     (:file "logarithmic" :depends-on (rng-types))
 	     (:file "shuffling-sampling" :depends-on (rng-types))))
+   #+no
    (:module statistics
 	    :depends-on (init data)
 	    :components
@@ -138,6 +159,7 @@
 	     (:file "covariance")
 	     ;; minimum and maximum values provided in vector.lisp
 	     (:file "median-percentile")))
+   #+no
    (:module histogram
 	    :depends-on (init)
 	    :components
@@ -148,7 +170,9 @@
 	     (:file "read-write" :depends-on (histogram))
 	     (:file "probability-distribution" :depends-on (histogram))
 	     (:file "ntuple")))
+   #+no
    (:file "monte-carlo" :depends-on (init data random))
+   #+no
    (:module ordinary-differential-equations
 	    :depends-on (init)
 	    :components
@@ -157,6 +181,7 @@
 	     (:file "control")
 	     (:file "evolution")
 	     (:file "ode-example" :depends-on (ode-system stepping))))
+   #+no
    (:module interpolation
 	    :depends-on (init)
 	    :components
@@ -165,11 +190,17 @@
 	     (:file "lookup")
 	     (:file "evaluation")
 	     (:file "spline-example" :depends-on (types))))
+   #+no
    (:file "numerical-differentiation" :depends-on (init))
+   #+no
    (:file "chebyshev" :depends-on (init))
+   #+no
    (:file "series-acceleration" :depends-on (init))
+   #+no
    (:file "wavelet" :depends-on (init data))
+   #+no
    (:file "hankel" :depends-on (init data))
+   #+no
    (:module solve-minimize-fit
 	    :depends-on (init data random)
 	    :components
@@ -179,4 +210,5 @@
 	     (:file "minimization-multi")
 	     (:file "linear-least-squares")
 	     (:file "nonlinear-least-squares")))
+   #+no
    (:file "basis-splines" :depends-on (init data))))

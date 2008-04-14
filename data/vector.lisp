@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-03-09 21:45:37EDT vector.lisp>
+;; Time-stamp: <2008-04-13 09:38:52EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -21,7 +21,7 @@
 ;;; #'subvector, #'subvector-stride cause crash, see notes 2006-03-30
 ;;; #'vector-complex-real, #'vector-complex-imag need structure definition
 
-;;; GSL bug?:  no gsl_vector_complex_add, etc.
+;;; GSL bug?:  no gsl_vector_complex_add, etc. ===> no "vector"
 
 ;;; Need to build real vector out of view pointer.
 

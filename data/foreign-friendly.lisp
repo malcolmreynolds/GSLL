@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT ffa.lisp
-;; Time-stamp: <2008-03-23 17:59:10EDT foreign-friendly.lisp>
+;; Time-stamp: <2008-04-13 19:35:35EDT foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Use Papp's Foreign-friendly arrays
@@ -11,10 +11,6 @@
 
 
 #|
-
-
-
-
 
 There are five interrelated forms for these vectors:
   Native vector
@@ -49,10 +45,6 @@ defined in ffa will be usable.
 
 (export '(make-array*))
 
-;; Note ffa does not have 64 bit integers yet.
-(defun map-to-ffa-types (cl-type)
-  (first (rassoc cl-type ffa::*cffi-and-lisp-types* :test #'equal)))
-
 (defun make-array*
     (dimensions element-type
      &key initial-element (initial-contents nil initial-contents-p))
@@ -61,30 +53,16 @@ defined in ffa will be usable.
    is mandatory and limited to certain types."
   (if initial-contents-p
       (ffa:make-ffa
-       dimensions (map-to-ffa-types element-type) :initial-contents initial-contents)
+       dimensions (cl-ffa element-type) :initial-contents initial-contents)
       (ffa:make-ffa
-       dimensions (map-to-ffa-types element-type)
+       dimensions (cl-ffa element-type)
        :initial-element
        ;; ffa objects to making an uninitialized array, seems like a bug
-       ;; workaround to default set to -77
-       (or initial-element -77))))
+       ;; workaround to default set to 77
+       (or initial-element 77))))
 
 (defparameter *foreign-array-directions*
   '((:in . :copy-in) (:out . :copy-out) (:in-out . :copy-in-out)))
-
-(defmacro with-c-data
-    ((pointer array cl-element-type &optional (direction :in-out))
-     &body body)
-  "Use an array made with make-array* in foreign code.  The pointer
-   is a symbol that will be bound to the foreign pointer."
-  (cl-utilities:once-only (array)
-    `(ffa:with-pointer-to-array
-      (,array
-       ,pointer
-       (map-to-ffa-types ',cl-element-type)
-       (array-total-size ,array)
-       ,(rest (assoc direction *foreign-array-directions*)))
-      ,@body)))
 
 (defmacro with-c-data
     ((pointer array cl-element-type &optional (direction :in-out))
@@ -98,7 +76,7 @@ defined in ffa will be usable.
       (ffa:with-pointer-to-array
 	  (,cl-name
 	   ,(if (listp pointer) (first pointer) pointer)
-	   (map-to-ffa-types ',cl-element-type)
+	   (cl-ffa ',cl-element-type)
 	   (array-total-size ,cl-name)
 	   ,(rest (assoc direction *foreign-array-directions*)))
 	,@body))))
@@ -117,7 +95,7 @@ defined in ffa will be usable.
 
 (defun expand-direct-c (symbol cl-element-type init-or-spec body)
   "Expand the form for a direct foreign array.
-   Argument 'symbol can be either a symbol or the a list of
+   Argument 'symbol can be either a symbol or a list of
    two symbols; if the former, it will be bound to the foreign pointer; if
    the latter, the first symbol will be bound to the foreign pointer and
    the second to the corresponding CL array.  The cl-element-type
@@ -160,11 +138,11 @@ defined in ffa will be usable.
 
 (LET ((#:ARRAY3416 (MAKE-ARRAY* 3 'DOUBLE-FLOAT)))
   (FFA:WITH-POINTER-TO-ARRAY
-      (#:ARRAY3416 A (MAP-TO-FFA-TYPES 'DOUBLE-FLOAT)
+      (#:ARRAY3416 A (CL-FFA 'DOUBLE-FLOAT)
 		   (ARRAY-TOTAL-SIZE #:ARRAY3416) :COPY-IN-OUT)
     (LET ((CL-B (ARRAY-COPY #(3 4 5 1 2) 'DOUBLE-FLOAT)))
       (FFA:WITH-POINTER-TO-ARRAY
-	  (CL-B B (MAP-TO-FFA-TYPES 'DOUBLE-FLOAT) (ARRAY-TOTAL-SIZE CL-B)
+	  (CL-B B (CL-FFA 'DOUBLE-FLOAT) (ARRAY-TOTAL-SIZE CL-B)
 		:COPY-IN-OUT)
 	(FORMAT T "b: foreign pointer=~a~%" B)
 	(FORMAT T "a: foreign pointer=~a~%" A) (VALUES (AREF CL-B 3) (DCREF B 3))))))
