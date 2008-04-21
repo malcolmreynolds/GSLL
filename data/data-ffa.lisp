@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-04-13 21:32:23EDT data-ffa.lisp>
+;; Time-stamp: <2008-04-20 22:51:26EDT data-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -184,73 +184,6 @@
   (apply '(setf aref) value (cl-array object) indices)
   #-native
   (setf c-invalid t))
-
-;;;;****************************************************************************
-;;;; Define GSL funcitons for several or all CL types
-;;;;****************************************************************************
-
-(defun splice-gsl-data-name (base-name type)
-  "Create the GSL function name for data from the base name and the CL type."
-  ;; (splice-gsl-data-name "gsl_vector_swap" '(unsigned-byte 16))
-  ;; "gsl_vector_ushort_swap"
-  (or (splice-name base-name type "stats")
-      (splice-name base-name type "matrix")
-      (splice-name base-name type "vector")))
-
-(defun defmfun-all-helper
-    (category args &optional (cl-types *array-element-types*))
-  "Define a defmfun for each of the cl-types."
-  (let ((categories (if (listp category) category (list category)))
-	(docstring (getf args :documentation)))
-    (destructuring-bind (name arglist gsl-name c-arguments &rest key-args) args
-      (remf key-args :documentation)
-      `(progn
-	(defgeneric ,name		; define the generic function
-	    ,(mapcar			; generic function arguments
-	      (lambda (x)
-		(if (and (listp x) (member (second x) categories))
-		    (first x)
-		    x))
-	      arglist)
-	  (:documentation ,docstring))
-	(export ',name)		 ; export generic function name always
-	,@(loop for type in cl-types
-		for ctype = (cl-ffa type)
-		for gsl-fn-name = (splice-gsl-data-name gsl-name type)
-		collect
-		`(defmfun ,name
-		  ;; Set the class name for the arglist
-		  ,(mapcar
-		    (lambda (x)
-		      (if (and (listp x) (member (second x) categories))
-			  (list (first x)
-				(data-class-name (second x) type))
-			  x))
-		    arglist)
-		  ;; Create the correct GSL C library function name
-		  ,gsl-fn-name
-		  ,(mapcar
-		    (lambda (x)
-		      (if (eq (st-type x) :c-base-type)
-			  (list (st-symbol x) ctype)
-			  x))
-		    c-arguments)
-		  ,@(let ((restargs
-			   (append
-			    (list :index t)
-			    (copy-list key-args))))
-			 (when (eq (getf restargs :c-return) :c-base-type)
-			   (setf (getf restargs :c-return) ctype))
-			 (setf (getf restargs :type) :method)
-			 restargs)))))))
-
-(defun defmfun-all-in-defmfun (args category cl-types cl-types-supplied-p)
-  "Macro defmfun calls this for defining multiple methods."
-  (remf args :category)
-  (remf args :cl-types)
-  (if cl-types-supplied-p
-      (defmfun-all-helper category args cl-types)
-      (defmfun-all-helper category args)))
 
 ;;;;****************************************************************************
 ;;;; C structures

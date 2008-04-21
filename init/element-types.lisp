@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-04-13 21:37:42EDT element-types.lisp>
+;; Time-stamp: <2008-04-19 19:06:36EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -64,11 +64,15 @@
 
 ;;; (cl-gsl '(unsigned-byte 8))
 ;;; "uchar"
-(defun cl-gsl (cl-type)
+(defun cl-gsl (cl-type &optional prepend-underscore)
   "The GSL splice string from the CL type."
-  (lookup-type
-   (lookup-type cl-type ffa::*cffi-and-lisp-types* t)
-   *ffa-gsl-type-mapping*))
+  (let ((string
+	 (lookup-type
+	  (lookup-type cl-type ffa::*cffi-and-lisp-types* t)
+	  *ffa-gsl-type-mapping*)))
+    (if (and prepend-underscore (plusp (length string)))
+	(concatenate 'string "_" string)
+	string)))
 
 (defun cl-ffa (cl-type)
   "The FFA/CFFI element type from the CL type."
