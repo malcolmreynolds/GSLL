@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-04-20 22:51:29EDT defmfun.lisp>
+;; Time-stamp: <2008-04-26 22:13:14EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -43,7 +43,7 @@
 ;;; enumeration  The name of the enumeration return.
 ;;; global     Bind variable(s) in a let* enclosing the whole body.
 
-(defmacro defmfun* (name arglist gsl-name c-arguments &rest key-args)
+(defmacro defmfun (name arglist gsl-name c-arguments &rest key-args)
   "Definition of a GSL function."
   (expand-defmfun-wrap name arglist gsl-name c-arguments key-args))
 
@@ -196,25 +196,25 @@
 	(arglist-plain-and-categories arglist)
       `(defgeneric ,name ,noclass-arglist
 	(:documentation ,documentation)
-	,(if (member 'both categories)
-	     (progn 
-	       (when (> (length categories) 1)
-		 ;; Specify 'both alone
-		 (error "Internal: mixed both and actual category."))
-	       ;; Generate forms for matrix and vector
-	       (append
-		(generate-methods
-		 :method 'vector
-		 name arglist gsl-name (actual-c-args 'vector c-arguments)
-		 key-args 'vector)
-		(generate-methods
-		 :method 'matrix
-		 name arglist gsl-name (actual-c-args 'matrix c-arguments)
-		 key-args 'matrix)))
-	     ;; Generate forms for one category
-	     (generate-methods
-	      :method (first categories)
-	      name arglist gsl-name c-arguments key-args))))))
+	,@(if (member 'both categories)
+	      (progn 
+		(when (> (length categories) 1)
+		  ;; Specify 'both alone
+		  (error "Internal: mixed both and actual category."))
+		;; Generate forms for matrix and vector
+		(append
+		 (generate-methods
+		  :method 'vector
+		  name arglist gsl-name (actual-array-c-type 'vector c-arguments)
+		  key-args 'vector)
+		 (generate-methods
+		  :method 'matrix
+		  name arglist gsl-name (actual-array-c-type 'matrix c-arguments)
+		  key-args 'matrix)))
+	      ;; Generate forms for one category
+	      (generate-methods
+	       :method (first categories)
+	       name arglist gsl-name c-arguments key-args))))))
 
 (defun expand-defmfun-defmethods (name arglist gsl-name c-arguments key-args)
   "Define methods."
@@ -233,14 +233,15 @@
     (mapcar (lambda (eltype)
 	      (remf key-args :documentation)
 	      (expand-defmfun-plain
-	       name
+	       (if (eq new-definition :method) (list nil name) name)
 	       (actual-class-arglist arglist eltype replace-both)
 	       (let ((gsl-function-name
 		      (actual-gsl-function-name
 		       gsl-name category eltype)))
 		 (push gsl-function-name indexed-functions)
 		 gsl-function-name)
-	       c-arguments	       key-args))
+	       (actual-element-c-type eltype c-arguments)
+	       key-args))
 	    element-types)))
 
 (defun actual-gsl-function-name (base-name category type)
@@ -287,18 +288,28 @@
 	into noclass-arglist
 	finally (return (values noclass-arglist categories))))
 
-(defun actual-c-args (category c-arguments)
-  "Replace the declared proto-type with an actual type."
+(defun actual-array-c-type (category c-arguments)
+  "Replace the declared proto-type with an actual GSL struct type."
   (mapcar
    (lambda (v)
-     (if (listp (second v))
-	 (list (first v)
-	       (intern
-		(apply #'concatenate
-		       'string
-		       (mapcar #'string
-			       (substitute category :category (second v))))
-		:gsl))
+     (if (st-arrayp v)
+	 (make-st (st-symbol v)
+		  (intern
+		   (apply #'concatenate
+			  'string
+			  (mapcar #'string
+				  (substitute category :category (st-type v))))
+		   :gsl))
+	 v))
+   c-arguments))
+
+(defun actual-element-c-type (element-type c-arguments)
+  "Replace the generic element type :element-c-type with the
+   actual element type."
+  (mapcar 
+   (lambda (v)
+     (if (eq (st-type v) :element-c-type)
+	 (make-st (st-symbol v) (cl-ffa element-type))
 	 v))
    c-arguments))
 
@@ -350,6 +361,12 @@
 ;;;; A single function
 ;;;;****************************************************************************
 
+(defun defgeneric-method-p (name)
+  "When defining :method in a defgeneric, (nil foo) is used for
+   the name, and foo will be returned from this function."
+  (if (and (listp name) (null (first name)))
+      (second name)))
+
 (defun expand-defmfun-plain (name arglist gsl-name c-arguments key-args)
   (with-defmfun-key-args key-args
     (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
@@ -383,7 +400,8 @@
 		     (list cret-name))))
 	   (clargs-types (cl-argument-types clargs cargs)))
       `(,defn
-	,@(when name (list name))
+	,@(when (and name (not (defgeneric-method-p name)))
+		(list name))
 	,(let ((noaux
 		(if (member :mode c-arguments)
 		    `(,@clargs &optional (mode :double-prec))
@@ -412,7 +430,8 @@
 	   ,@(case c-return
 		   (:void `((declare (ignore ,cret-name))))
 		   (:error-code		; fill in arguments
-		    `((check-gsl-status ,cret-name ',name))))
+		    `((check-gsl-status ,cret-name
+		       ',(or (defgeneric-method-p name) name)))))
 	   #-native
 	   ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
 	   ,@(when (or null-pointer-info (eq c-return :pointer))

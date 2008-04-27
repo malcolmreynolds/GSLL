@@ -1,6 +1,6 @@
 ;; Using GSL bulk data (vectors, matrices, etc.) storage.
 ;; Liam Healy, Sun Mar 26 2006 - 16:32
-;; Time-stamp: <2008-03-30 14:16:01EDT mathematical.lisp>
+;; Time-stamp: <2008-04-26 22:13:16EDT mathematical.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,16 +18,6 @@
        do (setf (maref object i) (elt sequence i))))
   (:method :after (source (object gsl-data))
 	   (setf (cl-invalid object) t)))
-
-(export 'set-all)
-(defgeneric set-all (object value)
-  (:documentation "Set all elements to the value.")
-  (:method :after ((object gsl-data) value) (cl-invalidate object)))
-
-(export 'set-zero)
-(defgeneric set-zero (object)
-  (:documentation "Set all elements to 0.")
-  (:method :after ((object gsl-data)) (cl-invalidate object)))
 
 (export 'set-identity)
 (defgeneric set-identity (object)

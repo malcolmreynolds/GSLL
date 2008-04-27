@@ -1,13 +1,21 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector-ffa.lisp
-;; Time-stamp: <2008-04-13 23:14:09EDT vector-ffa.lisp>
+;; Time-stamp: <2008-04-26 22:49:39EDT vector-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;;;****************************************************************************
-;;;; Vector structure and CL object
+;;;; Vector structure, CL object, and allocation
 ;;;;****************************************************************************
+
+;;; GSL-vector definition
+(cffi:defcstruct gsl-vector-c
+  (size size)
+  (stride size)
+  (data :pointer)
+  (block :pointer)
+  (owner :int))
 
 (defclass mvector (gsl-data)
   ()
@@ -27,13 +35,18 @@
   :c-return :pointer
   :documentation "Allocate memory for the GSL struct given a block pointer.")
  
-(defmfun set-all ((object vector) value)
-  "gsl_vector_set_all"
-  (((mpointer object) :pointer) (value :c-base-type))
-  :category vector
+;;;;****************************************************************************
+;;;; Function definitions
+;;;;****************************************************************************
+
+(defmfun set-basis ((object vector) index)
+  ("gsl_" :category :type "_set_basis")
+  (((mpointer object) :pointer) (index size))
+  :definition :generic
+  :inputs (object)
   :outputs (object)
-  :c-return :void
-  :documentation "Set all elements to the value.")
+  :documentation			; FDL
+  "Set the index element to 1, and the rest to 0.")
 
 ;;;;;;;;;;;;;; TEST
 
@@ -46,6 +59,9 @@
        (b (vector-double-float #(3 4 5 1 2))))
   (blah blah) blah)
 
+(letm ((a (vector-signed-byte-16 #(1 2 3 4)))
+       (b (vector-signed-byte-16 #(3 4 5 1))))
+  (m+ a b))
 
 
 ;;; Example with double-float

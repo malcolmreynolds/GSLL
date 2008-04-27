@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-04-19 19:06:36EDT element-types.lisp>
+;; Time-stamp: <2008-04-26 21:36:27EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -9,11 +9,15 @@
 ;;; CL                   '(unsigned-byte 8)
 ;;; Single               'unsigned-byte-8 
 
+;;; Functions to perform conversions
+;;; CL -> single in function #'cl-single
+;;; CL -> GSL in function #'cl-gsl
+;;; CL -> FFA in function #'cl-ffa
+;;; CFFI -> CL in function #'cffi-cl
+
 ;;; Sources of equivalence
 ;;; FFA -> CL in alist ffa::*cffi-and-lisp-types*
 ;;; FFA -> GSL in alist *ffa-gsl-type-mapping*
-;;; CL -> single in function #'cl-single
-;;; CL -> GSL in function #'cl-gsl
 
 (in-package :gsl)
 

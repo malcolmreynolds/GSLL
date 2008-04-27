@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix-ffa.lisp
-;; Time-stamp: <2008-04-15 22:31:09EDT matrix-ffa.lisp>
+;; Time-stamp: <2008-04-26 22:49:36EDT matrix-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,6 +8,15 @@
 ;;;;****************************************************************************
 ;;;; Matrix structure and CL object
 ;;;;****************************************************************************
+
+;;; GSL-matrix definition
+(cffi:defcstruct gsl-matrix-c
+  (size1 size)
+  (size2 size)
+  (tda size)
+  (data :pointer)
+  (block :pointer)
+  (owner :int))
 
 (defclass matrix (gsl-data)
   ()
