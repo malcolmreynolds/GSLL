@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-04-26 20:36:29EDT data-ffa.lisp>
+;; Time-stamp: <2008-04-27 09:24:35EDT data-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -66,8 +66,6 @@
 	(mapcan
 	 (lambda (element-type-cl)
 	   (let* ((class-name (data-class-name category element-type-cl)))
-	     (pushnew (cons class-name element-type-cl)
-		      *class-element-type* :test #'equal)
 	     ;; Define the class
 	     `((defclass ,class-name
 		   (,superclass)
@@ -77,6 +75,9 @@
 	       (defmethod letm-expansion
 		   (symbol (type (eql ',class-name)) args body)
 		 (expand-data symbol type (first args) (second args) body))
+	       ;; Push mapping onto *class-element-type*
+	       (pushnew ',(cons class-name element-type-cl)
+		*class-element-type* :test #'equal)
 	       ;; Set up dummy function to provide arglist and documentation
 	       (arglist-only
 		,class-name
@@ -90,9 +91,9 @@
 ;;;; Make data from either the dimensions provided or from the initial values
 ;;;;****************************************************************************
 
-(defun make-data-from-array (type array)
+(defun make-data-from-array (class array)
   "Make the data object from the CL array make with make-array*."
-  (make-instance type
+  (make-instance class
 		 :cl-array array
 		 :mpointer nil	; this will be set by :before method below.
 		 :c-pointer nil		; this will be set by defmfun

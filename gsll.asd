@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-04-26 19:36:52EDT gsll.asd>
+;; Time-stamp: <2008-04-27 10:17:57EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -36,6 +36,8 @@
 	    ((:file "foreign-friendly")
 	     (:file "data-ffa")
 	     (:file "vector-ffa" :depends-on (data-ffa))
+	     (:file "matrix-ffa" :depends-on (data-ffa))
+	     (:file "both" :depends-on (data-ffa vector-ffa matrix-ffa))
 
 	     ;;(:file "data")
 	     ;;(:file "block" :depends-on (data))

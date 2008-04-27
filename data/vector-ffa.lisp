@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector-ffa.lisp
-;; Time-stamp: <2008-04-26 22:49:39EDT vector-ffa.lisp>
+;; Time-stamp: <2008-04-27 09:00:46EDT vector-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,17 +24,6 @@
 ;;; Define all the mvector subclasses that are supported by FFA
 #.(data-defclass 'vector 'mvector)
 
-(defmfun alloc-from-block ((object vector))
-  "gsl_vector_alloc_from_block"
-  (((block-pointer object) :pointer)
-   (0 size)
-   (totsize size)
-   (1 size))
-  :category vector
-  :global ((totsize (total-size object)))
-  :c-return :pointer
-  :documentation "Allocate memory for the GSL struct given a block pointer.")
- 
 ;;;;****************************************************************************
 ;;;; Function definitions
 ;;;;****************************************************************************

@@ -1,10 +1,21 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-04-26 22:52:05EDT both.lisp>
+;; Time-stamp: <2008-04-27 09:26:03EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+(defmfun alloc-from-block ((object both))
+  ("gsl_" :category :type "_alloc_from_block")
+  (((block-pointer object) :pointer)
+   (0 size)
+   (totsize size)
+   (1 size))
+  :definition :generic
+  :global ((totsize (total-size object)))
+  :c-return :pointer
+  :documentation "Allocate memory for the GSL struct given a block pointer.")
+ 
 (defmfun set-all ((object both) value)
   ("gsl_" :category :type "_set_all")
   (((mpointer object) :pointer) (value :element-c-type))
@@ -45,7 +56,7 @@
 
 (defmfun m+ ((a both) (b both))
   ("gsl_" :category :type "_add")
-  (((mpointer a) (gsl- :category -c)) ((mpointer b) (gsl- :category -c)))
+  (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
   :inputs (a b)
   :outputs (a)

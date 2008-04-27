@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix-ffa.lisp
-;; Time-stamp: <2008-04-26 22:49:36EDT matrix-ffa.lisp>
+;; Time-stamp: <2008-04-27 09:24:31EDT matrix-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,10 +25,3 @@
 ;;; Define all the mvector subclasses that are supported by FFA
 #.(data-defclass 'matrix 'matrix)
 
-(defmfun set-all ((object matrix) value)
-  "gsl_matrix_set_all"
-  (((mpointer object) :pointer) (value :c-base-type))
-  :category matrix
-  :outputs (object)
-  :c-return :void
-  :documentation "Set all elements to the value.")
