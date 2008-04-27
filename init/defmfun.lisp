@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-04-26 22:13:14EDT defmfun.lisp>
+;; Time-stamp: <2008-04-27 12:37:53EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -232,6 +232,8 @@
     (setf defn new-definition)
     (mapcar (lambda (eltype)
 	      (remf key-args :documentation)
+	      (when (eq c-return :element-c-type)
+		(setf (getf key-args :c-return) (cl-ffa eltype)))
 	      (expand-defmfun-plain
 	       (if (eq new-definition :method) (list nil name) name)
 	       (actual-class-arglist arglist eltype replace-both)

@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-04-27 09:24:35EDT data-ffa.lisp>
+;; Time-stamp: <2008-04-27 18:23:54EDT data-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -40,6 +40,11 @@
   (:documentation
    "A superclass for all data storage structures, such as vector, matrix,
    etc."))
+
+(defmethod print-object ((object gsl-data) stream)
+  (print-unreadable-object (object stream :type t) 
+    (copy-c-to-cl object)
+    (princ (cl-array object) stream)))
 
 ;;;;****************************************************************************
 ;;;; Definition of specific data classes
@@ -119,25 +124,40 @@
 ;;;; Expand letm bindings
 ;;;;****************************************************************************
 
+(export 'els)
 (defun expand-data (symbol type init-or-spec sync-exit body)
   "Expand the form for a gsl-data object.  The symbol is bound
    within the body to the object.  The argument
    init-or-spec is either the
    array dimensions or something made by make-array*."
   (cl-utilities:with-unique-names (cptr)
-    `(let ((,symbol (make-data ',type ,init-or-spec)))
-      (ffa:with-pointer-to-array
-	  ((cl-array ,symbol)
-	   ,cptr
-	   (cl-ffa (element-type ,symbol))
-	   (total-size ,symbol)
-	   nil)			      ; we need to allow nil direction
-	(unwind-protect
-	     (progn
-	       (setf (c-pointer ,symbol) ,cptr)
-	       ,@body
-	       ,@(when sync-exit `((copy-c-to-cl ,symbol))))
-	  (free-gsl-struct ,symbol))))))
+    `(macrolet
+      ;; #'els is a convenience macro to define the make-array*
+      ((els (&rest contents)
+	`(let ((cont ',contents))
+	  (make-array*
+	   (if (listp (first cont))	; make a matrix
+	       (list (length cont) (length (first cont)))
+	       (list (length cont)))	; make a vector
+	   ',',(lookup-type type *class-element-type*)
+	   :initial-contents
+	   (if (listp (first cont))
+	       (apply #'append cont)	; flatten lists
+	       cont)))))
+      (let ((,symbol (make-data ',type ,init-or-spec)))
+	(ffa:with-pointer-to-array
+	    ((cl-array ,symbol)
+	     ,cptr
+	     (cl-ffa (element-type ,symbol))
+	     (total-size ,symbol)
+	     nil)		      ; we need to allow nil direction
+	  (unwind-protect
+	       (multiple-value-prog1
+		   (progn
+		     (setf (c-pointer ,symbol) ,cptr)
+		     ,@body)
+		 ,@(when sync-exit `((copy-c-to-cl ,symbol))))
+	    (free-gsl-struct ,symbol)))))))
 
 ;;;;****************************************************************************
 ;;;; Syncronize C and CL
