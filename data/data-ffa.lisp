@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-04-27 18:23:54EDT data-ffa.lisp>
+;; Time-stamp: <2008-05-04 18:11:01EDT data-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -116,6 +116,7 @@
       (make-data-from-dimensions type array-or-dimensions)))
 
 ;;; ... or from the pointer which was malloced by GSL
+#(or)
 (defun make-data-from-pointer (pointer &optional (class 'vector-double-float) size)
   "Given a C pointer to a GSL data type, make the CL object."
   )

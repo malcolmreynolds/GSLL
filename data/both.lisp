@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-04-27 18:31:01EDT both.lisp>
+;; Time-stamp: <2008-05-03 21:30:24EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -100,7 +100,7 @@
   "Subtract the elements of b from the elements of a.
    The two must have the same dimensions.")
 
-(defmfun m* ((a both) (b both))
+(defmfun m* ((a vector) (b vector))
   ("gsl_" :category :type "_mul")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
@@ -111,7 +111,15 @@
   "Multiply the elements of a by the elements of b.
    The two must have the same dimensions.")
 
-(defmfun m/ ((a both) (b both))
+(defmfun m* ((a matrix) (b matrix))
+  ("gsl_" :category :type "_mul_elements")
+  (((mpointer a) :pointer) ((mpointer b) :pointer))
+  :definition :method
+  :inputs (a b)
+  :outputs (a)
+  :return (a))
+
+(defmfun m/ ((a vector) (b vector))
   ("gsl_" :category :type "_div")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
@@ -121,6 +129,14 @@
   :documentation			; FDL
   "Divide the elements of a by the elements of b.
    The two must have the same dimensions.")
+
+(defmfun m/ ((a matrix) (b matrix))
+  ("gsl_" :category :type "_div_elements")
+  (((mpointer a) :pointer) ((mpointer b) :pointer))
+  :definition :generic
+  :inputs (a b)
+  :outputs (a)
+  :return (a))
 
 (defmfun m*c ((a both) x)
   ("gsl_" :category :type "_scale")
