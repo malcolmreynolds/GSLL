@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-05-04 18:11:01EDT data-ffa.lisp>
+;; Time-stamp: <2008-05-08 22:05:30EDT data-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -62,7 +62,8 @@
 	  :gsl))
 
 (defparameter *array-element-types*
-  (all-types ffa::*cffi-and-lisp-types* t)
+  (remove-duplicates (all-types *cstd-cl-type-mapping* t) :test 'equal)
+  ;;(all-types ffa::*cffi-and-lisp-types* t)
   "All the array element types supported.")
 
 (defun data-defclass (category superclass)
@@ -125,13 +126,25 @@
 ;;;; Expand letm bindings
 ;;;;****************************************************************************
 
+(defun component-type (eltype)
+  (if (subtypep eltype 'complex)
+      ;; complex: use the component type
+      (cl-ffa (second eltype))
+      (cl-ffa eltype)))
+
+(defun component-size (object)
+  (if (subtypep (element-type object) 'complex)
+      ;; complex: make array twice as long
+      (* 2 (total-size object))
+      (total-size object)))
+
 (export 'els)
 (defun expand-data (symbol type init-or-spec sync-exit body)
   "Expand the form for a gsl-data object.  The symbol is bound
    within the body to the object.  The argument
    init-or-spec is either the
    array dimensions or something made by make-array*."
-  (cl-utilities:with-unique-names (cptr)
+  (cl-utilities:with-unique-names (cptr eltype)
     `(macrolet
       ;; #'els is a convenience macro to define the make-array*
       ((els (&rest contents)
@@ -145,12 +158,13 @@
 	   (if (listp (first cont))
 	       (apply #'append cont)	; flatten lists
 	       cont)))))
-      (let ((,symbol (make-data ',type ,init-or-spec)))
+      (let* ((,symbol (make-data ',type ,init-or-spec))
+	     (,eltype (element-type ,symbol)))
 	(ffa:with-pointer-to-array
 	    ((cl-array ,symbol)
 	     ,cptr
-	     (cl-ffa (element-type ,symbol))
-	     (total-size ,symbol)
+	     (component-type ,eltype)
+	     (component-size ,symbol)
 	     nil)		      ; we need to allow nil direction
 	  (unwind-protect
 	       (multiple-value-prog1
@@ -175,13 +189,13 @@
   (declare (ignorable object))
   #-native
   (when (c-invalid object)
-    (ffa::copy-array-to-pointer
+    (copy-array-to-pointer
      (cl-array object)
      (c-pointer object)
-     (cl-ffa (element-type object))
+     (component-type (element-type object))
      (element-type object)
      0
-     (total-size object))
+     (component-size object))
     (setf (c-invalid object) nil)))
 
 ;;; Called right before maref
@@ -190,14 +204,53 @@
   (declare (ignorable object))
   #-native
   (when (cl-invalid object)
-    (ffa::copy-array-from-pointer
+    (copy-array-from-pointer
      (cl-array object)
      (c-pointer object)
-     (cl-ffa (element-type object))
+     (component-type (element-type object))
      (element-type object)
      0
-     (total-size object))
+     (component-size object))
     (setf cl-invalid nil)))
+
+;;; My replacement for ffa's routines.  I don't do coercions or checks
+;;; on type as they are unnecessary, and I handle complex types.
+
+#-native
+(defun copy-array-to-pointer (array pointer lisp-type index-offset length)
+  "Copy length elements from array (starting at index-offset) of type
+   lisp-type to the memory area that starts at pointer, coercing the
+   elements if necessary."
+  (let ((cffi-type (component-type lisp-type)))
+    (iter:iter
+      (iter:for pointer-index :from 0
+		:below (if (subtypep lisp-type 'complex) (* 2 length) length)
+		:by (if (subtypep lisp-type 'complex) 2 1))
+      (iter:for array-index :from index-offset)
+      (if (subtypep lisp-type 'complex)
+	  (setf (cffi:mem-aref pointer cffi-type pointer-index)
+		(realpart (row-major-aref array array-index))
+		(cffi:mem-aref pointer cffi-type (1+ pointer-index))
+		(imagpart (row-major-aref array array-index)))
+	  (setf (cffi:mem-aref pointer cffi-type pointer-index)
+		(row-major-aref array array-index))))))
+
+#-native
+(defun copy-array-from-pointer (array pointer lisp-type index-offset length)
+  "Copy length elements from array (starting at index-offset) of type
+   lisp-type from the memory area that starts at pointer, coercing the
+   elements if necessary."
+  (let ((cffi-type (component-type lisp-type)))
+    (iter:iter
+      (iter:for pointer-index :from 0
+		:below (if (subtypep lisp-type 'complex) (* 2 length) length)
+		:by (if (subtypep lisp-type 'complex) 2 1))
+      (iter:for array-index :from index-offset)
+      (setf (row-major-aref array array-index)
+	    (complex 
+	     (cffi:mem-aref pointer cffi-type pointer-index)
+	     (cffi:mem-aref pointer cffi-type (1+ pointer-index)))))))
+
 
 (defun maref (object &rest indices)
   "An element of the data."

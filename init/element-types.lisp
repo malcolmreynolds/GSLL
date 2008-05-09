@@ -1,24 +1,24 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-05-04 23:06:29EDT element-types.lisp>
+;; Time-stamp: <2008-05-08 23:09:57EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
 ;;; C standard full      :unsigned-char
 ;;; GSL splice name      "uchar"
-;;; C explicit           :uint8
+;;; C explicit           :uint8     (not used here)
 ;;; CL                   '(unsigned-byte 8)
 ;;; Single               'unsigned-byte-8 
 
 ;;; Functions to perform conversions
 ;;; CL -> single in function #'cl-single
 ;;; CL -> GSL in function #'cl-gsl
-;;; CL -> explicit in function #'cl-ffa
-;;; CFFI -> CL in function #'cffi-cl
+;;; CL -> Cstd in function #'cl-ffa
+;;; CFFI (Cstd) -> CL in function #'cffi-cl
 
 ;;; Sources of equivalence
-;;; explicit -> CL in alist ffa::*cffi-and-lisp-types*
-;;; explicit -> GSL in alist *ffa-gsl-type-mapping*
+;;; Cstd -> CL in alist *cstd-cl-type-mapping*
+;;; Cstd -> GSL in alist *cstd-gsl-mapping*
 
 (in-package :gsl)
 
@@ -72,7 +72,6 @@
 ;;; Mapping alists used by conversion functions.
 
 ;;; Used by #'cl-gsl
-;;; Will replace ffa::*cffi-and-lisp-types*
 (defparameter *cstd-cl-type-mapping*
   (append
    (mapcar
@@ -90,7 +89,6 @@
   ;; types that map to a single CL type.
   "An alist of the C standard types as keywords, and the CL type.")
 
-;;; Will replace *ffa-gsl-type-mapping*
 (defparameter *cstd-gsl-mapping*
   (append
    ;; The integer types 
@@ -119,26 +117,6 @@
     (mapcar #'first *fp-type-mapping*)
     (subseq *gsl-splice-fp-types* 0 (length *fp-type-mapping*))))
   "Mapping the C standard types to the GSL splice name.")
-
-;;;========== TO BE REMOVED, will be obsolete ================
-
-;;; FFA defines ffa::*cffi-and-lisp-types*
-;;; Coordinate with cffi-grovel to get type names consistent.
-
-;;; To be added to FFA, types that GSL defines:
-;;; long, ulong (= :int64, :uint64 ?)
-;;; long_double (is this extended float for intel?  SBCL doesn't support)
-;;; complex, complex_float, complex_long_double
-;;; GSL doesn't use "long long" but it's defined sometimes?
-
-(defparameter *ffa-gsl-type-mapping*
-  ;; Must be manually written with one pair for each of
-  ;; (all-types ffa::*cffi-and-lisp-types*)
-  '((:int8 . "char") (:uint8 . "uchar")
-    (:int16 . "short") (:uint16 . "ushort")
-    (:int32 . "int") (:uint32 . "uint")
-    (:float . "float") (:double . ""))
-  "An alist of an FFA type-name symbol and the GSL splice string.")
 
 ;;;;****************************************************************************
 ;;;; Conversions
@@ -169,19 +147,19 @@
   "The GSL splice string from the CL type."
   (let ((string
 	 (lookup-type
-	  (lookup-type cl-type ffa::*cffi-and-lisp-types* t)
-	  *ffa-gsl-type-mapping*)))
+	  (lookup-type cl-type *cstd-cl-type-mapping* t)
+	  *cstd-gsl-mapping*)))
     (if (and prepend-underscore (plusp (length string)))
 	(concatenate 'string "_" string)
 	string)))
 
 (defun cl-ffa (cl-type)
   "The FFA/CFFI element type from the CL type."
-  (lookup-type cl-type ffa::*cffi-and-lisp-types* t))
+  (lookup-type cl-type *cstd-cl-type-mapping* t))
 
 (defun cffi-cl (cffi-type)
   "The CL type from the FFA/CFFI element type."
-  (lookup-type cffi-type ffa::*cffi-and-lisp-types*))
+  (lookup-type cffi-type *cstd-cl-type-mapping*))
 
 (defun splice-name (base-name type keyword)
   "Make a new C name for a data function from a base name."
