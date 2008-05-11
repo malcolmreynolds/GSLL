@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-05-08 23:09:57EDT element-types.lisp>
+;; Time-stamp: <2008-05-10 22:26:31EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -19,6 +19,9 @@
 ;;; Sources of equivalence
 ;;; Cstd -> CL in alist *cstd-cl-type-mapping*
 ;;; Cstd -> GSL in alist *cstd-gsl-mapping*
+
+;;; :long-double may be pushed onto *features* if
+;;; the implementation supports long doubles in CFFI.
 
 (in-package :gsl)
 
@@ -47,12 +50,13 @@
   '((:float . single-float) (:double . double-float)
     ;; For those implementations that support a separate long-double
     ;; type assume this mapping:
-    (:long-double . long-float)
-    (:complex-float . (complex single-float))
-    (:complex-double . (complex double-float))
+    #+long-double (:long-double . long-float)
+    (complex-float-c . (complex single-float))
+    (complex-double-c . (complex double-float))
     ;; For those implementations that support a separate long-double
     ;; type assume this mapping:
-    (:complex-long-double . (complex long-float)))
+    #+long-double
+    (complex-long-double-c . (complex long-float)))
   ;; Ordered by: real shortest to longest, then complex shortest to longest.
   "List of floating point types supported by CFFI from the CFFI docs
    plus corresponding complex types.")
@@ -65,8 +69,9 @@
 (defparameter *gsl-splice-fp-types*
   ;; list | grep -i 'gsl_vector.*_alloc\b'
   ;; Ordered by: real shortest to longest, then complex shortest to longest.
-  '("float" "" "long_double"
-    "complex_float" "complex" "complex_long_double")
+  ;; Must match *fp-type-mapping*.
+  '("float" "" #+long-double "long_double"
+    "complex_float" "complex" #+long-double "complex_long_double")
   "The list of floating point types that can be spliced into function names.")
 
 ;;; Mapping alists used by conversion functions.
@@ -87,7 +92,10 @@
    *fp-type-mapping*)
   ;; Be careful when reverse associating, as there may be several C
   ;; types that map to a single CL type.
-  "An alist of the C standard types as keywords, and the CL type.")
+  "An alist of the C standard types as keywords, and the CL type
+   The exception is complex types, which don't have a definition
+   in the C standard; in that case, the C type is the GSL struct
+   definition.")
 
 (defparameter *cstd-gsl-mapping*
   (append
@@ -172,6 +180,21 @@
 		     (if (zerop (length gsltype)) "" "_")
 		     (cl-gsl type)
 		     (subseq base-name insert))))))
+
+;;;;****************************************************************************
+;;;; GSL complex types
+;;;;****************************************************************************
+
+;;; See /usr/include/gsl/gsl_complex.h
+(cffi:defcstruct complex-float-c
+  (dat :float :count 2))
+
+(cffi:defcstruct complex-double-c
+  (dat :double :count 2))
+
+#+long-double
+(cffi:defcstruct complex-long-double-c
+  (dat :long-double :count 2))
 
 ;;;;****************************************************************************
 ;;;; Types for CFFI (will eventually be in CFFI)

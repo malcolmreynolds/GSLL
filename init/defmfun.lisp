@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-04-27 12:37:53EDT defmfun.lisp>
+;; Time-stamp: <2008-05-10 21:57:03EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -31,6 +31,11 @@
 ;;;            or its derivatives.
 ;;;            Default are allocated quantities in c-arguments, or :c-return if none.
 ;;; definition :function, :generic, or :method
+;;; element-types
+;;;            Permissible types for elements of arrays.  May be
+;;;            NIL meaning all of *array-element-types*, :no-complex
+;;;            meaning that list without the complex types, or a list
+;;;            of element types.
 ;;; index      Name under which this function should be cross-referenced; t
 ;;;            to use name, nil to not index.
 ;;; export     Whether to export the symbol.
@@ -54,7 +59,7 @@
     (&key (c-return :error-code)
      (return nil return-supplied-p)
      (definition :function)		; :function, :generic, :method
-     (element-types *array-element-types*)
+     element-types
      (index t)
      (export (not (eq definition :method)))
      null-pointer-info documentation inputs outputs after enumeration
@@ -244,7 +249,10 @@
 		 gsl-function-name)
 	       (actual-element-c-type eltype c-arguments)
 	       key-args))
-	    element-types)))
+	    (case element-types
+	      ((nil t) *array-element-types*)
+	      (:no-complex *array-element-types-no-complex*)
+	      (t element-types)))))
 
 (defun actual-gsl-function-name (base-name category type)
   "Create the GSL function name for data from the base name and the CL type."

@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-05-03 21:30:24EDT both.lisp>
+;; Time-stamp: <2008-05-10 22:01:10EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -82,6 +82,7 @@
   ("gsl_" :category :type "_add")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -93,6 +94,7 @@
   ("gsl_" :category :type "_sub")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -104,6 +106,7 @@
   ("gsl_" :category :type "_mul")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -115,6 +118,7 @@
   ("gsl_" :category :type "_mul_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :method
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)
   :return (a))
@@ -123,6 +127,7 @@
   ("gsl_" :category :type "_div")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -134,6 +139,7 @@
   ("gsl_" :category :type "_div_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)
   :return (a))
@@ -142,6 +148,7 @@
   ("gsl_" :category :type "_scale")
   (((mpointer a) :pointer) (x :element-c-type))
   :definition :generic
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a)
   :outputs (a)
   :return (a)
@@ -152,6 +159,7 @@
   ("gsl_" :category :type "_add_constant")
   (((mpointer a) :pointer) (x :element-c-type))
   :definition :generic
+  :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a)
   :outputs (a)
   :return (a)
@@ -166,6 +174,7 @@
   ("gsl_" :category :type "_max")
   (((mpointer a) :pointer))
   :definition :generic
+  :element-types :no-complex
   :inputs (a)
   :c-return :element-c-type
   :documentation			; FDL
@@ -175,6 +184,7 @@
   ("gsl_" :category :type "_min")
   (((mpointer a) :pointer))
   :definition :generic
+  :element-types :no-complex
   :inputs (a)
   :c-return :element-c-type
   :documentation			; FDL
@@ -184,6 +194,7 @@
   ("gsl_" :category :type "_minmax")
   (((mpointer a) :pointer) (min :element-c-type) (max :element-c-type))
   :definition :generic
+  :element-types :no-complex
   :inputs (a)
   :c-return :void
   :documentation			; FDL
@@ -193,6 +204,7 @@
   ("gsl_" :category :type "_min_index")
   (((mpointer a) :pointer))
   :definition :generic
+  :element-types :no-complex
   :inputs (a)
   :c-return size
   :documentation			; FDL
@@ -203,6 +215,7 @@
   ("gsl_" :category :type "_min_index")
   (((mpointer a) :pointer) (imin size) (jmin size))
   :definition :method
+  :element-types :no-complex
   :inputs (a)
   :c-return :void)
 
@@ -210,6 +223,7 @@
   ("gsl_" :category :type "_max_index")
   (((mpointer a) :pointer))
   :definition :generic
+  :element-types :no-complex
   :inputs (a)
   :c-return size
   :documentation			; FDL
@@ -220,6 +234,7 @@
   ("gsl_" :category :type "_max_index")
   (((mpointer a) :pointer) (imax size) (jmax size))
   :definition :method
+  :element-types :no-complex
   :inputs (a)
   :c-return :void)
 
@@ -227,6 +242,7 @@
   ("gsl_" :category :type "_minmax_index")
   (((mpointer a) :pointer) (imin size) (imax size))
   :definition :generic
+  :element-types :no-complex
   :inputs (a)
   :c-return :void
   :documentation			; FDL
@@ -239,6 +255,7 @@
   ("gsl_" :category :type "_minmax_index")
   (((mpointer a) :pointer) (imin size) (jmin size) (imax size) (jmax size))
   :definition :method
+  :element-types :no-complex
   :inputs (a)
   :c-return :void)
 

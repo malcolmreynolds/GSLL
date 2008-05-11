@@ -1,6 +1,6 @@
 ;; Conversion of numbers C->CL
 ;; Liam Healy, Sun May 28 2006 - 22:04
-;; Time-stamp: <2008-04-27 13:18:39EDT number-conversion.lisp>
+;; Time-stamp: <2008-05-10 22:12:21EDT number-conversion.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,6 +23,7 @@
 ;;;; Complex numbers
 ;;;;****************************************************************************
 
+#|
 (cffi:defcstruct gsl-complex
   "A complex number in GSL."
   (dat :double :count 2))
@@ -37,6 +38,7 @@
 	       'gsl-complex 'dat)))
     (complex (dcref carr 0)
 	     (dcref carr 1))))
+|#
 
 ;;;;****************************************************************************
 ;;;; Conversion form

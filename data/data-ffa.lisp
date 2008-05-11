@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-05-08 22:05:30EDT data-ffa.lisp>
+;; Time-stamp: <2008-05-10 21:56:42EDT data-ffa.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -65,6 +65,10 @@
   (remove-duplicates (all-types *cstd-cl-type-mapping* t) :test 'equal)
   ;;(all-types ffa::*cffi-and-lisp-types* t)
   "All the array element types supported.")
+
+(defparameter *array-element-types-no-complex*
+  (remove-if (lambda (tp) (subtypep tp 'complex)) *array-element-types*)
+  "All the array element types supported except for complex types.")
 
 (defun data-defclass (category superclass)
   "Define all the subclasses based on the known element types."
