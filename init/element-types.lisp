@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-05-10 22:26:31EDT element-types.lisp>
+;; Time-stamp: <2008-05-11 23:09:11EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -195,6 +195,16 @@
 #+long-double
 (cffi:defcstruct complex-long-double-c
   (dat :long-double :count 2))
+
+(defun complex-to-gsl (number gsl)
+  "Set the already-allocated GSL (foreign) struct to the CL complex number.
+   Returns the struct."
+  (let ((comptype (cl-ffa (second (type-of number))))
+	(datslot
+	 (cffi:foreign-slot-pointer gsl (cl-ffa (type-of number)) 'dat)))
+    (setf (cffi:mem-aref datslot comptype 0) (realpart number)
+	  (cffi:mem-aref datslot comptype 1) (imagpart number))
+    gsl))
 
 ;;;;****************************************************************************
 ;;;; Types for CFFI (will eventually be in CFFI)

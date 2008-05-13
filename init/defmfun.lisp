@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-05-10 21:57:03EDT defmfun.lisp>
+;; Time-stamp: <2008-05-12 23:10:47EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -377,14 +377,23 @@
   (if (and (listp name) (null (first name)))
       (second name)))
 
+(defun complex-scalars (cl-arguments c-arguments-types)
+  (loop for sd in c-arguments-types
+	for cl-type = (cffi-cl (st-type sd))
+	append
+	(when (and cl-type (subtypep cl-type 'complex)
+		   (member (st-symbol sd) cl-arguments))
+	  (list (list (st-symbol sd)
+		      (gensym (string (st-symbol sd)))
+		      (st-type sd))))))
+
 (defun expand-defmfun-plain (name arglist gsl-name c-arguments key-args)
   (with-defmfun-key-args key-args
     (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
 	   (carg-symbs
 	    (remove-if-not #'symbolp
 			   (mapcar #'st-symbol (remove :mode c-arguments))))
-	   (clargs
-	    (or arglist carg-symbs))
+	   (clargs (or arglist carg-symbs))
 	   (arglist-symbs
 	    (when arglist		; can be method, so get symbol
 	      (mapcar (lambda (x) (if (listp x) (first x) x)) arglist)))
@@ -393,15 +402,17 @@
 			  (if (listp c-return) (st-type c-return) c-return)))
 	   (cret-name
 	    (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
+	   (complex-args (complex-scalars clargs cargs))
 	   (allocated		     ; Foreign objects to be allocated
 	    (remove-if
 	     (lambda (s)
 	       (or (member s arglist-symbs) (member s global :key #'first)))
 	     carg-symbs))
 	   (allocated-decl
-	    (mapcar
-	     (lambda (s) (find s cargs :key #'st-symbol))
-	     allocated))
+	    (append
+	     (mapcar
+	      (lambda (s) (find s cargs :key #'st-symbol))
+	      allocated)))
 	   (clret (or			; better as a symbol macro
 		   (substitute cret-name :c-return return)
 		   (mapcan #'cl-convert-form allocated-decl)
@@ -421,9 +432,11 @@
 		  noaux))
 	,(declaration-form clargs-types)
 	,@(when documentation (list documentation))
-	(,@(if allocated
+	(,@(if (or allocated-decl complex-args)
 	       `(cffi:with-foreign-objects
-		 ,(mapcar #'wfo-declare allocated-decl))
+		 ,(mapcar #'wfo-declare
+			  (append allocated-decl 
+				  (mapcar #'rest complex-args))))
 	       '(let ()))
 	 #-native ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
 	 (let ((,cret-name
@@ -431,10 +444,16 @@
 		 ,gsl-name
 		 ,@(mapcan
 		    (lambda (arg)
-		      (list (if (member (st-symbol arg) allocated)
-				:pointer
-				(st-type arg))
-			    (st-symbol arg)))
+		      (let ((cfind	; variable is complex
+			     (first (member (st-symbol arg) complex-args :key 'first))))
+			(if cfind	; so substitute call to complex-to-gsl
+			    `(,(third cfind)
+			      (complex-to-gsl ,(first cfind) ,(second cfind)))
+			    ;; otherwise use without conversion
+			    (list (if (member (st-symbol arg) allocated)
+				      :pointer
+				      (st-type arg))
+				  (st-symbol arg)))))
 		    cargs)
 		 ,cret-type)))
 	   ,@(case c-return
