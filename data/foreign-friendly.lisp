@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT ffa.lisp
-;; Time-stamp: <2008-05-04 18:07:22EDT foreign-friendly.lisp>
+;; Time-stamp: <2008-05-20 22:26:40EDT foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Use Papp's Foreign-friendly arrays
@@ -66,6 +66,18 @@ defined in ffa will be usable.
 	 ;; ffa objects to making an uninitialized array, seems like a bug
 	 ;; workaround to default set to 77
 	 (or initial-element 77)))))
+
+(defun make-array*
+    (dimensions element-type
+     &key (initial-element nil initial-element-p) (initial-contents nil initial-contents-p))
+  "Make an array for possible use in foreign code.
+   Syntax is similar to make-array, but note that element-type
+   is mandatory and limited to certain types."
+  (if initial-contents-p
+      (ffa:make-ffa dimensions element-type :initial-contents initial-contents)
+      (if initial-element-p
+	  (ffa:make-ffa dimensions element-type :initial-element initial-element)
+	  (ffa:make-ffa dimensions element-type))))
 
 (defparameter *foreign-array-directions*
   '((:in . :copy-in) (:out . :copy-out) (:in-out . :copy-in-out)))

@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-05-10 22:01:10EDT both.lisp>
+;; Time-stamp: <2008-06-11 21:42:11EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -73,6 +73,30 @@
   :documentation			; FDL
   "Exchange the elements of a and b
    by copying.  The two must have the same dimensions.")
+
+;;; These functions are here as debugging tools only; they do not insure
+;;; coherency between the C and CL sides and therefore should not be
+;;; used in production.
+(defmfun set-value ((object both) index value)
+  ("gsl_"  :category :type "_set")
+  (((mpointer object) :pointer) (index size) (value :element-c-type))
+  :definition :generic
+  :inputs (object)
+  :outputs (object)
+  :c-return :void
+  :export nil				; debugging only
+  :documentation
+  "Set single element to the value.  For debugging only; do not use.")
+
+(defmfun get-value ((object both) index)
+  ("gsl_"  :category :type "_get")
+  (((mpointer object) :pointer) (index size))
+  :definition :generic
+  :inputs (object)
+  :c-return :element-c-type
+  :export nil				; debugging only
+  :documentation
+  "Set single element to the value.  For debugging only; do not use.")
 
 ;;;;****************************************************************************
 ;;;; Arithmetic operations

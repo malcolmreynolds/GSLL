@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-05-11 23:09:11EDT element-types.lisp>
+;; Time-stamp: <2008-06-11 21:21:23EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -136,9 +136,12 @@
 
 (defun lookup-type (symbol alist &optional reverse)
   "Lookup the symbol defined in the alist."
-  (if reverse
-      (first (rassoc symbol alist :test #'equal))
-      (rest (assoc symbol alist))))
+  (or 
+   (if reverse
+       (first (rassoc symbol alist :test #'equal))
+       (rest (assoc symbol alist)))
+   ;;(error "Did not find ~a in ~a" symbol (mapcar #'first alist))
+   ))
 
 ;;; (cl-single '(unsigned-byte 8))
 ;;; UNSIGNED-BYTE-8
@@ -163,11 +166,12 @@
 
 (defun cl-ffa (cl-type)
   "The FFA/CFFI element type from the CL type."
-  (lookup-type cl-type *cstd-cl-type-mapping* t))
+  (lookup-type (clean-type cl-type) *cstd-cl-type-mapping* t))
 
 (defun cffi-cl (cffi-type)
   "The CL type from the FFA/CFFI element type."
-  (lookup-type cffi-type *cstd-cl-type-mapping*))
+  (unless (eq cffi-type :pointer)
+    (lookup-type cffi-type *cstd-cl-type-mapping*)))
 
 (defun splice-name (base-name type keyword)
   "Make a new C name for a data function from a base name."
@@ -185,6 +189,10 @@
 ;;;; GSL complex types
 ;;;;****************************************************************************
 
+;;; GSL defines complex numbers in a struct, and passes the struct by
+;;; value.  CFFI does not support call by value for structs, so we
+;;; cannot use functions that call or return complex scalars.
+
 ;;; See /usr/include/gsl/gsl_complex.h
 (cffi:defcstruct complex-float-c
   (dat :float :count 2))
@@ -196,15 +204,51 @@
 (cffi:defcstruct complex-long-double-c
   (dat :long-double :count 2))
 
+(defun clean-type (type)
+  ;; SBCL at least will specify limits on the type, e.g.
+  ;; (type-of #C(1.0 2.0))
+  ;; (COMPLEX (DOUBLE-FLOAT 1.0 2.0))
+  ;; This cleans that up to make
+  ;; (clean-type (type-of #C(1.0 2.0)))
+  ;; (COMPLEX DOUBLE-FLOAT)
+  (if (and (subtypep type 'complex) (listp (second type)))
+      (list (first type) (first (second type)))
+      type))
+
 (defun complex-to-gsl (number gsl)
   "Set the already-allocated GSL (foreign) struct to the CL complex number.
    Returns the struct."
-  (let ((comptype (cl-ffa (second (type-of number))))
-	(datslot
-	 (cffi:foreign-slot-pointer gsl (cl-ffa (type-of number)) 'dat)))
+  (cerror "Accept gibberish."
+	  "Cannot pass complex scalars to and from GSL functions (structs passed by value).")
+  (let* ((cleantype (clean-type (type-of number)))
+	 (comptype (cl-ffa (second cleantype)))
+	 (datslot
+	  (cffi:foreign-slot-pointer gsl (cl-ffa cleantype) 'dat)))
     (setf (cffi:mem-aref datslot comptype 0) (realpart number)
 	  (cffi:mem-aref datslot comptype 1) (imagpart number))
     gsl))
+
+;;; Use GSL to create the complex.  This actually does work on
+;;; SBCL/amd64, but it shouldn't.
+#+(or)
+(defmfun complex-to-gsl (complex)
+  "gsl_complex_rect"
+  (((realpart complex) :double) ((imagpart complex) :double))
+  :c-return :pointer
+  :documentation
+  "Convert the CL complex double into a GSL complex.")
+
+#|
+(defmfun complex-abs (number)
+  "gsl_complex_abs"
+  (((complex-to-gsl number) :pointer))
+  :c-return :double)
+
+(defmfun complex-arg (number)
+  "gsl_complex_arg"
+  (((complex-to-gsl number) :pointer))
+  :c-return :double)
+|#
 
 ;;;;****************************************************************************
 ;;;; Types for CFFI (will eventually be in CFFI)
