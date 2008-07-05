@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-05-12 23:10:47EDT defmfun.lisp>
+;; Time-stamp: <2008-06-29 19:16:23EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,7 +30,7 @@
 ;;;            May be or include :c-return to include the c-return value
 ;;;            or its derivatives.
 ;;;            Default are allocated quantities in c-arguments, or :c-return if none.
-;;; definition :function, :generic, or :method
+;;; definition :function, :generic, :method, :methods
 ;;; element-types
 ;;;            Permissible types for elements of arrays.  May be
 ;;;            NIL meaning all of *array-element-types*, :no-complex
@@ -58,10 +58,10 @@
   `(destructuring-bind
     (&key (c-return :error-code)
      (return nil return-supplied-p)
-     (definition :function)		; :function, :generic, :method
+     (definition :function)		; :function, :generic, :method, :methods
      element-types
      (index t)
-     (export (not (eq definition :method)))
+     (export (not (member definition (list :method :methods))))
      null-pointer-info documentation inputs outputs after enumeration
      global)
     ,key-args
@@ -87,6 +87,8 @@
 	 ((eq definition :generic)
 	  (expand-defmfun-generic name arglist gsl-name c-arguments key-args))
 	 ((eq definition :method)
+	  (expand-defmfun-method name arglist gsl-name c-arguments key-args))
+	 ((eq definition :methods)
 	  (expand-defmfun-defmethods name arglist gsl-name c-arguments key-args))
 	 (t
 	  (expand-defmfun-plain name arglist gsl-name c-arguments key-args)))
@@ -170,7 +172,7 @@
  '("gsl_vector" :type "_isnull")
  '(((pointer v) gsl-vector-c))
  '(:c-return :boolean
-   :definition :method
+   :definition :methods
    :documentation			; FDL
    "All elements of vector v are zero."))
 
@@ -188,7 +190,7 @@
    an estimate of its absolute error."))
 
 ;;;;****************************************************************************
-;;;; A defgeneric with methods, or the methods alone
+;;;; A defgeneric with methods, or the methods alone, for vectors or matrices
 ;;;;****************************************************************************
 
 (defun expand-defmfun-generic (name arglist gsl-name c-arguments key-args)
@@ -196,7 +198,7 @@
   ;; Need to scan the arglist for categories.
   ;; Can be mixed, unless it says 'both, in which case it can only be both.
   (with-defmfun-key-args key-args
-    ;;(setf defn :method)
+    ;;(setf defn :methods)
     (multiple-value-bind (noclass-arglist categories)
 	(arglist-plain-and-categories arglist)
       `(defgeneric ,name ,noclass-arglist
@@ -328,6 +330,24 @@
 ;;;  (M MATRIX-UNSIGNED-BYTE-16) X)
 ;;; (V1 V2 M X)
 ;;; (MATRIX VECTOR)
+
+;;;;****************************************************************************
+;;;; A method for a generic function
+;;;;****************************************************************************
+
+(defun expand-defmfun-method (name arglist gsl-name c-arguments key-args)
+  "Create a specific method for a previously-defined generic function."
+  (with-defmfun-key-args key-args
+    (remf key-args :documentation)
+    (setf defn 'cl:defmethod)
+    (expand-defmfun-plain
+     name
+     arglist
+     (progn
+       (push gsl-name indexed-functions)
+       gsl-name)
+     c-arguments
+     key-args)))
 
 ;;;;****************************************************************************
 ;;;; Optional argument(s)

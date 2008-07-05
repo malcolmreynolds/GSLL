@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-06-11 21:42:11EDT both.lisp>
+;; Time-stamp: <2008-06-30 22:53:27EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,9 +12,9 @@
 (defmfun alloc-from-block ((object vector))
   ("gsl_" :category :type "_alloc_from_block")
   (((block-pointer object) :pointer)	
-   (0 size)				; offset
-   (totsize size)			; number of elements
-   (1 size))				; stride
+   (0 sizet)				; offset
+   (totsize sizet)			; number of elements
+   (1 sizet))				; stride
   :definition :generic
   :global ((totsize (total-size object)))
   :c-return :pointer
@@ -24,11 +24,11 @@
 (defmfun alloc-from-block ((object matrix))
   ("gsl_" :category :type "_alloc_from_block")
   (((block-pointer object) :pointer)
-   (0 size)				; offset
-   ((first (dimensions object)) size)	; number of rows
-   ((second (dimensions object)) size)	; number of columns
-   ((second (dimensions object)) size))	; "tda" = number of columns for now
-  :definition :method
+   (0 sizet)				; offset
+   ((first (dimensions object)) sizet)	; number of rows
+   ((second (dimensions object)) sizet)	; number of columns
+   ((second (dimensions object)) sizet))	; "tda" = number of columns for now
+  :definition :methods
   :c-return :pointer
   :export nil)
 
@@ -79,7 +79,7 @@
 ;;; used in production.
 (defmfun set-value ((object both) index value)
   ("gsl_"  :category :type "_set")
-  (((mpointer object) :pointer) (index size) (value :element-c-type))
+  (((mpointer object) :pointer) (index sizet) (value :element-c-type))
   :definition :generic
   :inputs (object)
   :outputs (object)
@@ -90,7 +90,7 @@
 
 (defmfun get-value ((object both) index)
   ("gsl_"  :category :type "_get")
-  (((mpointer object) :pointer) (index size))
+  (((mpointer object) :pointer) (index sizet))
   :definition :generic
   :inputs (object)
   :c-return :element-c-type
@@ -141,7 +141,7 @@
 (defmfun m* ((a matrix) (b matrix))
   ("gsl_" :category :type "_mul_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
-  :definition :method
+  :definition :methods
   :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)
@@ -230,15 +230,15 @@
   :definition :generic
   :element-types :no-complex
   :inputs (a)
-  :c-return size
+  :c-return sizet
   :documentation			; FDL
   "The index of the minimum value in a.  When there are several
   equal minimum elements, then the lowest index is returned.")
 
 (defmfun min-index ((a matrix))
   ("gsl_" :category :type "_min_index")
-  (((mpointer a) :pointer) (imin size) (jmin size))
-  :definition :method
+  (((mpointer a) :pointer) (imin sizet) (jmin sizet))
+  :definition :methods
   :element-types :no-complex
   :inputs (a)
   :c-return :void)
@@ -249,22 +249,22 @@
   :definition :generic
   :element-types :no-complex
   :inputs (a)
-  :c-return size
+  :c-return sizet
   :documentation			; FDL
   "The index of the maximum value in a.  When there are several
   equal maximum elements, then the lowest index is returned.")
 
 (defmfun max-index ((a matrix))
   ("gsl_" :category :type "_max_index")
-  (((mpointer a) :pointer) (imax size) (jmax size))
-  :definition :method
+  (((mpointer a) :pointer) (imax sizet) (jmax sizet))
+  :definition :methods
   :element-types :no-complex
   :inputs (a)
   :c-return :void)
 
 (defmfun minmax-index ((a vector))
   ("gsl_" :category :type "_minmax_index")
-  (((mpointer a) :pointer) (imin size) (imax size))
+  (((mpointer a) :pointer) (imin sizet) (imax sizet))
   :definition :generic
   :element-types :no-complex
   :inputs (a)
@@ -277,8 +277,8 @@
 
 (defmfun minmax-index ((a matrix))
   ("gsl_" :category :type "_minmax_index")
-  (((mpointer a) :pointer) (imin size) (jmin size) (imax size) (jmax size))
-  :definition :method
+  (((mpointer a) :pointer) (imin sizet) (jmin sizet) (imax sizet) (jmax sizet))
+  :definition :methods
   :element-types :no-complex
   :inputs (a)
   :c-return :void)

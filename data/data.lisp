@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-05-10 21:56:42EDT data-ffa.lisp>
+;; Time-stamp: <2008-07-05 14:12:22EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,8 +58,10 @@
   "The class name from the type of element."
   ;; e.g. (data-class-name 'vector '(unsigned-byte 8))
   ;; -> VECTOR-UNSIGNED-BYTE-8
-  (intern (format nil "~a-~a" category (cl-single element-type))
-	  :gsl))
+  (if (member category '(vector matrix))
+      (intern (format nil "~a-~a" category (cl-single element-type))
+	      :gsl)
+      category))
 
 (defparameter *array-element-types*
   (remove-duplicates (all-types *cstd-cl-type-mapping* t) :test 'equal)
@@ -281,7 +283,7 @@
 ;;; free the C array data.
 
 (cffi:defcstruct gsl-block-c
-  (size size)
+  (size sizet)
   (data :pointer))
 
 (defun alloc-gsl-struct (object)
@@ -301,14 +303,16 @@
 (defmethod mpointer :before ((object gsl-data))
   "Make a GSL struct if there isn't one already."
   (unless (slot-value object 'mpointer)
-    (alloc-gsl-struct object)))
+    (alloc-gsl-struct object)
+    nil))
 
 (defun free-gsl-struct (object)
   "Free the C structure(s) and memory for data."
   ;; This should happen immediately after the with-pointer-to-array
   ;; and substitutes for the GSL "_free" functions.
   (when (block-pointer object)
-    (cffi:foreign-free (block-pointer object)) ; free the block struct
+    (unless (eq (block-pointer object) (mpointer object))
+      (cffi:foreign-free (block-pointer object))) ; free the block struct
     (setf (block-pointer object) nil))
   (when (mpointer object)
     (cffi:foreign-free (mpointer object)) ; free the larger struct

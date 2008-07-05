@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector-ffa.lisp
-;; Time-stamp: <2008-04-27 16:42:22EDT vector-ffa.lisp>
+;; Time-stamp: <2008-06-30 22:53:27EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,8 +11,8 @@
 
 ;;; GSL-vector definition
 (cffi:defcstruct gsl-vector-c
-  (size size)
-  (stride size)
+  (size sizet)
+  (stride sizet)
   (data :pointer)
   (block :pointer)
   (owner :int))
@@ -30,7 +30,7 @@
 
 (defmfun set-basis ((object vector) index)
   ("gsl_" :category :type "_set_basis")
-  (((mpointer object) :pointer) (index size))
+  (((mpointer object) :pointer) (index sizet))
   :definition :generic
   :inputs (object)
   :outputs (object)
@@ -39,7 +39,7 @@
 
 (defmfun swap-elements ((vec vector) i j)
   ("gsl_" :category :type "_swap_elements")
-  (((mpointer vec) :pointer) (i size) (j size))
+  (((mpointer vec) :pointer) (i sizet) (j sizet))
   :definition :generic
   :inputs (vec)
   :outputs (vec)
