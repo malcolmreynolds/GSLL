@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-03-09 22:07:29EDT combination.lisp>
+;; Time-stamp: <2008-07-06 10:11:25EDT combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,36 +11,58 @@
 
 ;;; GSL-combination definition
 (cffi:defcstruct gsl-combination-c
-  (n size)
-  (k size)
+  (n sizet)
+  (k sizet)
   (data :pointer))
 
-;;; Allocation, freeing, reading and writing
-(add-data-class combination fixnum combination gsl-data "combination")
-(defdata combination fixnum 2 "")
+(defclass combination
+    (#+sizet-64 vector-unsigned-byte-64
+     #+sizet-32 vector-unsigned-byte-32)
+  ()
+  (:documentation "GSL permutations."))
 
-(defmethod gsl-array ((object combination))
-  (foreign-slot-value (pointer object) 'gsl-combination-c 'data))
+;;; The following three forms take the place of a data-defclass call
 
-;;;;****************************************************************************
-;;;; Getting values
-;;;;****************************************************************************
+(defmethod letm-expansion
+    (symbol (type (eql 'combination)) args body)
+  (expand-data symbol type (first args) (second args) body))
 
-(defmfun maref ((combination combination) &rest indices)
-  "gsl_combination_get"
-  (((pointer combination) :pointer) ((first indices) size))
-  :type :method 
-  :c-return size
-  :documentation			; FDL
-  "The ith element of the combination.")
+(arglist-only combination "A combination." n k sync-array-on-exit)
 
-(defmethod data ((object combination) &optional sequence)
-  (let ((seq (or sequence
-		 (make-sequence 'list (combination-size object)))))
-    (loop for i from 0
-	  below (min (length seq) (combination-size object))
-	  do (setf (elt seq i) (maref object i)))
-    seq))
+(defun make-data-combination (nk)
+  "Make the combination object with the data array."
+  ;; The replaces the function of make-data-from-array and
+  ;; make-data-from-dimensions because the class needs different
+  ;; initialization than other kinds of data.
+  (let ((k (second nk)))
+    (make-instance
+     'combination
+     :cl-array (make-array* k *sizet-type*)
+     :mpointer nil	   ; this will be set by :before method below.
+     :c-pointer nil			; this will be set by defmfun
+     :dimensions (copy-list nk)
+     :total-size k)))
+
+(defmethod mpointer :before ((object combination))
+  "Make a GSL struct if there isn't one already."
+  (unless (slot-value object 'mpointer)
+    ;; Cribbed from alloc-gsl-struct
+    (unless (c-pointer object) (error "No C array.")) ; safety while developing
+    (let ((blockptr (cffi:foreign-alloc 'gsl-combination-c)))
+      (setf (block-pointer object)
+	    blockptr
+	    (cffi:foreign-slot-value blockptr 'gsl-combination-c 'data)
+	    (c-pointer object)
+	    (cffi:foreign-slot-value blockptr 'gsl-combination-c 'n)
+	    (elt (dimensions object) 0)
+	    (cffi:foreign-slot-value blockptr 'gsl-combination-c 'k)
+	    (elt (dimensions object) 1)
+	    (mpointer object)
+	    (block-pointer object)))
+    nil))
+
+;;; The total-size of a combination is k, because that is the length
+;;; of the vector that represents it.
 
 ;;;;****************************************************************************
 ;;;; Setting values
@@ -48,28 +70,31 @@
 
 (defmfun init-first (combination)
   "gsl_combination_init_first"
-  (((pointer combination) gsl-combination-c))
+  (((mpointer combination) :pointer))
   :c-return :void
-  :invalidate (combination)
+  :inputs (combination)
+  :outputs (combination)
   :documentation			; FDL
   "Initialize the combination c to the lexicographically
       first combination, i.e.  (0,1,2,...,k-1).")
 
 (defmfun init-last (combination)
   "gsl_combination_init_last"
-  (((pointer combination) gsl-combination-c))
+  (((mpointer combination) :pointer))
   :c-return :void
-  :invalidate (combination)
+  :inputs (combination)
+  :outputs (combination)
   :documentation			; FDL
   "Initialize the combination c to the lexicographically
    last combination, i.e. (n-k,n-k+1,...,n-1).")
 
 (defmfun copy (destination source)
   "gsl_combination_memcpy"
-  (((pointer destination) gsl-combination-c)
-   ((pointer source) gsl-combination-c))
-  :type :method
-  :invalidate (destination)
+  (((mpointer destination) :pointer)
+   ((mpointer source) :pointer))
+  :definition :method
+  :inputs (source)
+  :outputs (destination)
   :documentation			; FDL
   "Copy the elements of the combination source into the
   combination destination.  The two combinations must have the same size.")
@@ -80,15 +105,17 @@
 
 (defmfun combination-range (c)
   "gsl_combination_n"
-  (((pointer c) gsl-combination-c))
-  :c-return size
+  (((mpointer c) :pointer))
+  :c-return sizet
+  :inputs (c)
   :documentation			; FDL
   "The range (n) of the combination c.")
 
 (defmfun combination-size (c)
   "gsl_combination_k"
-  (((pointer c) gsl-combination-c))
-  :c-return size
+  (((mpointer c) :pointer))
+  :c-return sizet
+  :inputs (c)
   :documentation			; FDL
   "The number of elements (k) in the combination c.")
 
@@ -96,7 +123,7 @@
 ;;; Unnecessary, gsl-array serves this function.
 (defmfun combination-data (c)
   "gsl_combination_data"
-  (((pointer c) gsl-combination-c))
+  (((mpointer c) :pointer))
   :c-return :pointer
   :documentation			; FDL
   "A pointer to the array of elements in the combination.")
@@ -104,8 +131,8 @@
 
 (defmfun data-valid ((combination combination))
   "gsl_combination_valid"
-  (((pointer combination) :pointer))
-  :type :method 
+  (((mpointer combination) :pointer))
+  :definition :method 
   :c-return :boolean
   :documentation			; FDL
   "Check that the combination is valid.  The k
@@ -117,9 +144,10 @@
 ;;;;****************************************************************************
 
 (defmfun combination-next (c)
-  "gsl_combination_next" (((pointer c) gsl-combination-c))
+  "gsl_combination_next" (((mpointer c) :pointer))
   :c-return :success-failure
-  :invalidate (c)
+  :inputs (c)
+  :outputs (c)
   :documentation			; FDL
   "Advance the combination c to the next combination
    in lexicographic order and return T and c.  If no further
@@ -130,9 +158,10 @@
 
 (defmfun combination-previous (c)
   "gsl_combination_prev"
-  (((pointer c) gsl-combination-c))
+  (((mpointer c) :pointer))
   :c-return :success-failure
-  :invalidate (c)
+  :inputs (c)
+  :outputs (c)
   :documentation			; FDL
   "Step backwards from the combination c to the
    previous combination in lexicographic order, returning
@@ -165,6 +194,7 @@
 	       while (combination-next comb)))))
 |#
 
+#|
 (LISP-UNIT:DEFINE-TEST COMBINATION
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 4)
@@ -203,4 +233,5 @@
 	    (INIT-FIRST COMB)
 	    (LOOP COLLECT (DATA COMB) WHILE
 		  (COMBINATION-NEXT COMB)))))))
+|#
 

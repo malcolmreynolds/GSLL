@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-07-05 14:12:22EDT data.lisp>
+;; Time-stamp: <2008-07-06 09:47:37EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -118,9 +118,11 @@
    (make-array* dimensions (lookup-type type *class-element-type*))))
 
 (defun make-data (type array-or-dimensions)
-  (if (typep array-or-dimensions 'array)
-      (make-data-from-array type array-or-dimensions)
-      (make-data-from-dimensions type array-or-dimensions)))
+  (if (eq type 'combination)
+      (make-data-combination array-or-dimensions)
+      (if (typep array-or-dimensions 'array)
+	  (make-data-from-array type array-or-dimensions)
+	  (make-data-from-dimensions type array-or-dimensions))))
 
 ;;; ... or from the pointer which was malloced by GSL
 #(or)
