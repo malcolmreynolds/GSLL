@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-07-06 09:47:37EDT data.lisp>
+;; Time-stamp: <2008-07-07 21:26:18EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -45,6 +45,10 @@
   (print-unreadable-object (object stream :type t) 
     (copy-c-to-cl object)
     (princ (cl-array object) stream)))
+
+(defun dim0 (object)
+  "The first dimension of the object."
+  (first (dimensions object)))
 
 ;;;;****************************************************************************
 ;;;; Definition of specific data classes
@@ -146,7 +150,37 @@
       (* 2 (total-size object))
       (total-size object)))
 
-(export 'els)
+(defun numtypespec (sexp)
+  "The sexp is a type specification for a numerical type."
+  (ignore-errors (subtypep sexp 'number)))
+
+(defun abody (&rest type-contents)
+  "Make an array of a specific element type from the literal contents supplied.
+   If no type is given, it is assumed to be 'double-float."
+  (let* ((firsttype (numtypespec (first type-contents)))
+	 (element-type
+	  (if firsttype
+	      (first type-contents)
+	      'double-float))
+	 (cont
+	  (if firsttype
+	      (rest type-contents)
+	      type-contents)))
+    (make-array*
+     (if (listp (first cont))		; make a matrix
+	 (list (length cont) (length (first cont)))
+	 (list (length cont)))		; make a vector
+     element-type
+     :initial-contents
+     (if (listp (first cont))
+	 (apply #'append cont)		; flatten lists
+	 cont))))
+
+(export 'a)
+(defmacro a (&rest type-contents)
+  "Create an array (vector or matrix) from the literal contents."
+  `(abody ,@(mapcar (lambda (e) `(quote ,e)) type-contents)))
+
 (defun expand-data (symbol type init-or-spec sync-exit body)
   "Expand the form for a gsl-data object.  The symbol is bound
    within the body to the object.  The argument
@@ -155,17 +189,9 @@
   (cl-utilities:with-unique-names (cptr eltype)
     `(macrolet
       ;; #'els is a convenience macro to define the make-array*
-      ((els (&rest contents)
-	`(let ((cont ',contents))
-	  (make-array*
-	   (if (listp (first cont))	; make a matrix
-	       (list (length cont) (length (first cont)))
-	       (list (length cont)))	; make a vector
-	   ',',(lookup-type type *class-element-type*)
-	   :initial-contents
-	   (if (listp (first cont))
-	       (apply #'append cont)	; flatten lists
-	       cont)))))
+      ((a (&rest contents)
+	`(abody ',',(lookup-type type *class-element-type*)
+	  ,@(mapcar (lambda (e) `(quote ,e)) contents))))
       (let* ((,symbol (make-data ',type ,init-or-spec))
 	     (,eltype (element-type ,symbol)))
 	(ffa:with-pointer-to-array

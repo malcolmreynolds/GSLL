@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-07-06 10:27:21EDT gsll.asd>
+;; Time-stamp: <2008-07-07 20:29:37EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -42,7 +42,6 @@
 	     (:file "combination"
 		    :depends-on (data matrix both permutation))	; preload defgeneric
 	     ))
-   #+no
    (:file "polynomial" :depends-on (init data))
    #+no
    (:module special-functions

@@ -1,6 +1,6 @@
 ;; Conversion of numbers C->CL
 ;; Liam Healy, Sun May 28 2006 - 22:04
-;; Time-stamp: <2008-05-10 22:12:21EDT number-conversion.lisp>
+;; Time-stamp: <2008-07-06 16:33:06EDT number-conversion.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,28 +17,24 @@
 
 (defmacro scref (size &optional (index 0))
   "Reference C size(s)."
-  `(cffi:mem-aref ,size 'size ,index))
+  `(cffi:mem-aref ,size 'sizet ,index))
 
 ;;;;****************************************************************************
 ;;;; Complex numbers
 ;;;;****************************************************************************
 
-#|
-(cffi:defcstruct gsl-complex
-  "A complex number in GSL."
-  (dat :double :count 2))
-
-(defun complex-to-cl (gsl-complex &optional (index 0))
+;;; GSL complex struct is defined in init/element-types.lisp.
+(defun complex-to-cl
+    (gsl-complex &optional (index 0) (complex-type 'complex-double-c))
   "Make a CL complex number from the GSL pointer to a complex struct or
    an array of complex structs and an index into the array." 
   (let ((carr (cffi:foreign-slot-value
 	       (cffi:inc-pointer
 		gsl-complex
-		(* index (cffi:foreign-type-size 'gsl-complex)))
-	       'gsl-complex 'dat)))
+		(* index (cffi:foreign-type-size complex-type)))
+	       complex-type 'dat)))
     (complex (dcref carr 0)
 	     (dcref carr 1))))
-|#
 
 ;;;;****************************************************************************
 ;;;; Conversion form
@@ -54,4 +50,8 @@
      `((val ,(st-symbol decl) 'sf-result-e10)
        (e10 ,(st-symbol decl))
        (err ,(st-symbol decl) 'sf-result-e10)))
+    (complex-double-c
+     `((complex-to-cl ,(st-symbol decl) 0 'complex-double-c)))
+    (complex-float-c
+     `((complex-to-cl ,(st-symbol decl) 0 'complex-float-c)))
     (t `((cffi:mem-aref ,(st-symbol decl) ',(st-type decl))))))	

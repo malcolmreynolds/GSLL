@@ -90,17 +90,21 @@ let binding.
  supported by GSL, but GSLL has implemented only a few of these:
  complex, double-float, single-float, and fixnum, because those types
  are defined by the Common Lisp standard.
- <p>Vectors and matrices can be converted to and from their Lisp
+ <p>FIXME Vectors and matrices can be converted to and from their Lisp
  counterparts with <code>data</code> and <code>(setf data)</code>.
  Setting the GSL value to a Lisp value at initialization
  can be done within the <code>letm</code> by giving the Lisp value as
  the first argument after the type, for example
 <pre>
-(letm ((vec (vector-double-float #(-3.21d0 1.0d0 12.8d0))))
-   (data vec))
+(letm ((vec (vector-double-float (a -3.21d0 1.0d0 12.8d0))))
+   (???? vec))
 </pre>
+<p>
  Individual elements of data may be accessed with <code>maref</code>,
  either directly or in a <code>setf</code>.
+ The macro #'a is a convenience for the specification of an array
+ with literal content.
+</p>
 
  <h3>Status</h3>
  <div class="content">
@@ -150,7 +154,7 @@ gamma-randist, negative-binomial.
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-03-20 19:09:57EDT documentation.html>
+       Time-stamp: <2008-07-07 21:30:48EDT documentation.html>
        </small>
 <!-- hhmts end -->
  </div>
