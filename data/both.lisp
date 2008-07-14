@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-06-30 22:53:27EDT both.lisp>
+;; Time-stamp: <2008-07-12 13:48:13EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -162,7 +162,7 @@
 (defmfun m/ ((a matrix) (b matrix))
   ("gsl_" :category :type "_div_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
-  :definition :generic
+  :definition :methods
   :element-types :no-complex		; Question for GSL: why no complex?
   :inputs (a b)
   :outputs (a)

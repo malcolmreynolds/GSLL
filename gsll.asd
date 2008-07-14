@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-07-07 20:29:37EDT gsll.asd>
+;; Time-stamp: <2008-07-12 14:20:01EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -19,7 +19,7 @@
 	     (:file "element-types" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
 	     (:file "interface" :depends-on (init conditions element-types number-conversion))
-	     (:file "defmfun" :depends-on (init))
+	     (:file "defmfun" :depends-on (init element-types))
 	     (:file "callback" :depends-on (init))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
@@ -36,14 +36,13 @@
 	    ((:file "foreign-friendly")
 	     (:file "data")
 	     (:file "vector" :depends-on (data))
-	     (:file "matrix" :depends-on (data))
+	     (:file "matrix" :depends-on (data vector))
 	     (:file "both" :depends-on (data vector matrix))
 	     (:file "permutation" :depends-on (data))
 	     (:file "combination"
 		    :depends-on (data matrix both permutation))	; preload defgeneric
 	     ))
    (:file "polynomial" :depends-on (init data))
-   #+no
    (:module special-functions
 	    :depends-on (init)
 	    :components

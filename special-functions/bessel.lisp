@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2008-03-09 19:29:18EDT bessel.lisp>
+;; Time-stamp: <2008-07-08 21:43:01EDT bessel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,8 +28,8 @@
 (defmfun cylindrical-bessel-Jn-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Jn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
-   ((gsl-array array) :pointer))
-  :invalidate (array)
+   ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the regular cylindrical Bessel functions J_n(x)
    for n from nmin to nmin+length(array)-1 inclusive.
@@ -59,8 +59,8 @@
 (defmfun cylindrical-bessel-Yn-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Yn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
-   ((gsl-array array) :pointer))
-  :invalidate (array)
+   ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the irregular cylindrical Bessel functions
    Y_n(x) for n from from nmin to
@@ -90,8 +90,8 @@
 (defmfun cylindrical-bessel-In-array (x array &optional (nmin 0))
   "gsl_sf_bessel_In_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
-   ((gsl-array array) :pointer))
-  :invalidate (array)
+   ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the regular modified cylindrical Bessel functions
    I_n(x) for n from from nmin to nmin+length(array)-1 inclusive.
@@ -119,8 +119,8 @@
 (defmfun cylindrical-bessel-In-scaled-array (x array &optional (nmin 0))
   "gsl_sf_bessel_In_scaled_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
-   ((gsl-array array) :pointer))
-  :invalidate (array)
+   ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   ;; Bug in original documentation?  doesn't say "modified"
   "The values of the scaled regular modified cylindrical Bessel
@@ -152,8 +152,8 @@
 (defmfun cylindrical-bessel-Kn-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Kn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
-   ((gsl-array array) :pointer))
-  :invalidate (array)
+   ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the irregular modified cylindrical Bessel functions
    K_n(x) for n from from nmin to nmin+length(array)-1 inclusive.
@@ -181,8 +181,8 @@
 (defmfun cylindrical-bessel-Kn-scaled-array (x array &optional (nmin 0))
   "gsl_sf_bessel_Kn_scaled_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
-   ((gsl-array array) :pointer))
-  :invalidate (array)
+   ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the scaled irregular cylindrical
    Bessel functions \exp(x) K_n(x) for n from from nmin to
@@ -221,8 +221,8 @@
 
 (defmfun spherical-bessel-jl-array (x array)
   "gsl_sf_bessel_jl_array"
-  (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
-  :invalidate (array)
+  (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the regular spherical Bessel
   functions j_l(x) for l from 0 to length(array)-1 and x >= 0.
@@ -231,8 +231,8 @@
 
 (defmfun spherical-bessel-jl-steed-array (x array)
   "gsl_sf_bessel_jl_steed_array"
-  (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
-  :invalidate (array)
+  (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "Uses Steed's method to compute the values of the regular spherical
   Bessel functions j_l(x) for l from 0 to length(array)-1
@@ -270,8 +270,8 @@
 
 (defmfun spherical-bessel-yl-array (x array)
   "gsl_sf_bessel_yl_array"
-  (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
-  :invalidate (array)
+  (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The irregular spherical Bessel functions y_l(x) for l
   from 0 to length(array)-1.  The values are computed using
@@ -308,8 +308,8 @@
 
 (defmfun spherical-bessel-il-scaled-array (x array)
   "gsl_sf_bessel_il_scaled_array"
-  (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
-  :invalidate (array)
+  (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the scaled regular modified cylindrical Bessel
   functions \exp(-|x|) i_l(x) for l from 0 to length(array)-1
@@ -346,8 +346,8 @@
 
 (defmfun spherical-bessel-kl-scaled-array (x array)
   "gsl_sf_bessel_kl_scaled_array"
-  (((1- (dim0 array)) :int) (x :double) ((gsl-array array) :pointer))
-  :invalidate (array)
+  (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The values of the scaled irregular modified spherical Bessel
   functions \exp(x) k_l(x) for l from 0 to length(array)-1
@@ -367,8 +367,8 @@
 
 (defmfun spherical-Jnu-array (nu v)
   "gsl_sf_bessel_sequence_Jnu_e"
-  ((nu :double) :mode ((dim0 v) :int) ((gsl-array v) :pointer))
-  :invalidate (v)
+  ((nu :double) :mode ((dim0 v) :int) ((c-pointer v) :pointer))
+  :outputs (v)
   :documentation			; FDL
   "The regular cylindrical Bessel function of
   fractional order \nu, J_\nu(x), evaluated at a series of
@@ -458,6 +458,7 @@
 ;; in macroexpansion the form from within SLIME using SBCL (expands
 ;; fine from shell)
 
+#|
 (make-tests bessel
 	    (cylindrical-bessel-J0 4.0d0)
 	    (cylindrical-bessel-J1 4.0d0)
@@ -540,6 +541,7 @@
 	    (bessel-zero-J0 5)
 	    (bessel-zero-J1 5)
 	    (bessel-zero-Jnu 2.0d0 5))
+|#
 
 |#
 

@@ -1,6 +1,6 @@
 ;; Airy functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:41
-;; Time-stamp: <2008-02-16 17:57:19EST airy.lisp>
+;; Time-stamp: <2008-07-10 21:20:39EDT airy.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -57,22 +57,22 @@
    exp(-(2/3) x^(3/2)), and is 1 for x<0.")
 
 (defmfun airy-zero-Ai (s)
-  "gsl_sf_airy_zero_Ai_e" ((s size) (ret sf-result))
+  "gsl_sf_airy_zero_Ai_e" ((s sizet) (ret sf-result))
   :documentation			; FDL
   "The location of the s-th zero of the Airy function Ai(x).")
 
 (defmfun airy-zero-Bi (s)
-  "gsl_sf_airy_zero_Bi_e" ((s size) (ret sf-result))
+  "gsl_sf_airy_zero_Bi_e" ((s sizet) (ret sf-result))
   :documentation			; FDL
   "The location of the s-th zero of the Airy function Bi(x).")
 
 (defmfun airy-zero-Ai-deriv (s)
-  "gsl_sf_airy_zero_Ai_deriv_e" ((s size) (ret sf-result))
+  "gsl_sf_airy_zero_Ai_deriv_e" ((s sizet) (ret sf-result))
   :documentation			; FDL
   "The location of the s-th zero of the Airy function derivative Ai'(x).")
 
 (defmfun airy-zero-Bi-deriv (s)
-  "gsl_sf_airy_zero_Bi_deriv_e" ((s size) (ret sf-result))
+  "gsl_sf_airy_zero_Bi_deriv_e" ((s sizet) (ret sf-result))
   :documentation			; FDL
   "The location of the s-th zero of the Airy function derivative Bi'(x).")
 

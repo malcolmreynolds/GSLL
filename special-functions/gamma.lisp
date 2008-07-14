@@ -1,6 +1,6 @@
 ;; Gamma functions
 ;; Liam Healy, Thu Apr 27 2006 - 22:06
-;; Time-stamp: <2008-03-27 21:29:36EDT gamma.lisp>
+;; Time-stamp: <2008-07-12 13:44:42EDT gamma.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -79,34 +79,34 @@
   "Compute the Taylor coefficient x^n / n! for x >= 0, n >= 0.")
 
 (defmfun factorial (n)
-  "gsl_sf_fact_e" ((n size) (ret sf-result))
+  "gsl_sf_fact_e" ((n sizet) (ret sf-result))
   :documentation			; FDL
   "The factorial n!, related to the Gamma function by n! = \Gamma(n+1).")
 
 (defmfun double-factorial (n)
-  "gsl_sf_doublefact_e" ((n size) (ret sf-result))
+  "gsl_sf_doublefact_e" ((n sizet) (ret sf-result))
   :documentation			; FDL
   "The double factorial n!! = n(n-2)(n-4) \dots.")
 
 (defmfun log-factorial (n)
-  "gsl_sf_lnfact_e" ((n size) (ret sf-result))
+  "gsl_sf_lnfact_e" ((n sizet) (ret sf-result))
   :documentation			; FDL
   "The logarithm of the factorial of n, log(n!).
   The algorithm is faster than computing
   ln(Gamma(n+1)) via #'log-gamma for n < 170, but defers for larger n.")
 
 (defmfun log-double-factorial (n)
-  "gsl_sf_lndoublefact_e" ((n size) (ret sf-result))
+  "gsl_sf_lndoublefact_e" ((n sizet) (ret sf-result))
   :documentation			; FDL
   "Compute the logarithm of the double factorial of n, log(n!!).")
 
 (defmfun choose (n m)
-  "gsl_sf_choose_e" ((n size) (m size) (ret sf-result))
+  "gsl_sf_choose_e" ((n sizet) (m sizet) (ret sf-result))
   :documentation			; FDL
   "The combinatorial factor (n choose m) = n!/(m!(n-m)!).")
 
 (defmfun log-choose (n m)
-  "gsl_sf_lnchoose_e" ((n size) (m size) (ret sf-result))
+  "gsl_sf_lnchoose_e" ((n sizet) (m sizet) (ret sf-result))
   :documentation			; FDL
   "The logarithm of (n choose m).  This is
   equivalent to the sum log(n!) - log(m!) - log((n-m)!).")

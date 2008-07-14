@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-06-29 19:16:23EDT defmfun.lisp>
+;; Time-stamp: <2008-07-08 21:37:09EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -79,7 +79,7 @@
       (setf indexed-functions (list))
       (wrap-index-export
        (cond
-	 ((member '&optional arglist)
+	 ((and (member '&optional arglist) (listp gsl-name))
 	  (expand-defmfun-optional name arglist gsl-name c-arguments key-args))
 	 ((eq definition :function)
 	  (setf defn 'cl:defun)

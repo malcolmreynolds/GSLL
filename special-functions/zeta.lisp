@@ -1,6 +1,6 @@
 ;; Zeta functions
 ;; Liam Healy, Sat May 13 2006 - 23:27
-;; Time-stamp: <2008-02-16 23:04:22EST zeta.lisp>
+;; Time-stamp: <2008-07-12 13:40:50EDT zeta.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,14 +19,14 @@
 
 (defmfun zeta ((n integer))
   "gsl_sf_zeta_int_e" ((n :int) (ret sf-result))
-  :type :method
+  :definition :method
   :export t
   :documentation			; FDL
   "The Riemann zeta function zeta(n) for integer n, n \ne 1.")
 
 (defmfun zeta ((s float))
   "gsl_sf_zeta_e" ((s :double) (ret sf-result))
-  :type :method
+  :definition :method
   :documentation			; FDL
   "The Riemann zeta function zeta(s) for arbitrary s, s \ne 1.")
 
@@ -39,14 +39,14 @@
 
 (defmfun zeta-1 ((n integer))
   "gsl_sf_zetam1_int_e" ((n :int) (ret sf-result))
-  :type :method
+  :definition :method
   :export t
   :documentation			; FDL
   "The Riemann zeta function zeta(n) for integer n, n \ne 1.")
 
 (defmfun zeta-1 ((s float))
   "gsl_sf_zetam1_e" ((s :double) (ret sf-result))
-  :type :method
+  :definition :method
   :documentation			; FDL
   "The Riemann zeta function zeta(s) for arbitrary s, s \ne 1.")
 

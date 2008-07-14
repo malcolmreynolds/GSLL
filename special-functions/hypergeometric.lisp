@@ -1,6 +1,6 @@
 ;; Hypergeometric function
 ;; Liam Healy, Fri Apr 28 2006 - 23:00
-;; Time-stamp: <2008-02-17 18:30:53EST hypergeometric.lisp>
+;; Time-stamp: <2008-07-10 21:40:45EDT hypergeometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,7 +16,7 @@
 
 (defmfun hypergeometric-1F1 ((m integer) (n integer) x)
   "gsl_sf_hyperg_1F1_int_e" ((m :int) (n :int) (x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :export t
   :documentation			; FDL
   "The confluent hypergeometric function 1F1(m,n,x) = M(m,n,x)
@@ -24,7 +24,7 @@
 
 (defmfun hypergeometric-1F1 ((a float) (b float) x)
   "gsl_sf_hyperg_1F1_e" ((a :double) (b :double) (x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :documentation			; FDL
   "The confluent hypergeometric function
   1F1(a,b,x) = M(a,b,x) for general parameters a, b.")
@@ -35,14 +35,14 @@
 
 (defmfun hypergeometric-U ((m integer) (n integer) x)
   "gsl_sf_hyperg_U_int_e" ((m :int) (n :int) (x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :export t
   :documentation			; FDL
   "The confluent hypergeometric function U(m,n,x) for integer parameters m, n.")
 
 (defmfun hypergeometric-U ((a float) (b float) x)
   "gsl_sf_hyperg_U_e" ((a :double) (b :double) (x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :documentation "The confluent hypergeometric function U(a,b,x).")
 
 (defgeneric hypergeometric-U-e10 (m n x)
@@ -53,7 +53,7 @@
 (defmfun hypergeometric-U-e10 ((m integer) (n integer) x)
   "gsl_sf_hyperg_U_int_e10_e"
   ((m :int) (n :int) (x :double) (ret sf-result-e10))
-  :type :method
+  :definition :method
   :export t
   :documentation			; FDL
   "The confluent hypergeometric function
@@ -63,7 +63,7 @@
 (defmfun hypergeometric-U-e10 ((a float) (b float) x)
   "gsl_sf_hyperg_U_e10_e"
   ((a :double) (b :double) (x :double) (ret sf-result-e10))
-  :type :method
+  :definition :method
   :documentation			; FDL
   "The confluent hypergeometric function
   U(a,b,x) using that returns a result with extended range.")

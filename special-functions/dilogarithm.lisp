@@ -1,6 +1,6 @@
 ;; Dilogarithm
 ;; Liam Healy, Fri Mar 17 2006 - 18:44
-;; Time-stamp: <2008-02-16 20:19:55EST dilogarithm.lisp>
+;; Time-stamp: <2008-07-10 21:36:14EDT dilogarithm.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,12 +12,12 @@
 
 (defmfun dilogarithm ((x float))
   "gsl_sf_dilog_e" ((x :double) (ret sf-result))
-  :type :method)
+  :definition :method)
 
 (defmfun dilogarithm ((x complex))
   "gsl_sf_complex_dilog_e"
   (((abs x) :double) ((phase x) :double) (re sf-result) (im sf-result))
-  :type :method
+  :definition :method
   :return ((complex (val re) (val im)) (complex (err re) (err im))))
 
 #|

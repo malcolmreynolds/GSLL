@@ -1,6 +1,6 @@
 ;; Logarithm
 ;; Liam Healy, Sun Apr 30 2006 - 22:08
-;; Time-stamp: <2008-02-16 22:34:59EST logarithm.lisp>
+;; Time-stamp: <2008-07-10 21:41:27EDT logarithm.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,14 +12,14 @@
 (defmfun gsl-log ((x float))
   "gsl_sf_log_e"
   ((x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :export t)
 
 (defmfun gsl-log ((x complex))
   "gsl_sf_complex_log_e"
   (((realpart x) :double) ((imagpart x) :double)
    (re-ret sf-result) (im-ret sf-result))
-  :type :method
+  :definition :method
   :return
   ((complex (val re-ret) (val im-ret)) (complex (err re-ret) (err im-ret)))
   :documentation			; FDL

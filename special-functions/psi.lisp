@@ -1,6 +1,6 @@
 ;; Psi (digamma) functions
 ;; Liam Healy, Mon May  1 2006 - 22:11
-;; Time-stamp: <2008-02-16 22:43:28EST psi.lisp>
+;; Time-stamp: <2008-07-10 21:42:08EDT psi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -15,14 +15,14 @@
 
 (defmfun psi  ((n integer))
   "gsl_sf_psi_int_e" ((n :int) (ret sf-result))
-  :type :method
+  :definition :method
   :export t
   :documentation			; FDL
   "Domain: n integer, n > 0.")
 
 (defmfun psi ((x float))
   "gsl_sf_psi_e" ((x :double) (ret sf-result))
-  :type :method 
+  :definition :method 
   :documentation			; FDL
   "Domain: x /= 0.0, -1.0, -2.0, ...")
 
@@ -42,13 +42,13 @@
 
 (defmfun psi-1 ((n integer))
   "gsl_sf_psi_1_int_e" ((n :int) (ret sf-result))
-  :type :method 
+  :definition :method 
   :documentation			; FDL
   "Domain: n integer, n > 0.")
 
 (defmfun psi-1 ((x float))
   "gsl_sf_psi_1_e" ((x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :documentation			; FDL
   "Domain: x /= 0.0, -1.0, -2.0, ...")
 

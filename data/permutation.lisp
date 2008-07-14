@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-07-05 14:48:43EDT permutation.lisp>
+;; Time-stamp: <2008-07-12 14:12:36EDT permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,9 +17,10 @@
 
 ;;; The following three forms take the place of a data-defclass call
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
 (defmethod letm-expansion
     (symbol (type (eql 'permutation)) args body)
-  (expand-data symbol type (first args) (second args) body))
+  (expand-data symbol type (first args) (second args) body)))
 
 (arglist-only permutation
 	      "A permutation."
@@ -88,10 +89,14 @@
   "A pointer to the array of elements in the
    permutation p.")
 
+(defgeneric data-valid (object)
+  (:documentation			; FDL
+   "Check that the object p is valid."))
+
 (defmfun data-valid ((permutation permutation))
   "gsl_permutation_valid"
   (((mpointer permutation) :pointer))
-  :definition :generic
+  :definition :method
   :c-return :boolean
   :documentation			; FDL
   "Check that the permutation p is valid.  The n

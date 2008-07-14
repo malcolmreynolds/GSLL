@@ -1,6 +1,6 @@
 ;; Trigonometry
 ;; Liam Healy, Thu May  4 2006 - 22:58
-;; Time-stamp: <2008-02-17 18:30:19EST trigonometry.lisp>
+;; Time-stamp: <2008-07-12 13:41:22EDT trigonometry.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,27 +17,27 @@
 
 (defmfun gsl-sin ((x float))
   "gsl_sf_sin_e" ((x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :export t)
 
 (defmfun gsl-sin ((x complex))
   "gsl_sf_complex_sin_e"
   (((realpart x) :double) ((imagpart x) :double)
    (re-ret sf-result) (im-ret sf-result))
-  :type :method
+  :definition :method
   :return ((complex (val re-ret) (val im-ret))
 	   (complex (err re-ret) (err im-ret))))
 
 (defmfun gsl-cos ((x float))
   "gsl_sf_cos_e" ((x :double) (ret sf-result))
-  :type :method
+  :definition :method
   :export t)
 
 (defmfun gsl-cos ((x complex))
   "gsl_sf_complex_cos_e"
   (((realpart x) :double) ((imagpart x) :double)
    (re-ret sf-result) (im-ret sf-result))
-  :type :method 
+  :definition :method 
   :return ((complex (val re-ret) (val im-ret))
 	   (complex (err re-ret) (err im-ret))))
 

@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-06-29 22:40:33EDT element-types.lisp>
+;; Time-stamp: <2008-07-12 14:21:59EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -249,6 +249,19 @@
   (((complex-to-gsl number) :pointer))
   :c-return :double)
 |#
+
+;;;;****************************************************************************
+;;;; Element types
+;;;;****************************************************************************
+
+(defparameter *array-element-types*
+  (remove-duplicates (all-types *cstd-cl-type-mapping* t) :test 'equal)
+  ;;(all-types ffa::*cffi-and-lisp-types* t)
+  "All the array element types supported.")
+
+(defparameter *array-element-types-no-complex*
+  (remove-if (lambda (tp) (subtypep tp 'complex)) *array-element-types*)
+  "All the array element types supported except for complex types.")
 
 ;;;;****************************************************************************
 ;;;; Types for CFFI (will eventually be in CFFI)

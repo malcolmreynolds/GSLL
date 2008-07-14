@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-03-17 21:35:52EDT polynomial.lisp>
+;; Time-stamp: <2008-07-06 16:57:52EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,7 +14,7 @@
 
 (defmfun polynomial-eval (coefficients x)
   "gsl_poly_eval"
-  (((gsl-array coefficients) :pointer) ((dim0 coefficients) size) (x :double))
+  (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet) (x :double))
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the point x."
   :c-return :double)
@@ -25,17 +25,26 @@
 
 (defmfun divided-difference (dd xa ya)
   "gsl_poly_dd_init"
-  (((gsl-array dd) :pointer)
-   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer)
-   ((dim0 xa) size))
-  :return (dd))
+  (((c-pointer dd) :pointer)
+   ((c-pointer xa) :pointer) ((c-pointer ya) :pointer)
+   ((dim0 xa) sizet))
+  :inputs (xa ya)
+  :outputs (dd)
+  :return (dd)
+  :documentation			; FDL
+  "Compute a divided-difference representation of the
+   interpolating polynomial for the points (xa, ya) stored in
+   the arrays of equal length.  On output the
+   divided-differences of (@var{xa},@var{ya}) are stored in the array
+   dd, of the same length.")
 
 (defmfun polynomial-eval-divided-difference (dd xa x)
   "gsl_poly_dd_eval"
-  (((gsl-array dd) :pointer)
-   ((gsl-array xa) :pointer)
-   ((dim0 xa) size)
+  (((c-pointer dd) :pointer)
+   ((c-pointer xa) :pointer)
+   ((dim0 xa) sizet)
    (x :double))
+  :inputs (dd xa)
   :c-return :double
   :documentation			; FDL
   "Evaluate the polynomial stored in divided-difference form
@@ -43,20 +52,21 @@
 
 (defmfun taylor-divided-difference (coefs xp dd xa workspace)
   "gsl_poly_dd_taylor"
-  (((gsl-array coefs) :pointer)
+  (((c-pointer coefs) :pointer)
    (xp :double)
-   ((gsl-array dd) :pointer)
-   ((gsl-array xa) :pointer)
-   ((dim0 xa) size)
-   ((gsl-array workspace) :pointer))
-  :invalidate (coefs)
+   ((c-pointer dd) :pointer)
+   ((c-pointer xa) :pointer)
+   ((dim0 xa) sizet)
+   ((c-pointer workspace) :pointer))
+  :inputs (coefs xa)
+  :outputs (coefs)
   :documentation			; FDL
   "Convert the divided-difference representation of a
   polynomial to a Taylor expansion.  The divided-difference representation
   is supplied in the arrays dd and xa of the same length.
   On output the Taylor coefficients of the polynomial expanded about the
   point xp are stored in the array coefs which has the same length
-  as xa and dd.  A workspace of length must be provided.")
+  as xa and dd.  A workspace of that length must be provided.")
 
 ;;;;****************************************************************************
 ;;;; Quadratic Equations
@@ -73,7 +83,8 @@
 
 (defmfun solve-quadratic-complex (a b c)
   "gsl_poly_complex_solve_quadratic"
-  ((a :double) (b :double) (c :double) (root1 gsl-complex) (root2 gsl-complex))
+  ((a :double) (b :double) (c :double)
+   (root1 complex-double-c) (root2 complex-double-c))
   :c-return :number-of-answers
   :documentation			; FDL
   "The complex roots of the quadratic equation a x^2 + b x + c = 0.
@@ -98,7 +109,7 @@
 (defmfun solve-cubic-complex (a b c)
   "gsl_poly_complex_solve_cubic"
   ((a :double) (b :double) (c :double)
-   (root1 gsl-complex) (root2 gsl-complex) (root3 gsl-complex))
+   (root1 complex-double-c) (root2 complex-double-c) (root3 complex-double-c))
   :c-return :number-of-answers
   :documentation			; FDL
   "Find the complex roots of the cubic equation, x^3 + a x^2 + b x + c = 0
@@ -113,7 +124,7 @@
 	 allocate-complex-workspace free-complex-workspace)
 
 (defmfun allocate-complex-workspace (n)
-  "gsl_poly_complex_workspace_alloc" ((n size))
+  "gsl_poly_complex_workspace_alloc" ((n sizet))
   :c-return :pointer
   :export nil
   :index (letm complex-workspace))
@@ -124,6 +135,7 @@
   :export nil
   :index (letm complex-workspace))
 
+(export 'polynomial-solve)
 (defun polynomial-solve (coefficients)
   ;; FDL
   "The roots of the general polynomial 
@@ -142,17 +154,17 @@
 
 (defmfun polynomial-solve-ws (coefficients workspace answer-pd)
   "gsl_poly_complex_solve"
-  (((gsl-array coefficients) :pointer) ((dim0 coefficients) size)
-   (workspace :pointer) ((gsl-array answer-pd) :pointer))
+  (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
+   (workspace :pointer) ((c-pointer answer-pd) :pointer))
   :return
   ((loop for i from 0 below (dim0 answer-pd) by 2
 	 collect (complex (maref answer-pd i)
 			  (maref answer-pd (1+ i)))))
+  :export nil
+  :index polynomial-solve
   :documentation			; FDL
   "Arguments are:
-   a GSL array of coefficients, a workspace, a gsl-array of doubles."
-  :export nil
-  :index polynomial-solve)
+   a GSL array of coefficients, a workspace, a gsl-array of doubles.")
 
 
 ;;;;****************************************************************************

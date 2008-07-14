@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-03-09 19:29:18EDT coulomb.lisp>
+;; Time-stamp: <2008-07-08 21:46:07EDT coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -54,8 +54,8 @@
 (defmfun coulomb-wave-F-array (L-min eta x fc-array)
   "gsl_sf_coulomb_wave_F_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
-   ((gsl-array fc-array) :pointer) (F-exponent :double))
-  :invalidate (fc-array)
+   ((c-pointer fc-array) :pointer) (F-exponent :double))
+  :outputs (fc-array)
   :return (fc-array (dcref F-exponent))
   :documentation			; FDL
   "The Coulomb wave function F_L(\eta,x) for
@@ -65,7 +65,7 @@
 (defmfun coulomb-wave-FG-array (L-min eta x fc-array gc-array)
   "gsl_sf_coulomb_wave_FG_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
-   ((gsl-array fc-array) :pointer) ((gsl-array gc-array) :pointer)
+   ((c-pointer fc-array) :pointer) ((c-pointer gc-array) :pointer)
    (F-exponent :double) (G-exponent :double))
   :return (fc-array gc-array (dcref F-exponent) (dcref G-exponent))
   :documentation			; FDL
@@ -77,8 +77,8 @@
 (defmfun coulomb-wave-FGp-array (L-min eta x fc-array fcp-array gc-array gcp-array)
   "gsl_sf_coulomb_wave_FGp_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
-   ((gsl-array fc-array) :pointer) ((gsl-array fcp-array) :pointer)
-   ((gsl-array gc-array) :pointer) ((gsl-array gcp-array) :pointer)
+   ((c-pointer fc-array) :pointer) ((c-pointer fcp-array) :pointer)
+   ((c-pointer gc-array) :pointer) ((c-pointer gcp-array) :pointer)
    (F-exponent :double) (G-exponent :double))
   :return
   (fc-array fcp-array gc-array gcp-array
@@ -94,8 +94,8 @@
 (defmfun coulomb-wave-sphF-array (L-min eta x fc-array)
   "gsl_sf_coulomb_wave_sphF_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
-   ((gsl-array fc-array) :pointer) (F-exponent :double))
-  :invalidate (fc-array)
+   ((c-pointer fc-array) :pointer) (F-exponent :double))
+  :outputs (fc-array)
   :return (fc-array (dcref F-exponent))
   :documentation			; FDL
   "The Coulomb wave function divided by the argument
@@ -117,11 +117,11 @@
 (defmfun coulomb-CL-array (L-min eta cl)
   "gsl_sf_coulomb_CL_array"
   ((L-min :double) ((1- (dim0 cl)) :int) (eta :double)
-   ((gsl-array cl) :pointer))
+   ((c-pointer cl) :pointer))
   :documentation			; FDL
   "The Coulomb wave function normalization constant C_L(\eta)
    for L = Lmin ... Lmin + kmax, Lmin > -1."
-  :invalidate (cl))
+  :outputs (cl))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -146,6 +146,7 @@
     (coulomb-CL-array 0.0d0 1.0d0 cl) (data cl)))
 |#
 
+#|
 (LISP-UNIT:DEFINE-TEST COULOMB
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.1641699972477976d0 1.8226531089715347d-16)
@@ -206,4 +207,5 @@
    (MULTIPLE-VALUE-LIST
     (LETM ((CL (VECTOR-DOUBLE-FLOAT 3)))
       (COULOMB-CL-ARRAY 0.0d0 1.0d0 CL) (DATA CL)))))
+|#
 
