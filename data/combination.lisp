@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-07-06 10:11:25EDT combination.lisp>
+;; Time-stamp: <2008-07-14 23:02:03EDT combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -174,23 +174,23 @@
 
 #|
 (make-tests combination
- (letm ((comb (combination 4 2 t)))	; combination-range
+ (letm ((comb (combination '(4 2) t)))	; combination-range
    (combination-range comb))
- (letm ((comb (combination 4 2 t)))	; combination-size
+ (letm ((comb (combination '(4 2) t)))	; combination-size
    (combination-size comb))
- (letm ((comb (combination 4 2 t)))	; init-first, combination-next
+ (letm ((comb (combination '(4 2) t)))	; init-first, combination-next
    (init-first comb)
-   (loop collect (data comb)
+   (loop collect (copy-seq (cl-array comb))
 	 while (combination-next comb)))
- (letm ((comb (combination 4 2 t)))  ; init-last, combination-previous
+ (letm ((comb (combination '(4 2) t)))  ; init-last, combination-previous
    (init-last comb)
-   (loop collect (data comb)
+   (loop collect (copy-seq (cl-array comb))
 	 while (combination-previous comb)))
  (loop for i from 0 to 4		; combination-next
        append
-       (letm ((comb (combination 4 i t)))
+       (letm ((comb (combination (list 4 i) t)))
 	 (init-first comb)
-	 (loop collect (data comb)
+	 (loop collect (copy-seq (cl-array comb))
 	       while (combination-next comb)))))
 |#
 
