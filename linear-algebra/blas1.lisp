@@ -1,9 +1,30 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-03-28 10:35:04EDT blas1.lisp>
+;; Time-stamp: <2008-07-17 23:00:36EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; new ffa
+(defmfun dot ((vec1 vector) (vec2 vector))
+  ("gsl_blas" :type "dot" :suffix)
+  (((mpointer vec1) :pointer) ((mpointer vec2) :pointer) (result :float))
+  :definition :generic
+  :element-types :float-complex
+  :documentation "Dot, or inner, product between vectors.")
+
+;;; gsl_blas_sdsdot doesn't make much sense, but here it is.
+(defmfun sdot (result alpha vec1 vec2)
+  "gsl_blas_sdsdot"
+  ((alpha :float) ((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
+   (result :pointer))
+  :outputs (result)
+  :documentation "Sum of a scalar and a dot product for single-floats.")
+
+;;; Not porting gsl_blas_dsdot, stupid.
+
+
+;;;;;;;;;;;;;;;;; OLD ;;;;;;;;;;;;;;;;;;;;
 
 ;;; Currently only includes vector-single-float and vector-double-float routines.
 ;;; Not ported: routines that use raw vectors gsl_blas_drotg, gsl_blas_drotmg, gsl_blas_drotm
@@ -16,6 +37,10 @@
 
 (defgeneric dot (vector1 vector2)
   (:documentation "Dot, or inner, product between vectors."))
+
+
+
+
 
 (defgeneric norm (x)
   (:documentation			; FDL

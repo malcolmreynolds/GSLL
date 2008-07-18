@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-07-12 14:21:59EDT element-types.lisp>
+;; Time-stamp: <2008-07-17 22:29:47EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -97,6 +97,12 @@
    in the C standard; in that case, the C type is the GSL struct
    definition.")
 
+(defmacro floating-point-association (splice-list)
+  `(mapcar
+   #'cons
+   (mapcar #'first *fp-type-mapping*)
+   (subseq ,splice-list 0 (length *fp-type-mapping*))))
+
 (defparameter *cstd-gsl-mapping*
   (append
    ;; The integer types 
@@ -120,11 +126,22 @@
    ;; The floating types are associated by order, so it is important that
    ;; order of *fp-type-mapping* and *gsl-splice-fp-types* match,
    ;; though the latter may be longer.
-   (mapcar
-    #'cons
-    (mapcar #'first *fp-type-mapping*)
-    (subseq *gsl-splice-fp-types* 0 (length *fp-type-mapping*))))
+   (floating-point-association *gsl-splice-fp-types*))
   "Mapping the C standard types to the GSL splice name.")
+
+(defparameter *blas-splice-fp-types*
+  ;; Ordered by: real shortest to longest, then complex shortest to longest.
+  ;; Must match *fp-type-mapping*.
+  '("s" "d" #+long-double nil
+    "c" "z" #+long-double nil)
+  "The list of floating point types that can be spliced into BLAS function names.")
+
+(defparameter *cstd-blas-mapping*
+  ;; The floating types are associated by order, so it is important that
+  ;; order of *fp-type-mapping* and *blas-splice-fp-types* match,
+  ;; though the latter may be longer.
+  (floating-point-association *blas-splice-fp-types*)
+  "Mapping the C standard types to the BLAS splice name.")
 
 ;;;;****************************************************************************
 ;;;; Conversions
@@ -154,12 +171,12 @@
 
 ;;; (cl-gsl '(unsigned-byte 8))
 ;;; "uchar"
-(defun cl-gsl (cl-type &optional prepend-underscore)
+(defun cl-gsl (cl-type &optional prepend-underscore blas)
   "The GSL splice string from the CL type."
   (let ((string
 	 (lookup-type
 	  (lookup-type cl-type *cstd-cl-type-mapping* t)
-	  *cstd-gsl-mapping*)))
+	  (if blas *cstd-blas-mapping* *cstd-gsl-mapping*))))
     (if (and prepend-underscore (plusp (length string)))
 	(concatenate 'string "_" string)
 	string)))
@@ -251,7 +268,7 @@
 |#
 
 ;;;;****************************************************************************
-;;;; Element types
+;;;; Common element type groups for generic functions
 ;;;;****************************************************************************
 
 (defparameter *array-element-types*
@@ -261,6 +278,14 @@
 
 (defparameter *array-element-types-no-complex*
   (remove-if (lambda (tp) (subtypep tp 'complex)) *array-element-types*)
+  "All the array element types supported except for complex types.")
+
+(defparameter *float-complex-types*
+  (remove-if (lambda (tp) (subtypep tp 'integer)) *array-element-types*)
+  "All the array element types supported except for complex types.")
+
+(defparameter *float-types*
+  (remove-if-not (lambda (tp) (subtypep tp 'float)) *array-element-types*)
   "All the array element types supported except for complex types.")
 
 ;;;;****************************************************************************

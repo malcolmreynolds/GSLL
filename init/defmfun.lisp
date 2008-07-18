@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-07-08 21:37:09EDT defmfun.lisp>
+;; Time-stamp: <2008-07-17 22:46:01EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -254,6 +254,8 @@
 	    (case element-types
 	      ((nil t) *array-element-types*)
 	      (:no-complex *array-element-types-no-complex*)
+	      (:float *float-types*)
+	      (:float-complex *float-complex-types*)
 	      (t element-types)))))
 
 (defun actual-gsl-function-name (base-name category type)
@@ -261,13 +263,19 @@
   ;; (actual-gsl-function-name
   ;;  '("gsl_" :category :type "_swap") 'vector '(unsigned-byte 16))
   ;; "gsl_vector_ushort_swap"
-  (if (listp base-name)
-      (apply #'concatenate 'string
-	     (substitute (cl-gsl type t) :type
-			 (substitute
-			  (string-downcase (symbol-name category))
-			  :category
-			  base-name)))))
+  (let ((blas (search "blas" (first base-name) :test 'string-equal)))
+    (if (listp base-name)
+	(apply #'concatenate 'string
+	       (substitute
+		(if (subtypep type 'complex) "u" "") :suffix
+		(substitute
+		 (cl-gsl type t blas) :type
+		 (substitute
+		  (string-downcase (symbol-name category))
+		  :category
+		  base-name)))))))
+
+(defun blas-name-final-token ())
 
 (defun actual-class-arglist (arglist element-type &optional replace-both)
   "Replace the prototype arglist with an actual arglist."
