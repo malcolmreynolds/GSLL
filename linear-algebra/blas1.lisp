@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-07-17 23:00:36EDT blas1.lisp>
+;; Time-stamp: <2008-07-20 22:33:51EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,7 +8,8 @@
 ;;; new ffa
 (defmfun dot ((vec1 vector) (vec2 vector))
   ("gsl_blas" :type "dot" :suffix)
-  (((mpointer vec1) :pointer) ((mpointer vec2) :pointer) (result :float))
+  (((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
+   (result :element-c-type))
   :definition :generic
   :element-types :float-complex
   :documentation "Dot, or inner, product between vectors.")
@@ -23,6 +24,24 @@
 
 ;;; Not porting gsl_blas_dsdot, stupid.
 
+(defmfun cdot ((x vector) (y vector))
+  ("gsl_blas" :type "dotc")
+  (((mpointer x) :pointer) ((mpointer y) :pointer)
+   (result :element-c-type))
+  :definition :generic
+  :element-types :complex
+  :inputs (x y)
+  :documentation
+  "The complex conjugate scalar product x^H y for the vectors.")
+
+(defmfun 2norm (vec1 vec2)
+  ("gsl_blas" :component-float-type :type "nrm2")
+  (((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
+   (result :component-float-type))
+  :definition :generic
+  :element-types :float-complex
+  :documentation
+  "The Euclidean norm ||x||_2 = \sqrt {\sum x_i^2} of the vector x.")
 
 ;;;;;;;;;;;;;;;;; OLD ;;;;;;;;;;;;;;;;;;;;
 
@@ -35,16 +54,6 @@
 
 (export '(dot norm asum imax swap copy axpy scal rot))
 
-(defgeneric dot (vector1 vector2)
-  (:documentation "Dot, or inner, product between vectors."))
-
-
-
-
-
-(defgeneric norm (x)
-  (:documentation			; FDL
-   "The Euclidean norm ||x||_2 = \sqrt {\sum x_i^2} of the vector x."))
 
 (defgeneric asum (x)
   (:documentation			; FDL
