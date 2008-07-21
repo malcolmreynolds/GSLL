@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-07-12 14:19:59EDT data.lisp>
+;; Time-stamp: <2008-07-20 22:28:15EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -130,10 +130,7 @@
 ;;;;****************************************************************************
 
 (defun component-type (eltype)
-  (if (subtypep eltype 'complex)
-      ;; complex: use the component type
-      (cl-ffa (second eltype))
-      (cl-ffa eltype)))
+  (cl-ffa (component-float-type eltype)))
 
 (defun component-size (object)
   (if (subtypep (element-type object) 'complex)

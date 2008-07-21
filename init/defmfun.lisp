@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-07-17 22:46:01EDT defmfun.lisp>
+;; Time-stamp: <2008-07-20 22:33:28EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -34,8 +34,10 @@
 ;;; element-types
 ;;;            Permissible types for elements of arrays.  May be
 ;;;            NIL meaning all of *array-element-types*, :no-complex
-;;;            meaning that list without the complex types, or a list
-;;;            of element types.
+;;;            meaning that list without the complex types, 
+;;;	       :float meaning only the float types, :complex only
+;;;	       the complex types, :float-complex both float and complex,
+;;;            or a list of element types.
 ;;; index      Name under which this function should be cross-referenced; t
 ;;;            to use name, nil to not index.
 ;;; export     Whether to export the symbol.
@@ -241,6 +243,8 @@
 	      (remf key-args :documentation)
 	      (when (eq c-return :element-c-type)
 		(setf (getf key-args :c-return) (cl-ffa eltype)))
+	      (when (eq c-return :component-float-type)
+		(setf (getf key-args :c-return) (cl-ffa (component-type eltype))))
 	      (expand-defmfun-plain
 	       (if (eq new-definition :method) (list nil name) name)
 	       (actual-class-arglist arglist eltype replace-both)
@@ -255,6 +259,7 @@
 	      ((nil t) *array-element-types*)
 	      (:no-complex *array-element-types-no-complex*)
 	      (:float *float-types*)
+	      (:complex *complex-types*)
 	      (:float-complex *float-complex-types*)
 	      (t element-types)))))
 
@@ -269,13 +274,17 @@
 	       (substitute
 		(if (subtypep type 'complex) "u" "") :suffix
 		(substitute
-		 (cl-gsl type t blas) :type
+		 (cl-gsl type
+			 (unless     ; should really check it preceeds
+			     (member :component-float-type base-name))
+			 blas) :type
 		 (substitute
-		  (string-downcase (symbol-name category))
-		  :category
-		  base-name)))))))
-
-(defun blas-name-final-token ())
+		  (if (subtypep type 'complex)
+		      (cl-gsl (component-float-type type) t blas)
+		      "") :component-float-type
+		  (substitute
+		   (string-downcase (symbol-name category)) :category
+		   base-name))))))))
 
 (defun actual-class-arglist (arglist element-type &optional replace-both)
   "Replace the prototype arglist with an actual arglist."
@@ -328,8 +337,11 @@
    actual element type."
   (mapcar 
    (lambda (v)
-     (if (eq (st-type v) :element-c-type)
-	 (make-st (st-symbol v) (cl-ffa element-type))
+     (if (member (st-type v) '(:element-c-type :component-float-type))
+	 (make-st (st-symbol v)
+		  (if (eq (st-type v) :component-float-type)
+		      (component-type element-type)
+		      (cl-ffa element-type)))
 	 v))
    c-arguments))
 

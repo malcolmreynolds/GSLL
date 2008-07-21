@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-07-17 22:29:47EDT element-types.lisp>
+;; Time-stamp: <2008-07-20 22:34:41EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -245,6 +245,13 @@
 	  (cffi:mem-aref datslot comptype 1) (imagpart number))
     gsl))
 
+(defun component-float-type (eltype)
+  "The float type of this type."
+  (if (subtypep eltype 'complex)
+      ;; complex: use the component type
+      (second eltype)
+      eltype))
+
 ;;; Use GSL to create the complex.  This actually does work on
 ;;; SBCL/amd64, but it shouldn't.
 #+(or)
@@ -287,6 +294,10 @@
 (defparameter *float-types*
   (remove-if-not (lambda (tp) (subtypep tp 'float)) *array-element-types*)
   "All the array element types supported except for complex types.")
+
+(defparameter *complex-types*
+  (remove-if-not (lambda (tp) (subtypep tp 'complex)) *array-element-types*)
+  "All the supported complex array element types.")
 
 ;;;;****************************************************************************
 ;;;; Types for CFFI (will eventually be in CFFI)
