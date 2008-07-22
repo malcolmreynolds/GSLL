@@ -1,18 +1,18 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-07-20 22:33:51EDT blas1.lisp>
+;; Time-stamp: <2008-07-21 22:53:55EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;;; new ffa
 (defmfun dot ((vec1 vector) (vec2 vector))
-  ("gsl_blas" :type "dot" :suffix)
+  ("gsl_blas_" :type "dot" :suffix)
   (((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
    (result :element-c-type))
   :definition :generic
   :element-types :float-complex
-  :documentation "Dot, or inner, product between vectors.")
+  :documentation			; FDL
+  "Dot, or inner, product between vectors.")
 
 ;;; gsl_blas_sdsdot doesn't make much sense, but here it is.
 (defmfun sdot (result alpha vec1 vec2)
@@ -20,28 +20,106 @@
   ((alpha :float) ((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
    (result :pointer))
   :outputs (result)
-  :documentation "Sum of a scalar and a dot product for single-floats.")
+  :documentation			; FDL
+  "Sum of a scalar and a dot product for single-floats.")
 
 ;;; Not porting gsl_blas_dsdot, stupid.
 
 (defmfun cdot ((x vector) (y vector))
-  ("gsl_blas" :type "dotc")
+  ("gsl_blas_" :type "dotc")
   (((mpointer x) :pointer) ((mpointer y) :pointer)
    (result :element-c-type))
   :definition :generic
   :element-types :complex
   :inputs (x y)
-  :documentation
+  :documentation			; FDL
   "The complex conjugate scalar product x^H y for the vectors.")
 
-(defmfun 2norm (vec1 vec2)
-  ("gsl_blas" :component-float-type :type "nrm2")
+(defmfun 2norm ((vec1 vector) (vec2 vector))
+  ("gsl_blas_" :component-float-type :type "nrm2")
   (((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
    (result :component-float-type))
   :definition :generic
   :element-types :float-complex
-  :documentation
+  :inputs (vec1 vec2)
+  :documentation			; FDL
   "The Euclidean norm ||x||_2 = \sqrt {\sum x_i^2} of the vector x.")
+
+(defmfun absolute-sum ((x vector))
+  ("gsl_blas_" :component-float-type :type "asum")
+  (((mpointer x) :pointer)
+   (result :component-float-type))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (x)
+  :documentation			; FDL
+  "The absolute sum \sum |x_i| of the elements of the vector x.")
+
+(defmfun index-max ((vec vector))
+  ("gsl_blas_i" :type "amax")
+  (((c-pointer vec) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :c-return sizet
+  :inputs (vec)
+  :documentation			; FDL
+  "The index of the largest element of the vector
+   x. The largest element is determined by its absolute magnitude for
+   real vectors and by the sum of the magnitudes of the real and
+   imaginary parts |\Re(x_i)| + |\Im(x_i)| for complex vectors. If the
+   largest value occurs several times then the index of the first
+   occurrence is returned.")
+
+(defmfun blas-swap ((vec1 vector) (vec2 vector))
+  ("gsl_blas_" :type "swap")
+  (((mpointer vec1) :pointer) ((mpointer vec2) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (vec1 vec2)
+  :outputs (vec1 vec2)
+  :documentation			; FDL
+  "Exchange the elements of the vectors.")
+
+(defmfun blas-copy ((x vector) (y vector))
+  ("gsl_blas_" :type "copy")
+  (((mpointer x) :pointer) ((mpointer y) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (x)
+  :outputs (y)
+  :documentation			; FDL
+  "Copy the elements of the vector x into the vector y.")
+
+(defmfun axpy (alpha (x vector) (y vector))
+  ("gsl_blas_" :type "axpy")
+  ((alpha  :element-c-type) ((mpointer x) :pointer) ((mpointer y) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (x y)
+  :outputs (y)
+  :documentation			; FDL
+  "Copy the elements of the vector x into the vector y.")
+
+(defmfun scale (alpha (x vector))
+  ;; Alpha is the same type as the elements of vector.
+  ("gsl_blas_" :type "scal")
+  ((alpha  :element-c-type) ((mpointer x) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (x)
+  :outputs (x)
+  :documentation			; FDL
+  "Rescale the vector x by the multiplicative factor alpha.")
+
+(defmfun scale (alpha (x vector))
+  ;; Alpha is a float.  
+  ("gsl_blas_" :type :component-float-type "scal")
+  ((alpha :component-float-type) ((mpointer x) :pointer))
+  :definition :methods
+  :element-types :complex
+  :inputs (x)
+  :outputs (x))
+
 
 ;;;;;;;;;;;;;;;;; OLD ;;;;;;;;;;;;;;;;;;;;
 
@@ -54,35 +132,6 @@
 
 (export '(dot norm asum imax swap copy axpy scal rot))
 
-
-(defgeneric asum (x)
-  (:documentation			; FDL
-   "The absolute sum \sum |x_i| of the elements of the vector x."))
-
-(defgeneric imax (x)
-  (:documentation			; FDL
-   "The index of the largest element of the vector
-   x. The largest element is determined by its absolute magnitude for
-   real vectors and by the sum of the magnitudes of the real and
-   imaginary parts |\Re(x_i)| + |\Im(x_i)| for complex vectors. If the
-   largest value occurs several times then the index of the first
-   occurrence is returned."))
-
-(defgeneric blas-swap (x y)
-  (:documentation			; FDL
-   "Exchange the elements of the vectors x and y"))
-
-(defgeneric blas-copy (x y)
-  (:documentation			; FDL
-   "Copy the elements of the vector x into the vector y."))
-
-(defgeneric axpy (alpha x y)
-  (:documentation			; FDL
-   "The sum y = \alpha x + y for the vectors x and y."))
-
-(defgeneric scal (alpha x)
-  (:documentation			; FDL
-   "Rescale the vector x by the multiplicative factor alpha."))
 
 (defgeneric rot (x y c s)
   (:documentation			; FDL

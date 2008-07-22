@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-07-20 22:33:28EDT defmfun.lisp>
+;; Time-stamp: <2008-07-21 22:48:03EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -264,7 +264,8 @@
 	      (t element-types)))))
 
 (defun actual-gsl-function-name (base-name category type)
-  "Create the GSL function name for data from the base name and the CL type."
+  "Create the GSL or BLAS function name for data from the base name
+   and the CL type."
   ;; (actual-gsl-function-name
   ;;  '("gsl_" :category :type "_swap") 'vector '(unsigned-byte 16))
   ;; "gsl_vector_ushort_swap"
@@ -274,13 +275,10 @@
 	       (substitute
 		(if (subtypep type 'complex) "u" "") :suffix
 		(substitute
-		 (cl-gsl type
-			 (unless     ; should really check it preceeds
-			     (member :component-float-type base-name))
-			 blas) :type
+		 (cl-gsl type (not blas) blas) :type
 		 (substitute
 		  (if (subtypep type 'complex)
-		      (cl-gsl (component-float-type type) t blas)
+		      (cl-gsl (component-float-type type) nil blas)
 		      "") :component-float-type
 		  (substitute
 		   (string-downcase (symbol-name category)) :category
