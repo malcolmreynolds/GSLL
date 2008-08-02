@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-07-21 22:48:03EDT defmfun.lisp>
+;; Time-stamp: <2008-08-02 19:18:11EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -284,22 +284,34 @@
 		   (string-downcase (symbol-name category)) :category
 		   base-name))))))))
 
+(defun number-class-from-type (type)
+  "Find a class name that contains this type."
+  ;; Not exhaustive; just trying to separate reals and complex.
+  (cond ((subtypep type 'complex) 'complex)
+	((subtypep type 'float) 'float)
+	(t (error "Can't pass type ~a." type))))
+
 (defun actual-class-arglist (arglist element-type &optional replace-both)
   "Replace the prototype arglist with an actual arglist."
   (loop for arg in arglist
-	with replacing = t
-	do
-	(when (and replacing (member arg '(&optional)))
-	  (setf replacing nil))
-	collect
-	(if (and replacing (listp arg))
-	    (list (first arg)
+     with replacing = t
+     do
+     (when (and replacing (member arg '(&optional)))
+       (setf replacing nil))
+     collect
+     (if (and replacing (listp arg))
+	 (list (first arg)
+	       (case (second arg)
+		 (:element-c-type (number-class-from-type element-type))
+		 (:component-float-type
+		  (number-class-from-type (component-float-type element-type)))
+		 (otherwise
 		  (data-class-name
 		   (if (and (eq (second arg) 'both) replace-both)
 		       replace-both
 		       (second arg))
-		   element-type))
-	    arg)))
+		   element-type))))
+	 arg)))
 
 (defun arglist-plain-and-categories (arglist)
   "Get arglist without classes and a list of categories."
@@ -420,7 +432,8 @@
 	for cl-type = (cffi-cl (st-type sd))
 	append
 	(when (and cl-type (subtypep cl-type 'complex)
-		   (member (st-symbol sd) cl-arguments))
+		   (member (st-symbol sd)
+			   (arglist-plain-and-categories cl-arguments)))
 	  (list (list (st-symbol sd)
 		      (gensym (string (st-symbol sd)))
 		      (st-type sd))))))

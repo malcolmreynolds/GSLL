@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-07-21 22:53:55EDT blas1.lisp>
+;; Time-stamp: <2008-08-02 19:19:02EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -100,10 +100,11 @@
   :documentation			; FDL
   "Copy the elements of the vector x into the vector y.")
 
-(defmfun scale (alpha (x vector))
-  ;; Alpha is the same type as the elements of vector.
+(defmfun scale ((alpha :element-c-type) (x vector))
+  ;; Alpha is the same type as the elements of vector, so for complex
+  ;; vectors it must be complex.
   ("gsl_blas_" :type "scal")
-  ((alpha  :element-c-type) ((mpointer x) :pointer))
+  ((alpha :element-c-type) ((mpointer x) :pointer))
   :definition :generic
   :element-types :float-complex
   :inputs (x)
@@ -111,8 +112,8 @@
   :documentation			; FDL
   "Rescale the vector x by the multiplicative factor alpha.")
 
-(defmfun scale (alpha (x vector))
-  ;; Alpha is a float.  
+(defmfun scale ((alpha :component-float-type) (x vector))
+  ;; Alpha is a float and the vector is complex
   ("gsl_blas_" :type :component-float-type "scal")
   ((alpha :component-float-type) ((mpointer x) :pointer))
   :definition :methods
