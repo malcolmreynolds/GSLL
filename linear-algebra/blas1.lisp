@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-08-02 19:19:02EDT blas1.lisp>
+;; Time-stamp: <2008-08-02 20:05:38EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -121,136 +121,61 @@
   :inputs (x)
   :outputs (x))
 
+;;; The Givens rotations come in two forms, those that work on bare C
+;;; arrays, and those that work on GSL vectors.  Ports of both are
+;;; present.
 
-;;;;;;;;;;;;;;;;; OLD ;;;;;;;;;;;;;;;;;;;;
+(defmfun givens-rotation ((x vector) (y vector) (c vector) (s vector))
+  ("gsl_blas_" :type "rotg")
+  (((c-pointer x) :pointer) ((c-pointer y) :pointer)
+   ((c-pointer c) :pointer) ((c-pointer s) :pointer))
+  :definition :generic
+  :element-types :float
+  :inputs (x y c s)
+  :outputs (x y)
+  :documentation			; FDL
+  "These functions compute a Givens rotation (c,s) to the vector (x,y),
+          [  c  s ] [ x ] = [ r ]
+          [ -s  c ] [ y ]   [ 0 ]
+   The variables x and y are overwritten by the routine.")
 
-;;; Currently only includes vector-single-float and vector-double-float routines.
-;;; Not ported: routines that use raw vectors gsl_blas_drotg, gsl_blas_drotmg, gsl_blas_drotm
+(defmfun givens-rotation-m ((x vector) (y vector) (c vector) (s vector))
+  ("gsl_blas_" :type "rot")
+  (((mpointer x) :pointer) ((mpointer y) :pointer)
+   ((mpointer c) :pointer) ((mpointer s) :pointer))
+  :definition :generic
+  :element-types :float
+  :inputs (x y c s)
+  :outputs (x y)
+  :documentation			; FDL
+  "These functions compute a Givens rotation (c,s) to the vector (x,y),
+          [  c  s ] [ x ] = [ r ]
+          [ -s  c ] [ y ]   [ 0 ]
+   The variables x and y are overwritten by the routine.")
 
-;;;;****************************************************************************
-;;;; Generic
-;;;;****************************************************************************
+(defmfun modified-givens-rotation
+    ((d1 vector) (d2 vector) (b1 vector) b2 (P vector))
+  ("gsl_blas_" :type "rotmg")
+  (((c-pointer d1) :pointer) ((c-pointer d1) :pointer)
+   ((c-pointer b1) :pointer) (b2 :element-c-type)
+   ((c-pointer P) :pointer))
+  :definition :generic
+  :element-types :float
+  :inputs (d1 d2 b1 P)
+  :outputs ()				; I have no idea
+  :documentation
+  "Not explained")
 
-(export '(dot norm asum imax swap copy axpy scal rot))
-
-
-(defgeneric rot (x y c s)
-  (:documentation			; FDL
-   "Apply a Givens rotation (x', y') = (c x + s y, -s x + c y) to the vectors x, y."))
-
-;;;;****************************************************************************
-;;;; Single
-;;;;****************************************************************************
-
-(defmfun sdot (result alpha vec1 vec2)
-  "gsl_blas_sdsdot"
-  ((alpha :float) ((pointer vec1) :pointer) ((pointer vec2) :pointer)
-   ((gsl-array result) :pointer))
-  :invalidate (result))
-
-(defmfun dot ((vec1 vector-single-float) (vec2 vector-single-float))
-  "gsl_blas_sdot"
-  (((pointer vec1) :pointer) ((pointer vec2) :pointer) (result :float))
-  :type :method)
-
-(defmfun norm ((vec vector-single-float))
-  "gsl_blas_snrm2"  (((pointer vec) :pointer))
-  :type :method
-  :c-return :float)
-
-(defmfun asum ((vec vector-single-float))
-  "gsl_blas_sasum" (((pointer vec) :pointer))
-  :type :method
-  :c-return :float)
-
-(defmfun imax ((vec vector-single-float))
-  "gsl_blas_isamax" (((pointer vec) :pointer))
-  :type :method 
-  :c-return :int)
-
-(defmfun blas-swap ((vec1 vector-single-float) (vec2 vector-single-float))
-  "gsl_blas_sswap" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  :type :method 
-  :invalidate (vec1 vec2))
-
-(defmfun blas-copy ((vec1 vector-single-float) (vec2 vector-single-float))
-  "gsl_blas_scopy" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  :type :method
-  :invalidate (vec2))
-
-(defmfun axpy (alpha (vec1 vector-single-float) (vec2 vector-single-float))
-  "gsl_blas_saxpy"
-  ((alpha :float) ((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  :type :method 
-  :invalidate (vec2))
-
-(defmfun scal (alpha (vec vector-single-float))
-  "gsl_blas_sscal" ((alpha :float) ((pointer vec) :pointer))
-  :type :method 
-  :invalidate (vec)
-  :c-return :void)
-
-(defmfun rot
-    ((vec1 vector-single-float) (vec2 vector-single-float)
-     (c float) (s float))
-  "gsl_blas_srot"
-  (((pointer vec1) :pointer) ((pointer vec2) :pointer) (c :float) (s :float))
-  :type :method
-  :invalidate (vec1 vec2))
-
-;;;;****************************************************************************
-;;;; Double
-;;;;****************************************************************************
-
-(defmfun dot ((vec1 vector-double-float) (vec2 vector-double-float))
-  "gsl_blas_ddot"
-  (((pointer vec1) :pointer) ((pointer vec2) :pointer) (result :double))
-  :type :method)
-
-(defmfun norm ((vec vector-double-float))
-  "gsl_blas_dnrm2"  (((pointer vec) :pointer))
-  :type :method
-  :c-return :double)
-
-(defmfun asum ((vec vector-double-float))
-  "gsl_blas_dasum" (((pointer vec) :pointer))
-  :type :method
-  :c-return :double)
-
-(defmfun imax ((vec vector-double-float))
-  "gsl_blas_idamax" (((pointer vec) :pointer))
-  :type :method 
-  :c-return :int)
-
-(defmfun blas-swap ((vec1 vector-double-float) (vec2 vector-double-float))
-  "gsl_blas_dswap" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  :type :method 
-  :invalidate (vec1 vec2))
-
-(defmfun blas-copy ((vec1 vector-double-float) (vec2 vector-double-float))
-  "gsl_blas_dcopy" (((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  :type :method
-  :invalidate (vec2))
-
-(defmfun axpy (alpha (vec1 vector-double-float) (vec2 vector-double-float))
-  "gsl_blas_daxpy"
-  ((alpha :double) ((pointer vec1) :pointer) ((pointer vec2) :pointer))
-  :type :method 
-  :invalidate (vec2))
-
-(defmfun scal (alpha (vec vector-double-float))
-  "gsl_blas_dscal" ((alpha :double) ((pointer vec) :pointer))
-  :type :method 
-  :invalidate (vec)
-  :c-return :void)
-
-(defmfun rot
-    ((vec1 vector-double-float) (vec2 vector-double-float)
-     (c float) (s float))
-  "gsl_blas_drot"
-  (((pointer vec1) :pointer) ((pointer vec2) :pointer) (c :double) (s :double))
-  :type :method
-  :invalidate (vec1 vec2))
+(defmfun modified-givens-rotation-m ((x vector) (y vector) (P vector))
+  ("gsl_blas_" :type "rotm")
+  (((mpointer x) :pointer) ((mpointer y) :pointer)
+   ((mpointer P) :pointer))
+  :definition :generic
+  :element-types :float
+  :inputs (x y P)
+  :outputs (x y)			;?????
+  :documentation	
+  "Not explained")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
