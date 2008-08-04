@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-08-02 20:05:38EDT blas1.lisp>
+;; Time-stamp: <2008-08-03 23:24:43EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -100,7 +100,7 @@
   :documentation			; FDL
   "Copy the elements of the vector x into the vector y.")
 
-(defmfun scale ((alpha :element-c-type) (x vector))
+(defmfun scale ((alpha :element-type) (x vector))
   ;; Alpha is the same type as the elements of vector, so for complex
   ;; vectors it must be complex.
   ("gsl_blas_" :type "scal")

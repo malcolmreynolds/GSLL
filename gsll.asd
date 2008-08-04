@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-07-15 22:24:27EDT gsll.asd>
+;; Time-stamp: <2008-08-03 23:27:56EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -76,20 +76,20 @@
 	     (:file "trigonometry" :depends-on (return-structures))
 	     (:file "zeta" :depends-on (return-structures))))
    (:file "sorting" :depends-on (init data))
-   #+no
    (:module linear-algebra
 	    :depends-on (init data)
 	    :components
 	    ((:file "blas1")
-	     (:file "blas2")
-	     (:file "blas3" :depends-on (blas2))
-	     (:file "lu")
-	     (:file "qr")
-	     (:file "qrpt")
-	     (:file "svd")
-	     (:file "cholesky")
-	     (:file "diagonal")
-	     (:file "householder")))
+	     ;(:file "blas2")
+	     ;(:file "blas3" :depends-on (blas2))
+	     ;(:file "lu")
+	     ;(:file "qr")
+	     ;(:file "qrpt")
+	     ;(:file "svd")
+	     ; (:file "cholesky")
+	     ; (:file "diagonal")
+	     ;(:file "householder")
+	     ))
    #+no
    (:file "eigensystems" :depends-on (init data))
    ;; Skip fft for now, I'm not sure how it works in C

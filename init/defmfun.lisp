@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-02 19:18:11EDT defmfun.lisp>
+;; Time-stamp: <2008-08-03 23:27:25EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -302,7 +302,7 @@
      (if (and replacing (listp arg))
 	 (list (first arg)
 	       (case (second arg)
-		 (:element-c-type (number-class-from-type element-type))
+		 (:element-type (number-class-from-type element-type))
 		 (:component-float-type
 		  (number-class-from-type (component-float-type element-type)))
 		 (otherwise
