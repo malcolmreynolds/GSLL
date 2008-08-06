@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-03-09 14:15:02EDT blas2.lisp>
+;; Time-stamp: <2008-08-06 22:49:49EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,188 +22,181 @@
  (:nonunit 131) :unit)
 
 ;;;;****************************************************************************
-;;;; Generic
+;;;; Functions
 ;;;;****************************************************************************
 
-(export '(gemv trmv trsv symv ger syr syr2))
-
-(defgeneric gemv (TransA alpha A x beta y)
-  (:method :after (TransA alpha A x beta y)
-	   (cl-invalidate y))
-  (:documentation			; FDL
-   "The matrix-vector product and sum
+(defmfun matrix-vector-product
+    (TransA alpha (A matrix) (x vector) beta (y vector))
+  ("gsl_blas_" :type "gemv")
+  ((transa cblas-transpose) (alpha :element-c-type) ((mpointer A) :pointer)
+   ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (A x y)
+  :outputs (y)
+  :documentation			; FDL
+  "The matrix-vector product and sum
     y = alpha op(A) x + beta y, where op(A) = A, A^T, A^H
-    for TransA = :notrans, :trans, :conjtrans."))
+    for TransA = :notrans, :trans, :conjtrans.")
 
-(defgeneric trmv (uplo TransA diag A x)
-  (:method :after (uplo TransA diag A x)
-	   (cl-invalidate x))
-  (:documentation			; FDL
-   "The matrix-vector product x =\alpha op(A) x
+(defmfun matrix-vector-product-triangular
+    (uplo TransA diag (A matrix) (x vector))
+  ("gsl_blas_" :type "trmv")
+  ((uplo cblas-uplo) (TransA cblas-transpose) (diag cblas-diag)
+   ((mpointer A) :pointer) ((mpointer x) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (TransA A x)
+  :outputs (x)
+  :documentation			; FDL
+  "The matrix-vector product x =\alpha op(A) x
    for the triangular matrix A, where op(A) = A, A^T, A^H for
    TransA = :NoTrans, :Trans, :ConjTrans. When Uplo
    is :Upper then the upper triangle of A is used, and when
    Uplo is :Lower then the lower triangle of A is used. If
    Diag is :NonUnit then the diagonal of the matrix is used,
    but if Diag is :Unit then the diagonal elements of the
-   matrix A are taken as unity and are not referenced."))
+   matrix A are taken as unity and are not referenced.")
 
-(defgeneric trsv (uplo TransA diag A x)
-  (:method :after (uplo TransA diag A x)
-	   (cl-invalidate x))
-  (:documentation			; FDL
-   "Compute inv(op(A)) x for x, where op(A) = A, A^T, A^H for
+(defmfun inverse-matrix-vector-product
+    (uplo TransA diag (A matrix) (x vector))
+  ("gsl_blas_" :type "trsv")
+  ((uplo cblas-uplo) (TransA cblas-transpose) (diag cblas-diag)
+   ((mpointer A) :pointer) ((mpointer x) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (A x)
+  :outputs (x)
+  :documentation			; FDL
+  "Compute inv(op(A)) x for x, where op(A) = A, A^T, A^H for
     TransA = :NoTrans, :Trans, :ConjTrans. When Uplo is
     :Upper then the upper triangle of A is used, and when Uplo is
     :Lower then the lower triangle of A is used. If Diag is
     :NonUnit then the diagonal of the matrix is used, but if Diag
     is :Unit then the diagonal elements of the matrix A are taken
-    as unity and are not referenced."))
+    as unity and are not referenced.")
 
-(defgeneric symv (uplo alpha A x beta y)
-  (:method :after (uplo alpha A x beta y)
-	   (cl-invalidate y))
-  (:documentation			; FDL
-   "The matrix-vector product and sum y = alpha A
+(defmfun matrix-vector-product-symmetric
+    (uplo alpha (A matrix) (x vector) beta (y vector))
+  ("gsl_blas_" :type "symv")
+  ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
+   ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
+  :definition :generic
+  :element-types :float
+  :inputs (A x y)
+  :outputs (y)
+  :documentation			; FDL
+  "The matrix-vector product and sum y = alpha A
   x + beta y for the symmetric matrix A. Since the matrix A is
   symmetric only its upper half or lower half need to be
   stored. When Uplo is :Upper then the upper triangle and
   diagonal of A are used, and when Uplo is :Lower then the
-  lower triangle and diagonal of A are used."))
+  lower triangle and diagonal of A are used.")
 
-(defgeneric ger (alpha x y A)
-  (:method :after (alpha x y A)
-	   (cl-invalidate A))
-  (:documentation			; FDL
-   "The rank-1 update A = alpha x y^T + A of the matrix A."))
+(defmfun matrix-vector-product-hermitian 
+  (uplo alpha (A matrix) (x vector) beta (y vector))
+  ("gsl_blas_" :type "hemv")
+  ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
+   ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
+  :definition :generic
+  :element-types :complex
+  :inputs (A x y)
+  :outputs (y)
+  :documentation			; FDL
+  "The matrix-vector product and sum y = alpha A x + beta y for the
+  hermitian matrix A. Since the matrix A is hermitian only its upper
+  half or lower half need to be stored. When Uplo is CblasUpper then
+  the upper triangle and diagonal of A are used, and when Uplo is
+  CblasLower then the lower triangle and diagonal of A are used. The
+  imaginary elements of the diagonal are automatically assumed to be
+  zero and are not referenced.")
 
-(defgeneric syr (uplo alpha x A)
-  (:method :after (uplo alpha x A)
-	   (cl-invalidate A))
-  (:documentation			; FDL
-   "The symmetric rank-1 update A = \alpha x x^T +
+(defmfun rank-1-update (alpha (x vector) (y vector) (A matrix))
+  ("gsl_blas_" :type "ger" :suffix)
+  ((alpha :element-c-type) ((mpointer A) :pointer)
+   ((mpointer x) :pointer) ((mpointer y) :pointer))
+  :definition :generic
+  :element-types :float-complex
+  :inputs (x y A)
+  :outputs (A)
+  :documentation			; FDL
+   "The rank-1 update A = alpha x y^T + A of the matrix A.")
+
+(defmfun conjugate-rank-1-update (alpha (x vector) (y vector) (A matrix))
+  ("gsl_blas_" :type "gerc")
+  ((alpha :element-c-type) ((mpointer A) :pointer)
+   ((mpointer x) :pointer) ((mpointer y) :pointer))
+  :definition :generic
+  :element-types :complex
+  :inputs (x y A)
+  :outputs (A)
+  :documentation			; FDL
+   "The conjugate rank-1 update A = alpha x y^H + A of the matrix A.")
+
+(defmfun symmetric-rank-1-update (uplo alpha (x vector) (A matrix))
+  ("gsl_blas_" :type "syr")
+  ((uplo cblas-uplo) (alpha :element-c-type)
+   ((mpointer x) :pointer) ((mpointer A) :pointer))
+  :definition :generic
+  :element-types :float
+  :inputs (x A)
+  :outputs (A)
+  :documentation			; FDL
+  "The symmetric rank-1 update A = \alpha x x^T +
   A of the symmetric matrix A. Since the matrix A is symmetric
   only its upper half or lower half need to be stored. When Uplo
   is :Upper then the upper triangle and diagonal of A are
   used, and when Uplo is :Lower then the lower triangle and
-  diagonal of A are used."))
+  diagonal of A are used.")
 
-(defgeneric syr2 (uplo alpha x y A)
-  (:method :after (uplo alpha x y A)
-	   (cl-invalidate A))
-  (:documentation			; FDL
-   "The symmetric rank-2 update A = \alpha x y^T +
+(defmfun hermitian-rank-1-update (uplo alpha (x vector) (A matrix))
+  ("gsl_blas_" :type "her")
+  ((uplo cblas-uplo) (alpha :element-c-type)
+   ((mpointer x) :pointer) ((mpointer A) :pointer))
+  :definition :generic
+  :element-types :complex
+  :inputs (x A)
+  :outputs (A)
+  :documentation			; FDL
+  "Compute the hermitian rank-1 update A = alpha x x^H + A of the
+  hermitian matrix A. Since the matrix A is hermitian only its upper
+  half or lower half need to be stored. When Uplo is :upper then
+  the upper triangle and diagonal of A are used, and when Uplo is
+  :lower then the lower triangle and diagonal of A are used. The
+  imaginary elements of the diagonal are automatically set to zero.")
+
+(defmfun symmetric-rank-2-update (uplo alpha (x vector) (y vector) (A matrix))
+  ("gsl_blas_" :type "syr2")
+  ((uplo cblas-uplo) (alpha :element-c-type)
+   ((mpointer x) :pointer)  ((mpointer y) :pointer)
+   ((mpointer A) :pointer))
+  :definition :generic
+  :element-types :float
+  :inputs (x y A)
+  :outputs (A)
+  :documentation			; FDL
+  "The symmetric rank-2 update A = alpha x y^T +
   alpha y x^T + A of the symmetric matrix A. Since the matrix A
   is symmetric only its upper half or lower half need to be
   stored. When Uplo is :Upper then the upper triangle and
   diagonal of A are used, and when Uplo is :Lower then the
-  lower triangle and diagonal of A are used."))
+  lower triangle and diagonal of A are used.")
 
-;;;;****************************************************************************
-;;;; Single
-;;;;****************************************************************************
-
-(defmfun gemv
-    (TransA alpha
-	    (A matrix-single-float) (x vector-single-float) beta (y vector-single-float))
-  "gsl_blas_sgemv"
-  ((transa cblas-transpose) (alpha :float) ((pointer A) gsl-matrix-c)
-   ((pointer x) gsl-vector-c) (beta :float) ((pointer y) gsl-vector-c))
-  :type :method)
-
-(defmfun trmv (uplo transa diag (A matrix-single-float) (x vector-single-float))
-  "gsl_blas_strmv"
-  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :type :method)
-
-(defmfun trsv (uplo transa diag (A matrix-single-float) (x vector-single-float))
-  "gsl_blas_strsv"
-  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :type :method)
-
-(defmfun symv
-    (uplo alpha (A matrix-single-float) (x vector-single-float)
-	  beta (y vector-single-float))
-  "gsl_blas_ssymv"
-  ((uplo cblas-uplo) (alpha :float) ((pointer A) gsl-matrix-c)
-   ((pointer x) gsl-vector-c) (beta :float) ((pointer y) gsl-vector-c))
-  :type :method)
-
-(defmfun ger
-    (alpha (x vector-single-float) (y vector-single-float) (A matrix-single-float))
-  "gsl_blas_sger"
-  ((alpha :float) ((pointer x) gsl-vector-c)
-   ((pointer y) gsl-vector-c) ((pointer A) gsl-matrix-c))
-  :type :method)
-
-(defmfun syr (uplo alpha (x vector-single-float) (A matrix-single-float))
-  "gsl_blas_ssyr"
-  ((uplo cblas-uplo) (alpha :float)
-   ((pointer x) gsl-vector-c) ((pointer A) gsl-matrix-c))
-  :type :method)
-
-(defmfun syr2
-    (uplo alpha (x vector-single-float) (y vector-single-float) (A matrix-single-float))
-  "gsl_blas_ssyr2"
-  ((uplo cblas-uplo) (alpha :float)
-   ((pointer x) gsl-vector-c) ((pointer y) gsl-vector-c)
-   ((pointer A) gsl-matrix-c))
-  :type :method)
-
-;;;;****************************************************************************
-;;;; Double
-;;;;****************************************************************************
-
-(defmfun gemv
-    (TransA alpha
-    (A matrix-double-float) (x vector-double-float) beta (y vector-double-float))
-  "gsl_blas_dgemv"
-  ((transa cblas-transpose) (alpha :double) ((pointer A) gsl-matrix-c)
-   ((pointer x) gsl-vector-c) (beta :double) ((pointer y) gsl-vector-c))
-  :type :method)
-
-(defmfun trmv (uplo transa diag (A matrix-double-float) (x vector-double-float))
-  "gsl_blas_dtrmv"
-  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :type :method)
-
-(defmfun trsv (uplo transa diag (A matrix-double-float) (x vector-double-float))
-  "gsl_blas_dtrsv"
-  ((uplo cblas-uplo) (transa cblas-transpose) (diag cblas-diag)
-   ((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :type :method)
-
-(defmfun symv
-    (uplo alpha (A matrix-double-float) (x vector-double-float)
-	  beta (y vector-double-float))
-  "gsl_blas_dsymv"
-  ((uplo cblas-uplo) (alpha :double) ((pointer A) gsl-matrix-c)
-   ((pointer x) gsl-vector-c) (beta :double) ((pointer y) gsl-vector-c))
-  :type :method)
-
-(defmfun ger
-    (alpha (x vector-double-float) (y vector-double-float) (A matrix-double-float))
-  "gsl_blas_dger"
-  ((alpha :double) ((pointer x) gsl-vector-c)
-   ((pointer y) gsl-vector-c) ((pointer A) gsl-matrix-c))
-  :type :method)
-
-(defmfun syr (uplo alpha (x vector-double-float) (A matrix-double-float))
-  "gsl_blas_dsyr"
-  ((uplo cblas-uplo) (alpha :double)
-   ((pointer x) gsl-vector-c) ((pointer A) gsl-matrix-c))
-  :type :method)
-
-(defmfun syr2
-    (uplo alpha (x vector-double-float) (y vector-double-float) (A matrix-double-float))
-  "gsl_blas_dsyr2"
-  ((uplo cblas-uplo) (alpha :double)
-   ((pointer x) gsl-vector-c) ((pointer y) gsl-vector-c)
-   ((pointer A) gsl-matrix-c))
-  :type :method)
+(defmfun hermitian-rank-2-update (uplo alpha (x vector) (y vector) (A matrix))
+  ("gsl_blas_" :type "her2")
+  ((uplo cblas-uplo) (alpha :element-c-type)
+   ((mpointer x) :pointer) ((mpointer A) :pointer))
+  :definition :generic
+  :element-types :complex
+  :inputs (x A)
+  :outputs (A)
+  :documentation			; FDL
+  "The hermitian rank-2 update A = alpha x y^H + alpha^* y x^H A of
+  the hermitian matrix A. Since the matrix A is hermitian only its
+  upper half or lower half need to be stored. When uplo is :upper
+  then the upper triangle and diagonal of A are used, and when uplo is
+  :lower then the lower triangle and diagonal of A are used. The
+  imaginary elements of the diagonal are automatically set to zero.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
