@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-03 23:27:25EDT defmfun.lisp>
+;; Time-stamp: <2008-08-07 21:09:31EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -81,17 +81,17 @@
       (setf indexed-functions (list))
       (wrap-index-export
        (cond
-	 ((and (member '&optional arglist) (listp gsl-name))
-	  (expand-defmfun-optional name arglist gsl-name c-arguments key-args))
-	 ((eq definition :function)
-	  (setf defn 'cl:defun)
-	  (expand-defmfun-plain name arglist gsl-name c-arguments key-args))
 	 ((eq definition :generic)
 	  (expand-defmfun-generic name arglist gsl-name c-arguments key-args))
 	 ((eq definition :method)
 	  (expand-defmfun-method name arglist gsl-name c-arguments key-args))
 	 ((eq definition :methods)
 	  (expand-defmfun-defmethods name arglist gsl-name c-arguments key-args))
+	 ((and (member '&optional arglist) (listp gsl-name))
+	  (expand-defmfun-optional name arglist gsl-name c-arguments key-args))
+	 ((eq definition :function)
+	  (setf defn 'cl:defun)
+	  (expand-defmfun-plain name arglist gsl-name c-arguments key-args))
 	 (t
 	  (expand-defmfun-plain name arglist gsl-name c-arguments key-args)))
        name gsl-name key-args))))
@@ -311,21 +311,31 @@
 		       replace-both
 		       (second arg))
 		   element-type))))
-	 arg)))
+	 (if (and (listp arg) (numberp (second arg)))
+	     ;; optional arg default numerical value
+	     (list (first arg)
+		   (coerce (second arg) element-type))
+	     arg))))
 
-(defun arglist-plain-and-categories (arglist)
+(defparameter *defmfun-llk* '(&optional))
+
+(defun arglist-plain-and-categories
+    (arglist &optional (include-llk t))
   "Get arglist without classes and a list of categories."
   (loop for arg in arglist
-	with replacing = t and categories
-	do
-	(when (and replacing (member arg '(&optional)))
-	  (setf replacing nil))
-	(when (and replacing (listp arg))
-	  (pushnew (second arg) categories))
-	collect
-	(if (and replacing (listp arg)) (first arg) arg)
-	into noclass-arglist
-	finally (return (values noclass-arglist categories))))
+     with getting-categories = t and categories
+     do
+     (when (and getting-categories (member arg *defmfun-llk*))
+       (setf getting-categories nil))
+     (when (and getting-categories (listp arg))
+       ;; Collect categories (classes), but not default values to
+       ;; optional arugments.
+       (pushnew (second arg) categories))
+     when (or (not (member arg *defmfun-llk*)) include-llk)
+     collect
+     (if (listp arg) (first arg) arg)
+     into noclass-arglist
+     finally (return (values noclass-arglist categories))))
 
 (defun actual-array-c-type (category c-arguments)
   "Replace the declared proto-type with an actual GSL struct type."
@@ -438,16 +448,24 @@
 		      (gensym (string (st-symbol sd)))
 		      (st-type sd))))))
 
+(defun c-arguments (c-arguments)
+  "Find the arguments passed to the C function.  This is a poor
+  quality code walker, but is sufficient for actual usage of defmfun."
+  (mapcan (lambda (s)
+	    (let ((val (st-symbol s)))
+	      (if (listp val)
+		  ;; walk only a top-level function call
+		  (copy-list (rest val))
+		  (list val))))
+	  (remove :mode c-arguments)))
+
 (defun expand-defmfun-plain (name arglist gsl-name c-arguments key-args)
+  "The main function for expansion of defmfun."
   (with-defmfun-key-args key-args
     (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
-	   (carg-symbs
-	    (remove-if-not #'symbolp
-			   (mapcar #'st-symbol (remove :mode c-arguments))))
+	   (carg-symbs (c-arguments cargs))
 	   (clargs (or arglist carg-symbs))
-	   (arglist-symbs
-	    (when arglist		; can be method, so get symbol
-	      (mapcar (lambda (x) (if (listp x) (first x) x)) arglist)))
+	   (arglist-symbs (arglist-plain-and-categories arglist nil))
 	   (cret-type (if (member c-return *special-c-return*)
 			  :int
 			  (if (listp c-return) (st-type c-return) c-return)))
@@ -481,7 +499,8 @@
 	      (if global
 		  (append noaux (cons '&aux global))
 		  noaux))
-	,(declaration-form clargs-types)
+	,(declaration-form
+	  clargs-types (set-difference arglist-symbs carg-symbs))
 	,@(when documentation (list documentation))
 	(,@(if (or allocated-decl complex-args)
 	       `(cffi:with-foreign-objects
