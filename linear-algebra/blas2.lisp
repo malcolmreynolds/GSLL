@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-08-06 22:49:49EDT blas2.lisp>
+;; Time-stamp: <2008-08-09 19:43:20EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,8 +25,9 @@
 ;;;; Functions
 ;;;;****************************************************************************
 
-(defmfun matrix-vector-product
-    (TransA alpha (A matrix) (x vector) beta (y vector))
+(defmfun matrix-product
+    ((A matrix) (x vector) (y vector)
+     &optional (alpha 1) (beta 1) (TransA :notrans) TransB)
   ("gsl_blas_" :type "gemv")
   ((transa cblas-transpose) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
@@ -34,32 +35,55 @@
   :element-types :float-complex
   :inputs (A x y)
   :outputs (y)
+  :return (y)
   :documentation			; FDL
-  "The matrix-vector product and sum
+  "If the second and third arguments are vectors, compute
+   the matrix-vector product and sum
     y = alpha op(A) x + beta y, where op(A) = A, A^T, A^H
-    for TransA = :notrans, :trans, :conjtrans.")
+  for TransA = :notrans, :trans, :conjtrans.
+  If the second and third arguments are matrices, compute
+  the matrix-matrix product and sum C = alpha
+  op(A) op(B) + beta C where op(A) = A, A^T, A^H for TransA =
+  :notrans, :trans, :conjtrans and similarly for the
+  parameter TransB.")
 
-(defmfun matrix-vector-product-triangular
-    (uplo TransA diag (A matrix) (x vector))
+(defmfun matrix-product-triangular
+    ((A matrix) (x vector)
+     &optional (alpha 1) (uplo :upper) (TransA :notrans)
+     (diag :nonunit) (side :left))
   ("gsl_blas_" :type "trmv")
   ((uplo cblas-uplo) (TransA cblas-transpose) (diag cblas-diag)
    ((mpointer A) :pointer) ((mpointer x) :pointer))
   :definition :generic
   :element-types :float-complex
-  :inputs (TransA A x)
+  :inputs (A x)
   :outputs (x)
+  :return (x)
   :documentation			; FDL
-  "The matrix-vector product x =\alpha op(A) x
+  "If the second argument is a vector, compute
+   the matrix-vector product x =alpha op(A) x
    for the triangular matrix A, where op(A) = A, A^T, A^H for
    TransA = :NoTrans, :Trans, :ConjTrans. When Uplo
    is :Upper then the upper triangle of A is used, and when
    Uplo is :Lower then the lower triangle of A is used. If
    Diag is :NonUnit then the diagonal of the matrix is used,
    but if Diag is :Unit then the diagonal elements of the
-   matrix A are taken as unity and are not referenced.")
+   matrix A are taken as unity and are not referenced.
+   If the second argument is a matrix, compute
+   the matrix-matrix product B = alpha op(A) B
+   if Side is :Left and B = \alpha B op(A) if Side is
+   :Right. The matrix A is triangular and op(A) = A, A^T, A^H
+   for TransA = :NoTrans, :Trans, :ConjTrans When Uplo
+   is :Upper then the upper triangle of A is used, and when
+   Uplo is :Lower then the lower triangle of A is used. If
+   Diag is :NonUnit then the diagonal of A is used, but if
+   Diag is :Unit then the diagonal elements of the matrix A
+   are taken as unity and are not referenced.")
 
-(defmfun inverse-matrix-vector-product
-    (uplo TransA diag (A matrix) (x vector))
+(defmfun inverse-matrix-product
+    ((A matrix) (x vector)
+     &optional (alpha 1) (uplo :upper) (TransA :notrans)
+     (diag :nonunit) (side :left))
   ("gsl_blas_" :type "trsv")
   ((uplo cblas-uplo) (TransA cblas-transpose) (diag cblas-diag)
    ((mpointer A) :pointer) ((mpointer x) :pointer))
@@ -67,17 +91,30 @@
   :element-types :float-complex
   :inputs (A x)
   :outputs (x)
+  :return (x)
   :documentation			; FDL
-  "Compute inv(op(A)) x for x, where op(A) = A, A^T, A^H for
-    TransA = :NoTrans, :Trans, :ConjTrans. When Uplo is
-    :Upper then the upper triangle of A is used, and when Uplo is
-    :Lower then the lower triangle of A is used. If Diag is
-    :NonUnit then the diagonal of the matrix is used, but if Diag
-    is :Unit then the diagonal elements of the matrix A are taken
-    as unity and are not referenced.")
+   "If the second argument is a vector, compute
+   inv(op(A)) x for x, where op(A) = A, A^T, A^H for
+   TransA = :NoTrans, :Trans, :ConjTrans. When Uplo is
+   :Upper then the upper triangle of A is used, and when Uplo is
+   :Lower then the lower triangle of A is used. If Diag is
+   :NonUnit then the diagonal of the matrix is used, but if Diag
+   is :Unit then the diagonal elements of the matrix A are taken
+   as unity and are not referenced.
+   If the second argument is a matrix, compute
+   the inverse-matrix matrix product B = alpha op(inv(A))B if
+   Side is :Left and B = alpha B op(inv(A)) if Side is
+   :Right. The matrix A is triangular and op(A) = A, A^T, A^H
+   for TransA = :NoTrans, :Trans, :ConjTrans When
+   Uplo is :Upper then the upper triangle of A is used, and
+   when Uplo is :Lower then the lower triangle of A is
+   used. If Diag is :NonUnit then the diagonal of A is used,
+   but if Diag is :Unit then the diagonal elements of the
+   matrix A are taken as unity and are not referenced.")
 
-(defmfun matrix-vector-product-symmetric
-    (uplo alpha (A matrix) (x vector) beta (y vector))
+(defmfun matrix-product-symmetric
+    ((A matrix) (x vector) (y vector)
+     &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
   ("gsl_blas_" :type "symv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
@@ -85,16 +122,26 @@
   :element-types :float
   :inputs (A x y)
   :outputs (y)
+  :return (y)
   :documentation			; FDL
-  "The matrix-vector product and sum y = alpha A
+  "If the second and third arguments are vectors, compute
+  the matrix-vector product and sum y = alpha A
   x + beta y for the symmetric matrix A. Since the matrix A is
   symmetric only its upper half or lower half need to be
   stored. When Uplo is :Upper then the upper triangle and
   diagonal of A are used, and when Uplo is :Lower then the
-  lower triangle and diagonal of A are used.")
+  lower triangle and diagonal of A are used.
+  If the second and third arguments are matrices, compute
+  the matrix-matrix product and sum C = alpha A
+  B + beta C for Side is :Left and C = alpha B A + beta C
+  for Side is :Right, where the matrix A is symmetric. When
+  Uplo is :Upper then the upper triangle and diagonal of A
+  are used, and when Uplo is :Lower then the lower triangle
+  and diagonal of A are used.")
 
-(defmfun matrix-vector-product-hermitian 
-  (uplo alpha (A matrix) (x vector) beta (y vector))
+(defmfun matrix-product-hermitian
+    ((A matrix) (x vector) (y vector)
+     &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
   ("gsl_blas_" :type "hemv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
@@ -102,14 +149,23 @@
   :element-types :complex
   :inputs (A x y)
   :outputs (y)
+  :return (y)
   :documentation			; FDL
-  "The matrix-vector product and sum y = alpha A x + beta y for the
+  "If the second and third arguments are vectors, compute the
+  matrix-vector product and sum y = alpha A x + beta y for the
   hermitian matrix A. Since the matrix A is hermitian only its upper
-  half or lower half need to be stored. When Uplo is CblasUpper then
+  half or lower half need to be stored. When Uplo is :upper then
   the upper triangle and diagonal of A are used, and when Uplo is
-  CblasLower then the lower triangle and diagonal of A are used. The
+  :lower then the lower triangle and diagonal of A are used. The
   imaginary elements of the diagonal are automatically assumed to be
-  zero and are not referenced.")
+  zero and are not referenced.  If the second and third arguments are
+  matrices, compute the matrix-matrix product and sum C = alpha A B +
+  beta C if Side is :left and C = \alpha B A + \beta C if Side
+  is :right, where the matrix A is hermitian. When Uplo is
+  :upper then the upper triangle and diagonal of A are used, and
+  when Uplo is :lower then the lower triangle and diagonal of A
+  are used. The imaginary elements of the diagonal are automatically
+  set to zero.")
 
 (defmfun rank-1-update (alpha (x vector) (y vector) (A matrix))
   ("gsl_blas_" :type "ger" :suffix)
@@ -119,6 +175,7 @@
   :element-types :float-complex
   :inputs (x y A)
   :outputs (A)
+  :return (A)
   :documentation			; FDL
    "The rank-1 update A = alpha x y^T + A of the matrix A.")
 
@@ -130,10 +187,13 @@
   :element-types :complex
   :inputs (x y A)
   :outputs (A)
+  :return (A)
   :documentation			; FDL
-   "The conjugate rank-1 update A = alpha x y^H + A of the matrix A.")
+  "The conjugate rank-1 update A = alpha x y^H + A of the matrix A.")
 
-(defmfun symmetric-rank-1-update (uplo alpha (x vector) (A matrix))
+(defmfun symmetric-rank-1-update
+    ((x vector) (A matrix)
+     &optional (alpha 1) (beta 1) (uplo :upper) (trans :notrans))
   ("gsl_blas_" :type "syr")
   ((uplo cblas-uplo) (alpha :element-c-type)
    ((mpointer x) :pointer) ((mpointer A) :pointer))
@@ -141,15 +201,25 @@
   :element-types :float
   :inputs (x A)
   :outputs (A)
+  :return (A)
   :documentation			; FDL
-  "The symmetric rank-1 update A = \alpha x x^T +
-  A of the symmetric matrix A. Since the matrix A is symmetric
-  only its upper half or lower half need to be stored. When Uplo
-  is :Upper then the upper triangle and diagonal of A are
-  used, and when Uplo is :Lower then the lower triangle and
-  diagonal of A are used.")
+  "If the first argument is a vector,
+  the symmetric rank-1 update A = \alpha x x^T + A of the symmetric
+  matrix A. Since the matrix A is symmetric only its upper half or
+  lower half need to be stored. When Uplo is :Upper then the upper
+  triangle and diagonal of A are used, and when Uplo is :Lower then
+  the lower triangle and diagonal of A are used.  If the first
+  argument is a matrix, a rank-k update of the symmetric matrix C, C =
+  \alpha A A^T + \beta C when Trans is CblasNoTrans and C = \alpha A^T
+  A + \beta C when Trans is CblasTrans. Since the matrix C is
+  symmetric only its upper half or lower half need to be stored. When
+  Uplo is CblasUpper then the upper triangle and diagonal of C are
+  used, and when Uplo is CblasLower then the lower triangle and
+  diagonal of C are used.")
 
-(defmfun hermitian-rank-1-update (uplo alpha (x vector) (A matrix))
+(defmfun hermitian-rank-1-update
+    ((x vector) (A matrix)
+     &optional (alpha 1) (beta 1) (uplo :upper) (trans :notrans))
   ("gsl_blas_" :type "her")
   ((uplo cblas-uplo) (alpha :element-c-type)
    ((mpointer x) :pointer) ((mpointer A) :pointer))
@@ -157,15 +227,27 @@
   :element-types :complex
   :inputs (x A)
   :outputs (A)
+  :return (A)
   :documentation			; FDL
-  "Compute the hermitian rank-1 update A = alpha x x^H + A of the
+  "If the first argument is a vector,
+  compute the hermitian rank-1 update A = alpha x x^H + A of the
   hermitian matrix A. Since the matrix A is hermitian only its upper
-  half or lower half need to be stored. When Uplo is :upper then
-  the upper triangle and diagonal of A are used, and when Uplo is
+  half or lower half need to be stored. When Uplo is :upper then the
+  upper triangle and diagonal of A are used, and when Uplo is
   :lower then the lower triangle and diagonal of A are used. The
-  imaginary elements of the diagonal are automatically set to zero.")
+  imaginary elements of the diagonal are automatically set to zero.
+  If the first argument is a matrix, compute a rank-k update of the
+  hermitian matrix C, C = \alpha A A^H + \beta C when Trans is
+  :notrans and C = \alpha A^H A + \beta C when Trans is
+  :trans. Since the matrix C is hermitian only its upper half or
+  lower half need to be stored. When Uplo is :upper then the upper
+  triangle and diagonal of C are used, and when Uplo is :lower
+  then the lower triangle and diagonal of C are used. The imaginary
+  elements of the diagonal are automatically set to zero.")
 
-(defmfun symmetric-rank-2-update (uplo alpha (x vector) (y vector) (A matrix))
+(defmfun symmetric-rank-2-update
+    ((x vector) (y vector) (A matrix)
+     &optional (alpha 1) (beta 1) (uplo :upper) (trans :notrans))
   ("gsl_blas_" :type "syr2")
   ((uplo cblas-uplo) (alpha :element-c-type)
    ((mpointer x) :pointer)  ((mpointer y) :pointer)
@@ -174,15 +256,25 @@
   :element-types :float
   :inputs (x y A)
   :outputs (A)
+  :return (A)
   :documentation			; FDL
-  "The symmetric rank-2 update A = alpha x y^T +
-  alpha y x^T + A of the symmetric matrix A. Since the matrix A
-  is symmetric only its upper half or lower half need to be
-  stored. When Uplo is :Upper then the upper triangle and
-  diagonal of A are used, and when Uplo is :Lower then the
-  lower triangle and diagonal of A are used.")
+  "If the first two arguments are vectors, compute
+  the symmetric rank-2 update A = alpha x y^T + alpha y x^T + A of the
+  symmetric matrix A. Since the matrix A is symmetric only its upper
+  half or lower half need to be stored. When Uplo is :upper then the
+  upper triangle and diagonal of A are used, and when Uplo is :lower
+  then the lower triangle and diagonal of A are used.  If the first
+  two arguments are matrices, compute a rank-2k update of the
+  symmetric matrix C, C = \alpha A B^T + \alpha B A^T + \beta C when
+  Trans is :notrans and C = \alpha A^T B + \alpha B^T A + \beta C
+  when Trans is :trans. Since the matrix C is symmetric only its
+  upper half or lower half need to be stored. When Uplo is :upper
+  then the upper triangle and diagonal of C are used, and when Uplo is
+  :lower then the lower triangle and diagonal of C are used.")
 
-(defmfun hermitian-rank-2-update (uplo alpha (x vector) (y vector) (A matrix))
+(defmfun hermitian-rank-2-update
+    ((x vector) (y vector) (A matrix)
+     &optional (alpha 1) (beta 1) (uplo :upper) (trans :notrans))
   ("gsl_blas_" :type "her2")
   ((uplo cblas-uplo) (alpha :element-c-type)
    ((mpointer x) :pointer) ((mpointer A) :pointer))
@@ -190,13 +282,24 @@
   :element-types :complex
   :inputs (x A)
   :outputs (A)
+  :return (A)
   :documentation			; FDL
-  "The hermitian rank-2 update A = alpha x y^H + alpha^* y x^H A of
+  "If the first two arguments are vectors, compute the
+  hermitian rank-2 update A = alpha x y^H + alpha^* y x^H A of
   the hermitian matrix A. Since the matrix A is hermitian only its
   upper half or lower half need to be stored. When uplo is :upper
   then the upper triangle and diagonal of A are used, and when uplo is
   :lower then the lower triangle and diagonal of A are used. The
-  imaginary elements of the diagonal are automatically set to zero.")
+  imaginary elements of the diagonal are automatically set to zero.
+  If the first two arguments are matrices, compute a rank-2k update of
+  the hermitian matrix C, C = \alpha A B^H + \alpha^* B A^H + \beta C
+  when Trans is :notrans and C = \alpha A^H B + \alpha^* B^H A +
+  \beta C when Trans is :conjtrans. Since the matrix C is
+  hermitian only its upper half or lower half need to be stored. When
+  Uplo is :upper then the upper triangle and diagonal of C are
+  used, and when Uplo is :lower then the lower triangle and
+  diagonal of C are used. The imaginary elements of the diagonal are
+  automatically set to zero.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
