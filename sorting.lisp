@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-07-15 23:00:29EDT sorting.lisp>
+;; Time-stamp: <2008-08-09 18:34:29EDT sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,6 +58,7 @@
 ;;; gives an error:
 ;;;(defmfun msort ((v vector) &optional (stride 1))
 
+
 (defmfun msort ((v vector))
   ("gsl_sort" :type)
   (((c-pointer v) :pointer) (1 sizet) ((dim0 v) sizet))
@@ -79,7 +80,7 @@
   :documentation			; FDL
   "Sort the elements of the vector v into ascending numerical order.")
 
-(defmfun sort-vector-index ((permutation permutation) (vector vector))
+(defmfun sort-index ((permutation permutation) (vector vector))
   ("gsl_sort" :type "_index")
   (((mpointer permutation) :pointer)
    ((c-pointer vector) :pointer)

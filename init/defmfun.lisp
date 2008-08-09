@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-07 21:09:31EDT defmfun.lisp>
+;; Time-stamp: <2008-08-09 18:52:21EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -451,13 +451,14 @@
 (defun c-arguments (c-arguments)
   "Find the arguments passed to the C function.  This is a poor
   quality code walker, but is sufficient for actual usage of defmfun."
-  (mapcan (lambda (s)
-	    (let ((val (st-symbol s)))
-	      (if (listp val)
-		  ;; walk only a top-level function call
-		  (copy-list (rest val))
-		  (list val))))
-	  (remove :mode c-arguments)))
+  (remove-duplicates
+   (mapcan (lambda (s)
+	      (let ((val (st-symbol s)))
+		(if (listp val)
+		    ;; walk only a top-level function call
+		    (remove-if-not #'symbolp (rest val))
+		    (list val))))
+	    (remove :mode c-arguments))))
 
 (defun expand-defmfun-plain (name arglist gsl-name c-arguments key-args)
   "The main function for expansion of defmfun."
