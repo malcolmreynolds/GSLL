@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-09 19:49:10EDT defmfun.lisp>
+;; Time-stamp: <2008-08-10 18:00:49EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -127,7 +127,7 @@
 (expand-defmfun-wrap
  'airy-Ai '(x)
  "gsl_sf_airy_Ai_e"
- '((x :double) :mode (ret sf-result))
+ '((x :double) (mode sf-mode) (ret sf-result))
  '(:documentation "The Airy function Ai(x)."))
 
 ;;; Generic function and methods of a vector
@@ -460,13 +460,12 @@
 		    ;; walk only a top-level function call
 		    (rest val)
 		    (list val)))))
-	   (remove :mode c-arguments))))
+	   c-arguments)))
 
 (defun expand-defmfun-plain (name arglist gsl-name c-arguments key-args)
   "The main function for expansion of defmfun."
   (with-defmfun-key-args key-args
-    (let* ((cargs (substitute '(mode sf-mode) :mode c-arguments))
-	   (carg-symbs (c-arguments cargs))
+    (let* ((carg-symbs (c-arguments c-arguments))
 	   (clargs (or arglist carg-symbs))
 	   (arglist-symbs (arglist-plain-and-categories arglist nil))
 	   (cret-type (if (member c-return *special-c-return*)
@@ -474,7 +473,7 @@
 			  (if (listp c-return) (st-type c-return) c-return)))
 	   (cret-name
 	    (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
-	   (complex-args (complex-scalars clargs cargs))
+	   (complex-args (complex-scalars clargs c-arguments))
 	   (allocated		     ; Foreign objects to be allocated
 	    (remove-if
 	     (lambda (s)
@@ -483,7 +482,7 @@
 	   (allocated-decl
 	    (append
 	     (mapcar
-	      (lambda (s) (find s cargs :key #'st-symbol))
+	      (lambda (s) (find s c-arguments :key #'st-symbol))
 	      allocated)))
 	   (clret (or			; better as a symbol macro
 		   (substitute cret-name :c-return return)
@@ -491,60 +490,56 @@
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name))))
-	   (clargs-types (cl-argument-types clargs cargs)))
+	   (clargs-types (cl-argument-types clargs c-arguments)))
       `(,defn
-	,@(when (and name (not (defgeneric-method-p name)))
-		(list name))
-	,(let ((noaux
-		(if (member :mode c-arguments)
-		    `(,@clargs &optional (mode :double-prec))
-		    `(,@clargs))))
-	      (if global
-		  (append noaux (cons '&aux global))
-		  noaux))
-	,(declaration-form
-	  clargs-types (set-difference arglist-symbs carg-symbs))
-	,@(when documentation (list documentation))
-	(,@(if (or allocated-decl complex-args)
-	       `(cffi:with-foreign-objects
-		 ,(mapcar #'wfo-declare
-			  (append allocated-decl 
-				  (mapcar #'rest complex-args))))
-	       '(let ()))
-	 #-native ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
-	 (let ((,cret-name
-		(cffi:foreign-funcall
-		 ,gsl-name
-		 ,@(mapcan
-		    (lambda (arg)
-		      (let ((cfind	; variable is complex
-			     (first (member (st-symbol arg) complex-args :key 'first))))
-			(if cfind	; so substitute call to complex-to-gsl
-			    `(,(third cfind)
-			      (complex-to-gsl ,(first cfind) ,(second cfind)))
-			    ;; otherwise use without conversion
-			    (list (if (member (st-symbol arg) allocated)
-				      :pointer
-				      (st-type arg))
-				  (st-symbol arg)))))
-		    cargs)
-		 ,cret-type)))
-	   ,@(case c-return
-		   (:void `((declare (ignore ,cret-name))))
-		   (:error-code		; fill in arguments
-		    `((check-gsl-status ,cret-name
-		       ',(or (defgeneric-method-p name) name)))))
-	   #-native
-	   ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
-	   ,@(when (or null-pointer-info (eq c-return :pointer))
-		   `((check-null-pointer ,cret-name
-		      ,@(or null-pointer-info
-			    '(:ENOMEM "No memory allocated")))))
-	   ,@after
-	   (values
-	    ,@(defmfun-return
-	       c-return cret-name clret allocated return return-supplied-p
-	       enumeration outputs))))))))
+	   ,@(when (and name (not (defgeneric-method-p name)))
+		   (list name))
+	   ,(if global
+		(append clargs (cons '&aux global))
+		clargs)
+	 ,(declaration-form
+	   clargs-types (set-difference arglist-symbs carg-symbs))
+	 ,@(when documentation (list documentation))
+	 (,@(if (or allocated-decl complex-args)
+		`(cffi:with-foreign-objects
+		     ,(mapcar #'wfo-declare
+			      (append allocated-decl 
+				      (mapcar #'rest complex-args))))
+		'(let ()))
+	    #-native ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
+	    (let ((,cret-name
+		   (cffi:foreign-funcall
+		    ,gsl-name
+		    ,@(mapcan
+		       (lambda (arg)
+			 (let ((cfind	; variable is complex
+				(first (member (st-symbol arg) complex-args :key 'first))))
+			   (if cfind ; so substitute call to complex-to-gsl
+			       `(,(third cfind)
+				  (complex-to-gsl ,(first cfind) ,(second cfind)))
+			       ;; otherwise use without conversion
+			       (list (if (member (st-symbol arg) allocated)
+					 :pointer
+					 (st-type arg))
+				     (st-symbol arg)))))
+		       c-arguments)
+		    ,cret-type)))
+	      ,@(case c-return
+		      (:void `((declare (ignore ,cret-name))))
+		      (:error-code	; fill in arguments
+		       `((check-gsl-status ,cret-name
+					   ',(or (defgeneric-method-p name) name)))))
+	      #-native
+	      ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
+	      ,@(when (or null-pointer-info (eq c-return :pointer))
+		      `((check-null-pointer ,cret-name
+					    ,@(or null-pointer-info
+						  '(:ENOMEM "No memory allocated")))))
+	      ,@after
+	      (values
+	       ,@(defmfun-return
+		  c-return cret-name clret allocated return return-supplied-p
+		  enumeration outputs))))))))
 
 (defun defmfun-return
     (c-return cret-name clret allocated return return-supplied-p enumeration outputs)

@@ -1,6 +1,6 @@
 ;; Airy functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:41
-;; Time-stamp: <2008-07-10 21:20:39EDT airy.lisp>
+;; Time-stamp: <2008-08-10 17:50:02EDT airy.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,48 +9,48 @@
 ;;;; Airy functions
 ;;;;****************************************************************************
 
-(defmfun airy-Ai (x)
-    "gsl_sf_airy_Ai_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Ai (x &optional (mode :double))
+    "gsl_sf_airy_Ai_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation			; FDL
   "The Airy function Ai(x).")
 
-(defmfun airy-Bi (x)
-  "gsl_sf_airy_Bi_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Bi (x &optional (mode :double))
+  "gsl_sf_airy_Bi_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation			; FDL
   "The Airy function Bi(x).")
 
-(defmfun airy-Ai-scaled (x)
-  "gsl_sf_airy_Ai_scaled_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Ai-scaled (x &optional (mode :double))
+  "gsl_sf_airy_Ai_scaled_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation			; FDL
   "The scaled Airy function S_A(x) Ai(x).
    For x>0 the scaling factor S_A(x) is \exp(+(2/3) x^(3/2)),
    and is 1 for x<0.")
 
-(defmfun airy-Bi-scaled (x)
-  "gsl_sf_airy_Bi_scaled_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Bi-scaled (x &optional (mode :double))
+  "gsl_sf_airy_Bi_scaled_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation			; FDL
   "The scaled Airy function S_B(x) Bi(x).
    For x>0 the scaling factor S_B(x) is exp(-(2/3) x^(3/2)),
    and is 1 for x<0.")
 
-(defmfun airy-Ai-deriv (x)
-  "gsl_sf_airy_Ai_deriv_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Ai-deriv (x &optional (mode :double))
+  "gsl_sf_airy_Ai_deriv_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation			; FDL
   "The Airy function derivative Ai'(x).")
 
-(defmfun airy-Bi-deriv (x)
-  "gsl_sf_airy_Bi_deriv_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Bi-deriv (x &optional (mode :double))
+  "gsl_sf_airy_Bi_deriv_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation "The Airy function derivative Bi'(x).")
 
-(defmfun airy-Ai-deriv-scaled (x)
-  "gsl_sf_airy_Ai_deriv_scaled_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Ai-deriv-scaled (x &optional (mode :double))
+  "gsl_sf_airy_Ai_deriv_scaled_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation			; FDL
   "The scaled Airy function derivative S_A(x) Ai'(x).
   For x>0 the scaling factor S_A(x) is exp(+(2/3) x^(3/2)),
   and is 1 for x<0.")
 
-(defmfun airy-Bi-deriv-scaled (x)
-  "gsl_sf_airy_Bi_deriv_scaled_e" ((x :double) :mode (ret sf-result))
+(defmfun airy-Bi-deriv-scaled (x &optional (mode :double))
+  "gsl_sf_airy_Bi_deriv_scaled_e" ((x :double) (mode sf-mode) (ret sf-result))
   :documentation			; FDL
   "The scaled Airy function derivative S_B(x) Bi'(x).
    For x>0 the scaling factor S_B(x) is
