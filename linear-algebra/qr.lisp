@@ -1,6 +1,6 @@
 ;; QR decomposition
 ;; Liam Healy 2008-02-17 11:05:20EST qr.lisp
-;; Time-stamp: <2008-02-17 11:17:37EST qr.lisp>
+;; Time-stamp: <2008-08-10 22:46:16EDT qr.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,10 +18,12 @@
 ;;; columns of Q form an orthonormal basis for the range of A,
 ;;; ran(A), when A has full column rank.
 
-(defmfun QR-decomp (A tau)
+(defmfun QR-decomposition (A tau)
   "gsl_linalg_QR_decomp"
-  (((pointer A) gsl-matrix-c) ((pointer tau) gsl-vector-c))
-  :invalidate (A tau)
+  (((mpointer A) :pointer) ((mpointer tau) :pointer))
+  :inputs (A)
+  :outputs (A tau)
+  :return (A tau)
   :documentation 			; FDL
   "Factorize the M-by-N matrix A into the QR decomposition A = Q R.
    On output the diagonal and
@@ -31,7 +33,7 @@
    Householder vectors which encode the orthogonal matrix Q.  The
    vector tau must be of length k=min(M,N). The matrix
    Q is related to these components by, Q = Q_k ... Q_2 Q_1
-   where Q_i = I - \tau_i v_i v_i^T and v_i is the
+   where Q_i = I - tau_i v_i v_i^T and v_i is the
    Householder vector v_i = (0,...,1,A(i+1,i),A(i+2,i),...,A(m,i)).
    This is the same storage scheme as used by lapack.
 
@@ -40,9 +42,11 @@
 
 (defmfun QR-solve (QR tau b x)
     "gsl_linalg_QR_solve"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer b) :pointer) ((mpointer x) :pointer))
+  :inputs (QR tau b)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solve the square system A x = b using the QR
    decomposition of A into (QR, tau) given by
@@ -51,34 +55,40 @@
 
 (defmfun QR-svx (QR tau x)
   "gsl_linalg_QR_svx"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer x) :pointer))
+  :inputs (QR tau x)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solves the square system A x = b in-place using the
   QR decomposition of A into (QR, tau) given by
   QR-decomp.  On input x should contain the
   right-hand side b, which is replaced by the solution on output.")
 
-(defmfun QR-lssolve (QR tau b x residual)
+(defmfun QR-solve-least-squares (QR tau b x residual)
   "gsl_linalg_QR_lssolve"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c)
-   ((pointer residual) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer b) :pointer) ((mpointer x) :pointer)
+   ((mpointer residual) :pointer))
+  :inputs (QR tau b)
+  :outputs (x residual)
+  :return (x residual)
   :documentation			; FDL
-  "The least squares solution to the overdetermined
-   system A x = b where the matrix A has more rows than
-   columns.  The least squares solution minimizes the Euclidean norm of the
-   residual, ||Ax - b||.The routine uses the QR decomposition
-   of A into (QR, tau) given by #'QR-decomp.  The solution is returned in x.
-   The residual is computed as a by-product and stored in residual.")
+  "The least squares solution to the overdetermined system A x = b
+   where the matrix A has more rows than columns.  The least squares
+   solution minimizes the Euclidean norm of the residual, ||Ax -
+   b||.The routine uses the QR decomposition of A into (QR, tau) given
+   by #'QR-decomposition.  The solution is returned in x.  The
+   residual is computed as a by-product and stored in residual.")
 
-(defmfun QR-QTvec (QR tau v)
+(defmfun QR-QTvector (QR tau v)
   "gsl_linalg_QR_QTvec"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer v) gsl-vector-c))
-  :invalidate (v)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer v) :pointer))
+  :inputs (QR tau)
+  :outputs (v)
+  :return (v)
   :documentation			; FDL
   "Apply the matrix Q^T encoded in the decomposition
    (QR, tau) to the vector v, storing the result Q^T v in v.
@@ -86,11 +96,13 @@
    the encoding of the Householder vectors without needing to form the full
    matrix Q^T.")
 
-(defmfun QR-Qvec (QR tau v)
+(defmfun QR-Qvector (QR tau v)
   "gsl_linalg_QR_Qvec"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer v) gsl-vector-c))
-  :invalidate (v)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer v) :pointer))
+  :inputs (QR tau)
+  :outputs (v)
+  :return (v)
   :documentation			; FDL
   "Apply the matrix Q encoded in the decomposition
    (QR, tau) to the vector v, storing the result Q v in v.
@@ -100,30 +112,34 @@
 
 (defmfun QR-Rsolve (QR b x)
   "gsl_linalg_QR_Rsolve"
-  (((pointer QR) gsl-matrix-c) ((pointer b) gsl-vector-c)
-   ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer b) :pointer)
+   ((mpointer x) :pointer))
+  :inputs (QR b)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
-  "Solve the triangular system R x = b for
-   x.  It may be useful if the product b' = Q^T b has already
-   been computed using QR-QTvec}.")
+  "Solve the triangular system R x = b for x.  It may be useful if the
+   product b' = Q^T b has already been computed using QR-QTvec}.")
 
 (defmfun QR-Rsvx (QR x)
   "gsl_linalg_QR_Rsvx"
-  (((pointer QR) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer x) :pointer))
+  :inputs (QR x)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
-  "Solve the triangular system R x = b for x
-  in-place. On input x should contain the right-hand side b
-  and is replaced by the solution on output. This function may be useful if
-  the product b' = Q^T b has already been computed using
-  QR-QTvec}.")
+  "Solve the triangular system R x = b for x in-place. On input x
+  should contain the right-hand side b and is replaced by the solution
+  on output. This function may be useful if the product b' = Q^T b has
+  already been computed using QR-QTvec}.")
 
 (defmfun QR-unpack (QR tau Q R)
   "gsl_linalg_QR_unpack"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer Q) gsl-matrix-c) ((pointer R) gsl-matrix-c))
-  :invalidate (Q R)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer Q) :pointer) ((mpointer R) :pointer))
+  :inputs (QR tau)
+  :outputs (Q R)
+  :return (Q R)
   :documentation			; FDL
   "Unpack the encoded QR decomposition
   (QR, tau) into the matrices Q and R where
@@ -131,9 +147,11 @@
 
 (defmfun QR-QRsolve (Q R b x)
   "gsl_linalg_QR_QRsolve"
-  (((pointer Q) gsl-matrix-c) ((pointer R) gsl-matrix-c)
-   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer Q) :pointer) ((mpointer R) :pointer)
+   ((mpointer b) :pointer) ((mpointer x) :pointer))
+  :inputs (Q R b)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solves the system R x = Q^T b for x.  It can
   be used when the QR decomposition of a matrix is available in
@@ -141,9 +159,10 @@
 
 (defmfun QR-update (Q R w v)
   "gsl_linalg_QR_update"
-  (((pointer Q) gsl-matrix-c) ((pointer R) gsl-matrix-c)
-   ((pointer w) gsl-vector-c) ((pointer v) gsl-vector-c))
-  :invalidate (w Q R)
+  (((mpointer Q) :pointer) ((mpointer R) :pointer)
+   ((mpointer w) :pointer) ((mpointer v) :pointer))
+  :inputs (Q R w v)
+  :outputs (w Q R)
   :return (Q R)
   :documentation			; FDL
   "Perform a rank-1 update w v^T of the QR
@@ -154,16 +173,20 @@
 
 (defmfun R-solve (R b x)
   "gsl_linalg_R_solve"
-  (((pointer R) gsl-matrix-c) ((pointer b) gsl-vector-c)
-   ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer R) :pointer) ((mpointer b) :pointer)
+   ((mpointer x) :pointer))
+  :inputs (R b)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solves the triangular system R x = b for the N-by-N matrix R.")
 
 (defmfun R-svx (R x)
   "gsl_linalg_R_svx"
-  (((pointer R) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer R) :pointer) ((mpointer x) :pointer))
+  :inputs (R x)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solve the triangular system R x = b in-place. On
   input x should contain the right-hand side b, which is
