@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-10 18:00:49EDT defmfun.lisp>
+;; Time-stamp: <2008-08-10 22:17:18EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -261,6 +261,7 @@
 	      (:float *float-types*)
 	      (:complex *complex-types*)
 	      (:float-complex *float-complex-types*)
+	      (:doubles *double-types*)
 	      (t element-types)))))
 
 (defun actual-gsl-function-name (base-name category type)
@@ -273,16 +274,18 @@
     (if (listp base-name)
 	(apply #'concatenate 'string
 	       (substitute
-		(if (subtypep type 'complex) "u" "") :suffix
+		(if (subtypep type 'complex) "_complex" "") :complex
 		(substitute
-		 (cl-gsl type (not blas) blas) :type
+		 (if (subtypep type 'complex) "u" "") :suffix
 		 (substitute
-		  (if (subtypep type 'complex)
-		      (cl-gsl (component-float-type type) nil blas)
-		      "") :component-float-type
+		  (cl-gsl type (not blas) blas) :type
 		  (substitute
-		   (string-downcase (symbol-name category)) :category
-		   base-name))))))))
+		   (if (subtypep type 'complex)
+		       (cl-gsl (component-float-type type) nil blas)
+		       "") :component-float-type
+		   (substitute
+		    (string-downcase (symbol-name category)) :category
+		    base-name)))))))))
 
 (defun number-class-from-type (type)
   "Find a class name that contains this type."

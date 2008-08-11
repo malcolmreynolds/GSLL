@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-10 18:27:45EDT gsll.asd>
+;; Time-stamp: <2008-08-10 22:12:43EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -83,7 +83,7 @@
 	     (:file "blas2")
 	     (:file "blas3" :depends-on (blas2))
 	     (:file "exponential")
-	     ;(:file "lu")
+	     (:file "lu")
 	     ;(:file "qr")
 	     ;(:file "qrpt")
 	     ;(:file "svd")
