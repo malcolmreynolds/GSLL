@@ -1,6 +1,6 @@
 ;; Householder Transformations
 ;; Liam Healy, Wed May 10 2006 - 10:03
-;; Time-stamp: <2008-02-17 11:00:45EST householder.lisp>
+;; Time-stamp: <2008-08-11 22:31:45EDT householder.lisp>
 ;; $Id$
 
 ;;; For householder-transform, it would be nice to be able to pick the
@@ -24,8 +24,8 @@
 
 (defmfun householder-transform (v)
   "gsl_linalg_householder_transform"
-  (((pointer v) gsl-vector-c))
-  :invalidate (v)
+  (((mpointer v) :pointer))
+  :outputs (v)
   :c-return (ret :double)
   :return (v ret)
   :documentation			; FDL
@@ -36,8 +36,8 @@
 
 (defmfun householder-HM (tau v A)
   "gsl_linalg_householder_hm"
-  ((tau :double) ((pointer v) gsl-vector-c) ((pointer A) gsl-matrix-c))
-  :invalidate (A)
+  ((tau :double) ((mpointer v) :pointer) ((mpointer A) :pointer))
+  :outputs (A)
   :documentation			; FDL
   "Apply the Householder matrix P defined by the
   scalar tau and the vector v to the left-hand side of the
@@ -45,8 +45,8 @@
 
 (defmfun householder-MH (tau v A)
   "gsl_linalg_householder_mh"
-  ((tau :double) ((pointer v) gsl-vector-c) ((pointer A) gsl-matrix-c))
-  :invalidate (A)
+  ((tau :double) ((mpointer v) :pointer) ((mpointer A) :pointer))
+  :outputs (A)
   :documentation			; FDL
   "Apply the Householder matrix P defined by the
   scalar tau and the vector v to the right-hand side of the
@@ -54,12 +54,12 @@
 
 (defmfun householder-Hv (tau v w)
   "gsl_linalg_householder_hv"
-  ((tau :double) ((pointer v) gsl-vector-c) ((pointer w) gsl-vector-c))
+  ((tau :double) ((mpointer v) :pointer) ((mpointer w) :pointer))
   :documentation			; FDL
   "Apply the Householder transformation P defined by
   the scalar tau and the vector v to the vector w.  On
   output the result P w is stored in w."
-  :invalidate (w))
+  :outputs (w))
 
 ;;;;****************************************************************************
 ;;;; Householder solver for linear systems
@@ -67,9 +67,9 @@
 
 (defmfun householder-solve (A b x)
   "gsl_linalg_HH_solve"
-  (((pointer A) gsl-matrix-c) ((pointer b) gsl-vector-c)
-   ((pointer x) gsl-vector-c))
-  :invalidate (x A)
+  (((mpointer A) :pointer) ((mpointer b) :pointer)
+   ((mpointer x) :pointer))
+  :outputs (x A)
   :return (x)
   :documentation			; FDL
   "Solve the system A x = b directly using
@@ -79,8 +79,8 @@
 
 (defmfun householder-svx (A x)
   "gsl_linalg_HH_svx"
-  (((pointer A) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :invalidate (x A)
+  (((mpointer A) :pointer) ((mpointer x) :pointer))
+  :outputs (x A)
   :return (x)
   :documentation			; FDL
   "Solve the system A x = b in-place using

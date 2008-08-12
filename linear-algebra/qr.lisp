@@ -1,6 +1,6 @@
 ;; QR decomposition
 ;; Liam Healy 2008-02-17 11:05:20EST qr.lisp
-;; Time-stamp: <2008-08-10 22:46:16EDT qr.lisp>
+;; Time-stamp: <2008-08-11 22:22:09EDT qr.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,7 +53,7 @@
    QR-decomp. The least-squares solution for rectangular systems can
    be found using QR-lssolve.")
 
-(defmfun QR-svx (QR tau x)
+(defmfun QR-solvex (QR tau x)
   "gsl_linalg_QR_svx"
   (((mpointer QR) :pointer) ((mpointer tau) :pointer)
    ((mpointer x) :pointer))
@@ -121,7 +121,7 @@
   "Solve the triangular system R x = b for x.  It may be useful if the
    product b' = Q^T b has already been computed using QR-QTvec}.")
 
-(defmfun QR-Rsvx (QR x)
+(defmfun QR-Rsolvex (QR x)
   "gsl_linalg_QR_Rsvx"
   (((mpointer QR) :pointer) ((mpointer x) :pointer))
   :inputs (QR x)
@@ -181,7 +181,7 @@
   :documentation			; FDL
   "Solves the triangular system R x = b for the N-by-N matrix R.")
 
-(defmfun R-svx (R x)
+(defmfun R-solvex (R x)
   "gsl_linalg_R_svx"
   (((mpointer R) :pointer) ((mpointer x) :pointer))
   :inputs (R x)

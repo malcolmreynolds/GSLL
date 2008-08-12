@@ -1,16 +1,17 @@
 ;; QR with column pivoting
 ;; Liam Healy, Fri Apr 28 2006 - 16:53
-;; Time-stamp: <2008-02-17 11:24:34EST qrpt.lisp>
+;; Time-stamp: <2008-08-11 22:21:22EDT qrpt.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun QRPT-decomp (A tau p signum norm)
+(defmfun QRPT-decomposition (A tau p signum norm)
   "gsl_linalg_QRPT_decomp"
-  (((pointer A) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer p) gsl-permutation-c)
-   (signum :pointer) ((pointer norm) gsl-vector-c))
-  :invalidate (A tau p norm)
+  (((mpointer A) :pointer) ((mpointer tau) :pointer)
+   ((mpointer p) :pointer)
+   (signum :pointer) ((mpointer norm) :pointer))
+  :inputs (A)
+  :outputs (A tau p norm)
   :return (A tau signum p)
   :documentation			; FDL
   "Factorizes the M-by-N matrix A into
@@ -33,13 +34,14 @@
    column pivoting (Golub & Van Loan, Matrix Computations, Algorithm
    5.4.1).")
 
-(defmfun QRPT-decomp2 (A q r tau p signum norm)
+(defmfun QRPT-decomposition* (A q r tau p signum norm)
   "gsl_linalg_QRPT_decomp2"
-  (((pointer A) gsl-matrix-c) ((pointer q) gsl-matrix-c)
-   ((pointer r) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer p) gsl-permutation-c) (signum :pointer)
-   ((pointer norm) gsl-vector-c))
-  :invalidate (q r norm)
+  (((mpointer A) :pointer) ((mpointer q) :pointer)
+   ((mpointer r) :pointer) ((mpointer tau) :pointer)
+   ((mpointer p) :pointer) (signum :pointer)
+   ((mpointer norm) :pointer))
+  :inputs (A)
+  :outputs (q r norm)
   :return (q r p signum)
   :documentation			; FDL
   "Factorize the matrix A into the decomposition
@@ -48,20 +50,22 @@
 
 (defmfun QRPT-solve (QR tau p b x)
   "gsl_linalg_QRPT_solve"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer p) gsl-permutation-c)
-   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer p) :pointer)
+   ((mpointer b) :pointer) ((mpointer x) :pointer))
+  :inputs (QR tau p b)
+  :outputs (x)
   :return (x)
   :documentation 			; FDL
   "Solve the square system A x = b using the QRP^T
-   decomposition of A into (QR, tau, p) given by #'QRPT-decomp.")
+   decomposition of A into (QR, tau, p) given by #'QRPT-decomposition.")
 
-(defmfun QRPT-svx (QR tau p x)
+(defmfun QRPT-solvex (QR tau p x)
   "gsl_linalg_QRPT_svx"
-  (((pointer QR) gsl-matrix-c) ((pointer tau) gsl-vector-c)
-   ((pointer p) gsl-permutation-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+   ((mpointer p) :pointer) ((mpointer x) :pointer))
+  :inputs (QR tau p x)
+  :outputs (x)
   :return (x)
   :documentation			; FDL
   "Solve the square system A x = b in-place using the
@@ -70,9 +74,10 @@
 
 (defmfun QRPT-QRsolve (QR p b x)
   "gsl_linalg_QRPT_QRsolve"
-  (((pointer QR) gsl-matrix-c) ((pointer p) gsl-permutation-c)
-   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer p) :pointer)
+   ((mpointer b) :pointer) ((mpointer x) :pointer))
+  :inputs (QR p b)
+  :outputs (x)
   :return (x)
   :documentation			; FDL
   "Solve the square system R P^T x = Q^T b for
@@ -81,10 +86,11 @@
 
 (defmfun QRPT-update (Q R p w v)
   "gsl_linalg_QRPT_update"
-  (((pointer Q) gsl-matrix-c) ((pointer R) gsl-matrix-c)
-   ((pointer p) gsl-permutation-c)
-   ((pointer w) gsl-vector-c) ((pointer v) gsl-vector-c))
-  :invalidate (w Q R)
+  (((mpointer Q) :pointer) ((mpointer R) :pointer)
+   ((mpointer p) :pointer)
+   ((mpointer w) :pointer) ((mpointer v) :pointer))
+  :inputs (Q R p w v)
+  :outputs (w Q R)
   :return (Q R)
   :documentation			; FDL
   "Perform a rank-1 update w v^T of the QRP^T
@@ -95,19 +101,21 @@
 
 (defmfun QRPT-Rsolve (QR p b x)
   "gsl_linalg_QRPT_Rsolve"
-  (((pointer QR) gsl-matrix-c) ((pointer p) gsl-permutation-c)
-   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer p) :pointer)
+   ((mpointer b) :pointer) ((mpointer x) :pointer))
+  :inputs (QR p b)
+  :outputs (x)
   :return (x)
   :documentation			; FDL
   "Solve the triangular system R P^T x = b for the
    N-by-N matrix R contained in QR.")
 
-(defmfun QRPT-Rsvx (QR p x)
+(defmfun QRPT-Rsolvex (QR p x)
   "gsl_linalg_QRPT_Rsvx"
-  (((pointer QR) gsl-matrix-c) ((pointer p) gsl-permutation-c)
-   ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer QR) :pointer) ((mpointer p) :pointer)
+   ((mpointer x) :pointer))
+  :inputs (QR p x)
+  :outputs (x)
   :return (x)
   :documentation			; FDL
   "Solve the triangular system R P^T x = b in-place

@@ -1,6 +1,6 @@
 ;; Singular Value Decomposition
 ;; Liam Healy, Tue May  2 2006 - 12:15
-;; Time-stamp: <2008-02-17 11:29:50EST svd.lisp>
+;; Time-stamp: <2008-08-11 22:46:49EDT svd.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,11 +25,13 @@
 ;;; precision. Small singular values should be edited by choosing a suitable
 ;;; tolerance.
 
-(defmfun SV-decomp (A V S work)
+(defmfun SV-decomposition (A S V work)
   "gsl_linalg_SV_decomp"
-  (((pointer A) gsl-matrix-c) ((pointer V) gsl-matrix-c)
-   ((pointer S) gsl-vector-c) ((pointer work) gsl-vector-c))
-  :invalidate (A)
+  (((mpointer A) :pointer) ((mpointer V) :pointer)
+   ((mpointer S) :pointer) ((mpointer work) :pointer))
+  :inputs (A)
+  :outputs (A S V)
+  :return (A S V)
   :documentation			; FDL
   "Factorize the M-by-N matrix A into
   the singular value decomposition A = U S V^T for M >= N.
@@ -42,34 +44,40 @@
   transpose of V.  A workspace of length N is required in work.
   This routine uses the Golub-Reinsch SVD algorithm.")
 
-(defmfun SV-decomp-mod (A X V S work)
+(defmfun SV-modified-decomposition (A S V X work)
   "gsl_linalg_SV_decomp_mod"
-  (((pointer A) gsl-matrix-c) ((pointer X) gsl-matrix-c)
-   ((pointer V) gsl-matrix-c)
-   ((pointer S) gsl-vector-c) ((pointer work) gsl-vector-c))
-  :invalidate (A)
+  (((mpointer A) :pointer) ((mpointer X) :pointer)
+   ((mpointer V) :pointer)
+   ((mpointer S) :pointer) ((mpointer work) :pointer))
+  :inputs (A)
+  :outputs (A S V)
+  :return (A S V)
   :documentation			; FDL
   "The SVD using the modified Golub-Reinsch algorithm, which is
    faster for M >> N.  It requires the vector work of length N and the
    N-by-N matrix X as additional working space.")
 
-(defmfun SV-decomp-jacobi (A V S)
+(defmfun SV-jacobi-decomposition (A S V)
   "gsl_linalg_SV_decomp_jacobi"
-  (((pointer A) gsl-matrix-c) ((pointer V) gsl-matrix-c)
-   ((pointer S) gsl-vector-c))
-  :invalidate (A)
+  (((mpointer A) :pointer) ((mpointer V) :pointer)
+   ((mpointer S) :pointer))
+  :inputs (A)
+  :outputs (A S V)
+  :return (A S V)
   :documentation			; FDL
   "The SVD of the M-by-N matrix A using one-sided Jacobi
    orthogonalization for M >= N.  The Jacobi method can compute singular
    values to higher relative accuracy than Golub-Reinsch algorithms (see
    references for details).")
 
-(defmfun SV-solve (U V S b x)
+(defmfun SV-solve (U S V b x)
   "gsl_linalg_SV_solve"
-  (((pointer U) gsl-matrix-c) ((pointer V) gsl-matrix-c)
-   ((pointer S) gsl-vector-c)
-   ((pointer b) gsl-vector-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer U) :pointer) ((mpointer V) :pointer)
+   ((mpointer S) :pointer)
+   ((mpointer b) :pointer) ((mpointer x) :pointer))
+  :inputs (U S V b)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solve the system A x = b using the singular value
    decomposition (U, S, V) of A given by #'SV-decomp.

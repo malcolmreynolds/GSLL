@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-08-10 22:20:37EDT lu.lisp>
+;; Time-stamp: <2008-08-11 23:10:56EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -32,7 +32,7 @@
   partial pivoting (Golub & Van Loan, Matrix Computations,
   Algorithm 3.4.1).")
 
-(defmfun solve-LU ((LU matrix) p (b vector) (x vector))
+(defmfun LU-solve ((LU matrix) p (b vector) (x vector))
   ("gsl_linalg" :complex "_LU_solve")
   (((mpointer LU) :pointer) ((mpointer p) :pointer)
    ((mpointer b) :pointer) ((mpointer x) :pointer))
@@ -45,7 +45,7 @@
   "Solve the square system A x = b using the LU
   decomposition of A into (LU, p) given by LU-decomp.")
 
-(defmfun svx-LU ((LU matrix) p (x vector))
+(defmfun LU-solvex ((LU matrix) p (x vector))
   ("gsl_linalg" :complex "_LU_svx")
   (((mpointer LU) :pointer) ((mpointer p) :pointer)
    ((mpointer x) :pointer))
@@ -60,7 +60,7 @@
    (LU, p). On input x should contain the right-hand
    side b, which is replaced by the solution on output.")
 
-(defmfun refine-LU ((A matrix) LU p (b vector) (x vector) residual)
+(defmfun LU-refine ((A matrix) LU p (b vector) (x vector) residual)
   ("gsl_linalg" :complex "_LU_refine")
   (((mpointer A) :pointer) ((mpointer LU) :pointer)
    ((mpointer p) :pointer)
@@ -76,7 +76,7 @@
   A x = b, using the LU decomposition of A into (LU,p). The initial
   residual r = A x - b is also computed and stored in residual. ")
 
-(defmfun invert-LU ((LU matrix) p inverse)
+(defmfun LU-invert ((LU matrix) p inverse)
   ("gsl_linalg" :complex "_LU_invert")
   (((mpointer LU) :pointer) ((mpointer p) :pointer)
    ((mpointer inverse) :pointer))
@@ -94,7 +94,7 @@
    the same result more efficiently and reliably (consult any
    introductory textbook on numerical linear algebra for details).")
 
-(defmfun determinant-LU ((LU matrix) signum)
+(defmfun LU-determinant ((LU matrix) signum)
   ("gsl_linalg" :complex "_LU_det")
   (((mpointer LU) gsl-matrix-c) (signum :int))
   :c-return :double
@@ -107,7 +107,7 @@
   diagonal elements of U and the sign of the row permutation signum.")
 
 
-(defmfun log-determinant-LU ((LU matrix))
+(defmfun LU-log-determinant ((LU matrix))
   ("gsl_linalg" :complex "_LU_lndet")
   (((mpointer LU) gsl-matrix-c))
   :c-return :double
@@ -140,7 +140,7 @@
 	 (per (permutation dim))
 	 (inv (matrix-double-float (list dim dim))))
     (LU-decomposition mmat per)
-    (invert-lu mmat per inv)
+    (lu-invert mmat per inv)
     (cl-array inv)))
 
 #|

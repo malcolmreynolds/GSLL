@@ -1,6 +1,6 @@
 ;; Cholesky Decomposition
 ;; Liam Healy, Wed May  3 2006 - 16:38
-;; Time-stamp: <2008-02-17 10:43:34EST cholesky.lisp>
+;; Time-stamp: <2008-08-11 22:49:09EDT cholesky.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,9 +17,11 @@
 ;;; (L y = b, L^T x = y), which can be solved by forward and
 ;;; back-substitution.
 
-(defmfun cholesky-decomp (A)
-  "gsl_linalg_cholesky_decomp" (((pointer A) gsl-matrix-c))
-  :invalidate (A)
+(defmfun cholesky-decomposition (A)
+  "gsl_linalg_cholesky_decomp" (((mpointer A) :pointer))
+  :inputs (A)
+  :outputs (A)
+  :return (A)
   :documentation			; FDL
   "Factorize the positive-definite square matrix A
   into the Cholesky decomposition A = L L^T. On output the diagonal
@@ -27,25 +29,29 @@
   L.  The upper triangular part of the input matrix contains
   L^T, the diagonal terms being identical for both L and
   L^T.  If the matrix is not positive-definite then the
-  decomposition will fail, returning the error code :EDOM.")
+  decomposition will fail, returning the error EDOM.")
 
-(defmfun cholesky-solve (cholesky b x)
+(defmfun cholesky-solve (A x b)
   "gsl_linalg_cholesky_solve"
-  (((pointer cholesky) gsl-matrix-c) ((pointer b) gsl-vector-c)
-   ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer A) :pointer) ((mpointer b) :pointer)
+   ((mpointer x) :pointer))
+  :inputs (A b)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solve the system A x = b using the Cholesky
   decomposition of A into the matrix cholesky given by
-  #'cholesky-decomp.")
+  #'cholesky-decomposition.")
 
-(defmfun cholesky-svx (cholesky x)
+(defmfun cholesky-solvex (cholesky x)
   "gsl_linalg_cholesky_svx"
-  (((pointer cholesky) gsl-matrix-c) ((pointer x) gsl-vector-c))
-  :invalidate (x)
+  (((mpointer cholesky) :pointer) ((mpointer x) :pointer))
+  :inputs (A x)
+  :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solve the system A x = b in-place using the
   Cholesky decomposition of A into the matrix cholesky given
-  by #'cholesky-decomp. On input x should contain
+  by #'cholesky-decomposition. On input x should contain
   the right-hand side B, which is replaced by the solution on
   output.")

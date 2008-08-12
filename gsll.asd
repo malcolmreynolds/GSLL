@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-10 22:46:33EDT gsll.asd>
+;; Time-stamp: <2008-08-11 23:09:38EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -85,12 +85,11 @@
 	     (:file "exponential")
 	     (:file "lu")
 	     (:file "qr")
-	     ;(:file "qrpt")
-	     ;(:file "svd")
-	     ; (:file "cholesky")
-	     ; (:file "diagonal")
-	     ;(:file "householder")
-	     ))
+	     (:file "qrpt")
+	     (:file "svd")
+	     (:file "cholesky")
+	     ;(:file "diagonal")
+	     (:file "householder")))
    #+no
    (:file "eigensystems" :depends-on (init data))
    ;; Skip fft for now, I'm not sure how it works in C
