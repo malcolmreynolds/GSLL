@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-11 23:09:38EDT gsll.asd>
+;; Time-stamp: <2008-08-12 22:02:21EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -88,7 +88,7 @@
 	     (:file "qrpt")
 	     (:file "svd")
 	     (:file "cholesky")
-	     ;(:file "diagonal")
+	     (:file "diagonal")
 	     (:file "householder")))
    #+no
    (:file "eigensystems" :depends-on (init data))

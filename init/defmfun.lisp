@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-10 22:17:18EDT defmfun.lisp>
+;; Time-stamp: <2008-08-12 21:17:05EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -270,22 +270,25 @@
   ;; (actual-gsl-function-name
   ;;  '("gsl_" :category :type "_swap") 'vector '(unsigned-byte 16))
   ;; "gsl_vector_ushort_swap"
-  (let ((blas (search "blas" (first base-name) :test 'string-equal)))
-    (if (listp base-name)
-	(apply #'concatenate 'string
-	       (substitute
-		(if (subtypep type 'complex) "_complex" "") :complex
-		(substitute
-		 (if (subtypep type 'complex) "u" "") :suffix
-		 (substitute
-		  (cl-gsl type (not blas) blas) :type
-		  (substitute
-		   (if (subtypep type 'complex)
-		       (cl-gsl (component-float-type type) nil blas)
-		       "") :component-float-type
+  (if (listp base-name)
+      (if (symbolp (first base-name))
+	  ;; An explicit listing of types with function names
+	  (getf base-name (cl-single type))
+	  (let ((blas (search "blas" (first base-name) :test 'string-equal)))
+	    (apply #'concatenate 'string
 		   (substitute
-		    (string-downcase (symbol-name category)) :category
-		    base-name)))))))))
+		    (if (subtypep type 'complex) "_complex" "") :complex
+		    (substitute
+		     (if (subtypep type 'complex) "u" "") :suffix
+		     (substitute
+		      (cl-gsl type (not blas) blas) :type
+		      (substitute
+		       (if (subtypep type 'complex)
+			   (cl-gsl (component-float-type type) nil blas)
+			   "") :component-float-type
+		       (substitute
+			(string-downcase (symbol-name category)) :category
+			base-name))))))))))
 
 (defun number-class-from-type (type)
   "Find a class name that contains this type."
