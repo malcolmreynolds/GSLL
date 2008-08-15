@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-12 22:02:21EDT gsll.asd>
+;; Time-stamp: <2008-08-14 22:48:37EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -90,7 +90,6 @@
 	     (:file "cholesky")
 	     (:file "diagonal")
 	     (:file "householder")))
-   #+no
    (:file "eigensystems" :depends-on (init data))
    ;; Skip fft for now, I'm not sure how it works in C
    #+no
