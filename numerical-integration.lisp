@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-03-27 21:30:20EDT numerical-integration.lisp>
+;; Time-stamp: <2008-08-16 18:25:43EDT numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -20,7 +20,7 @@
   ((function :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
-   (result :double) (abserr :double) (neval size))
+   (result :double) (abserr :double) (neval sizet))
   :documentation			; FDL
   "Apply the Gauss-Kronrod 10-point, 21-point, 43-point and
    87-point integration rules in succession until an estimate of the
@@ -40,7 +40,7 @@
 	 integration-workspace-alloc integration-workspace-free)
 
 (defmfun integration-workspace-alloc (size)
-  "gsl_integration_workspace_alloc" ((size size))
+  "gsl_integration_workspace_alloc" ((size sizet))
   :c-return :pointer
   :export nil
   :index (letm integration-workspace)
@@ -70,7 +70,7 @@
   ((function :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
-   (limit size) (method integrate-method) (workspace :pointer)
+   (limit sizet) (method integrate-method) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Apply an integration rule adaptively until an estimate
@@ -101,7 +101,7 @@
   "gsl_integration_qags"
   ((function :pointer)
    (a :double) (b :double)
-   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Apply the Gauss-Kronrod 21-point integration rule
@@ -125,8 +125,8 @@
     (function points limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagp"
   ((function :pointer)
-   ((pointer points) :pointer) ((dim0 points) size)
-   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
+   ((pointer points) :pointer) ((dim0 points) sizet)
+   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Apply the adaptive integration algorithm QAGS taking
@@ -148,7 +148,7 @@
     (function limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagi"
   ((function :pointer)
-   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the integral of the function f over the
@@ -165,7 +165,7 @@
     (function a limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagiu"
   ((function :pointer) (a :double)
-   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the integral of the function f over the
@@ -178,7 +178,7 @@
     (function b limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagil"
   ((function :pointer) (b :double)
-   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the integral of the function f over the
@@ -197,7 +197,7 @@
   "gsl_integration_qawc"
   ((function :pointer)
    (a :double) (b :double) (c :double)
-   (absolute-error :double) (relative-error :double) (limit size) (workspace :pointer)
+   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the Cauchy principal value of the integral of
