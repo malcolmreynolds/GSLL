@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-12 21:17:05EDT defmfun.lisp>
+;; Time-stamp: <2008-08-17 15:37:37EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -469,22 +469,37 @@
 	   c-arguments)))
 
 (defun expand-defmfun-plain (name arglist gsl-name c-arguments key-args)
-  "The main function for expansion of defmfun."
+  "Expansion of defmfun as an ordinary (non-generic) function with
+   only required arguments."
   (with-defmfun-key-args key-args
-    (let* ((carg-symbs (c-arguments c-arguments))
-	   (clargs (or arglist carg-symbs))
-	   (arglist-symbs (arglist-plain-and-categories arglist nil))
-	   (cret-type (if (member c-return *special-c-return*)
+    `(,defn
+	 ,@(when (and name (not (defgeneric-method-p name)))
+		 (list name))
+	 ,(if global
+	      (append arglist (cons '&aux global))
+	      arglist)
+       ,(declaration-form
+	 (cl-argument-types arglist c-arguments)
+	 (set-difference (arglist-plain-and-categories arglist nil)
+			 (c-arguments c-arguments)))
+       ,@(when documentation (list documentation))
+       ,@(expand-defmfun-body name arglist gsl-name c-arguments key-args))))
+
+(defun expand-defmfun-body (name arglist gsl-name c-arguments key-args)
+  "Expand the body (computational part) of the defmfun."
+  (with-defmfun-key-args key-args
+    (let* ((cret-type (if (member c-return *special-c-return*)
 			  :int
 			  (if (listp c-return) (st-type c-return) c-return)))
 	   (cret-name
 	    (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
-	   (complex-args (complex-scalars clargs c-arguments))
+	   (complex-args (complex-scalars arglist c-arguments))
 	   (allocated		     ; Foreign objects to be allocated
 	    (remove-if
 	     (lambda (s)
-	       (or (member s arglist-symbs) (member s global :key #'first)))
-	     carg-symbs))
+	       (or (member s (arglist-plain-and-categories arglist nil))
+		   (member s global :key #'first)))
+	     (c-arguments c-arguments)))
 	   (allocated-decl
 	    (append
 	     (mapcar
@@ -495,18 +510,8 @@
 		   (mapcan #'cl-convert-form allocated-decl)
 		   outputs
 		   (unless (eq c-return :void)
-		     (list cret-name))))
-	   (clargs-types (cl-argument-types clargs c-arguments)))
-      `(,defn
-	   ,@(when (and name (not (defgeneric-method-p name)))
-		   (list name))
-	   ,(if global
-		(append clargs (cons '&aux global))
-		clargs)
-	 ,(declaration-form
-	   clargs-types (set-difference arglist-symbs carg-symbs))
-	 ,@(when documentation (list documentation))
-	 (,@(if (or allocated-decl complex-args)
+		     (list cret-name)))))
+      `((,@(if (or allocated-decl complex-args)
 		`(cffi:with-foreign-objects
 		     ,(mapcar #'wfo-declare
 			      (append allocated-decl 
