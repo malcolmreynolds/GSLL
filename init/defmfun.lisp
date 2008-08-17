@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-17 16:27:48EDT defmfun.lisp>
+;; Time-stamp: <2008-08-17 16:50:24EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -71,6 +71,12 @@
      (special indexed-functions))
     ,@body))
 
+(defparameter *defmfun-llk* '(&optional))
+
+(defun llkp (arglist)
+  "There is a lambda-list keyword present."
+  (intersection *defmfun-llk* arglist))
+
 (defun expand-defmfun-wrap (name arglist gsl-name c-arguments key-args)
   (let (indexed-functions)
     (with-defmfun-key-args key-args
@@ -83,7 +89,7 @@
 	  (expand-defmfun-method name arglist gsl-name c-arguments key-args))
 	 ((eq definition :methods)
 	  (expand-defmfun-defmethods name arglist gsl-name c-arguments key-args))
-	 ((and (member '&optional arglist) (listp gsl-name))
+	 ((and (llkp arglist) (listp gsl-name))
 	  (expand-defmfun-optional name arglist gsl-name c-arguments key-args))
 	 ((eq definition :function)
 	  (complete-definition 'cl:defun name arglist gsl-name c-arguments key-args)))
@@ -229,24 +235,43 @@
     (defn category name arglist gsl-name c-arguments key-args
      &optional replace-both)
   "Create all the methods for a generic function."
+  ;; Methods may have &optional in two ways: the optional argument(s)
+  ;; are defaulted if not supplied and a  single GSL function called,
+  ;; or the presence/absence of optional arguments switches between two
+  ;; GSL functions.
   (with-defmfun-key-args key-args
     (mapcar (lambda (eltype)
-	      (remf key-args :documentation)
-	      (when (eq c-return :element-c-type)
-		(setf (getf key-args :c-return) (cl-ffa eltype)))
-	      (when (eq c-return :component-float-type)
-		(setf (getf key-args :c-return) (cl-ffa (component-type eltype))))
-	      (complete-definition
-	       defn
-	       (if (eq defn :method) (list nil name) name)
-	       (actual-class-arglist arglist eltype replace-both)
-	       (let ((gsl-function-name
-		      (actual-gsl-function-name
-		       gsl-name category eltype)))
-		 (push gsl-function-name indexed-functions)
-		 gsl-function-name)
-	       (actual-element-c-type eltype c-arguments)
-	       key-args))
+	      (flet ((actual-gfn (gslname)
+		       (let ((gsl-function-name
+			      (actual-gsl-function-name
+			       gslname category eltype)))
+			 (push gsl-function-name indexed-functions)
+			 gsl-function-name)))
+		(remf key-args :documentation)
+		(when (eq c-return :element-c-type)
+		  (setf (getf key-args :c-return) (cl-ffa eltype)))
+		(when (eq c-return :component-float-type)
+		  (setf (getf key-args :c-return) (cl-ffa (component-type eltype))))
+		(if (and (llkp arglist) (listp (first gsl-name))) ; ad-hoc detection!
+		    ;; The methods have optional argument(s) and
+		    ;; multiple GSL functions for presence/absence of
+		    ;; options
+		    (complete-definition
+		     defn
+		     (if (eq defn :method) (list nil name) name)
+		     (actual-class-arglist arglist eltype replace-both)
+		     (mapcar #'actual-gfn gsl-name)
+		     (mapcar (lambda (args)
+			       (actual-element-c-type eltype args))
+			     c-arguments)
+		     key-args)
+		    (complete-definition
+		     defn
+		     (if (eq defn :method) (list nil name) name)
+		     (actual-class-arglist arglist eltype replace-both)
+		     (actual-gfn gsl-name)
+		     (actual-element-c-type eltype c-arguments)
+		     key-args))))
 	    (case element-types
 	      ((nil t) *array-element-types*)
 	      (:no-complex *array-element-types-no-complex*)
@@ -294,7 +319,7 @@
   (loop for arg in arglist
      with replacing = t
      do
-     (when (and replacing (member arg '(&optional)))
+     (when (and replacing (member arg *defmfun-llk*))
        (setf replacing nil))
      collect
      (if (and replacing (listp arg))
@@ -314,8 +339,6 @@
 	     (list (first arg)
 		   (coerce (second arg) element-type))
 	     arg))))
-
-(defparameter *defmfun-llk* '(&optional))
 
 (defun arglist-plain-and-categories
     (arglist &optional (include-llk t))
@@ -402,21 +425,23 @@
 		(optional-arglist (subseq arglist (1+ optpos))))
 	    (remf key-args :documentation)
 	    (setf indexed-functions gsl-name)
-	    `((defun ,name ,arglist
-		,documentation
-		(if ,(first optional-arglist)
-		    ,(expand-defmfun-body
-		      name
-		      (append mandatory-arglist optional-arglist)
-		      (second gsl-name)
-		      (second c-arguments)
-		      key-args)
-		    ,(expand-defmfun-body
-		      name
-		      mandatory-arglist
-		      (first gsl-name)
-		      (first c-arguments)
-		      key-args)))))))))
+	    (let ((body
+		   `(if ,(first optional-arglist)
+			,(expand-defmfun-body 
+			   nil
+			   (append mandatory-arglist optional-arglist)
+			   (second gsl-name)
+			   (second c-arguments)
+			   key-args)
+			,(expand-defmfun-body
+			   nil
+			   mandatory-arglist
+			   (first gsl-name)
+			   (first c-arguments)
+			   key-args))))
+	      (if (defgeneric-method-p name)
+		  body
+		  `((defun ,name ,arglist ,documentation ,@body)))))))))
 
 ;;;;****************************************************************************
 ;;;; A single function
