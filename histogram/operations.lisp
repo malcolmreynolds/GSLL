@@ -1,13 +1,13 @@
 ;; Histogram operations
 ;; Liam Healy, Mon Jan  1 2007 - 16:47
-;; Time-stamp: <2008-02-23 18:57:17EST operations.lisp>
+;; Time-stamp: <2008-08-17 09:34:52EDT operations.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmfun equal-bins-p-1 (histogram1 histogram2)
   "gsl_histogram_equal_bins_p"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :c-return :true-false
   :export nil
   :index equal-bins-p
@@ -16,7 +16,7 @@
 
 (defmfun equal-bins-p-2 (histogram1 histogram2)
   "gsl_histogram2d_equal_bins_p"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :c-return :true-false
   :export nil
   :index equal-bins-p
@@ -32,7 +32,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m+-1 (histogram1 histogram2)
   "gsl_histogram_add"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m+
   :documentation			; FDL
@@ -45,7 +45,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m+-2 (histogram1 histogram2)
   "gsl_histogram2d_add"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m+
   :documentation			; FDL
@@ -66,7 +66,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m--1 (histogram1 histogram2)
   "gsl_histogram_sub"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m-
   :documentation			; FDL
@@ -78,7 +78,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m--2 (histogram1 histogram2)
   "gsl_histogram2d_sub"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m-
   :documentation			; FDL
@@ -97,7 +97,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m*-1 (histogram1 histogram2)
   "gsl_histogram_mul"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m*
   :documentation			; FDL
@@ -110,7 +110,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m*-2 (histogram1 histogram2)
   "gsl_histogram2d_mul"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m*
   :documentation			; FDL
@@ -131,7 +131,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m/-1 (histogram1 histogram2)
   "gsl_histogram_div"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m/
   :documentation			; FDL
@@ -144,7 +144,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun m/-2 (histogram1 histogram2)
   "gsl_histogram2d_div"
-  (((pointer histogram1) :pointer) ((pointer histogram2) :pointer))
+  (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :export nil
   :index m/
   :documentation			; FDL
@@ -165,7 +165,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun scale-1 (histogram scale)
   "gsl_histogram_scale"
-  (((pointer histogram) :pointer) (scale :double))
+  (((mpointer histogram) :pointer) (scale :double))
   :export nil
   :index scale
   :documentation			; FDL
@@ -176,7 +176,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun scale-2 (histogram scale)
   "gsl_histogram2d_scale"
-  (((pointer histogram) :pointer) (scale :double))
+  (((mpointer histogram) :pointer) (scale :double))
   :export nil
   :index scale
   :documentation			; FDL
@@ -194,7 +194,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun shift-1 (histogram offset)
   "gsl_histogram_shift"
-  (((pointer histogram) :pointer) (offset :double))
+  (((mpointer histogram) :pointer) (offset :double))
   :export nil
   :index shift
   :documentation			; FDL
@@ -205,7 +205,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun shift-2 (histogram offset)
   "gsl_histogram2d_shift"
-  (((pointer histogram) :pointer) (offset :double))
+  (((mpointer histogram) :pointer) (offset :double))
   :export nil
   :index shift
   :documentation			; FDL

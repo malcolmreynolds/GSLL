@@ -1,26 +1,16 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-03-27 23:09:26EDT updating-accessing.lisp>
+;; Time-stamp: <2008-08-17 09:41:04EDT updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun increment-fix (histogram value)
-  "gsl_histogram_increment"
-  (((pointer histogram) :pointer) (value :double))
-  :index increment
-  :export nil)
-
-(defmfun increment-weight (histogram value weight)
-  "gsl_histogram_accumulate"
-  (((pointer histogram) :pointer) (value :double) (weight :double))
-  :index increment
-  :export nil)
-
-(defun-optionals increment (histogram value &optional weight)
-  -fix -weight
-  ;; FDL
-   "Update the histogram by adding the weight
+(defmfun increment-fix (histogram value &optional weight)
+  ("gsl_histogram_increment" "gsl_histogram_accumulate")
+  ((((mpointer histogram) :pointer) (value :double))
+   (((mpointer histogram) :pointer) (value :double) (weight :double)))
+  :documentation
+  "Update the histogram by adding the weight
    (which defaults to 1.0) to the
    bin whose range contains the coordinate x. 
 
@@ -36,8 +26,8 @@
 
 (defmfun maref ((histogram histogram) &rest i)
   "gsl_histogram_get"
-  (((pointer histogram) :pointer) ((first i) size))
-  :type :method 
+  (((pointer histogram) :pointer) ((first i) sizet))
+  :definition :method 
   :c-return :double
   :documentation			; FDL
   "Return the contents of the i-th bin of the histogram.
@@ -46,7 +36,7 @@
 
 (defmfun range (histogram i)
   "gsl_histogram_get_range"
-  (((pointer histogram) :pointer) (i size)
+  (((pointer histogram) :pointer) (i sizet)
    (lower :double) (upper :double))
   :documentation			; FDL
   "Find the upper and lower range limits of the i-th
@@ -59,14 +49,14 @@
    If i lies outside the valid range of indices for
    the histogram, then the error :EDOM is signalled.")
 
-(defmfun gsl-max-range (histogram)
+(defmfun max-range (histogram)
   "gsl_histogram_max"
   (((pointer histogram) :pointer))
   :c-return :double
   :documentation			; FDL
   "The maximum upper range limit of the histogram.")
 
-(defmfun gsl-min-range (histogram)
+(defmfun min-range (histogram)
   "gsl_histogram_min"
   (((pointer histogram) :pointer))
   :c-return :double
@@ -87,11 +77,11 @@
   :documentation			; FDL
   "Reset all the bins in the histogram to zero.")
 
-(defmfun histogram-find-1 (histogram value)
-  "gsl_histogram_find"
-  (((pointer histogram) :pointer) (value :double) (bin size))
-  :export nil
-  :index histogram-find
+(defmfun histogram-find (histogram x-value &optional y-value)
+  ("gsl_histogram_find" "gsl_histogram2d_find")
+  ((((mpointer histogram) :pointer) (x-value :double) (bin sizet))
+   (((mpointer histogram) :pointer) (x-value :double) (y-value :double)
+   (xbin sizet) (ybin sizet)))
   :documentation			; FDL
   "Finds the bin number which covers the coordinate value in
    the histogram.  The bin is located using a binary search. The
@@ -102,23 +92,11 @@
    the valid range of the histogram then the error :EDOM is
    signalled.")
 
-(defmfun histogram-find-2 (histogram x-value y-value)
-  "gsl_histogram2d_find"
-  (((pointer histogram) :pointer)
-   (x-value :double) (y-value :double)
-   (xbin size) (ybin size))
-  :export nil
-  :index histogram-find)
-
-(export 'histogram-find)
-(defun histogram-find (histogram &rest values)
-  (histo-1d2d histogram histogram-find
-	      ((first values))
-	      ((first values) (second values))))
-
+#|
  (letm ((histo (histogram 10)))		; should be a gsl-warning here, how to check?
      (set-ranges-uniform histo 0.0d0 10.0d0)
      (increment histo -2.0d0))
+|#
 ;;; Examples and unit test
 
 #|

@@ -1,19 +1,19 @@
 ;; Reading and writing histograms.
 ;; Liam Healy 2008-02-17 17:11:23EST read-write.lisp
-;; Time-stamp: <2008-02-17 17:13:15EST read-write.lisp>
+;; Time-stamp: <2008-08-17 09:36:25EDT read-write.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmfun write-binary-1 (object stream)
   "gsl_histogram_fwrite"
-  ((stream :pointer) ((pointer object) :pointer))
+  ((stream :pointer) ((mpointer object) :pointer))
   :export nil
   :index write-binary)
 
 (defmfun write-binary-2 (object stream)
   "gsl_histogram2d_fwrite"
-  ((stream :pointer) ((pointer object) :pointer))
+  ((stream :pointer) ((mpointer object) :pointer))
   :export nil
   :index write-binary)
 
@@ -22,13 +22,13 @@
 
 (defmfun read-binary-1 (object stream)
   "gsl_histogram_fread"
-  ((stream :pointer) ((pointer object) :pointer))
+  ((stream :pointer) ((mpointer object) :pointer))
   :export nil
   :index read-binary)
 
 (defmfun read-binary-2 (object stream)
   "gsl_histogram2d_fread"
-  ((stream :pointer) ((pointer object) :pointer))
+  ((stream :pointer) ((mpointer object) :pointer))
   :export nil
   :index read-binary)
 
@@ -37,14 +37,14 @@
 
 (defmfun write-formatted-1 (object stream format)
   "gsl_histogram_fprintf"
-  ((stream :pointer) ((pointer object) :pointer)
+  ((stream :pointer) ((mpointer object) :pointer)
    ((first format) :string) ((second format) :string))
   :export nil
   :index write-formatted)
 
 (defmfun write-formatted-2 (object stream format)
   "gsl_histogram2d_fprintf"
-  ((stream :pointer) ((pointer object) :pointer)
+  ((stream :pointer) ((mpointer object) :pointer)
    ((first format) :string) ((second format) :string))
   :export nil
   :index write-formatted)
@@ -73,13 +73,13 @@
 
 (defmfun read-formatted-1 (object stream format)
   "gsl_histogram_fscanf"
-  ((stream :pointer) ((pointer object) :pointer))
+  ((stream :pointer) ((mpointer object) :pointer))
   :export nil
   :index read-formatted)
 
 (defmfun read-formatted-2 (object stream format)
   "gsl_histogram2d_fscanf"
-  ((stream :pointer) ((pointer object) :pointer))
+  ((stream :pointer) ((mpointer object) :pointer))
   :export nil
   :index read-formatted)
 

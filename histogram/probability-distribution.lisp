@@ -1,13 +1,13 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
-;; Time-stamp: <2008-02-17 18:39:49EST probability-distribution.lisp>
+;; Time-stamp: <2008-08-17 09:37:15EDT probability-distribution.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defclass histogram-pdf ()
   ((pointer
-    :initarg :pointer :accessor pointer
+    :initarg :pointer :accessor mpointer
     :documentation
     "A C pointer to the GSL representation of the histogram.")
    (number-of-bins :initarg :number-of-bins :accessor number-of-bins))
@@ -16,7 +16,7 @@
 
 (defmfun alloc-1 (object)
   "gsl_histogram_pdf_alloc"
-  (((number-of-bins object) size))
+  (((number-of-bins object) sizet))
   :export nil
   :index alloc
   :c-return (cr :pointer)
@@ -24,7 +24,7 @@
 
 (defmfun alloc-2 (object)
   "gsl_histogram2d_pdf_alloc"
-  (((number-of-bins object) size))
+  (((number-of-bins object) sizet))
   :export nil
   :index alloc
   :c-return (cr :pointer)
@@ -35,14 +35,14 @@
 
 (defmfun free-1 (object)
   "gsl_histogram_pdf_free"
-  (((pointer object) :pointer))
+  (((mpointer object) :pointer))
   :export nil
   :index free
   :c-return :void)
 
 (defmfun free-2 (object)
   "gsl_histogram2d_pdf_free"
-  (((pointer object) :pointer))
+  (((mpointer object) :pointer))
   :export nil
   :index free
   :c-return :void)
@@ -52,7 +52,7 @@
 
 (defmfun pdf-init-1 (pdf histogram)
   "gsl_histogram_pdf_init"
-  (((pointer pdf) :pointer) ((pointer histogram) :pointer))
+  (((mpointer pdf) :pointer) ((mpointer histogram) :pointer))
   :return ()
   :export nil
   :index pdf-init
@@ -64,7 +64,7 @@
 
 (defmfun pdf-init-2 (pdf histogram)
   "gsl_histogram2d_pdf_init"
-  (((pointer pdf) :pointer) ((pointer histogram) :pointer))
+  (((mpointer pdf) :pointer) ((mpointer histogram) :pointer))
   :return ()
   :export nil
   :index pdf-init
@@ -84,7 +84,7 @@
 
 (defmfun sample-1 (pdf value)
   "gsl_histogram_pdf_sample"
-  (((pointer pdf) :pointer) (value :double))
+  (((mpointer pdf) :pointer) (value :double))
   :c-return :double
   :export nil
   :index sample
@@ -99,7 +99,7 @@
 
 (defmfun sample-2 (pdf value)
   "gsl_histogram2d_pdf_sample"
-  (((pointer pdf) :pointer) (value :double))
+  (((mpointer pdf) :pointer) (value :double))
   :c-return :double
   :export nil
   :index sample

@@ -1,6 +1,6 @@
 ;; N-tuples
 ;; Liam Healy Sat Feb  3 2007 - 12:53
-;; Time-stamp: <2008-02-17 18:39:48EST ntuple.lisp>
+;; Time-stamp: <2008-08-17 09:39:34EDT ntuple.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
 ;;; Writing a file
 (defmfun create-ntuple (filename data size)
   "gsl_ntuple_create"
-  ((filename :string) (data :pointer) (size size))
+  ((filename :string) (data :pointer) (size sizet))
   :c-return :pointer
   :documentation			; FDL
   "Create a new write-only ntuple file filename for
@@ -24,7 +24,7 @@
 ;;; Reading a file
 (defmfun open-ntuple (filename data size)
   "gsl_ntuple_create"
-  ((filename :string) (data :pointer) (size size))
+  ((filename :string) (data :pointer) (size sizet))
   :c-return :pointer
   :documentation			; FDL
   "Open an existing ntuple file filename for reading

@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-08-16 20:00:37EDT data.lisp>
+;; Time-stamp: <2008-08-17 09:59:05EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -277,11 +277,11 @@
 	     (cffi:mem-aref pointer cffi-type pointer-index)
 	     (cffi:mem-aref pointer cffi-type (1+ pointer-index)))))))
 
-
-(defun maref (object &rest indices)
-  "An element of the data."
-  (copy-c-to-cl object)
-  (apply 'aref (cl-array object) indices))
+(defgeneric maref (object &rest indices)
+  (:documentation "An element of the data.")
+  (:method ((object gsl-data) &rest indices)
+    (copy-c-to-cl object)
+    (apply 'aref (cl-array object) indices)))
 
 ;;; Alternative to complete copy is to mark which elements have
 ;;; changed and just copy them.  Is it worth it?

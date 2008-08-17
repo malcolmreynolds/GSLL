@@ -1,72 +1,72 @@
 ;; Statistics of histograms.
 ;; Liam Healy, Mon Jan  1 2007 - 16:13
-;; Time-stamp: <2008-02-17 17:07:06EST statistics.lisp>
+;; Time-stamp: <2008-08-17 09:41:27EDT statistics.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun gsl-max-1 (histogram)
+(defmfun mmax-1 (histogram)
   "gsl_histogram_max_val"
   (((pointer histogram) :pointer))
   :c-return :double
   :export nil
-  :index gsl-max
+  :index mmax
   :documentation			; FDL
   "The maximum value contained in the histogram bins.")
 
-(defmfun gsl-max-2 (histogram)
+(defmfun mmax-2 (histogram)
   "gsl_histogram2d_max_val"
   (((pointer histogram) :pointer))
   :c-return :double
   :export nil
-  :index gsl-max
+  :index mmax
   :documentation			; FDL
   "The maximum value contained in the histogram bins.")
 
 (defmethod gsl-max ((histogram histogram))
   "The maximum value contained in the histogram bins."
-  (histo-1d2d histogram gsl-max))
+  (histo-1d2d histogram mmax))
 
-(defmfun gsl-min-1 (histogram)
+(defmfun mmin-1 (histogram)
   "gsl_histogram_min_val"
   (((pointer histogram) :pointer))
   :c-return :double
   :export nil
-  :index gsl-min
+  :index mmin
   :documentation			; FDL
   "The minimum value contained in the histogram bins.")
 
-(defmfun gsl-min-2 (histogram)
+(defmfun mmin-2 (histogram)
   "gsl_histogram2d_min_val"
   (((pointer histogram) :pointer))
   :c-return :double
   :export nil
-  :index gsl-min
+  :index mmin
   :documentation			; FDL
   "The minimum value contained in the histogram bins.")
 
 (defmethod gsl-min ((histogram histogram)) ; FDL
   "The minimum value contained in the histogram bins."
-  (histo-1d2d histogram gsl-min))
+  (histo-1d2d histogram mmin))
 
-(defmfun gsl-max-index-1 (histogram)
+(defmfun max-index-1 (histogram)
   "gsl_histogram_max_bin"
   (((pointer histogram) :pointer))
-  :c-return size
+  :c-return sizet
   :export nil
-  :index gsl-max-index
+  :index max-index
   :documentation			; FDL
   "The index of the bin containing the maximum value. In the case
    where several bins contain the same maximum value the smallest
    index is returned.")
 
-(defmfun gsl-max-index-2 (histogram)
+(defmfun max-index-2 (histogram)
   "gsl_histogram2d_max_bin"
   (((pointer histogram) :pointer)
-   (xindex size) (yindex size))
-  :c-return size
+   (xindex sizet) (yindex sizet))
+  :c-return sizet
   :export nil
-  :index gsl-max-index
+  :index max-index
   :documentation			; FDL
   "The indices of the bin containing the maximum value. In the case
    where several bins contain the same maximum value the first bin
@@ -75,31 +75,31 @@
 (defmethod gsl-max-index (histogram)
   (histo-1d2d histogram gsl-max-index))
 
-(defmfun gsl-min-index-1 (histogram)
+(defmfun min-index-1 (histogram)
   "gsl_histogram_min_bin"
   (((pointer histogram) :pointer))
-  :c-return size
+  :c-return sizet
   :export nil
-  :index gsl-min-index
+  :index min-index
   :documentation			; FDL
   "The index of the bin containing the minimum value. In the case
    where several bins contain the same minimum value the smallest
    index is returned.")
 
-(defmfun gsl-min-index-2 (histogram)
+(defmfun min-index-2 (histogram)
   "gsl_histogram2d_min_bin"
   (((pointer histogram) :pointer)
-   (xindex size) (yindex size))
-  :c-return size
+   (xindex sizet) (yindex sizet))
+  :c-return sizet
   :export nil
-  :index gsl-min-index
+  :index min-index
   :documentation			; FDL
   "The indices of the bin containing the minimum value. In the case
    where several bins contain the same minimum value the first bin
    found is returned.")
 
-(defmethod gsl-min-index (histogram)
-  (histo-1d2d histogram gsl-min-index))
+(defmethod min-index (histogram)
+  (histo-1d2d histogram min-index))
 
 (defmfun mean-1 (histogram)
   "gsl_histogram_mean"

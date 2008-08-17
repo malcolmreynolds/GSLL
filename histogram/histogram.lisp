@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-02-19 22:33:01EST histogram.lisp>
+;; Time-stamp: <2008-08-17 09:02:00EDT histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,7 +20,7 @@
 
 (defclass histogram ()
   ((pointer
-    :initarg :pointer :accessor pointer
+    :initarg :pointer :accessor mpointer
     :documentation "A C pointer to the GSL representation of the histogram.")
    (number-of-bins :initarg :number-of-bins :accessor number-of-bins))
   (:documentation
@@ -28,7 +28,7 @@
 
 (defmfun alloc-histo-1 (object)
   "gsl_histogram_alloc"
-  (((number-of-bins object) size))
+  (((number-of-bins object) sizet))
   :export nil
   :index (letm histogram)
   :c-return (cr :pointer)
@@ -36,8 +36,8 @@
 
 (defmfun alloc-histo-2 (object)
   "gsl_histogram2d_alloc"
-  (((first (number-of-bins object)) size)
-   ((second (number-of-bins object)) size))
+  (((first (number-of-bins object)) sizet)
+   ((second (number-of-bins object)) sizet))
   :export nil
   :index (letm histogram)
   :c-return (cr :pointer)
@@ -78,7 +78,7 @@
 (defmfun set-ranges-1 (histogram ranges)
   "gsl_histogram_set_ranges"
   (((pointer histogram) :pointer)
-   ((gsl-array ranges) :pointer) ((dim0 ranges) size))
+   ((c-pointer ranges) :pointer) ((dim0 ranges) sizet))
   :export nil
   :index (letm histogram)
   :documentation			; FDL
@@ -91,8 +91,8 @@
 (defmfun set-ranges-2 (histogram x-ranges y-ranges)
   "gsl_histogram2d_set_ranges"
   (((pointer histogram) :pointer)
-   ((gsl-array x-ranges) :pointer) ((dim0 x-ranges) size)
-   ((gsl-array y-ranges) :pointer) ((dim0 y-ranges) size))
+   ((c-pointer x-ranges) :pointer) ((dim0 x-ranges) sizet)
+   ((c-pointer y-ranges) :pointer) ((dim0 y-ranges) sizet))
   :export nil
   :index (letm histogram))
 

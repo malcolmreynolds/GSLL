@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-16 20:05:07EDT gsll.asd>
+;; Time-stamp: <2008-08-17 09:39:54EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -145,7 +145,6 @@
 	     (:file "covariance")
 	     ;; minimum and maximum values provided in vector.lisp
 	     (:file "median-percentile")))
-   #+no
    (:module histogram
 	    :depends-on (init)
 	    :components
