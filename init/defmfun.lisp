@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-17 16:50:24EDT defmfun.lisp>
+;; Time-stamp: <2008-08-17 18:14:19EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -102,12 +102,14 @@
 	 (with-defmfun-key-args key-args
 	   (if (eq index t)
 	       (setf index name))
-	   (flet ((mapnfn (gsl-name) `(map-name ',index ,gsl-name)))
+	   (flet ((mapnfn (gslnm) `(map-name ',index ,gslnm)))
 	     (append
 	      (when index
 		(if indexed-functions
 		    (mapcar #'mapnfn indexed-functions)
-		    (list (mapnfn gsl-name))))
+		    (if (listp gsl-name)
+			(mapcar #'mapnfn gsl-name)
+			(list (mapnfn gsl-name)))))
 	      (when export `((export ',name))))))))
     (if index-export
 	(if (symbolp (first definition))
@@ -264,7 +266,9 @@
 		     (mapcar (lambda (args)
 			       (actual-element-c-type eltype args))
 			     c-arguments)
-		     key-args)
+		     key-args
+		     'body-optional-arg
+		     t)
 		    (complete-definition
 		     defn
 		     (if (eq defn :method) (list nil name) name)
@@ -418,30 +422,31 @@
     (name arglist gsl-name c-arguments key-args)
   "Expand defmfun where there is an optional argument
    present, giving the choice between two different GSL functions."
-  (with-defmfun-key-args key-args
-    (let ((optpos (position '&optional arglist)))
-      (if optpos
-	  (let ((mandatory-arglist (subseq arglist 0 optpos))
-		(optional-arglist (subseq arglist (1+ optpos))))
-	    (remf key-args :documentation)
-	    (setf indexed-functions gsl-name)
-	    (let ((body
-		   `(if ,(first optional-arglist)
-			,(expand-defmfun-body 
-			   nil
-			   (append mandatory-arglist optional-arglist)
-			   (second gsl-name)
-			   (second c-arguments)
-			   key-args)
-			,(expand-defmfun-body
-			   nil
-			   mandatory-arglist
-			   (first gsl-name)
-			   (first c-arguments)
-			   key-args))))
-	      (if (defgeneric-method-p name)
-		  body
-		  `((defun ,name ,arglist ,documentation ,@body)))))))))
+  (complete-definition 'cl:defun name arglist gsl-name c-arguments key-args
+		       'body-optional-arg))
+
+(defun body-optional-arg
+    (name arglist gsl-name c-arguments key-args)
+  "Create the body of a defmfun with &optional in its arglist,
+   where the presence or absence of the optional argument(s)
+   selects one of two GSL functions."
+  (let ((optpos (position '&optional arglist)))
+    (if optpos
+	(let ((mandatory-arglist (subseq arglist 0 optpos))
+	      (optional-arglist (subseq arglist (1+ optpos))))
+	  `(if ,(first optional-arglist)
+	       ,(body-no-optional-arg 
+		 name
+		 (append mandatory-arglist optional-arglist)
+		 (second gsl-name)
+		 (second c-arguments)
+		 key-args)
+	       ,(body-no-optional-arg
+		 name
+		 mandatory-arglist
+		 (first gsl-name)
+		 (first c-arguments)
+		 key-args))))))
 
 ;;;;****************************************************************************
 ;;;; A single function
@@ -478,7 +483,9 @@
 		    (list val)))))
 	   c-arguments)))
 
-(defun complete-definition (definition name arglist gsl-name c-arguments key-args)
+(defun complete-definition
+    (definition name arglist gsl-name c-arguments key-args
+     &optional (body-maker 'body-no-optional-arg) mapdown)
   "A complete definition form, starting with defun, :method, or defmethod."
   (destructuring-bind
 	(&key documentation &allow-other-keys) key-args
@@ -489,11 +496,14 @@
        ,(declaration-form
 	 (cl-argument-types arglist c-arguments)
 	 (set-difference (arglist-plain-and-categories arglist nil)
-			 (c-arguments c-arguments)))
+			 (if mapdown
+			     (apply 'union
+				    (mapcar 'c-arguments c-arguments))
+			     (c-arguments c-arguments))))
        ,@(when documentation (list documentation))
-       ,(expand-defmfun-body name arglist gsl-name c-arguments key-args))))
+       ,(funcall body-maker name arglist gsl-name c-arguments key-args))))
 
-(defun expand-defmfun-body (name arglist gsl-name c-arguments key-args)
+(defun body-no-optional-arg (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
   (with-defmfun-key-args key-args
     (let* ((cret-type (if (member c-return *special-c-return*)

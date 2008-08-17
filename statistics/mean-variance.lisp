@@ -1,6 +1,6 @@
 ;; Mean, standard deviation, and variance    
 ;; Liam Healy, Sat Dec  2 2006 - 22:15
-;; Time-stamp: <2008-03-09 19:21:47EDT mean-variance.lisp>
+;; Time-stamp: <2008-08-17 12:06:30EDT mean-variance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,32 +20,54 @@
 ;;;; Mean and weighted mean
 ;;;;****************************************************************************
 
-(defgeneric mean (vector)
-  (:documentation			; FDL
+(defmfun mean ((vector vector))
+  ("gsl_stats" :type "_mean")
+  (((c-pointer vector) :pointer) (1 :int) ((dim0 vector) sizet))
+  :definition :generic
+  :element-types :no-complex
+  :c-return :double
+  :documentation			; FDL
    "The arithmetic mean of the vector.
    The arithmetic mean, or sample mean, is denoted by
-   \Hat\mu and defined as \Hat\mu = (1/N) \sum x_i.  Returns a double-float."))
+   \Hat\mu and defined as \Hat\mu = (1/N) \sum x_i.  Returns a double-float.")
 
-(defmfun-stats mean ((vector vector))
-  "gsl_stats_mean"
-  (((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
-  :c-return :double)
-
-(defgeneric weighted-mean (vector weights)
-  (:documentation			; FDL
-   "The weighted mean of the dataset, using the set of weights
+(defmfun weighted-mean ((vector vector) (weights vector))
+  ("gsl_stats" :type "_wmean")
+  (((c-pointer weights) :pointer) (1 :int)
+   ((c-pointer vector) :pointer) (1 :int)
+   ((dim0 vector) sizet))
+  :definition :generic
+  :element-types :float
+  :c-return :element-c-type
+  :documentation			; FDL
+  "The weighted mean of the dataset, using the set of weights
     The weighted mean is defined as
-    \Hat\mu = (\sum w_i x_i) / (\sum w_i)."))
-
-(defmfun-stats-ds weighted-mean ((vector vector) weights)
-  "gsl_stats_wmean"
-  (((gsl-array weights) :pointer) (1 :int)
-    ((gsl-array vector) :pointer) (1 :int) ((dim0 vector) size))
-  :c-return :double)
+    \Hat\mu = (\sum w_i x_i) / (\sum w_i).")
 
 ;;;;****************************************************************************
 ;;;; Variance
 ;;;;****************************************************************************
+
+(defmfun variance ((vector vector) &optional mean)
+  (("gsl_stats" :type "_variance")
+   ("gsl_stats" :type "_variance_m"))
+  ((((c-pointer vector) :pointer) (1 :int) ((dim0 vector) sizet))
+   (((c-pointer vector) :pointer) (1 :int)
+   ((dim0 vector) sizet) (mean :double)))
+  :definition :generic
+  :element-types :no-complex
+  :c-return :double
+  :documentation			; FDL
+  "The estimated, or sample, variance of data.  The
+   estimated variance is denoted by \Hat\sigma^2 and is defined by
+   \Hat\sigma^2 = (1/(N-1)) \sum (x_i - \Hat\mu)^2
+   where x_i are the elements of the dataset data.  Note that
+   the normalization factor of 1/(N-1) results from the derivation
+   of \Hat\sigma^2 as an unbiased estimator of the population
+   variance \sigma^2.  For samples drawn from a gaussian distribution
+   the variance of \Hat\sigma^2 itself is 2 \sigma^4 / N.
+   If the mean value is known, it may be supplied which will use more
+   efficient routines to compute the variance.")
 
 (defgeneric variance-nom (vector)
   (:documentation			; FDL
