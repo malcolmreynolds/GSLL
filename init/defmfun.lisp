@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-17 15:37:37EDT defmfun.lisp>
+;; Time-stamp: <2008-08-17 16:27:48EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,7 +48,6 @@
 ;;; outputs    Arrays that are written to in the GSL function
 ;;; after        After method.
 ;;; enumeration  The name of the enumeration return.
-;;; global     Bind variable(s) in a let* enclosing the whole body.
 
 (defmacro defmfun (name arglist gsl-name c-arguments &rest key-args)
   "Definition of a GSL function."
@@ -60,23 +59,20 @@
   `(destructuring-bind
     (&key (c-return :error-code)
      (return nil return-supplied-p)
-     (definition :function)		; :function, :generic, :method, :methods
      element-types
      (index t)
+     (definition :function)
      (export (not (member definition (list :method :methods))))
-     null-pointer-info documentation inputs outputs after enumeration
-     global)
+     null-pointer-info documentation inputs outputs after enumeration)
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export
-      null-pointer-info documentation inputs outputs after enumeration
-      global)
-     (special defn indexed-functions))
+      null-pointer-info documentation inputs outputs after enumeration)
+     (special indexed-functions))
     ,@body))
 
 (defun expand-defmfun-wrap (name arglist gsl-name c-arguments key-args)
-  (let (defn indexed-functions)
-    (declare (ignore defn))
+  (let (indexed-functions)
     (with-defmfun-key-args key-args
       (setf indexed-functions (list))
       (wrap-index-export
@@ -90,10 +86,7 @@
 	 ((and (member '&optional arglist) (listp gsl-name))
 	  (expand-defmfun-optional name arglist gsl-name c-arguments key-args))
 	 ((eq definition :function)
-	  (setf defn 'cl:defun)
-	  (expand-defmfun-plain name arglist gsl-name c-arguments key-args))
-	 (t
-	  (expand-defmfun-plain name arglist gsl-name c-arguments key-args)))
+	  (complete-definition 'cl:defun name arglist gsl-name c-arguments key-args)))
        name gsl-name key-args))))
 
 (defun wrap-index-export (definition name gsl-name key-args)
@@ -200,7 +193,6 @@
   ;; Need to scan the arglist for categories.
   ;; Can be mixed, unless it says 'both, in which case it can only be both.
   (with-defmfun-key-args key-args
-    ;;(setf defn :methods)
     (multiple-value-bind (noclass-arglist categories)
 	(arglist-plain-and-categories arglist)
       `(defgeneric ,name ,noclass-arglist
@@ -234,19 +226,19 @@
      name arglist gsl-name c-arguments key-args)))
 
 (defun generate-methods
-    (new-definition category name arglist gsl-name c-arguments key-args
+    (defn category name arglist gsl-name c-arguments key-args
      &optional replace-both)
   "Create all the methods for a generic function."
   (with-defmfun-key-args key-args
-    (setf defn new-definition)
     (mapcar (lambda (eltype)
 	      (remf key-args :documentation)
 	      (when (eq c-return :element-c-type)
 		(setf (getf key-args :c-return) (cl-ffa eltype)))
 	      (when (eq c-return :component-float-type)
 		(setf (getf key-args :c-return) (cl-ffa (component-type eltype))))
-	      (expand-defmfun-plain
-	       (if (eq new-definition :method) (list nil name) name)
+	      (complete-definition
+	       defn
+	       (if (eq defn :method) (list nil name) name)
 	       (actual-class-arglist arglist eltype replace-both)
 	       (let ((gsl-function-name
 		      (actual-gsl-function-name
@@ -385,8 +377,8 @@
   "Create a specific method for a previously-defined generic function."
   (with-defmfun-key-args key-args
     (remf key-args :documentation)
-    (setf defn 'cl:defmethod)
-    (expand-defmfun-plain
+    (complete-definition
+     'cl:defmethod
      name
      arglist
      (progn
@@ -413,25 +405,18 @@
 	    `((defun ,name ,arglist
 		,documentation
 		(if ,(first optional-arglist)
-		    ,(defmfun-body-only
-		      (expand-defmfun-plain
-		       nil
-		       (append mandatory-arglist optional-arglist)
-		       (second gsl-name)
-		       (second c-arguments)
-		       key-args))
-		    ,(defmfun-body-only
-		      (expand-defmfun-plain
-		       nil
-		       mandatory-arglist
-		       (first gsl-name)
-		       (first c-arguments)
-		       key-args))))))))))
-
-(defun defmfun-body-only (x)
-  "Just get the body from the defmfun expansion."
-  ;; no :documentation line!
-  (nth 3 x))
+		    ,(expand-defmfun-body
+		      name
+		      (append mandatory-arglist optional-arglist)
+		      (second gsl-name)
+		      (second c-arguments)
+		      key-args)
+		    ,(expand-defmfun-body
+		      name
+		      mandatory-arglist
+		      (first gsl-name)
+		      (first c-arguments)
+		      key-args)))))))))
 
 ;;;;****************************************************************************
 ;;;; A single function
@@ -468,22 +453,20 @@
 		    (list val)))))
 	   c-arguments)))
 
-(defun expand-defmfun-plain (name arglist gsl-name c-arguments key-args)
-  "Expansion of defmfun as an ordinary (non-generic) function with
-   only required arguments."
-  (with-defmfun-key-args key-args
-    `(,defn
+(defun complete-definition (definition name arglist gsl-name c-arguments key-args)
+  "A complete definition form, starting with defun, :method, or defmethod."
+  (destructuring-bind
+	(&key documentation &allow-other-keys) key-args
+    `(,definition
 	 ,@(when (and name (not (defgeneric-method-p name)))
 		 (list name))
-	 ,(if global
-	      (append arglist (cons '&aux global))
-	      arglist)
+	 ,arglist
        ,(declaration-form
 	 (cl-argument-types arglist c-arguments)
 	 (set-difference (arglist-plain-and-categories arglist nil)
 			 (c-arguments c-arguments)))
        ,@(when documentation (list documentation))
-       ,@(expand-defmfun-body name arglist gsl-name c-arguments key-args))))
+       ,(expand-defmfun-body name arglist gsl-name c-arguments key-args))))
 
 (defun expand-defmfun-body (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
@@ -497,8 +480,7 @@
 	   (allocated		     ; Foreign objects to be allocated
 	    (remove-if
 	     (lambda (s)
-	       (or (member s (arglist-plain-and-categories arglist nil))
-		   (member s global :key #'first)))
+	       (member s (arglist-plain-and-categories arglist nil)))
 	     (c-arguments c-arguments)))
 	   (allocated-decl
 	    (append
@@ -511,46 +493,46 @@
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
-      `((,@(if (or allocated-decl complex-args)
-		`(cffi:with-foreign-objects
-		     ,(mapcar #'wfo-declare
-			      (append allocated-decl 
-				      (mapcar #'rest complex-args))))
-		'(let ()))
-	    #-native ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
-	    (let ((,cret-name
-		   (cffi:foreign-funcall
-		    ,gsl-name
-		    ,@(mapcan
-		       (lambda (arg)
-			 (let ((cfind	; variable is complex
-				(first (member (st-symbol arg) complex-args :key 'first))))
-			   (if cfind ; so substitute call to complex-to-gsl
-			       `(,(third cfind)
-				  (complex-to-gsl ,(first cfind) ,(second cfind)))
-			       ;; otherwise use without conversion
-			       (list (if (member (st-symbol arg) allocated)
-					 :pointer
-					 (st-type arg))
-				     (st-symbol arg)))))
-		       c-arguments)
-		    ,cret-type)))
-	      ,@(case c-return
-		      (:void `((declare (ignore ,cret-name))))
-		      (:error-code	; fill in arguments
-		       `((check-gsl-status ,cret-name
-					   ',(or (defgeneric-method-p name) name)))))
-	      #-native
-	      ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
-	      ,@(when (or null-pointer-info (eq c-return :pointer))
-		      `((check-null-pointer ,cret-name
-					    ,@(or null-pointer-info
-						  '(:ENOMEM "No memory allocated")))))
-	      ,@after
-	      (values
-	       ,@(defmfun-return
-		  c-return cret-name clret allocated return return-supplied-p
-		  enumeration outputs))))))))
+      `(,@(if (or allocated-decl complex-args)
+	      `(cffi:with-foreign-objects
+		   ,(mapcar #'wfo-declare
+			    (append allocated-decl 
+				    (mapcar #'rest complex-args))))
+	      '(let ()))
+	  #-native ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
+	  (let ((,cret-name
+		 (cffi:foreign-funcall
+		  ,gsl-name
+		  ,@(mapcan
+		     (lambda (arg)
+		       (let ((cfind	; variable is complex
+			      (first (member (st-symbol arg) complex-args :key 'first))))
+			 (if cfind ; so substitute call to complex-to-gsl
+			     `(,(third cfind)
+				(complex-to-gsl ,(first cfind) ,(second cfind)))
+			     ;; otherwise use without conversion
+			     (list (if (member (st-symbol arg) allocated)
+				       :pointer
+				       (st-type arg))
+				   (st-symbol arg)))))
+		     c-arguments)
+		  ,cret-type)))
+	    ,@(case c-return
+		    (:void `((declare (ignore ,cret-name))))
+		    (:error-code	; fill in arguments
+		     `((check-gsl-status ,cret-name
+					 ',(or (defgeneric-method-p name) name)))))
+	    #-native
+	    ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
+	    ,@(when (or null-pointer-info (eq c-return :pointer))
+		    `((check-null-pointer ,cret-name
+					  ,@(or null-pointer-info
+						'(:ENOMEM "No memory allocated")))))
+	    ,@after
+	    (values
+	     ,@(defmfun-return
+		c-return cret-name clret allocated return return-supplied-p
+		enumeration outputs)))))))
 
 (defun defmfun-return
     (c-return cret-name clret allocated return return-supplied-p enumeration outputs)
