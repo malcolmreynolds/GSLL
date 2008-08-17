@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-03-09 19:29:16EDT quasi.lisp>
+;; Time-stamp: <2008-08-16 20:17:54EDT quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,7 +30,7 @@
 (defmfun alloc ((generator quasi-random-number-generator))
   "gsl_qrng_alloc"
   (((rng-type generator) :pointer) ((qr-dimension generator) :uint))
-  :type :method
+  :definition :method
   :c-return (ptr :pointer)
   :return ((progn (setf (generator generator) ptr) generator))
   :documentation			; FDL 
@@ -43,7 +43,7 @@
 
 (defmfun free ((generator quasi-random-number-generator))
   "gsl_qrng_free" (((generator generator) :pointer))
-  :type :method
+  :definition :method
   :c-return :void
   :after ((setf (generator generator) nil))
   :documentation			; FDL
@@ -59,30 +59,31 @@
 
 (defmfun qrng-get (generator return-vector)
   "gsl_qrng_get"
-  (((generator generator) :pointer) ((gsl-array return-vector) :pointer))
+  (((generator generator) :pointer) ((c-pointer return-vector) :pointer))
+  :outputs (return-vector)
+  :return (return-vector)
   :documentation			; FDL
   "Store the next point from the sequence generator q
-   in the array x.  The space available for x must match the
-   dimension of the generator.  The point x will lie in the range
-   0 < x_i < 1 for each x_i."
-  :invalidate (return-vector))
+   in the array.  The space available fopr it must match the
+   dimension of the generator.  The point will lie in the range
+   0 < x_i < 1 for each x_i.")
 
 (defmfun rng-name ((instance quasi-random-number-generator))
   "gsl_qrng_name" (((generator instance) :pointer))
-  :type :method
+  :definition :method
   :c-return :string)
 
 (defmfun rng-state ((instance quasi-random-number-generator))
   "gsl_qrng_state" (((generator instance) :pointer))
   :c-return :pointer
-  :type :method
+  :definition :method
   :export nil
   :index gsl-random-state)
 
 (defmfun rng-size ((instance quasi-random-number-generator))
   "gsl_qrng_size" (((generator instance) :pointer))
-  :c-return size
-  :type :method
+  :c-return sizet
+  :definition :method
   :export nil
   :index gsl-random-state)
 
@@ -91,7 +92,7 @@
      (source quasi-random-number-generator))
   "gsl_qrng_memcpy"
   (((generator destination) :pointer) ((generator source) :pointer))
-  :type :method
+  :definition :method
   :documentation			; FDL
   "Copy the quasi-random sequence generator src into the
    pre-existing generator dest, making dest into an exact copy
@@ -100,7 +101,7 @@
 (defmfun clone-generator ((instance quasi-random-number-generator))
   "gsl_qrng_clone" (((generator instance) :pointer))
   :c-return :pointer
-  :type :method
+  :definition :method
   :documentation			; FDL
   "Create a new generator which is an exact copy of the original.
    Don't use; use #'make-random-number-generator, #'copy instead.")

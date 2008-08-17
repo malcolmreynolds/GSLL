@@ -1,6 +1,6 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-03-09 19:29:15EDT multinomial.lisp>
+;; Time-stamp: <2008-08-16 18:52:11EDT multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,11 +8,11 @@
 (defmfun multinomial (generator sum p n)
   "gsl_ran_multinomial"
   (((generator generator) :pointer) 
-   ((dim0 p) size)
-   (sum size)
-   ((gsl-array p) :pointer)
+   ((dim0 p) sizet)
+   (sum sizet)
+   ((c-pointer p) :pointer)
    ;; technically, n should be a uint array, but integers work
-   ((gsl-array n) :pointer))
+   ((c-pointer n) :pointer))
   :c-return :void
   :documentation			; FDL
   "Returns an array n of K random variates from a 
@@ -31,7 +31,7 @@
 
 (defmfun multinomial-pdf (p n)
   "gsl_ran_multinomial_pdf"
-  (((dim0 p) :uint) ((gsl-array p) :pointer) ((gsl-array n) :pointer))
+  (((dim0 p) sizet) ((c-pointer p) :pointer) ((c-pointer n) :pointer))
   :c-return :double
   :documentation			; FDL
   "Compute the probability P(n_1, n_2, ..., n_K)
@@ -40,7 +40,7 @@
 
 (defmfun multinomial-log-pdf (p n)
   "gsl_ran_multinomial_lnpdf"
-  (((dim0 p) :uint) ((gsl-array p) :pointer) ((gsl-array n) :pointer))
+  (((dim0 p) sizet) ((c-pointer p) :pointer) ((c-pointer n) :pointer))
   :c-return :double
   :documentation			; FDL
   "Compute the natural logarithm of the probability P(n_1, n_2, ..., n_K)

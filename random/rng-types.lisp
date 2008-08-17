@@ -1,25 +1,11 @@
 ;; Random number generation
 ;; Liam Healy, Tue Jul 11 2006 - 23:39
-;; Time-stamp: <2008-02-17 12:07:47EST rng-types.lisp>
+;; Time-stamp: <2008-08-16 18:30:49EDT rng-types.lisp>
 ;; $Id$
 
 ;;; Random number generator types and information functions.
 
 (in-package :gsl)
-
-;;;;****************************************************************************
-;;;; Random number generator types
-;;;;****************************************************************************
-
-;;; needed?
-(cffi:defcstruct random-number-generator-type
-  (name :pointer)
-  (max :unsigned-long)
-  (min :unsigned-long)
-  (size size)
-  (set :pointer)
-  (get :pointer)
-  (get-double :pointer))
 
 ;;;;****************************************************************************
 ;;;; Auxiliary functions

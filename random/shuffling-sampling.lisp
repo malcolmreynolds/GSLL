@@ -1,6 +1,6 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
-;; Time-stamp: <2008-02-17 16:31:02EST shuffling-sampling.lisp>
+;; Time-stamp: <2008-08-16 18:55:38EDT shuffling-sampling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,7 +10,7 @@
 (defmfun shuffle (generator base)
   "gsl_ran_shuffle"
   (((generator generator) :pointer)
-   ((gsl-array base) :pointer) ((dim0 base) size) ((element-size base) size))
+   ((c-pointer base) :pointer) ((dim0 base) sizet) ((element-size base) sizet))
   :c-return :void
   :documentation			; FDL
   "Randomly shuffle the order of n objects, each of
@@ -23,8 +23,8 @@
 (defmfun choose-random (generator dest src)
   "gsl_ran_choose"
   (((generator generator) :pointer)
-   ((gsl-array dest) :pointer) ((dim0 dest) size)
-   ((gsl-array src) :pointer) ((dim0 src) size) ((element-size src) size))
+   ((c-pointer dest) :pointer) ((dim0 dest) sizet)
+   ((c-pointer src) :pointer) ((dim0 src) sizet) ((element-size src) sizet))
   ;; This is described in the GSL docs as returning int, but it does
   ;; not say what the return value means.  Therefore, we ignore it.
   :c-return :void
@@ -45,8 +45,8 @@
 (defmfun sample  (generator dest src)
   "gsl_ran_sample"
   (((generator generator) :pointer)
-   ((gsl-array dest) :pointer) ((dim0 dest) size)
-   ((gsl-array src) :pointer) ((dim0 src) size) ((element-size src) size))
+   ((c-pointer dest) :pointer) ((dim0 dest) sizet)
+   ((c-pointer src) :pointer) ((dim0 src) sizet) ((element-size src) sizet))
   :c-return :void
   :documentation
   "Like #'choose-random, but samples k items

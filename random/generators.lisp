@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-02-17 12:15:46EST generators.lisp>
+;; Time-stamp: <2008-08-16 20:15:24EDT generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -45,9 +45,11 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
+;;; These should have defgenerics
 (defmfun alloc ((generator random-number-generator))
   "gsl_rng_alloc" (((rng-type generator) :pointer))
-  :type :method
+  :definition :method
+  :export t
   :c-return (ptr :pointer)
   :return ((progn (setf (generator generator) ptr) generator))
   :documentation			; FDL
@@ -60,7 +62,8 @@
 
 (defmfun free ((generator random-number-generator))
   "gsl_rng_free" (((generator generator) :pointer))
-  :type :method
+  :definition :method
+  :export t
   :c-return :void
   :after ((setf (generator generator) nil))
   :documentation			; FDL
@@ -150,7 +153,7 @@
 
 (defmfun rng-name ((rng-instance random-number-generator))
   "gsl_rng_name" (((generator rng-instance) :pointer))
-  :type :method
+  :definition :method
   :c-return :string)
 
 (defmfun rng-max (rng-instance)
@@ -176,7 +179,7 @@
 (defmfun rng-state ((rng-instance random-number-generator))
   "gsl_rng_state" (((generator rng-instance) :pointer))
   :c-return :pointer
-  :type :method
+  :definition :method
   :index gsl-random-state)
 
 (export 'rng-size)
@@ -186,8 +189,8 @@
 
 (defmfun rng-size ((rng-instance random-number-generator))
   "gsl_rng_size" (((generator rng-instance) :pointer))
-  :c-return size
-  :type :method
+  :c-return sizet
+  :definition :method
   :index gsl-random-state)
 
 (export 'gsl-random-state)
@@ -212,7 +215,7 @@
     ((destination random-number-generator) (source random-number-generator))
   "gsl_rng_memcpy"
   (((generator destination) :pointer) ((generator source) :pointer))
-  :type :method
+  :definition :method
   :documentation			; FDL
   "Copy the random number generator source into the
    pre-existing generator destination,
@@ -228,19 +231,19 @@
 (defmfun clone-generator ((instance random-number-generator))
   "gsl_rng_clone" (((generator instance) :pointer))
   :c-return :pointer
-  :type :method)
+  :definition :method)
 
 (defmfun write-binary
     ((object random-number-generator) stream)
   "gsl_rng_fwrite"
   ((stream :pointer) ((generator object) :pointer))
-  :type :method)
+  :definition :method)
 
 (defmfun read-binary
     ((object random-number-generator) stream)
   "gsl_block_fread"
   ((stream :pointer) ((pointer object) :pointer))
-  :type :method)
+  :definition :method)
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

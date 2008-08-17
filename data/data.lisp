@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-07-20 22:28:15EDT data.lisp>
+;; Time-stamp: <2008-08-16 20:00:37EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -49,6 +49,10 @@
 (defun dim0 (object)
   "The first dimension of the object."
   (first (dimensions object)))
+
+(defun element-size (object)
+  "The size of each element as stored in C."
+  (cffi:foreign-type-size (cl-ffa (element-type object))))
 
 ;;;;****************************************************************************
 ;;;; Definition of specific data classes

@@ -1,6 +1,6 @@
 ;; Spherical Vector distribution
 ;; Liam Healy, Sun Oct  22 2006
-;; Time-stamp: <2008-02-17 13:25:44EST spherical-vector.lisp>
+;; Time-stamp: <2008-08-16 18:43:18EDT spherical-vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -38,11 +38,13 @@
   projected along any axis is actually uniform (this is only true for 3
   dimensions).")
 
-(defmfun direction-Nd (generator x)
+(defmfun direction-Nd (generator vector)
   "gsl_ran_dir_nd"
-  (((generator generator) :pointer) ((dim0 x) size) ((gsl-array x) :pointer))
+  (((generator generator) :pointer) ((dim0 vector) sizet)
+   ((c-pointer vector) :pointer))
   :c-return :void
-  :return (x)
+  :outputs (vector)
+  :return (vector)
   :documentation			; FDL
   "A random direction vector v = (x_1,x_2,...,x_n) in n dimensions,
    where n is the length of the vector x passed in. The vector is normalized such that 

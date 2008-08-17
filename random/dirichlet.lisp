@@ -1,6 +1,6 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-03-09 19:29:16EDT dirichlet.lisp>
+;; Time-stamp: <2008-08-16 18:45:15EDT dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,10 +8,10 @@
 (defmfun dirichlet (generator alpha theta)
   "gsl_ran_dirichlet"
   (((generator generator) :pointer)
-   ((dim0 alpha) size)
-   ((gsl-array alpha) :pointer)
+   ((dim0 alpha) sizet)
+   ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
-   ((gsl-array theta) :pointer))
+   ((c-pointer theta) :pointer))
   :c-return :void
   :documentation			; FDL
   "An array of K=(length alpha) random variates from a Dirichlet
@@ -31,10 +31,10 @@
 
 (defmfun dirichlet-pdf (alpha theta)
   "gsl_ran_dirichlet_pdf"
-  (((1- (dim0 alpha)) size)
-   ((gsl-array alpha) :pointer)
+  (((1- (dim0 alpha)) sizet)
+   ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
-   ((gsl-array theta) :pointer))
+   ((c-pointer theta) :pointer))
   :c-return :double
   :documentation			; FDL
   "The probability density p(\theta_1, ... , \theta_K)
@@ -43,10 +43,10 @@
 
 (defmfun dirichlet-log-pdf (alpha theta)
   "gsl_ran_dirichlet_lnpdf"
-  (((1- (dim0 alpha)) size)
-   ((gsl-array alpha) :pointer)
+  (((1- (dim0 alpha)) sizet)
+   ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
-   ((gsl-array theta) :pointer))
+   ((c-pointer theta) :pointer))
   :c-return :double
   :documentation			; FDL
   "The logarithm of the probability density 

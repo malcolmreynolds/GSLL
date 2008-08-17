@@ -1,21 +1,15 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-03-09 19:29:15EDT discrete.lisp>
+;; Time-stamp: <2008-08-16 18:48:55EDT discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
-
-(cffi:defcstruct discrete-t
-  "Structure for Walker algorithm."
-  (K size)
-  (A :pointer)
-  (F :pointer))
 
 (defgo-s (discrete-random probabilities) discrete-preprocess discrete-free)
 
 (defmfun discrete-preprocess (probabilities) 
   "gsl_ran_discrete_preproc"
-  (((dim0 probabilities) size) ((gsl-array probabilities) :pointer))
+  (((dim0 probabilities) sizet) ((c-pointer probabilities) :pointer))
   :c-return :pointer
   :export nil
   :index (letm discrete-random)
@@ -38,14 +32,14 @@
 (defmfun discrete (generator table)
   "gsl_ran_discrete"
   (((generator generator) :pointer) (table :pointer))
-  :c-return size
+  :c-return sizet
   :documentation			; FDL
   "Generate discrete random numbers after running #'discrete-preprocess;
    the argument 'table is the value returned by #'discrete-preprocess.")
 
 (defmfun discrete-pdf (k table)
   "gsl_ran_discrete_pdf"
-  ((k size) (table :pointer))
+  ((k sizet) (table :pointer))
   :c-return :double
   :documentation			; FDL
   "The probability P[k] of observing the variable k.
