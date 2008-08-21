@@ -1,6 +1,6 @@
 ;; Absolute deviation
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-03-09 19:21:48EDT absolute-deviation.lisp>
+;; Time-stamp: <2008-08-20 22:14:51EDT absolute-deviation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,70 +8,40 @@
 ;;; To do: stride other than 1 when that information is availble from
 ;;; the vector.
 
-(defmfun absolute-deviation-nom (data)
-  "gsl_stats_absdev"
-  (((gsl-array data) :pointer) (1 :int) ((dim0 data) size))
+(defmfun absolute-deviation ((data vector) &optional mean)
+  (("gsl_stats" :type "_absdev")
+   ("gsl_stats" :type "_absdev_m"))
+  ((((c-pointer data) :pointer) (1 :int) ((dim0 data) sizet))
+   (((c-pointer data) :pointer) (1 :int) ((dim0 data) sizet)
+    (mean :double)))
+  :definition :generic
+  :element-types :no-complex
   :c-return :double
-  :index absolute-deviation
-  :export nil
   :documentation			; FDL
-  "The absolute deviation from the mean of data.  The
-  absolute deviation from the mean is defined as
-  absdev  = (1/N) \sum |x_i - \Hat\mu|
-  where x_i are the elements of the dataset data.  The
-  absolute deviation from the mean provides a more robust measure of the
-  width of a distribution than the variance.  This function computes the
-  mean of data via a call to #'mean.")
+  "The absolute deviation from the mean of data.  The absolute
+  deviation from the mean is defined as absdev = (1/N) \sum |x_i -
+  \Hat\mu| where x_i are the elements of the dataset data.  The
+  absolute deviation from the mean provides a more robust measure of
+  the width of a distribution than the variance.  If 'mean is not
+  supplied, this function computes the mean of data via a call to
+  #'mean.  With mean supplied, this function is useful if you have
+  already computed the mean of data (and want to avoid recomputing
+  it), or wish to calculate the absolute deviation relative to another
+  value (such as zero, or the median).")
 
-(defmfun absolute-deviation-m (data mean)
-  "gsl_stats_absdev_m"
-  (((gsl-array data) :pointer) (1 :int)
-   ((dim0 data) size) (mean :double))
+(defmfun weighted-absolute-deviation ((data vector) (weights vector) &optional mean)
+  (("gsl_stats" :type "_wabsdev")
+   ("gsl_stats" :type "_wabsdev_m"))
+  ((((c-pointer weights) :pointer) (1 :int)
+    ((c-pointer data) :pointer) (1 :int)
+    ((dim0 data) sizet))
+   (((c-pointer weights) :pointer) (1 :int)
+    ((c-pointer data) :pointer) (1 :int)
+    ((dim0 data) sizet) (mean :double)))
+  :definition :generic
+  :element-types :float
   :c-return :double
-  :index absolute-deviation
-  :export nil
   :documentation			; FDL
-  "The absolute deviation of the dataset data
-   relative to the given value of mean,
-   absdev  = (1/N) \sum |x_i - mean|.
-   This function is useful if you have already computed the mean of
-   data (and want to avoid recomputing it), or wish to calculate the
-   absolute deviation relative to another value (such as zero, or the
-   median).")
-
-(export 'absolute-deviation)
-(defun-optionals absolute-deviation (data &optional mean)
-  -nom -m
-  ;; FDL
-  "The absolute deviation from the mean of data.  The
-  absolute deviation from the mean is defined as
-  absdev  = (1/N) \sum |x_i - \Hat\mu|
-  where x_i are the elements of the dataset data.  The
-  absolute deviation from the mean provides a more robust measure of the
-  width of a distribution than the variance.  This function computes the
-  mean of data via a call to #'mean.")
-
-(defmfun weighted-absolute-deviation-nom (data weights)
-  "gsl_stats_wabsdev"
-  (((gsl-array weights) :pointer) (1 :int)
-   ((gsl-array data) :pointer) (1 :int) ((dim0 data) size))
-  :c-return :double
-  :index weighted-absolute-deviation
-  :export nil)
-
-(defmfun weighted-absolute-deviation-m (data weights mean)
-  "gsl_stats_wabsdev_m"
-  (((gsl-array weights) :pointer) (1 :int)
-   ((gsl-array data) :pointer) (1 :int)
-   ((dim0 data) size) (mean :double))
-  :c-return :double
-  :index weighted-absolute-deviation
-  :export nil)
-
-(export 'weighted-absolute-deviation)
-(defun-optionals weighted-absolute-deviation (data weights &optional mean)
-  -nom -m
-  ;; FDL
   "The weighted absolute deviation from the weighted
    mean, defined as
    absdev = (\sum w_i |x_i - \Hat\mu|) / (\sum w_i).")
@@ -87,7 +57,6 @@
 	 (absolute-deviation vec)
 	 (weighted-absolute-deviation vec weights)
 	 (absolute-deviation vec mean)))))
-|#
 
 (LISP-UNIT:DEFINE-TEST ABSOLUTE-DEVIATION
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -100,3 +69,4 @@
 	      (WEIGHTED-ABSOLUTE-DEVIATION VEC WEIGHTS)
 	      (ABSOLUTE-DEVIATION VEC MEAN)))))))
 
+|#

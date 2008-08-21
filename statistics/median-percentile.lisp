@@ -1,6 +1,6 @@
 ;; Median and percentile
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-03-09 19:19:28EDT median-percentile.lisp>
+;; Time-stamp: <2008-08-20 22:35:08EDT median-percentile.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,9 +8,11 @@
 ;;; To do: stride other than 1 when that information is availble from
 ;;; the vector.
 
-(defmfun median (sorted-data)
-  "gsl_stats_median_from_sorted_data"
-  (((gsl-array sorted-data) :pointer) (1 :int) ((dim0 sorted-data) size))
+(defmfun median ((sorted-data vector))
+  ("gsl_stats" :type "_median_from_sorted_data")
+  (((c-pointer sorted-data) :pointer) (1 :int) ((dim0 sorted-data) sizet))
+  :definition :generic
+  :element-types :no-complex
   :c-return :double
   :documentation			; FDL
   "The median value of sorted-data.  The elements of the array
@@ -24,13 +26,15 @@
    computing the median involves interpolation this function always returns
    a floating-point number, even for integer data types.")
 
-(defmfun quantile (sorted-data fraction)
-  "gsl_stats_quantile_from_sorted_data"
-  (((gsl-array sorted-data) :pointer) (1 :int) ((dim0 sorted-data) size)
+(defmfun quantile ((sorted-data vector) fraction)
+  ("gsl_stats" :type "_quantile_from_sorted_data")
+  (((c-pointer sorted-data) :pointer) (1 :int) ((dim0 sorted-data) sizet)
    (fraction :double))
+  :definition :generic
+  :element-types :no-complex
   :c-return :double
   :documentation			; FDL
-  "A quantile value of sorted-data, vector-double-float.  The
+  "A quantile value of sorted-data.  The
    elements of the array must be in ascending numerical order.  The
    quantile is determined by a fraction between 0 and 1.  For
    example, to compute the value of the 75th percentile
@@ -55,7 +59,6 @@
   (letm ((vec (vector-double-float
 	       #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
      (quantile vec 0.75d0)))
-|#
 
 (LISP-UNIT:DEFINE-TEST MEDIAN-PERCENTILE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -69,4 +72,4 @@
     (LETM ((VEC (VECTOR-DOUBLE-FLOAT
 		 #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
       (QUANTILE VEC 0.75d0)))))
-
+|#

@@ -1,6 +1,6 @@
 ;; Covariance
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-03-09 19:21:49EDT covariance.lisp>
+;; Time-stamp: <2008-08-20 22:13:48EDT covariance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,27 +8,19 @@
 ;;; To do: stride other than 1 when that information is availble from
 ;;; the vector.
 
-(defmfun covariance-nom (data1 data2)
-  "gsl_stats_covariance"
-  (((gsl-array data1) :pointer) (1 :int)
-   ((gsl-array data2) :pointer) (1 :int) ((dim0 data2) size))
+(defmfun covariance
+    ((data1 vector) (data2 vector) &optional mean1 mean2)
+  (("gsl_stats" :type "_covariance")
+   ("gsl_stats" :type "_covariance_m"))
+  ((((c-pointer data1) :pointer) (1 :int)
+    ((c-pointer data2) :pointer) (1 :int) ((dim0 data2) sizet))
+   (((c-pointer data1) :pointer) (1 :int)
+    ((c-pointer data2) :pointer) (1 :int) ((dim0 data2) sizet)
+    (mean1 :double) (mean2 :double)))
+  :definition :generic
+  :element-types :no-complex
   :c-return :double
-  :index covariance
-  :export nil)
-
-(defmfun covariance-m (data1 data2 mean1 mean2)
-  "gsl_stats_covariance_m"
-  (((gsl-array data1) :pointer) (1 :int)
-   ((gsl-array data2) :pointer) (1 :int) ((dim0 data2) size)
-   (mean1 :double) (mean2 :double))
-  :c-return :double
-  :index covariance
-  :export nil)
-
-(export 'covariance)
-(defun-optionals covariance (data1 data2 &optional mean1 mean2)
-  -nom -m
-  ;; FDL
+  :documentation			; FDL
   "The covariance of the datasets data1 and data2 which must
    be of the same length,
    covar = {1 \over (n - 1)} \sum_{i = 1}^{n}
@@ -45,7 +37,6 @@
 	(list
 	 (covariance vec1 vec2)
 	 (covariance vec1 vec2 mean1 mean2)))))
-|#
 
 (LISP-UNIT:DEFINE-TEST COVARIANCE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -58,4 +49,4 @@
       (LET ((MEAN1 (MEAN VEC1)) (MEAN2 (MEAN VEC2)))
 	(LIST (COVARIANCE VEC1 VEC2)
 	      (COVARIANCE VEC1 VEC2 MEAN1 MEAN2)))))))
-
+|#

@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-17 09:39:54EDT gsll.asd>
+;; Time-stamp: <2008-08-20 22:35:48EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -134,7 +134,6 @@
 	     (:file "hypergeometric" :depends-on (rng-types))
 	     (:file "logarithmic" :depends-on (rng-types))
 	     (:file "shuffling-sampling" :depends-on (rng-types))))
-   #+no
    (:module statistics
 	    :depends-on (init data)
 	    :components
