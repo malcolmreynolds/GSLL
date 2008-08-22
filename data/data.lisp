@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-08-17 09:59:05EDT data.lisp>
+;; Time-stamp: <2008-08-21 21:05:36EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -183,7 +183,10 @@
       ;; #'els is a convenience macro to define the make-array*
       ((a (&rest contents)
 	`(abody ',',(lookup-type type *class-element-type*)
-	  ,@(mapcar (lambda (e) `(quote ,e)) contents))))
+	  ,@(mapcar (lambda (e) `(quote ,e)) contents)))
+       (a* (&rest contents)
+	`(abody ',',(lookup-type type *class-element-type*)
+	  ,@contents)))
       (let* ((,symbol (make-data ',type ,init-or-spec))
 	     (,eltype (element-type ,symbol)))
 	(ffa:with-pointer-to-array

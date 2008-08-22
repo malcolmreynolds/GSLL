@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-03-09 19:29:43EDT monte-carlo.lisp>
+;; Time-stamp: <2008-08-21 21:58:28EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,14 +10,14 @@
 ;;;;****************************************************************************
 
 (cffi:defcstruct plain-state
-  (dim size)
+  (dim sizet)
   (x :pointer))
 
 (defgo-s (monte-carlo-plain dim) monte-carlo-plain-alloc monte-carlo-plain-free)
 
 (defmfun monte-carlo-plain-alloc (dim)
   "gsl_monte_plain_alloc"
-  ((dim size))
+  ((dim sizet))
   :c-return :pointer
   :export nil
   :index (letm monte-carlo-plain)
@@ -46,11 +46,12 @@
     (function lower-limits upper-limits calls generator state)
   "gsl_monte_plain_integrate"
   ((function :pointer)
-   ((gsl-array lower-limits) :pointer) ((gsl-array upper-limits) :pointer)
-   ((dim0 lower-limits) size) (calls size)
+   ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
+   ((dim0 lower-limits) sizet) (calls sizet)
    ((generator generator) :pointer)
    (state :pointer)
    (result :double) (abserr :double))
+  :inputs (lower-limits upper-limits)
   :documentation			; FDL
   "Uses the plain Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -72,12 +73,12 @@
 ;;; regions of highest variance.
 
 (cffi:defcstruct miser-state
-  (min-calls size)
-  (min-calls-per-bisection size)
+  (min-calls sizet)
+  (min-calls-per-bisection sizet)
   (dither :double)
   (estimate-frac :double)
   (alpha :double)
-  (dim size)
+  (dim sizet)
   (estimate-style :int)
   (depth :int)
   (verbose :int)
@@ -100,7 +101,7 @@
 
 (defmfun monte-carlo-miser-alloc (dim)
   "gsl_monte_miser_alloc"
-  ((dim size))
+  ((dim sizet))
   :c-return :pointer
   :export nil
   :index (letm monte-carlo-miser)
@@ -139,11 +140,12 @@
     (function lower-limits upper-limits calls generator state)
   "gsl_monte_miser_integrate"
   ((function :pointer)
-   ((gsl-array lower-limits) :pointer) ((gsl-array upper-limits) :pointer)
-   ((dim0 lower-limits) size) (calls size)
+   ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
+   ((dim0 lower-limits) sizet) (calls sizet)
    ((generator generator) :pointer)
    (state :pointer)
    (result :double) (abserr :double))
+  :inputs (lower-limits upper-limits)
   :documentation			; FDL
   "Uses the miser Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -166,8 +168,8 @@
 
 (cffi:defcstruct vegas-state
   ;; grid 
-  (dim size)
-  (bins-max size)
+  (dim sizet)
+  (bins-max sizet)
   (bins :uint)				; uint
   (boxes :uint)		       ; these are both counted along the axes
   (xi :pointer)
@@ -203,7 +205,7 @@
 
 (defmfun monte-carlo-vegas-alloc (dim)
   "gsl_monte_vegas_alloc"
-  ((dim size))
+  ((dim sizet))
   :c-return :pointer
   :export nil
   :index (letm monte-carlo-vegas)
@@ -242,16 +244,17 @@
     (function lower-limits upper-limits calls generator state)
   "gsl_monte_vegas_integrate"
   ((function :pointer)
-   ((gsl-array lower-limits) :pointer) ((gsl-array upper-limits) :pointer)
-   ((dim0 lower-limits) size) (calls size)
+   ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
+   ((dim0 lower-limits) sizet) (calls sizet)
    ((generator generator) :pointer)
    (state :pointer)
    (result :double) (abserr :double))
+  :inputs (lower-limits upper-limits)
   :documentation			; FDL
   "Uses the vegas Monte Carlo algorithm to integrate the
    function f over the dim-dimensional hypercubic region
    defined by the lower and upper limits in the arrays x1 and
-   xu, each of size dim.  The integration uses a fixed number
+   xu, each of the same length.  The integration uses a fixed number
    of function calls calls, and obtains random sampling points using
    the random number generator r.  A previously allocated workspace
    s must be supplied.  The result of the integration is returned
@@ -267,7 +270,7 @@
 
 (cffi:defcstruct monte-function
   (function :pointer)
-  (dimensions size)
+  (dimensions sizet)
   (parameters :pointer))
 
 (export 'def-mc-function)
@@ -291,22 +294,22 @@
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-plain 3))
-	 (lower (vector-double-float #(0.0d0 0.0d0 0.0d0)))
-	 (upper (vector-double-float (vector pi pi pi)))
+	 (lower (vector-double-float (a 0.0d0 0.0d0 0.0d0)))
+	 (upper (vector-double-float (a* pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-plain monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-miser 3))
-	 (lower (vector-double-float #(0.0d0 0.0d0 0.0d0)))
-	 (upper (vector-double-float (vector pi pi pi)))
+	 (lower (vector-double-float (a 0.0d0 0.0d0 0.0d0)))
+	 (upper (vector-double-float (a* pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-miser monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-vegas 3))
-	 (lower (vector-double-float #(0.0d0 0.0d0 0.0d0)))
-	 (upper (vector-double-float (vector pi pi pi)))
+	 (lower (vector-double-float (a 0.0d0 0.0d0 0.0d0)))
+	 (upper (vector-double-float (a* pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-vegas monte-carlo-g lower upper nsamples rng ws)))
 
