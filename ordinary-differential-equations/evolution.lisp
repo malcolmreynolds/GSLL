@@ -1,13 +1,13 @@
 ;; Evolution functions for ODE integration.
 ;; Liam Healy, Sun Sep 30 2007 - 14:31
-;; Time-stamp: <2008-02-17 17:43:24EST evolution.lisp>
+;; Time-stamp: <2008-08-21 22:07:27EDT evolution.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmfun allocate-evolution (dimension)
   "gsl_odeiv_evolve_alloc"
-  ((dimension size))
+  ((dimension sizet))
   :c-return :pointer
   :documentation			; FDL
   "Allocate a new instance of an evolution function

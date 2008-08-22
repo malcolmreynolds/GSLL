@@ -1,6 +1,6 @@
 ;; Adaptive step-size control
 ;; Liam Healy 2008-02-17 17:30:04EST control.lisp
-;; Time-stamp: <2008-02-17 17:41:02EST control.lisp>
+;; Time-stamp: <2008-08-21 22:08:55EDT control.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -66,7 +66,7 @@
     (absolute-error relative-error y dydt absolute-scale dimension)
   "gsl_odeiv_control_scaled_new"
   ((absolute-error :double) (relative-error :double) (y :double) (dydt :double)
-   (absolute-scale :pointer) (dimension size))
+   (absolute-scale :pointer) (dimension sizet))
   :c-return (ptr :pointer)
   :return (ptr)
   :documentation			; FDL

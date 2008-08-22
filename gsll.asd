@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-21 19:03:55EDT gsll.asd>
+;; Time-stamp: <2008-08-21 22:08:09EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -155,7 +155,6 @@
 	     (:file "probability-distribution" :depends-on (histogram))
 	     (:file "ntuple")))
    (:file "monte-carlo" :depends-on (init data random))
-   #+no
    (:module ordinary-differential-equations
 	    :depends-on (init)
 	    :components

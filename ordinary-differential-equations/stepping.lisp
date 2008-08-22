@@ -1,13 +1,13 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2008-02-17 17:29:49EST stepping.lisp>
+;; Time-stamp: <2008-08-21 22:05:20EDT stepping.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmfun step-allocate (step-type dim)
   "gsl_odeiv_step_alloc"
-  ((step-type :pointer) (dim size))
+  ((step-type :pointer) (dim sizet))
   :c-return :pointer
   :documentation			; FDL
   "Allocate a new instance of a stepping function of
