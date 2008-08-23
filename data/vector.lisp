@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector-ffa.lisp
-;; Time-stamp: <2008-06-30 22:53:27EDT vector.lisp>
+;; Time-stamp: <2008-08-23 17:51:33EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,6 +23,37 @@
 
 ;;; Define all the mvector subclasses that are supported by FFA
 #.(data-defclass 'vector 'mvector)
+
+(defun make-vector-from-pointer ())
+
+;;;;****************************************************************************
+;;;; Make from GSL vector
+;;;;****************************************************************************
+
+;;; Some functions in solve-minimize-fit return a pointer to a GSL
+;;; vector with double-floats.  The functions here turn that into a
+;;; foreign-friendly array.  There is no choice but to copy over the
+;;; data; because GSL is doing the mallocing, the data are not
+;;; CL-accessible.
+
+(defmfun free-vector (pointer)
+  "gsl_vector_free"
+  ((pointer :pointer))
+  :index nil
+  :export nil
+  :c-return :void)
+
+(defun make-vector-from-gsl (pointer)
+  "Given a C pointer to a GSL vector, make the CL object."
+  (let* ((size (cffi:foreign-slot-value pointer 'gsl-vector-c 'size))
+	 (array (make-array* size 'double-float)))
+    ;; Copy over from the C side
+    (loop for i below size
+       do (setf (aref array i) (maref pointer i)))
+    ;; Free the C/GSL vector
+    (free-vector pointer)
+    ;; Return the CL array
+    array))
 
 ;;;;****************************************************************************
 ;;;; Function definitions

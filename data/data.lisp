@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-08-21 21:05:36EDT data.lisp>
+;; Time-stamp: <2008-08-23 17:42:15EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -49,6 +49,10 @@
 (defun dim0 (object)
   "The first dimension of the object."
   (first (dimensions object)))
+
+(defun dim1 (object)
+  "The first dimension of the object."
+  (second (dimensions object)))
 
 (defun element-size (object)
   "The size of each element as stored in C."
@@ -280,19 +284,51 @@
 	     (cffi:mem-aref pointer cffi-type pointer-index)
 	     (cffi:mem-aref pointer cffi-type (1+ pointer-index)))))))
 
-(defgeneric maref (object &rest indices)
+(defgeneric maref (object index &optional index2)
   (:documentation "An element of the data.")
-  (:method ((object gsl-data) &rest indices)
+  (:method ((object gsl-data) index &optional index2)
     (copy-c-to-cl object)
-    (apply 'aref (cl-array object) indices)))
+    (if index2
+	(aref (cl-array object) index index2)
+	(aref (cl-array object) index))))
 
 ;;; Alternative to complete copy is to mark which elements have
 ;;; changed and just copy them.  Is it worth it?
-(defun (setf maref) (value object &rest indices)
-  "Set an element of the data."
-  (apply '(setf aref) value (cl-array object) indices)
-  #-native
-  (setf c-invalid t))
+
+(defgeneric (setf maref) (value object index &optional index2)
+  (:documentation "Set an element of the data.")
+  (:method (value (object gsl-data) index &optional index2)
+    (if index2
+	(setf (aref (cl-array object) index index2) value)
+	(setf (aref (cl-array object) index) value))
+    #-native
+    (setf c-invalid t)))
+
+;;; It is necessary to have access to elements from the GSL
+;;; vector/matrix pointers for things like callback functions in
+;;; solve-minimize-fit and in #'make-vector-from-gsl.
+(defmfun maref ((pointer #.(class-name (class-of (cffi:null-pointer))))
+		index &optional index2)
+  ;; If passed a pointer, assume that it is a GSL vector or matrix,
+  ;; depending on the number of indices.  This is useful in the
+  ;; callback functions for solve-minimize-fit.
+  ("gsl_vector_get" "gsl_matrix_get")
+  (((pointer :pointer) (index sizet))
+   ((pointer :pointer) (index sizet) (index2 sizet)))
+  :definition :method
+  :c-return :double)
+
+(defmfun (setf maref)
+    (value (pointer #.(class-name (class-of (cffi:null-pointer))))
+	   index &optional index2)
+  ;; If passed a pointer, assume that it is a GSL vector or matrix,
+  ;; depending on the number of indices.  This is useful in the
+  ;; callback functions for solve-minimize-fit.
+  ("gsl_vector_set" "gsl_matrix_set")
+  (((pointer :pointer) (index sizet) (value :double))
+   ((pointer :pointer) (index sizet) (index2 sizet) (value :double)))
+  :definition :method
+  :c-return :double)
 
 ;;;;****************************************************************************
 ;;;; C structures

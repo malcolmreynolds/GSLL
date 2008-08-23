@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-20 21:05:54EDT defmfun.lisp>
+;; Time-stamp: <2008-08-23 18:37:25EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -275,8 +275,7 @@
 			       (actual-element-c-type eltype args))
 			     c-arguments)
 		     key-args
-		     'body-optional-arg
-		     t)
+		     'body-optional-arg)
 		    (complete-definition
 		     defn
 		     (if (eq defn :method) (list nil name) name)
@@ -405,22 +404,29 @@
 ;;; (MATRIX VECTOR)
 
 ;;;;****************************************************************************
-;;;; A method for a generic function
+;;;; A method for a generic function, on any class
 ;;;;****************************************************************************
 
 (defun expand-defmfun-method (name arglist gsl-name c-arguments key-args)
   "Create a specific method for a previously-defined generic function."
   (with-defmfun-key-args key-args
-    (remf key-args :documentation)
-    (complete-definition
-     'cl:defmethod
-     name
-     arglist
-     (progn
-       (push gsl-name indexed-functions)
-       gsl-name)
-     c-arguments
-     key-args)))
+    (if (listp gsl-name)
+	(mapc (lambda (n) (push n indexed-functions)) gsl-name)
+	(push gsl-name indexed-functions))
+    (with-defmfun-key-args key-args
+      (remf key-args :documentation)
+      (complete-definition
+       'cl:defmethod
+       name
+       arglist
+       gsl-name
+       c-arguments
+       key-args
+       (if (and (llkp arglist) (listp gsl-name))
+	   ;; Even though it might have optional arguments, if there
+	   ;; is only one GSL function, we use 'body-no-optional-arg.
+	   'body-optional-arg 'body-no-optional-arg)
+       (listp gsl-name)))))
 
 ;;;;****************************************************************************
 ;;;; Optional argument(s)
@@ -493,7 +499,9 @@
 
 (defun complete-definition
     (definition name arglist gsl-name c-arguments key-args
-     &optional (body-maker 'body-no-optional-arg) mapdown)
+     &optional
+     (body-maker 'body-no-optional-arg)
+     (mapdown (eq body-maker 'body-optional-arg)))
   "A complete definition form, starting with defun, :method, or defmethod."
   (destructuring-bind
 	(&key documentation &allow-other-keys) key-args
