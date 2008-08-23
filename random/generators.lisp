@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-08-16 20:15:24EDT generators.lisp>
+;; Time-stamp: <2008-08-23 19:17:26EDT generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -231,18 +231,6 @@
 (defmfun clone-generator ((instance random-number-generator))
   "gsl_rng_clone" (((generator instance) :pointer))
   :c-return :pointer
-  :definition :method)
-
-(defmfun write-binary
-    ((object random-number-generator) stream)
-  "gsl_rng_fwrite"
-  ((stream :pointer) ((generator object) :pointer))
-  :definition :method)
-
-(defmfun read-binary
-    ((object random-number-generator) stream)
-  "gsl_block_fread"
-  ((stream :pointer) ((pointer object) :pointer))
   :definition :method)
 
 ;;;;****************************************************************************

@@ -1,13 +1,13 @@
 ;; Statistics of histograms.
 ;; Liam Healy, Mon Jan  1 2007 - 16:13
-;; Time-stamp: <2008-08-17 09:41:27EDT statistics.lisp>
+;; Time-stamp: <2008-08-23 19:42:07EDT statistics.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmfun mmax-1 (histogram)
   "gsl_histogram_max_val"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index mmax
@@ -16,20 +16,20 @@
 
 (defmfun mmax-2 (histogram)
   "gsl_histogram2d_max_val"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index mmax
   :documentation			; FDL
   "The maximum value contained in the histogram bins.")
 
-(defmethod gsl-max ((histogram histogram))
+(defmethod mmax ((histogram histogram))
   "The maximum value contained in the histogram bins."
   (histo-1d2d histogram mmax))
 
 (defmfun mmin-1 (histogram)
   "gsl_histogram_min_val"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index mmin
@@ -38,20 +38,20 @@
 
 (defmfun mmin-2 (histogram)
   "gsl_histogram2d_min_val"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index mmin
   :documentation			; FDL
   "The minimum value contained in the histogram bins.")
 
-(defmethod gsl-min ((histogram histogram)) ; FDL
+(defmethod mmin ((histogram histogram)) ; FDL
   "The minimum value contained in the histogram bins."
   (histo-1d2d histogram mmin))
 
 (defmfun max-index-1 (histogram)
   "gsl_histogram_max_bin"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return sizet
   :export nil
   :index max-index
@@ -62,9 +62,9 @@
 
 (defmfun max-index-2 (histogram)
   "gsl_histogram2d_max_bin"
-  (((pointer histogram) :pointer)
+  (((mpointer histogram) :pointer)
    (xindex sizet) (yindex sizet))
-  :c-return sizet
+  :c-return :void
   :export nil
   :index max-index
   :documentation			; FDL
@@ -72,12 +72,12 @@
    where several bins contain the same maximum value the first bin
    found is returned.")
 
-(defmethod gsl-max-index (histogram)
-  (histo-1d2d histogram gsl-max-index))
+(defmethod max-index ((histogram histogram))
+  (histo-1d2d histogram max-index))
 
 (defmfun min-index-1 (histogram)
   "gsl_histogram_min_bin"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return sizet
   :export nil
   :index min-index
@@ -88,9 +88,9 @@
 
 (defmfun min-index-2 (histogram)
   "gsl_histogram2d_min_bin"
-  (((pointer histogram) :pointer)
+  (((mpointer histogram) :pointer)
    (xindex sizet) (yindex sizet))
-  :c-return sizet
+  :c-return :void
   :export nil
   :index min-index
   :documentation			; FDL
@@ -98,12 +98,12 @@
    where several bins contain the same minimum value the first bin
    found is returned.")
 
-(defmethod min-index (histogram)
+(defmethod min-index ((histogram histogram))
   (histo-1d2d histogram min-index))
 
 (defmfun mean-1 (histogram)
   "gsl_histogram_mean"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index mean
@@ -115,7 +115,7 @@
 
 (defmfun mean-2x (histogram)
   "gsl_histogram2d_xmean"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index mean
@@ -126,7 +126,7 @@
 
 (defmfun mean-2y (histogram)
   "gsl_histogram2d_ymean"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index mean
@@ -146,7 +146,7 @@
 
 (defmfun sigma-1 (histogram)
   "gsl_histogram_sigma"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index sigma
@@ -159,14 +159,14 @@
 
 (defmfun sigma-2x (histogram)
   "gsl_histogram2d_xsigma"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index sigma)
 
 (defmfun sigma-2y (histogram)
   "gsl_histogram2d_ysigma"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index sigma)
@@ -185,7 +185,7 @@
 
 (defmfun histogram-covariance (histogram-2d)
   "gsl_histogram2d_cov"
-  (((pointer histogram-2d) :pointer))
+  (((mpointer histogram-2d) :pointer))
   :c-return :double
   :documentation			; FDL
   "The covariance of the histogrammed x and y variables, where
@@ -195,7 +195,7 @@
 
 (defmfun sum-1 (histogram)
   "gsl_histogram_sum"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index sum
@@ -205,7 +205,7 @@
 
 (defmfun sum-2 (histogram)
   "gsl_histogram2d_sum"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :export nil
   :index sum

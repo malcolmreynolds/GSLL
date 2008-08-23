@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-08-17 09:02:00EDT histogram.lisp>
+;; Time-stamp: <2008-08-23 19:08:15EDT histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,14 +58,14 @@
 
 (defmfun free-histo-1 (object)
   "gsl_histogram_free"
-  (((pointer object) :pointer))
+  (((mpointer object) :pointer))
   :c-return :void
   :export nil
   :index (letm histogram))
 
 (defmfun free-histo-2 (object)
   "gsl_histogram2d_free"
-  (((pointer object) :pointer))
+  (((mpointer object) :pointer))
   :c-return :void
   :export nil
   :index (letm histogram))
@@ -77,7 +77,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun set-ranges-1 (histogram ranges)
   "gsl_histogram_set_ranges"
-  (((pointer histogram) :pointer)
+  (((mpointer histogram) :pointer)
    ((c-pointer ranges) :pointer) ((dim0 ranges) sizet))
   :export nil
   :index (letm histogram)
@@ -90,7 +90,7 @@
 
 (defmfun set-ranges-2 (histogram x-ranges y-ranges)
   "gsl_histogram2d_set_ranges"
-  (((pointer histogram) :pointer)
+  (((mpointer histogram) :pointer)
    ((c-pointer x-ranges) :pointer) ((dim0 x-ranges) sizet)
    ((c-pointer y-ranges) :pointer) ((dim0 y-ranges) sizet))
   :export nil
@@ -112,7 +112,7 @@
 ;;; C function means; assumed to be error code.
 (defmfun set-ranges-uniform-1 (histogram minimum maximum)
   "gsl_histogram_set_ranges_uniform"
-  (((pointer histogram) :pointer) (minimum :double) (maximum :double))
+  (((mpointer histogram) :pointer) (minimum :double) (maximum :double))
   :export nil
   :index set-ranges-uniform
   :documentation			; FDL
@@ -131,7 +131,7 @@
 (defmfun set-ranges-uniform-2
     (histogram x-minimum x-maximum y-minimum y-maximum)
   "gsl_histogram2d_set_ranges_uniform"
-  (((pointer histogram) :pointer)
+  (((mpointer histogram) :pointer)
    (x-minimum :double) (x-maximum :double)
    (y-minimum :double) (y-maximum :double))
   :export nil
@@ -156,7 +156,7 @@
 
 (defmfun copy-1 (destination source)
   "gsl_histogram_memcpy"
-  (((pointer destination) :pointer) ((pointer source) :pointer))
+  (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :export nil
   :index copy
   :documentation			; FDL
@@ -167,7 +167,7 @@
 
 (defmfun copy-2 (destination source)
   "gsl_histogram2d_memcpy"
-  (((pointer destination) :pointer) ((pointer source) :pointer))
+  (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :export nil
   :index copy)
 
@@ -176,7 +176,7 @@
 
 (defmfun clone-1 (source)
   "gsl_histogram_memcpy"
-  (((pointer source) :pointer))
+  (((mpointer source) :pointer))
   :export nil
   :index clone
   :documentation			; FDL
@@ -185,7 +185,7 @@
 
 (defmfun clone-2 (source)
   "gsl_histogram2d_memcpy"
-  (((pointer source) :pointer))
+  (((mpointer source) :pointer))
   :export nil
   :index clone
   :documentation			; FDL
@@ -205,6 +205,6 @@
   (let ((ret
 	 (make-instance 'histogram :number-of-bins size
 			:pointer (when from (clone from)))))
-    (unless (pointer ret)
+    (unless (mpointer ret)
       (alloc ret))
     ret))

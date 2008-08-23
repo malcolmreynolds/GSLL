@@ -1,6 +1,6 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-08-17 09:41:04EDT updating-accessing.lisp>
+;; Time-stamp: <2008-08-23 19:08:14EDT updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,9 +24,9 @@
    histograms for a small range of a larger dataset, ignoring the values
    outside the range of interest.")
 
-(defmfun maref ((histogram histogram) &rest i)
+(defmfun maref ((histogram histogram) i &optional i2)
   "gsl_histogram_get"
-  (((pointer histogram) :pointer) ((first i) sizet))
+  (((mpointer histogram) :pointer) ((first i) sizet))
   :definition :method 
   :c-return :double
   :documentation			; FDL
@@ -36,7 +36,7 @@
 
 (defmfun range (histogram i)
   "gsl_histogram_get_range"
-  (((pointer histogram) :pointer) (i sizet)
+  (((mpointer histogram) :pointer) (i sizet)
    (lower :double) (upper :double))
   :documentation			; FDL
   "Find the upper and lower range limits of the i-th
@@ -51,28 +51,28 @@
 
 (defmfun max-range (histogram)
   "gsl_histogram_max"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :documentation			; FDL
   "The maximum upper range limit of the histogram.")
 
 (defmfun min-range (histogram)
   "gsl_histogram_min"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :double
   :documentation			; FDL
   "The minimum lower range limit of the histogram.")
 
 (defmfun bins (histogram)
   "gsl_histogram_bins"
-  (((pointer histogram) :pointer))
-  :c-return :int
+  (((mpointer histogram) :pointer))
+  :c-return sizet
   :documentation			; FDL
   "The number of bins in the histogram.")
 
 (defmfun reset (histogram)
   "gsl_histogram_reset"
-  (((pointer histogram) :pointer))
+  (((mpointer histogram) :pointer))
   :c-return :void
   :documentation			; FDL
   "Reset all the bins in the histogram to zero.")
