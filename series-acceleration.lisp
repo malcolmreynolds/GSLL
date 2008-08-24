@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-03-09 19:21:47EDT series-acceleration.lisp>
+;; Time-stamp: <2008-08-23 11:30:37EDT series-acceleration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,9 +11,9 @@
 
 (cffi:defcstruct levin
   "The definition of Levin series acceleration for GSL."
-  (size size)
-  (position-in-array size)
-  (terms-used size)
+  (size sizet)
+  (position-in-array sizet)
+  (terms-used sizet)
   (sum-plain :double)
   (q-num :pointer)
   (q-den :pointer)
@@ -25,7 +25,7 @@
 
 (defmfun allocate-levin (order)
   "gsl_sum_levin_u_alloc"
-  ((order size))
+  ((order sizet))
   :c-return :pointer
   :export nil
   :index (letm levin)
@@ -44,7 +44,7 @@
 
 (defmfun accelerate (array levin)
   "gsl_sum_levin_u_accel"
-  (((gsl-array array) :pointer) ((dim0 array) size) (levin :pointer)
+  (((c-pointer array) :pointer) ((dim0 array) sizet) (levin :pointer)
    (accelerated-sum :double) (absolute-error :double))
   :documentation			; FDL
   "From the terms of a series in array, compute the extrapolated
@@ -65,7 +65,7 @@
 
 (defmfun allocate-levin-truncated (order)
   "gsl_sum_levin_utrunc_alloc"
-  ((order size))
+  ((order sizet))
   :c-return :pointer
   :export nil
   :index (letm levin-truncated)
@@ -84,7 +84,7 @@
 
 (defmfun accelerate-truncated (array levin)
   "gsl_sum_levin_utrunc_accel"
-  (((gsl-array array) :pointer) ((dim0 array) size) (levin :pointer)
+  (((c-pointer array) :pointer) ((dim0 array) sizet) (levin :pointer)
    (accelerated-sum :double) (absolute-error :double))
   :documentation			; FDL
   "From the terms of a series in array, compute the extrapolated

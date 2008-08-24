@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-03-09 19:29:17EDT wavelet.lisp>
+;; Time-stamp: <2008-08-23 11:45:54EDT wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,7 +24,7 @@
 
 (defmfun allocate-wavelet (type member)
   "gsl_wavelet_alloc"
-  ((type :pointer) (member size))
+  ((type :pointer) (member sizet))
   :c-return :pointer
   :export nil
   :index (letm wavelet)
@@ -88,7 +88,7 @@
 
 (defmfun allocate-wavelet-workspace (size)
   "gsl_wavelet_workspace_alloc"
-  ((size size))
+  ((size sizet))
   :c-return :pointer
   :export nil
   :index (letm wavelet-workspace)
@@ -115,8 +115,8 @@
 
 (defmfun wavelet-transform (wavelet data stride direction workspace)
   "gsl_wavelet_transform"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (stride size) ((dim0 data) size) ((forward-backward direction) :int)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (stride sizet) ((dim0 data) sizet) ((forward-backward direction) :int)
    (workspace :pointer))
   :documentation			; FDL
   "Compute in-place forward and inverse discrete wavelet
@@ -141,8 +141,8 @@
 
 (defmfun wavelet-transform-forward (wavelet data stride workspace)
   "gsl_wavelet_transform_forward"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (stride size) ((dim0 data) size) (workspace :pointer))
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (stride sizet) ((dim0 data) sizet) (workspace :pointer))
   :documentation			; FDL
   "Compute in-place forward and inverse discrete wavelet
    transforms on the array data.  The length of the transform
@@ -163,8 +163,8 @@
 
 (defmfun wavelet-transform-inverse (wavelet data stride workspace)
   "gsl_wavelet_transform_inverse"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (stride size) ((dim0 data) size) (workspace :pointer))
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (stride sizet) ((dim0 data) sizet) (workspace :pointer))
   :documentation			; FDL
   "Compute in-place inverse discrete wavelet
    transforms on the array data.  The length of the transform
@@ -189,8 +189,8 @@
 
 (defmfun wavelet-2d-transform (wavelet data tda direction workspace)
   "gsl_wavelet2d_transform"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (tda size) ((dim0 data) size) ((dim1 data) size)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (tda sizet) ((dim0 data) sizet) ((dim1 data) sizet)
    ((forward-backward direction) :int) (workspace :pointer))
   :documentation			; FDL
   "Compute in-place forward and inverse discrete wavelet transforms
@@ -209,8 +209,8 @@
 
 (defmfun wavelet-2d-transform-forward (wavelet data tda workspace)
   "gsl_wavelet2d_transform_forward"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (tda size) ((dim0 data) size) ((dim1 data) size)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (tda sizet) ((dim0 data) sizet) ((dim1 data) sizet)
    (workspace :pointer))
   :documentation			; FDL
   "Compute two-dimensional in-place forward and inverse
@@ -227,8 +227,8 @@
 
 (defmfun wavelet-2d-transform-inverse (wavelet data tda workspace)
   "gsl_wavelet2d_transform_inverse"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (tda size) ((dim0 data) size) ((dim1 data) size)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (tda sizet) ((dim0 data) sizet) ((dim1 data) sizet)
    (workspace :pointer))
   :documentation			; FDL
   "Compute two-dimensional in-place forward and inverse discrete
@@ -243,50 +243,50 @@
 
 (defmfun wavelet-2d-transform-matrix (wavelet data direction workspace)
   "gsl_wavelet2d_transform_matrix"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
    ((forward-backward direction) :int) (workspace :pointer))
   :documentation			; FDL
   "Compute the two-dimensional in-place wavelet transform on a matrix.")
 
 (defmfun wavelet-2d-transform-matrix-forward (wavelet data workspace)
   "gsl_wavelet2d_transform_matrix_forward"
-  ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
+  ((wavelet :pointer) ((c-pointer data) :pointer) (workspace :pointer))
   :documentation			; FDL
   "Compute the two-dimensional in-place wavelet transform on a matrix.")
 
 (defmfun wavelet-2d-transform-matrix-inverse (wavelet data workspace)
   "gsl_wavelet2d_transform_matrix_inverse"
-  ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
+  ((wavelet :pointer) ((c-pointer data) :pointer) (workspace :pointer))
   :documentation			; FDL
   "Compute the two-dimensional in-place wavelet transform on a matrix.")
 
 (defmfun wavelet-2d-nonstandard-transform (wavelet data tda direction workspace)
   "gsl_wavelet2d_nstransform"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (tda size) ((dim0 data) size) ((dim1 data) size) (direction :int)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (tda sizet) ((dim0 data) sizet) ((dim1 data) sizet) (direction :int)
    (workspace :pointer))
   :documentation			; FDL
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defmfun wavelet-2d-nonstandard-transform-forward (wavelet data tda workspace)
   "gsl_wavelet2d_nstransform_forward"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (tda size) ((dim0 data) size) ((dim1 data) size)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (tda sizet) ((dim0 data) sizet) ((dim1 data) sizet)
    (workspace :pointer))
   :documentation			; FDL
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defmfun wavelet-2d-nonstandard-transform-inverse (wavelet data tda workspace)
   "gsl_wavelet2d_nstransform_inverse"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
-   (tda size) ((dim0 data) size) ((dim1 data) size)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
+   (tda sizet) ((dim0 data) sizet) ((dim1 data) sizet)
    (workspace :pointer))
   :documentation			; FDL
   "Compute the two-dimensional wavelet transform in non-standard form.")
 
 (defmfun wavelet-2d-nonstandard-transform-matrix (wavelet data direction workspace)
   "gsl_wavelet2d_nstransform_matrix"
-  ((wavelet :pointer) ((gsl-array data) :pointer)
+  ((wavelet :pointer) ((c-pointer data) :pointer)
    (direction :int) (workspace :pointer))
   :documentation
   "Compute the non-standard form of the two-dimensional in-place wavelet
@@ -294,14 +294,14 @@
 
 (defmfun wavelet-2d-nonstandard-transform-matrix-forward (wavelet data workspace)
   "gsl_wavelet2d_nstransform_matrix_forward"
-  ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
+  ((wavelet :pointer) ((c-pointer data) :pointer) (workspace :pointer))
   :documentation			; FDL
   "Compute the non-standard form of the two-dimensional in-place wavelet
    transform on a matrix.")
 
 (defmfun wavelet-2d-nonstandard-transform-matrix-inverse (wavelet data workspace)
   "gsl_wavelet2d_nstransform_matrix_inverse"
-  ((wavelet :pointer) ((gsl-array data) :pointer) (workspace :pointer))
+  ((wavelet :pointer) ((c-pointer data) :pointer) (workspace :pointer))
   :documentation			; FDL
   "Compute the non-standard form of the two-dimensional in-place wavelet
    transform on a matrix.")
@@ -312,7 +312,7 @@
 
 ;;; See GSL manual Section 30.4.
 (defparameter *wavelet-sample*
- #(0.0462458471760794d0 0.0462458471760794d0 0.0512458471760794d0 0.0712458471760795d0
+ (a 0.0462458471760794d0 0.0462458471760794d0 0.0512458471760794d0 0.0712458471760795d0
  0.0712458471760795d0 0.0662458471760795d0 0.0962458471760795d0 0.101245847176079d0
  0.116245847176079d0 0.121245847176079d0 0.116245847176079d0 0.106245847176079d0
  0.0912458471760794d0 0.101245847176079d0 0.0962458471760795d0 0.0962458471760795d0
@@ -401,9 +401,8 @@
 	(setf (maref vector (maref permutation i))
 	      0.0d0))) ;; Transform back
     (dotimes (i n) (format t "~&~a" (maref vector i)))
-    (cl-invalidate vector)
     (wavelet-transform-inverse wavelet vector 1 workspace)
-    (data vector)))
+    (cl-array vector)))
 
 (defun wavelet-forward-example (&optional (cl-data *wavelet-sample*))
   "Simpler example, with only a Daubechies wavelet forward transformation."
@@ -412,5 +411,4 @@
 	 (wavelet (wavelet *daubechies-wavelet* 4))
 	 (workspace (wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
-    (cl-invalidate vector)
-    (data vector)))
+    (cl-array vector)))

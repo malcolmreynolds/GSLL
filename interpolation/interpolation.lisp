@@ -1,6 +1,6 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2008-02-17 17:45:18EST interpolation.lisp>
+;; Time-stamp: <2008-08-23 08:55:23EDT interpolation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,7 +19,7 @@
 ;;; Interpolation
 (defmfun allocate-interpolation (type size)
   "gsl_interp_alloc"
-  ((type :pointer) (size size))
+  ((type :pointer) (size sizet))
   :c-return :pointer
   :export nil
   :index (letm interpolation)
@@ -30,10 +30,11 @@
 (defmfun initialize-interpolation (interpolation xa ya)
   "gsl_interp_init"
   ((interpolation :pointer)
-   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) size))
+   ((c-pointer xa) :pointer) ((c-pointer ya) :pointer) ((dim0 xa) sizet))
+  :inputs (xa ya)
   :documentation			; FDL
   "Initialize the interpolation object interp for the
-  data (xa,ya) where xa and ya are gsl-arrays.  The interpolation object does not save
+  data (xa,ya) where xa and ya are vectors.  The interpolation object does not save
   the data arrays xa and ya and only stores the static state
   computed from the data.  The xa data array is always assumed to be
   strictly ordered; the behavior for other arrangements is not defined.")
@@ -58,7 +59,7 @@
 ;;; Spline
 (defmfun allocate-spline (type size)
   "gsl_spline_alloc"
-  ((type :pointer) (size size))
+  ((type :pointer) (size sizet))
   :c-return :pointer
   :documentation			; FDL
   "Allocate an interpolation object of type for size data-points,
@@ -67,10 +68,11 @@
 (defmfun initialize-spline (interpolation xa ya)
   "gsl_spline_init"
   ((interpolation :pointer)
-   ((gsl-array xa) :pointer) ((gsl-array ya) :pointer) ((dim0 xa) size))
+   ((c-pointer xa) :pointer) ((c-pointer ya) :pointer) ((dim0 xa) sizet))
+  :inputs (xa ya)
   :documentation			; FDL
   "Initialize the interpolation object interp for the
-  data (xa,ya) where xa and ya are gsl-arrays.  The spline object saves
+  data (xa,ya) where xa and ya are c-pointers.  The spline object saves
   the data arrays xa and ya computed from the data.
   The xa data array is always assumed to be
   strictly ordered; the behavior for other arrangements is not defined.")

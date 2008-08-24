@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-03-09 19:30:56EDT basis-splines.lisp>
+;; Time-stamp: <2008-08-23 15:35:59EDT basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,7 +12,7 @@
 
 (defmfun allocate-basis-spline (order number-of-breakpoints)
   "gsl_bspline_alloc"
-  ((order size) (number-of-breakpoints size))
+  ((order sizet) (number-of-breakpoints sizet))
   :c-return :pointer
   :export nil
   :index (letm basis-spline)
@@ -51,7 +51,8 @@
 
 (defmfun evaluate-bspline (x B workspace)
   "gsl_bspline_eval"
-  ((x :double) ((pointer B) :pointer) (workspace :pointer))
+  ((x :double) ((mpointer B) :pointer) (workspace :pointer))
+  :outputs (B)
   :documentation			; FDL
   "Evaluate all B-spline basis functions at the position x and store
    them in the GSL vector B, so that the ith element of B is B_i(x).
@@ -76,11 +77,11 @@
 	 (rng (random-number-generator *mt19937* 0))
 	 (B (vector-double-float ncoeffs))
 	 (c (vector-double-float ncoeffs))
-	 (cov (matrix-double-float ncoeffs ncoeffs))
+	 (cov (matrix-double-float (list ncoeffs ncoeffs)))
 	 (w (vector-double-float ndata))
 	 (x (vector-double-float ndata))
 	 (y (vector-double-float ndata))
-	 (Xmatrix (matrix-double-float ndata ncoeffs))
+	 (Xmatrix (matrix-double-float (list ndata ncoeffs)))
 	 (sigma 0.1d0))
     ;; The data to be fitted.
     (dotimes (i ndata)

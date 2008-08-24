@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-08-16 18:25:43EDT numerical-integration.lisp>
+;; Time-stamp: <2008-08-23 19:18:03EDT numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -49,7 +49,8 @@
   precision intervals, their integration results and error estimates.")
 
 (defmfun integration-workspace-free (pointer)
-  "gsl_integration_workspace_free" ((pointer :pointer))
+  "gsl_integration_workspace_free"
+  ((mpointer :pointer))
   :c-return :void
   :export nil
   :index (letm integration-workspace)
@@ -125,7 +126,7 @@
     (function points limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagp"
   ((function :pointer)
-   ((pointer points) :pointer) ((dim0 points) sizet)
+   ((mpointer points) :pointer) ((dim0 points) sizet)
    (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL

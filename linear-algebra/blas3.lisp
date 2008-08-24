@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-08-09 19:46:23EDT blas3.lisp>
+;; Time-stamp: <2008-08-23 19:49:54EDT blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,7 +36,7 @@
   ("gsl_blas_" :type "symm")
   ((side cblas-side) (uplo cblas-uplo) (alpha :element-c-type)
    (A :pointer) (B :pointer) (beta :element-c-type) (C :pointer)) 
-  :definition :generic
+  :definition :methods
   :element-types :float-complex
   :inputs (A B C)
   :outputs (C)

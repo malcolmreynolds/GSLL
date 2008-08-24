@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-21 22:08:09EDT gsll.asd>
+;; Time-stamp: <2008-08-23 19:39:32EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -151,7 +151,6 @@
 	     (:file "updating-accessing" :depends-on (histogram))
 	     (:file "statistics" :depends-on (histogram))
 	     (:file "operations" :depends-on (histogram))
-	     (:file "read-write" :depends-on (histogram))
 	     (:file "probability-distribution" :depends-on (histogram))
 	     (:file "ntuple")))
    (:file "monte-carlo" :depends-on (init data random))
@@ -163,7 +162,6 @@
 	     (:file "control")
 	     (:file "evolution")
 	     (:file "ode-example" :depends-on (ode-system stepping))))
-   #+no
    (:module interpolation
 	    :depends-on (init)
 	    :components
@@ -172,25 +170,19 @@
 	     (:file "lookup")
 	     (:file "evaluation")
 	     (:file "spline-example" :depends-on (types))))
-   #+no
    (:file "numerical-differentiation" :depends-on (init))
-   #+no
    (:file "chebyshev" :depends-on (init))
-   #+no
    (:file "series-acceleration" :depends-on (init))
-   #+no
    (:file "wavelet" :depends-on (init data))
-   #+no
    (:file "hankel" :depends-on (init data))
-   #+no
    (:module solve-minimize-fit
 	    :depends-on (init data random)
 	    :components
 	    ((:file "roots-one")
 	     (:file "minimization-one")
-	     (:file "roots-multi" :depends-on (roots-one))
-	     (:file "minimization-multi")
-	     (:file "linear-least-squares")
-	     (:file "nonlinear-least-squares")))
-   #+no
+	     ;(:file "roots-multi" :depends-on (roots-one))
+	     ;(:file "minimization-multi")
+	     ;(:file "linear-least-squares")
+	     ;(:file "nonlinear-least-squares")
+	     ))
    (:file "basis-splines" :depends-on (init data))))

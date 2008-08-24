@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-02-17 18:02:26EST chebyshev.lisp>
+;; Time-stamp: <2008-08-23 11:27:10EDT chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,7 +14,7 @@
 
 (defmfun allocate-chebyshev (order)
   "gsl_cheb_alloc"
-  ((order size))
+  ((order sizet))
   :c-return :pointer
   :export nil
   :index (letm chebyshev)
@@ -51,47 +51,23 @@
 ;;; to use the functions that do return error (and ignore it if
 ;;; desired) in the form of #'evaluate-chebyshev.
 
-(defmfun evaluate-chebyshev-noerror (chebyshev x)
-  "gsl_cheb_eval"
-  ((chebyshev :pointer) (x :double))
+(defmfun evaluate-chebyshev (chebyshev x &optional order)
+  ("gsl_cheb_eval" "gsl_cheb_eval_n")
+  (((chebyshev :pointer) (x :double))
+  ((chebyshev :pointer) (order sizet) (x :double)))
   :c-return :double
-  :index evaluate-chebyshev
-  :export nil
   :documentation			; FDL
-  "Evaluate the Chebyshev series at a point x.")
+  "Evaluate the Chebyshev series at a point x.  If order is supplied,
+  evaluate to at most the given order.")
 
-(defmfun evaluate-chebyshev-noerror-order (chebyshev x order)
-  "gsl_cheb_eval_n"
-  ((chebyshev :pointer) (order size) (x :double))
-  :c-return :double
-  :index evaluate-chebyshev
-  :export nil
-  :documentation			; FDL
-  "Evaluate the Chebyshev series at a point x to at most the given order.")
-
-(defmfun evaluate-chebyshev-full (chebyshev x)
-  "gsl_cheb_eval_err"
-  ((chebyshev :pointer) (x :double) (result :double) (abserr :double))
-  :index evaluate-chebyshev
-  :export nil
+(defmfun evaluate-chebyshev-error (chebyshev x &optional order)
+  ("gsl_cheb_eval_err" "gsl_cheb_eval_n_err")
+  (((chebyshev :pointer) (x :double) (result :double) (abserr :double))
+   ((chebyshev :pointer) (order sizet) (x :double) (result :double) (abserr :double)))
   :documentation			; FDL
   "Evaluate the Chebyshev series at a point x, returning result and
-   an estimate of its absolute error.")
-
-(defmfun evaluate-chebyshev-order (chebyshev x order)
-  "gsl_cheb_eval_n_err"
-  ((chebyshev :pointer) (order size) (x :double) (result :double) (abserr :double))
-  :index evaluate-chebyshev
-  :export nil
-  :documentation			; FDL
-  "Evaluate the Chebyshev series at a point x to at most the given order,
-   returning result and an estimate of its absolute error.")
-
-(export 'evaluate-chebyshev)
-(defun-optionals evaluate-chebyshev (chebyshev x &optional order)
-  -full -order				; FDL
-  "Evaluate the Chebyshev series at a point x to at most the given order,
-   returning result and an estimate of its absolute error.")
+   an estimate of its absolute error.  If order is supplied,
+   evaluate to at most the given order.")
 
 ;;;;****************************************************************************
 ;;;; Derivatives and integrals

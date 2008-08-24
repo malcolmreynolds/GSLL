@@ -1,6 +1,6 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-02-17 18:10:15EST hankel.lisp>
+;; Time-stamp: <2008-08-23 11:48:13EDT hankel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
 
 (defmfun allocate-hankel (size)
   "gsl_dht_alloc"
-  ((size size))
+  ((size sizet))
   :c-return :pointer
   :export nil
   :index (letm hankel)
@@ -31,7 +31,7 @@
 ;; export it.
 (defmfun new-hankel (size nu xmax)
   "gsl_dht_new"
-  ((size size) (nu :double) (xmax :double))
+  ((size sizet) (nu :double) (xmax :double))
   :c-return :pointer
   :documentation			; FDL
   "Allocate a Discrete Hankel transform object of size
@@ -49,8 +49,8 @@
 
 (defmfun apply-hankel (hankel array-in array-out)
   "gsl_dht_apply"
-  ((hankel :pointer) ((gsl-array array-in) :pointer)
-   ((gsl-array array-out) :pointer))
+  ((hankel :pointer) ((c-pointer array-in) :pointer)
+   ((c-pointer array-out) :pointer))
   :documentation			; FDL
   "Apply the transform to the array array-in
    whose size is equal to the size of the transform.  The result is stored

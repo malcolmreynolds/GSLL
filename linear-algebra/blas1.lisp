@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-08-03 23:24:43EDT blas1.lisp>
+;; Time-stamp: <2008-08-23 14:34:44EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -35,7 +35,7 @@
   :documentation			; FDL
   "The complex conjugate scalar product x^H y for the vectors.")
 
-(defmfun 2norm ((vec1 vector) (vec2 vector))
+(defmfun euclidean-norm ((vec1 vector) (vec2 vector))
   ("gsl_blas_" :component-float-type :type "nrm2")
   (((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
    (result :component-float-type))
@@ -190,7 +190,7 @@
 	(b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
    (dot a b))
  (letm ((b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
-   (norm b))
+   (euclidean-norm b))
  (letm ((b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
    (asum b))
  (letm ((b (vector-single-float #(3.0f0 5.0f0 4.0f0))))
@@ -217,7 +217,7 @@
 	(b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
    (dot a b))
  (letm ((b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
-   (norm b))
+   (euclidean-norm b))
  (letm ((b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
    (setf (data b) #(3.0d0 4.0d0 5.0d0))
    (asum b))
@@ -244,8 +244,6 @@
    (rot a b (/ (sqrt 2.0d0)) (/ (sqrt 2.0d0)))
    (data b)))
 
-|#
-
 (LISP-UNIT:DEFINE-TEST BLAS1-SINGLE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 26.0f0)
@@ -257,7 +255,7 @@
    (LIST 7.071068f0)
    (MULTIPLE-VALUE-LIST
     (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
-      (NORM B))))
+      (EUCLIDEAN-NORM B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 12.0f0)
    (MULTIPLE-VALUE-LIST
@@ -305,7 +303,7 @@
    (LIST 7.0710678118654755d0)
    (MULTIPLE-VALUE-LIST
     (LETM ((B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (NORM B))))
+      (EUCLIDEAN-NORM B))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 12.0d0)
    (MULTIPLE-VALUE-LIST
@@ -349,5 +347,5 @@
 	   (B (VECTOR-DOUBLE-FLOAT #(8.0d0 9.0d0))))
       (ROT A B (/ (SQRT 2.0d0)) (/ (SQRT 2.0d0)))
       (DATA B)))))
-
+|#
 
