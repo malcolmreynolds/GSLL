@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-08-23 17:42:15EDT data.lisp>
+;; Time-stamp: <2008-08-23 23:09:12EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -40,6 +40,8 @@
   (:documentation
    "A superclass for all data storage structures, such as vector, matrix,
    etc."))
+
+(export '(cl-array dimensions total-size element-type))
 
 (defmethod print-object ((object gsl-data) stream)
   (print-unreadable-object (object stream :type t) 
@@ -306,9 +308,8 @@
 
 ;;; It is necessary to have access to elements from the GSL
 ;;; vector/matrix pointers for things like callback functions in
-;;; solve-minimize-fit and in #'make-vector-from-gsl.
-(defmfun maref ((pointer #.(class-name (class-of (cffi:null-pointer))))
-		index &optional index2)
+;;; solve-minimize-fit and in #'cl-array method for pointers.
+(defmfun maref ((pointer #.+foreign-pointer-class+) index &optional index2)
   ;; If passed a pointer, assume that it is a GSL vector or matrix,
   ;; depending on the number of indices.  This is useful in the
   ;; callback functions for solve-minimize-fit.
@@ -319,8 +320,7 @@
   :c-return :double)
 
 (defmfun (setf maref)
-    (value (pointer #.(class-name (class-of (cffi:null-pointer))))
-	   index &optional index2)
+    (value (pointer #.+foreign-pointer-class+) index &optional index2)
   ;; If passed a pointer, assume that it is a GSL vector or matrix,
   ;; depending on the number of indices.  This is useful in the
   ;; callback functions for solve-minimize-fit.

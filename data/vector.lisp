@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector-ffa.lisp
-;; Time-stamp: <2008-08-23 17:51:33EDT vector.lisp>
+;; Time-stamp: <2008-08-23 22:54:06EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,23 +36,13 @@
 ;;; data; because GSL is doing the mallocing, the data are not
 ;;; CL-accessible.
 
-(defmfun free-vector (pointer)
-  "gsl_vector_free"
-  ((pointer :pointer))
-  :index nil
-  :export nil
-  :c-return :void)
-
-(defun make-vector-from-gsl (pointer)
+(defmethod cl-array ((pointer #.+foreign-pointer-class+))
   "Given a C pointer to a GSL vector, make the CL object."
   (let* ((size (cffi:foreign-slot-value pointer 'gsl-vector-c 'size))
 	 (array (make-array* size 'double-float)))
     ;; Copy over from the C side
     (loop for i below size
        do (setf (aref array i) (maref pointer i)))
-    ;; Free the C/GSL vector
-    (free-vector pointer)
-    ;; Return the CL array
     array))
 
 ;;;;****************************************************************************
