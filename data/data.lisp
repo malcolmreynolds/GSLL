@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-08-23 23:09:12EDT data.lisp>
+;; Time-stamp: <2008-08-28 21:31:49EDT data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,7 +10,7 @@
 ;;;;****************************************************************************
 
 (defclass gsl-data ()
-  ((cl-array :initarg :cl-array :accessor cl-array :documentation "The Lisp array.")
+  ((cl-array :initarg :cl-array :documentation "The Lisp array.")
    (mpointer :initarg :mpointer :accessor mpointer
 	     :documentation "A pointer to the GSL representation of the data.")
    (block-pointer :initform nil :accessor block-pointer
@@ -41,7 +41,7 @@
    "A superclass for all data storage structures, such as vector, matrix,
    etc."))
 
-(export '(cl-array dimensions total-size element-type))
+(export '(dimensions total-size element-type))
 
 (defmethod print-object ((object gsl-data) stream)
   (print-unreadable-object (object stream :type t) 
@@ -128,12 +128,6 @@
       (if (typep array-or-dimensions 'array)
 	  (make-data-from-array type array-or-dimensions)
 	  (make-data-from-dimensions type array-or-dimensions))))
-
-;;; ... or from the pointer which was malloced by GSL
-#(or)
-(defun make-data-from-pointer (pointer &optional (class 'vector-double-float) size)
-  "Given a C pointer to a GSL data type, make the CL object."
-  )
 
 ;;;;****************************************************************************
 ;;;; Expand letm bindings
@@ -285,50 +279,6 @@
 	    (complex 
 	     (cffi:mem-aref pointer cffi-type pointer-index)
 	     (cffi:mem-aref pointer cffi-type (1+ pointer-index)))))))
-
-(defgeneric maref (object index &optional index2)
-  (:documentation "An element of the data.")
-  (:method ((object gsl-data) index &optional index2)
-    (copy-c-to-cl object)
-    (if index2
-	(aref (cl-array object) index index2)
-	(aref (cl-array object) index))))
-
-;;; Alternative to complete copy is to mark which elements have
-;;; changed and just copy them.  Is it worth it?
-
-(defgeneric (setf maref) (value object index &optional index2)
-  (:documentation "Set an element of the data.")
-  (:method (value (object gsl-data) index &optional index2)
-    (if index2
-	(setf (aref (cl-array object) index index2) value)
-	(setf (aref (cl-array object) index) value))
-    #-native
-    (setf c-invalid t)))
-
-;;; It is necessary to have access to elements from the GSL
-;;; vector/matrix pointers for things like callback functions in
-;;; solve-minimize-fit and in #'cl-array method for pointers.
-(defmfun maref ((pointer #.+foreign-pointer-class+) index &optional index2)
-  ;; If passed a pointer, assume that it is a GSL vector or matrix,
-  ;; depending on the number of indices.  This is useful in the
-  ;; callback functions for solve-minimize-fit.
-  ("gsl_vector_get" "gsl_matrix_get")
-  (((pointer :pointer) (index sizet))
-   ((pointer :pointer) (index sizet) (index2 sizet)))
-  :definition :method
-  :c-return :double)
-
-(defmfun (setf maref)
-    (value (pointer #.+foreign-pointer-class+) index &optional index2)
-  ;; If passed a pointer, assume that it is a GSL vector or matrix,
-  ;; depending on the number of indices.  This is useful in the
-  ;; callback functions for solve-minimize-fit.
-  ("gsl_vector_set" "gsl_matrix_set")
-  (((pointer :pointer) (index sizet) (value :double))
-   ((pointer :pointer) (index sizet) (index2 sizet) (value :double)))
-  :definition :method
-  :c-return :double)
 
 ;;;;****************************************************************************
 ;;;; C structures

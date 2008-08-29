@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-08-10 22:17:19EDT element-types.lisp>
+;; Time-stamp: <2008-08-27 20:57:18EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -79,6 +79,7 @@
 ;;; Used by #'cl-gsl
 (defparameter *cstd-cl-type-mapping*
   (append
+   *fp-type-mapping*
    (mapcar
     (lambda (type)
       (cons
@@ -88,8 +89,7 @@
 	    'unsigned-byte
 	    'signed-byte)
 	(* 8 (cffi:foreign-type-size type)))))
-    *cstd-integer-types*)
-   *fp-type-mapping*)
+    *cstd-integer-types*))
   ;; Be careful when reverse associating, as there may be several C
   ;; types that map to a single CL type.
   "An alist of the C standard types as keywords, and the CL type
@@ -289,11 +289,11 @@
 
 (defparameter *float-complex-types*
   (remove-if (lambda (tp) (subtypep tp 'integer)) *array-element-types*)
-  "All the array element types supported except for complex types.")
+  "All the float or complex array element types supported.")
 
 (defparameter *float-types*
   (remove-if-not (lambda (tp) (subtypep tp 'float)) *array-element-types*)
-  "All the array element types supported except for complex types.")
+  "All the float array element types.")
 
 (defparameter *complex-types*
   (remove-if-not (lambda (tp) (subtypep tp 'complex)) *array-element-types*)

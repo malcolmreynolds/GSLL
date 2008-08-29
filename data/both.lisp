@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-08-17 16:18:46EDT both.lisp>
+;; Time-stamp: <2008-08-28 21:41:15EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)

@@ -1,6 +1,6 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-08-23 19:08:14EDT updating-accessing.lisp>
+;; Time-stamp: <2008-08-28 21:54:43EDT updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,7 +24,7 @@
    histograms for a small range of a larger dataset, ignoring the values
    outside the range of interest.")
 
-(defmfun maref ((histogram histogram) i &optional i2)
+(defmfun maref ((histogram histogram) i &optional i2 element-type)
   "gsl_histogram_get"
   (((mpointer histogram) :pointer) ((first i) sizet))
   :definition :method 
