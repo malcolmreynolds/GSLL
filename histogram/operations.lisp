@@ -1,6 +1,6 @@
 ;; Histogram operations
 ;; Liam Healy, Mon Jan  1 2007 - 16:47
-;; Time-stamp: <2008-08-17 09:34:52EDT operations.lisp>
+;; Time-stamp: <2008-08-31 10:05:41EDT operations.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -183,8 +183,7 @@
   "Multiply the contents of the bins of histogram by the
    constant scale, i.e. h'_1(i) = h_1(i) * scale.")
 
-(export 'scale)
-(defun scale (histogram scale)
+(defmethod scale (scale (histogram histogram))
   ;; FDL
   "Multiply the contents of the bins of histogram by the
    constant scale, i.e. h'_1(i) = h_1(i) * scale."

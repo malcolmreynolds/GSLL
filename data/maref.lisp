@@ -1,6 +1,6 @@
 ;; Get/set array or elements: cl-array, maref
 ;; Liam Healy 2008-08-27 22:43:10EDT maref.lisp
-;; Time-stamp: <2008-08-28 21:51:18EDT maref.lisp>
+;; Time-stamp: <2008-08-31 11:07:34EDT maref.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -39,7 +39,7 @@
   (:method ((object array) &optional array-rank element-type)
     ;; For compatibility, work on CL arrays as well.
     (declare (ignore array-rank element-type))
-    array))
+    object))
 
 ;;; Some functions in solve-minimize-fit return a pointer to a GSL
 ;;; vector with double-floats.  #'cl-array will turn that into a
@@ -55,8 +55,8 @@
 	     (dim2 (cffi:foreign-slot-value pointer 'gsl-matrix-c 'size2))
 	     (array (make-array* (list dim1 dim2) element-type)))
 	;; Copy over from the C side
-	(loop for i below size1
-	   do (loop for j below size2 do
+	(loop for i below dim1
+	   do (loop for j below dim2 do
 		   (setf (aref array i j) (maref pointer i j))))
 	array)
       ;; Vector

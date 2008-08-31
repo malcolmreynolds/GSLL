@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-08-23 22:51:33EDT gsl-objects.lisp>
+;; Time-stamp: <2008-08-31 11:35:19EDT gsl-objects.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -122,3 +122,10 @@
 (defconstant +foreign-pointer-class+ (class-name (class-of (cffi:null-pointer)))
   "The class in which foreign pointers fall.  This will be assumed to be a 
    GSL vector or matrix.")
+
+;;; Generic allocation and free used for histograms and random
+(export '(alloc free))
+(defgeneric alloc (object)
+  (:documentation "Allocate the GSL storage."))
+(defgeneric free (object)
+  (:documentation "Free the GSL storage."))

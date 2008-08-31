@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-29 00:57:28EDT gsll.asd>
+;; Time-stamp: <2008-08-31 10:05:43EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -18,8 +18,9 @@
 	     (:file "gsl-objects" :depends-on (init))
 	     (:file "element-types" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
-	     (:file "interface" :depends-on (init conditions element-types number-conversion))
-	     (:file "defmfun" :depends-on (init element-types))
+	     (:file "interface"
+		    :depends-on (init conditions element-types number-conversion))
+	     (:file "defmfun" :depends-on (init element-types interface))
 	     (:file "callback" :depends-on (init))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
@@ -145,7 +146,7 @@
 	     ;; minimum and maximum values provided in vector.lisp
 	     (:file "median-percentile")))
    (:module histogram
-	    :depends-on (init)
+	    :depends-on (init linear-algebra)
 	    :components
 	    ((:file "histogram")
 	     (:file "updating-accessing" :depends-on (histogram))

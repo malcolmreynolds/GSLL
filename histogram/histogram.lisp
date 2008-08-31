@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-08-23 19:08:15EDT histogram.lisp>
+;; Time-stamp: <2008-08-31 11:03:07EDT histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,6 +25,16 @@
    (number-of-bins :initarg :number-of-bins :accessor number-of-bins))
   (:documentation
    "A histogram, including bin boundaries and bin contents."))
+
+(defun assign-pointer (object pointer)
+  "Check that a GSL data pointer is not null, then assign it to the object."
+  (check-null-pointer
+   pointer
+   :ENOMEM
+   (format nil "for ~a."
+	   (with-output-to-string (stream)
+	     (print-data-object object nil stream))))
+  (setf (mpointer object) pointer))
 
 (defmfun alloc-histo-1 (object)
   "gsl_histogram_alloc"

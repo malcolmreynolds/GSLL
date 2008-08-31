@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-23 18:37:25EDT defmfun.lisp>
+;; Time-stamp: <2008-08-31 10:46:03EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -483,18 +483,25 @@
 		      (gensym (string (st-symbol sd)))
 		      (st-type sd))))))
 
-(defun c-arguments (c-arguments)
+(defun stupid-code-walk-find-variables (sexp)
+  "This will work with the simplest s-expression forms only to find
+   variables used."
+  (labels ((scwfv (sexp)
+	     (if (atom sexp)
+		 (when (and (symbolp sexp)
+			    (not (eql (symbol-package sexp)
+				      (find-package :keyword))))
+		   (list sexp))
+		 (unless (member (first sexp) '(quote))
+		   (mapcan #'scwfv (rest sexp))))))
+    (remove-duplicates (scwfv sexp))))
+
+(defun variables-used-in-c-arguments (c-arguments)
   "Find the arguments passed to the C function.  This is a poor
   quality code walker, but is sufficient for actual usage of defmfun."
   (remove-duplicates
-   (mapcan (lambda (s)
-	     (let ((val (st-symbol s)))
-	       (remove-if-not
-		#'symbolp
-		(if (listp val)
-		    ;; walk only a top-level function call
-		    (rest val)
-		    (list val)))))
+   (mapcan (lambda (carg)
+	     (stupid-code-walk-find-variables (st-symbol carg)))
 	   c-arguments)))
 
 (defun complete-definition
@@ -514,8 +521,8 @@
 	 (set-difference (arglist-plain-and-categories arglist nil)
 			 (if mapdown
 			     (apply 'union
-				    (mapcar 'c-arguments c-arguments))
-			     (c-arguments c-arguments))))
+				    (mapcar 'variables-used-in-c-arguments c-arguments))
+			     (variables-used-in-c-arguments c-arguments))))
        ,@(when documentation (list documentation))
        ,(funcall body-maker name arglist gsl-name c-arguments key-args))))
 
@@ -532,7 +539,7 @@
 	    (remove-if
 	     (lambda (s)
 	       (member s (arglist-plain-and-categories arglist nil)))
-	     (c-arguments c-arguments)))
+	     (variables-used-in-c-arguments c-arguments)))
 	   (allocated-decl
 	    (append
 	     (mapcar
