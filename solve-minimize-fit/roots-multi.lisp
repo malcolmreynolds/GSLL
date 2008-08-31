@@ -1,15 +1,9 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-03-09 19:29:20EDT roots-multi.lisp>
+;;; Time-stamp: <2008-08-23 23:04:50EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
-
-;;; I don't like using make-data-from-pointer, but it's the only way
-;;; to have access to the GSL functions when given a pointer.
-;;; Alternatively, I could provide the GSL pointer and then the only
-;;; thing the user could use is vref, or, of course
-;;; make-data-from-pointer.
 
 ;;;;****************************************************************************
 ;;;; Function definition
@@ -19,7 +13,7 @@
   ;; See /usr/include/gsl/gsl_multiroots.h
   "The definition of a function for multiroot finding in GSL."
   (function :pointer)
-  (dimensions size)
+  (dimensions sizet)
   (parameters :pointer))
 
 (export 'def-mfunction)
@@ -36,7 +30,7 @@
   (function :pointer)
   (df :pointer)
   (fdf :pointer)
-  (dimensions size)
+  (dimensions sizet)
   (parameters :pointer))
 
 ;;;;****************************************************************************
@@ -59,7 +53,7 @@
 
 (defmfun allocate-mfsolver (type dimension)
   "gsl_multiroot_fsolver_alloc"
-  ((type :pointer) (dimension size))
+  ((type :pointer) (dimension sizet))
   :c-return :pointer
   :export nil
   :index (letm mfsolver)
@@ -69,7 +63,7 @@
 
 (defmfun allocate-mfdfsolver (type dimension)
   "gsl_multiroot_fdfsolver_alloc"
-  ((type :pointer) (dimension size))
+  ((type :pointer) (dimension sizet))
   :c-return :pointer
   :export nil
   :index (letm mfdfsolver)
@@ -79,7 +73,7 @@
 
 (defmfun set-mfsolver (solver function initial)
   "gsl_multiroot_fsolver_set"
-  ((solver :pointer) (function :pointer) ((pointer initial) :pointer))
+  ((solver :pointer) (function :pointer) ((mpointer initial) :pointer))
   :export nil
   :index (letm mfsolver)
   :documentation			; FDL
@@ -89,7 +83,7 @@
 (defmfun set-mfdfsolver (solver function-derivative initial)
   "gsl_multiroot_fdfsolver_set"
   ((solver :pointer) (function-derivative :pointer)
-   ((pointer initial) :pointer))
+   ((mpointer initial) :pointer))
   :export nil
   :index (letm mfdfsolver)
   :documentation			; FDL
@@ -157,48 +151,48 @@
 (defmfun mfsolver-root (solver)
   "gsl_multiroot_fsolver_root"
   ((solver :pointer))
-  :c-return (canswer :pointer)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
 (defmfun mfdfsolver-root (solver)
   "gsl_multiroot_fdfsolver_root"
   ((solver :pointer))
-  :c-return (canswer gsl-vector-c)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation
   "The current estimate of the root for the solver.")
 
 (defmfun mfsolver-f (solver)
   "gsl_multiroot_fsolver_f"
   ((solver :pointer))
-  :c-return (canswer gsl-vector-c)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
 (defmfun mfdfsolver-f (solver)
   "gsl_multiroot_fdfsolver_f"
   ((solver :pointer))
-  :c-return (canswer gsl-vector-c)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
 (defmfun mfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
   ((solver :pointer))
-  :c-return (canswer gsl-vector-c)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The last step dx taken by the solver.")
 
 (defmfun mfdfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
   ((solver :pointer))
-  :c-return (canswer gsl-vector-c)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The last step dx taken by the solver.")
 
@@ -419,44 +413,45 @@
 ;;; The recommended alternative
 (defun rosenbrock (argument return)
   "Rosenbrock test function."
-  (setf (vref return 0)
-	(* *rosenbrock-a* (- 1 (vref argument 0)))
-	(vref return 1)
-	(* *rosenbrock-b* (- (vref argument 1) (expt (vref argument 0) 2)))))
+  (setf (maref return 0)
+	(* *rosenbrock-a* (- 1 (maref argument 0)))
+	(maref return 1)
+	(* *rosenbrock-b* (- (maref argument 1) (expt (maref argument 0) 2)))))
 
 (def-mfunction rosenbrock 2)
 
 (defun roots-multi-example ()
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000))
-    (letm ((vect (vector-double-float #(-10.0d0 -5.0d0))))
-      (letm ((solver (mfsolver *hybrid-scaled* rosenbrock vect)))
-	(let ((fnval (mfsolver-f solver))
-	      (argval (mfsolver-root solver)))
-	  (loop for iter from 0
-		while (and (< iter max-iter)
-			   (not (multiroot-test-residual solver 1.0d-7)))
-		do
-		(iterate-mfsolver solver)
-		(format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
-			iter
-			(maref argval 0)
-			(maref argval 1)
-			(maref fnval 0)
-			(maref fnval 1))
-		finally (return
-			  (values (maref argval 0)
-				  (maref argval 1)
-				  (maref fnval 0)
-				  (maref fnval 1)))))))))
-
+    (letm ((vect (vector-double-float (a -10.0d0 -5.0d0)))
+	   (solver (mfsolver *hybrid-scaled* rosenbrock vect)))
+      (loop for iter from 0
+	 with fnval and argval
+	 while (and (< iter max-iter)
+		    (not (multiroot-test-residual solver 1.0d-7)))
+	   
+	 do
+	 (iterate-mfsolver solver)
+	 (setf fnval (cl-array (mfsolver-f solver))
+	       argval (cl-array (mfsolver-root solver)))
+	 (format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
+		 iter
+		 (aref argval 0)
+		 (aref argval 1)
+		 (aref fnval 0)
+		 (aref fnval 1))
+	 finally (return
+		   (values (aref argval 0)
+			   (aref argval 1)
+			   (aref fnval 0)
+			   (aref fnval 1)))))))
 
 (defun rosenbrock-df (argument jacobian)
   "The partial derivatives of the Rosenbrock functions."
-  (setf (mref jacobian 0 0) (- *rosenbrock-a*)
-	(mref jacobian 0 1) 0.0d0
-	(mref jacobian 1 0) (* -2 *rosenbrock-b* (vref argument 0))
-	(mref jacobian 1 1) *rosenbrock-b*))
+  (setf (maref jacobian 0 0) (- *rosenbrock-a*)
+	(maref jacobian 0 1) 0.0d0
+	(maref jacobian 1 0) (* -2 *rosenbrock-b* (maref argument 0))
+	(maref jacobian 1 1) *rosenbrock-b*))
 
 (defun rosenbrock-fdf (argument value jacobian)
   (rosenbrock argument value)
@@ -481,20 +476,22 @@
 		   (maref fnval 0)
 		   (maref fnval 1))))
     (let ((max-iter 1000))
-      (letm ((vect (vector-double-float #(-10.0d0 -5.0d0))))
+      (letm ((vect (vector-double-float (a -10.0d0 -5.0d0))))
 	(letm
 	    ((solver (mfdfsolver *gnewton-mfdfsolver* rosenbrock-f vect)))
-	  (let ((fnval (mfdfsolver-f solver))
-		(argval (mfdfsolver-root solver)))
-	    (loop for iter from 0
-		  while (and (< iter max-iter)
-			     (not (multiroot-test-residual solver 1.0d-7)))
-		  initially (print-state iter argval fnval)
-		  do
-		  (iterate-mfdfsolver solver)
-		  (print-state iter argval fnval)
-		  finally (return
-			    (values (maref argval 0)
-				    (maref argval 1)
-				    (maref fnval 0)
-				    (maref fnval 1))))))))))
+	  (loop for iter from 0
+	     with fnval = (mfdfsolver-f solver)
+	     and argval = (mfdfsolver-root solver)
+	     while (and (< iter max-iter)
+			(not (multiroot-test-residual solver 1.0d-7)))
+	     initially (print-state iter argval fnval)
+	     do
+	     (iterate-mfdfsolver solver)
+	     (setf fnval (mfdfsolver-f solver)
+		   argval (mfdfsolver-root solver))
+	     (print-state iter argval fnval)
+	     finally (return
+		       (values (maref argval 0)
+			       (maref argval 1)
+			       (maref fnval 0)
+			       (maref fnval 1)))))))))

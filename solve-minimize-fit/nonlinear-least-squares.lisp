@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-03-09 19:30:55EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-08-31 15:13:29EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,7 +18,7 @@
 
 (defmfun allocate-ffit (solver-type number-of-observations number-of-parameters)
   "gsl_multifit_fsolver_alloc"
-  ((solver-type :pointer) (number-of-observations size) (number-of-parameters size))
+  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
   :c-return :pointer
   :export nil
   :index (letm nonlinear-ffit)
@@ -59,7 +59,7 @@
 
 (defmfun allocate-fdffit (solver-type number-of-observations number-of-parameters)
   "gsl_multifit_fdfsolver_alloc"
-  ((solver-type :pointer) (number-of-observations size) (number-of-parameters size))
+  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
   :c-return :pointer
   :export nil
   :index (letm nonlinear-fdffit)
@@ -69,7 +69,7 @@
 
 (defmfun set-fdffit (solver function initial-guess)
   "gsl_multifit_fdfsolver_set"
-  ((solver :pointer) (function :pointer) ((pointer initial-guess) :pointer))
+  ((solver :pointer) (function :pointer) ((mpointer initial-guess) :pointer))
   :documentation			; FDL
   "Initialize or reinitialize an existing solver
    to use the function and the initial guess.")
@@ -114,7 +114,7 @@
   ;; See /usr/include/gsl/gsl_multifit_nlin.h
   "The definition of a function for nonlinear least squares fitting in GSL."
   (function :pointer)
-  (dimensions size)
+  (dimensions sizet)
   (parameters :pointer))
 
 (cffi:defcstruct gsl-fdffit-function
@@ -124,8 +124,8 @@
   (function :pointer)
   (df :pointer)
   (fdf :pointer)
-  (number-of-observations size)
-  (number-of-parameters size)
+  (number-of-observations sizet)
+  (number-of-parameters sizet)
   (parameters :pointer))
 
 (export 'def-fitting-functions)
@@ -170,16 +170,16 @@
 (defmfun current-parameters-ffit (solver)
   "gsl_multifit_fsolver_position"
   ((solver :pointer))
-  :c-return (canswer :pointer)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The current best-fit parameters.")
 
 (defmfun current-parameters-fdffit (solver)
   "gsl_multifit_fdfsolver_position"
   ((solver :pointer))
-  :c-return (canswer :pointer)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The current best-fit parameters.")
 
@@ -216,7 +216,7 @@
 
 (defmfun fit-gradient (jacobian function-values gradient)
   "gsl_multifit_gradient"
-  ((jacobian :pointer) ((pointer function-values) :pointer) (gradient :pointer))
+  ((jacobian :pointer) ((mpointer function-values) :pointer) (gradient :pointer))
   :documentation			; FDL
   "Compute the gradient of \Phi(x) = (1/2) ||F(x)||^2
    from the Jacobian matrix and the function values using
@@ -279,7 +279,7 @@
 
 (defmfun ls-covariance (jacobian relative-error covariance)
   "gsl_multifit_covar"
-  ((jacobian :pointer) (relative-error :double) ((pointer covariance) :pointer))
+  ((jacobian :pointer) (relative-error :double) ((mpointer covariance) :pointer))
   :return (covariance)
   :documentation 			; FDL
   "Compute the covariance matrix of the best-fit parameters
@@ -333,25 +333,25 @@
    (make-exponent-fit-data
     :n *number-of-observations*
     :y
-    (let ((arr (make-array *number-of-observations* :element-type 'double-float)))
+    (let ((arr (make-array* *number-of-observations* 'double-float)))
       (letm ((rng (random-number-generator *mt19937* 0)))
 	(dotimes (i *number-of-observations* arr)
 	  (setf (aref arr i)
 		(+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0))))))
     :sigma
-    (make-array *number-of-observations* :element-type 'double-float :initial-element 0.1d0))))
+    (make-array* *number-of-observations* 'double-float :initial-element 0.1d0))))
 
 (defun exponential-residual (x f)
   "Compute the negative of the residuals with the exponential model
    for the nonlinear least squares example."
-  (let ((A (vref x 0))
-	(lambda (vref x 1))
-	(b (vref x 2)))
+  (let ((A (maref x 0))
+	(lambda (maref x 1))
+	(b (maref x 2)))
     (symbol-macrolet
 	  ((y (exponent-fit-data-y *nlls-example-data*))
 	   (sigma (exponent-fit-data-sigma *nlls-example-data*)))
 	(dotimes (i *number-of-observations*)
-	  (setf (vref f i)
+	  (setf (maref f i)
 		;; the difference model - observation = - residual
 		(/ (- (+ (* A (exp (* (- lambda) i))) b) (aref y i))
 		   (aref sigma i)))))))
@@ -360,16 +360,16 @@
   "Compute the partial derivatives of the negative of the
    residuals with the exponential model
    for the nonlinear least squares example."
-  (let ((A (vref x 0))
-	(lambda (vref x 1)))
+  (let ((A (maref x 0))
+	(lambda (maref x 1)))
     (symbol-macrolet
 	  ((sigma (exponent-fit-data-sigma *nlls-example-data*)))
 	(dotimes (i *number-of-observations*)
 	  (let ((e (exp (* (- lambda) i)))
 		(s (aref sigma i)))
-	  (setf (mref jacobian i 0) (/ e s)
-		(mref jacobian i 1) (* -1 i A (/ e s))
-		(mref jacobian i 2) (/ s)))))))
+	  (setf (maref jacobian i 0) (/ e s)
+		(maref jacobian i 1) (* -1 i A (/ e s))
+		(maref jacobian i 2) (/ s)))))))
 
 (defun exponential-residual-fdf (x f jacobian)
   "Compute the function and partial derivatives of the negative of the
@@ -382,42 +382,47 @@
     exponential-residual *number-of-observations* *number-of-parameters*
     exponential-residual-derivative exponential-residual-fdf)
 
+(defun norm-f (fit)
+  "Find the norm of the fit function f."
+  (letm ((arr (vector-double-float (cl-array (fdffit-slot fit 'f)))))
+    (euclidean-norm arr)))
+
 (defun solve-nonlinear-least-squares-example ()
-  (letm ((init (vector-double-float #(1.0d0 0.0d0 0.0d0)))
+  (letm ((init (vector-double-float (a 1.0d0 0.0d0 0.0d0)))
 	 (covariance
-	  (matrix-double-float *number-of-parameters* *number-of-parameters*))
+	  (matrix-double-float (list *number-of-parameters* *number-of-parameters*)))
 	 (fit (nonlinear-fdffit
 	       *levenberg-marquardt*
 	       *number-of-observations*
 	       *number-of-parameters*
 	       exponential-residual
 	       init)))
-    (macrolet ((fitx (i) `(vref (fdffit-slot fit 'x) ,i))
+    (macrolet ((fitx (i) `(maref (fdffit-slot fit 'x) ,i))
 	       (err (i) `(sqrt (maref covariance ,i ,i))))
       (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
 	      0 (fitx 0) (fitx 1) (fitx 2)
-	      (norm (make-data-from-pointer (fdffit-slot fit 'f))))
+	      (norm-f fit))
       (loop for iter from 0 below 25
-	    until
-	    (and (plusp iter)
-		 (fit-test-delta
-		  (fdffit-slot fit 'dx) (fdffit-slot fit 'x)
-		  1.0d-4 1.0d-4))
-	    do
-	    (iterate-fdffit fit)
-	    (ls-covariance (fdffit-slot fit 'jacobian) 0.0d0 covariance)
-	    (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
-		    (1+ iter) (fitx 0) (fitx 1) (fitx 2)
-		    (norm (make-data-from-pointer (fdffit-slot fit 'f))))
-	    finally
-	    (let* ((chi (norm (make-data-from-pointer (fdffit-slot fit 'f))))
-		   (dof (- *number-of-observations* *number-of-parameters*))
-		   (c (max 1.0d0 (/ chi (sqrt dof)))))
-	      (format t "~&chisq/dof = ~g" (/ (expt chi 2) dof))
-	      (format t "~&A         = ~,5f +/- ~,5f" (fitx 0) (* c (err 0)))
-	      (format t "~&lambda    = ~,5f +/- ~,5f" (fitx 1) (* c (err 1)))
-	      (format t "~&b         = ~,5f +/- ~,5f" (fitx 2) (* c (err 2)))
-	      (return (list (fitx 0) (fitx 1) (fitx 2))))))))
+	 until
+	 (and (plusp iter)
+	      (fit-test-delta
+	       (fdffit-slot fit 'dx) (fdffit-slot fit 'x)
+	       1.0d-4 1.0d-4))
+	 do
+	 (iterate-fdffit fit)
+	 (ls-covariance (fdffit-slot fit 'jacobian) 0.0d0 covariance)
+	 (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
+		 (1+ iter) (fitx 0) (fitx 1) (fitx 2)
+		 (norm-f fit))
+	 finally
+	 (let* ((chi (norm-f fit))
+		(dof (- *number-of-observations* *number-of-parameters*))
+		(c (max 1.0d0 (/ chi (sqrt dof)))))
+	   (format t "~&chisq/dof = ~g" (/ (expt chi 2) dof))
+	   (format t "~&A         = ~,5f +/- ~,5f" (fitx 0) (* c (err 0)))
+	   (format t "~&lambda    = ~,5f +/- ~,5f" (fitx 1) (* c (err 1)))
+	   (format t "~&b         = ~,5f +/- ~,5f" (fitx 2) (* c (err 2)))
+	   (return (list (fitx 0) (fitx 1) (fitx 2))))))))
 
 ;;; Run example:
 ;;; (nlls-setup)

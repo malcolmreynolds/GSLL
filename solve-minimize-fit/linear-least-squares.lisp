@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-03-09 19:30:56EDT linear-least-squares.lisp>
+;; Time-stamp: <2008-08-31 12:44:33EDT linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,9 +17,9 @@
 
 (defmfun linear-fit (x y &optional (x-stride 1) (y-stride 1))
   "gsl_fit_linear"
-  (((gsl-array x) :pointer) (x-stride size)
-   ((gsl-array y) :pointer) (y-stride size)
-   ((dim0 x) size) (c0 :double) (c1 :double)
+  (((c-pointer x) :pointer) (x-stride sizet)
+   ((c-pointer y) :pointer) (y-stride sizet)
+   ((dim0 x) sizet) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
    (sumsq :double))
   :documentation			; FDL
@@ -38,10 +38,10 @@
 (defmfun weighted-linear-fit
     (x weight y &optional (x-stride 1) (weight-stride 1) (y-stride 1))
   "gsl_fit_wlinear"
-  (((gsl-array x) :pointer) (x-stride size)
-   ((gsl-array weight) :pointer) (weight-stride size)
-   ((gsl-array y) :pointer) (y-stride size)
-   ((dim0 x) size) (c0 :double) (c1 :double)
+  (((c-pointer x) :pointer) (x-stride sizet)
+   ((c-pointer weight) :pointer) (weight-stride sizet)
+   ((c-pointer y) :pointer) (y-stride sizet)
+   ((dim0 x) sizet) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
    (chisq :double))
   :documentation			; FDL
@@ -77,9 +77,9 @@
 
 (defmfun multiplier-fit (x y &optional (x-stride 1) (y-stride 1))
   "gsl_fit_mul"
-  (((gsl-array x) :pointer) (x-stride size)
-   ((gsl-array y) :pointer) (y-stride size)
-   ((dim0 x) size) (c1 :double) (cov11 :double)
+  (((c-pointer x) :pointer) (x-stride sizet)
+   ((c-pointer y) :pointer) (y-stride sizet)
+   ((dim0 x) sizet) (c1 :double) (cov11 :double)
    (sumsq :double))
   :documentation			; FDL
   "The best-fit linear regression coefficient c1 of the model Y = c_1
@@ -93,10 +93,10 @@
 (defmfun weighted-multiplier-fit
     (x weight y &optional (x-stride 1) (weight-stride 1) (y-stride 1))
   "gsl_fit_wmul"
-  (((gsl-array x) :pointer) (x-stride size)
-   ((gsl-array weight) :pointer) (weight-stride size)
-   ((gsl-array y) :pointer) (y-stride size)
-   ((dim0 x) size) (c1 :double) (cov11 :double)
+  (((c-pointer x) :pointer) (x-stride sizet)
+   ((c-pointer weight) :pointer) (weight-stride sizet)
+   ((c-pointer y) :pointer) (y-stride sizet)
+   ((dim0 x) sizet) (c1 :double) (cov11 :double)
    (chisq :double))
   :documentation			; FDL
   "Compute the best-fit linear regression coefficient
@@ -130,7 +130,7 @@
 
 (defmfun allocate-fit-workspace (number-of-observations number-of-parameters)
   "gsl_multifit_linear_alloc"
-  ((number-of-observations size) (number-of-parameters size))
+  ((number-of-observations sizet) (number-of-parameters sizet))
   :c-return :pointer
   :index (letm fit-workspace)
   :documentation			; FDL
@@ -147,9 +147,9 @@
 (defmfun linear-mfit
     (model observations parameters covariance tolerance workspace)
   "gsl_multifit_linear"
-  (((pointer model) :pointer) ((pointer observations) :pointer)
+  (((mpointer model) :pointer) ((mpointer observations) :pointer)
    (tolerance :double)
-   ((pointer parameters) :pointer) (covariance :pointer) (chisq :double)
+   ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
   :documentation			; FDL
   "Compute the best-fit parameters c of the model
@@ -168,10 +168,10 @@
 (defmfun linear-mfit-svd
     (model observations parameters covariance tolerance workspace)
   "gsl_multifit_linear_svd"
-  (((pointer model) :pointer) ((pointer observations) :pointer)
+  (((mpointer model) :pointer) ((mpointer observations) :pointer)
    (tolerance :double)
-   (rank size)
-   ((pointer parameters) :pointer) (covariance :pointer) (chisq :double)
+   (rank sizet)
+   ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
   :return ((dcref chisq) (scref rank))
   :documentation			; FDL
@@ -195,11 +195,11 @@
 (defmfun weighted-linear-mfit
     (model weight observations parameters covariance workspace)
   "gsl_multifit_wlinear"
-  (((pointer model) :pointer)
-   ((pointer weight) :pointer)
-   ((pointer observations) :pointer)
-   ((pointer parameters) :pointer)
-   ((pointer covariance) :pointer) (chisq :double)
+  (((mpointer model) :pointer)
+   ((mpointer weight) :pointer)
+   ((mpointer observations) :pointer)
+   ((mpointer parameters) :pointer)
+   ((mpointer covariance) :pointer) (chisq :double)
    (workspace :pointer))
   :documentation			; FDL
   "Compute the best-fit parameters c of the weighted
@@ -217,12 +217,12 @@
 (defmfun weighted-linear-mfit-svd
     (model weight observations parameters covariance tolerance workspace)
   "gsl_multifit_wlinear_svd"
-  (((pointer model) :pointer)
-   ((pointer weight) :pointer)
-   ((pointer observations) :pointer)
+  (((mpointer model) :pointer)
+   ((mpointer weight) :pointer)
+   ((mpointer observations) :pointer)
    (tolerance :double)
-   (rank size)
-   ((pointer parameters) :pointer) (covariance :pointer) (chisq :double)
+   (rank sizet)
+   ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
   :return ((dcref chisq) (scref rank))
   :documentation			; FDL
@@ -243,8 +243,8 @@
 
 (defmfun multi-linear-estimate (x coefficients covariance)
   "gsl_multifit_linear_est"
-  (((pointer x) :pointer) ((pointer coefficients) :pointer)
-   ((pointer covariance) :pointer) (y :double) (y-error :double))
+  (((mpointer x) :pointer) ((mpointer coefficients) :pointer)
+   ((mpointer covariance) :pointer) (y :double) (y-error :double))
   :documentation			; FDL
   "Use the best-fit multilinear regression coefficients
    and their covariance matrix to compute the fitted function value
@@ -258,9 +258,9 @@
 (defun univariate-linear-least-squares-example ()
   "First example in Section 36.5 of the GSL manual."
   ;; Results not given in manual so not verified yet.
-  (letm ((x (vector-double-float #(1970.0d0 1980.0d0 1990.0d0 2000.0d0)))
-	 (y (vector-double-float #(12.0d0 11.0d0 14.0d0 13.0d0)))
-	 (w (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0))))
+  (letm ((x (vector-double-float (a 1970.0d0 1980.0d0 1990.0d0 2000.0d0)))
+	 (y (vector-double-float (a 12.0d0 11.0d0 14.0d0 13.0d0)))
+	 (w (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0))))
 	(multiple-value-bind (c0 c1 cov00 cov01 cov11 chisq)
 	    (weighted-linear-fit x w y)
 	  (format t "~&Best fit: Y = ~8,5f + ~8,5f X" c0 c1)
@@ -301,8 +301,8 @@
 (defun mv-linear-least-squares-example (data)
   "Second example in Section 36.5 of the GSL manual."
   (letm ((n (length data)) chisq
-	 (x (matrix-double-float n 3))
-	 (cov (matrix-double-float 3 3))
+	 (x (matrix-double-float (list n 3)))
+	 (cov (matrix-double-float '(3 3)))
 	 (y (vector-double-float n))
 	 (w (vector-double-float n))
 	 (c (vector-double-float 3)))

@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-03-23 17:50:49EDT minimization-multi.lisp>
+;; Time-stamp: <2008-08-31 12:25:59EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,7 +56,7 @@
 
 (defmfun allocate-mfminimizer (type dimension)
   "gsl_multimin_fminimizer_alloc"
-  ((type :pointer) (dimension size))
+  ((type :pointer) (dimension sizet))
   :c-return :pointer
   :export nil
   :index (letm mfminimizer)
@@ -66,7 +66,7 @@
 
 (defmfun allocate-mfdfminimizer (type dimension)
   "gsl_multimin_fdfminimizer_alloc"
-  ((type :pointer) (dimension size))
+  ((type :pointer) (dimension sizet))
   :c-return :pointer
   :export nil
   :index (letm mfdfminimizer)
@@ -77,7 +77,7 @@
 (defmfun set-mfminimizer (minimizer function initial step-size)
   "gsl_multimin_fminimizer_set"
   ((minimizer :pointer) (function :pointer)
-   ((pointer initial) :pointer) ((pointer step-size) :pointer))
+   ((mpointer initial) :pointer) ((mpointer step-size) :pointer))
   :export nil
   :index (letm mfminimizer)
   :documentation			; FDL
@@ -91,7 +91,7 @@
     (minimizer function-derivative initial step-size tolerance)
   "gsl_multimin_fdfminimizer_set"
   ((minimizer :pointer) (function-derivative :pointer)
-   ((pointer initial) :pointer) (step-size :double)
+   ((mpointer initial) :pointer) (step-size :double)
    (tolerance :double))
   :export nil
   :index (letm mfdfminimizer)
@@ -160,16 +160,16 @@
 (defmfun mfminimizer-x (minimizer)
   "gsl_multimin_fminimizer_x"
   ((minimizer :pointer))
-  :c-return (canswer :pointer)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
 (defmfun mfdfminimizer-x (minimizer)
   "gsl_multimin_fdfminimizer_x"
   ((minimizer :pointer))
-  :c-return (canswer :pointer)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
@@ -197,8 +197,8 @@
 (defmfun mfdfminimizer-gradient (minimizer)
   "gsl_multimin_fdfminimizer_gradient"
   ((minimizer :pointer))
-  :c-return (canswer :pointer)
-  :return ((make-data-from-pointer canswer))
+  :c-return :pointer
+  :return (:c-return)
   :documentation			; FDL
   "The current best estimate of the gradient for the minimizer.")
 
@@ -215,7 +215,7 @@
 
 (defmfun min-test-gradient (gradient absolute-error)
   "gsl_multimin_test_gradient"
-  (((pointer gradient) :pointer) (absolute-error :double))
+  ((gradient :pointer) (absolute-error :double))
   :c-return :success-continue
   :documentation			; FDL
   "Test the norm of the gradient against the
@@ -316,8 +316,8 @@
 
 (defun parabaloid (gsl-vector-pointer)
   "A parabaloid function of two arguments, given in GSL manual Sec. 35.4."
-  (let ((x (vref gsl-vector-pointer 0))
-	(y (vref gsl-vector-pointer 1))
+  (let ((x (maref gsl-vector-pointer 0))
+	(y (maref gsl-vector-pointer 1))
 	(dp0 (aref *parabaloid-center* 0))
 	(dp1 (aref *parabaloid-center* 1)))
     (+ (* 10 (expt (- x dp0) 2))
@@ -326,13 +326,13 @@
 
 (defun parabaloid-derivative
     (arguments-gv-pointer derivative-gv-pointer)
-  (let ((x (vref arguments-gv-pointer 0))
-	(y (vref arguments-gv-pointer 1))
+  (let ((x (maref arguments-gv-pointer 0))
+	(y (maref arguments-gv-pointer 1))
 	(dp0 (aref *parabaloid-center* 0))
 	(dp1 (aref *parabaloid-center* 1)))
-    (setf (vref derivative-gv-pointer 0)
+    (setf (maref derivative-gv-pointer 0)
 	  (* 20 (- x dp0))
-	  (vref derivative-gv-pointer 1)
+	  (maref derivative-gv-pointer 1)
 	  (* 40 (- y dp1)))))
 
 (defun parabaloid-and-derivative
@@ -345,7 +345,7 @@
     parabaloid 2 parabaloid-derivative parabaloid-and-derivative)
 
 (defun multimin-example-fletcher-reeves ()
-  (letm ((initial (vector-double-float #(5.0d0 7.0d0)))
+  (letm ((initial (vector-double-float (a 5.0d0 7.0d0)))
 	 (minimizer
 	  (mfdfminimizer *conjugate-fletcher-reeves* 2 parabaloid
 			 initial 0.01d0 1.0d-4)))
@@ -375,7 +375,7 @@
 (def-minimization-functions parabaloid-f 2)
 
 (defun multimin-example-nelder-mead ()
-  (letm ((initial (vector-double-float #(5.0d0 7.0d0)))
+  (letm ((initial (vector-double-float (a 5.0d0 7.0d0)))
 	 (step-size (vector-double-float 2)))
     (set-all step-size 1.0d0)
     (letm ((minimizer
