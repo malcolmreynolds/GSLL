@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-08-23 14:34:44EDT blas1.lisp>
+;; Time-stamp: <2008-08-31 15:12:31EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -35,13 +35,13 @@
   :documentation			; FDL
   "The complex conjugate scalar product x^H y for the vectors.")
 
-(defmfun euclidean-norm ((vec1 vector) (vec2 vector))
+(defmfun euclidean-norm ((vec vector))
   ("gsl_blas_" :component-float-type :type "nrm2")
-  (((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
-   (result :component-float-type))
+  (((mpointer vec) :pointer))
   :definition :generic
   :element-types :float-complex
-  :inputs (vec1 vec2)
+  :inputs (vec)
+  :c-return :component-float-type
   :documentation			; FDL
   "The Euclidean norm ||x||_2 = \sqrt {\sum x_i^2} of the vector x.")
 

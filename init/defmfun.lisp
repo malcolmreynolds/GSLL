@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-31 10:46:03EDT defmfun.lisp>
+;; Time-stamp: <2008-08-31 15:12:33EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -261,7 +261,7 @@
 		(when (eq c-return :element-c-type)
 		  (setf (getf key-args :c-return) (cl-ffa eltype)))
 		(when (eq c-return :component-float-type)
-		  (setf (getf key-args :c-return) (cl-ffa (component-type eltype))))
+		  (setf (getf key-args :c-return) (component-type eltype)))
 		(if (and (llkp arglist) (listp (first gsl-name))) ; ad-hoc detection!
 		    ;; The methods have optional argument(s) and
 		    ;; multiple GSL functions for presence/absence of
