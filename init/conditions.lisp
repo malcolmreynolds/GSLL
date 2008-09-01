@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2008-03-27 23:07:29EDT conditions.lisp>
+;; Time-stamp: <2008-08-31 22:52:09EDT conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,6 +25,14 @@
 	     (line-number condition))))
   (:documentation
    "A condition that has been signalled by the GNU Scientific Library."))
+
+#|
+;;; This makes the printing of the condition object more informative,
+;;; but also overrides the :report which I don't want to do.
+(defmethod print-object ((object gsl-condition) stream)
+  (print-unreadable-object (object stream :type t :identity t) 
+    (format stream "~a (GSL condition)" (error-text object))))
+|#
 
 (defparameter *errorno-keyword* nil)
 

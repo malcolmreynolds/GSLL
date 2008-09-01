@@ -62,18 +62,15 @@ href="http://www.lispworks.com/documentation/HyperSpec/Body/s_let_l.htm#letST">l
 with the additional feature that if the init-form is one of GSL objects
 
 <pre>
-acceleration basis-spline block-complex block-double-float block-fixnum
-block-single-float chebyshev combination complex-workspace
+acceleration basis-spline chebyshev combination complex-workspace
 discrete-random eigen-herm eigen-hermv eigen-symm eigen-symmv
 fdfsolver fit-workspace fminimizer fsolver hankel histogram
 integration-workspace interpolation levin levin-truncated
-matrix-complex matrix-double-float matrix-fixnum
-matrix-single-float mfdfminimizer mfdfsolver mfminimizer mfsolver
+matrix-* mfdfminimizer mfdfsolver mfminimizer mfsolver
 monte-carlo-miser monte-carlo-plain monte-carlo-vegas
 nonlinear-fdffit nonlinear-ffit permutation
 quasi-random-number-generator random-number-generator spline
-vector-complex vector-double-float vector-fixnum
-vector-single-float wavelet wavelet-workspace
+vector-* wavelet wavelet-workspace
 </pre>
 the appropriate object will be allocated and bound to the variable,
 optionally set, and then freed when the body of the let is exited.
@@ -82,28 +79,70 @@ are functions whose symbols are exported so that an arglist prompt
 will be visible; however, the function should not be used outside a
 <code>letm</code> binding.
 
- <h3>Data: vectors, matrices, etc.</h3>
+ <h3>Data: vectors and matrices</h3>
  <div class="content">
  <p>
- Collectively, vectors, matrices, histograms and the like are called
- <i>data</i>.  There are many different types of vectors and matrices
- supported by GSL, but GSLL has implemented only a few of these:
- complex, double-float, single-float, and fixnum, because those types
- are defined by the Common Lisp standard.
- <p>FIXME Vectors and matrices can be converted to and from their Lisp
- counterparts with <code>data</code> and <code>(setf data)</code>.
- Setting the GSL value to a Lisp value at initialization
- can be done within the <code>letm</code> by giving the Lisp value as
- the first argument after the type, for example
+ Collectively vectors and matrices and are called
+ <i>data</i>.  GSLL supports all element types that are supported by
+ CFFI, the CL implementation, and GSL.  This list is
+ available in the variable <code>*array-element-types*</code>.
+ These arrays are <i>foreign-friendly</i>, meaning that 
+ on platforms that support it (currently only SBCL), the contents are
+ directly available to the GSL functions without copying between the
+ Lisp area and the C area of memory.
+ <p>
+ Common Lisp arrays should be created with <code>make-array*</code>;
+ the syntax is similar to Common Lisp's <code>make-array</code>
+ except that the second argument <code>element-type</code> is
+ mandatory.  If this function is used, the resultant array is
+ foreign friendly.  It can then be used as an argument in the letm
+ binding.  Alternatively, a literal array can be created in the letm
+ binding using the macros <code>a</code> (non-evaluating)
+ or <code>a*</code> (evaluating).
+ <p>
+ Classes of vectors and matrices are names by appending the element
+ type as hypenated words to "vector" or "matrix".  The following table
+ shows the classes available on SBCL on an amd64 platform.
+ <center>
+  <table border=5 frame=all cellpadding=4 cellspacing=4 cols=6>
+    <caption align=top>Element types, vector and matrix
+    classes</caption>
+    <thead>
+      <tr><th>Element type<td><b>Vector class name</b><td><b>Matrix class name</b>
+    </thead>
+	<tbody>
+	  <tr><td>single-float<td>vector-single-float<td>matrix-single-float
+	  <tr><td>double-float<td>vector-double-float<td>matrix-double-float
+	  <tr><td>(complex single-float)<td>vector-complex-single-float<td>matrix-complex-single-float
+	  <tr><td>(complex double-float)<td>vector-complex-double-float<td>matrix-complex-double-float
+	  <tr><td>(signed-byte 8)<td>vector-signed-byte-8<td>matrix-signed-byte-8
+	  <tr><td>(unsigned-byte 8)<td>vector-unsigned-byte-8<td>matrix-unsigned-byte-8
+	  <tr><td>(signed-byte 16)<td>vector-signed-byte-16<td>matrix-signed-byte-16
+	  <tr><td>(unsigned-byte 16)<td>vector-unsigned-byte-16<td>matrix-unsigned-byte-16
+	  <tr><td>(signed-byte 32)<td>vector-signed-byte-32<td>matrix-signed-byte-32
+	  <tr><td>(unsigned-byte 32)<td>vector-unsigned-byte-32<td>matrix-unsigned-byte-32
+	  <tr><td>(signed-byte 64)<td>vector-signed-byte-64<td>matrix-signed-byte-64
+	  <tr><td>(unsigned-byte 64)<td>vector-unsigned-byte-64<td>matrix-unsigned-byte-64
+	</tbody>
+      </table>
+    </center>
+              
+<p>
+ The class name serves as the binding form in the letm.  For example,
+ the following form sums two vectors:
 <pre>
-(letm ((vec (vector-double-float (a -3.21d0 1.0d0 12.8d0))))
-   (???? vec))
+(letm ((vec1 (vector-double-float (a -3.21d0 1.0d0 12.8d0)))
+       (vec2 (vector-double-float (a -1.88d0 -1.0d0 4.1d0))))
+   (m+ vec1 vec2))
+#&lt;VECTOR-DOUBLE-FLOAT #(-5.09d0 0.0d0 16.9d0)&gt;
 </pre>
 <p>
- Individual elements of data may be accessed with <code>maref</code>,
- either directly or in a <code>setf</code>.
- The macro #'a is a convenience for the specification of an array
- with literal content.
+ Individual elements are obtained using <code>maref</code> (analogous
+ to Lisp's <code>aref</code>), and are set
+ with <code>setf maref</code>.  A complete CL array may
+ be extracted with the function <code>#'cl-array</code>.  This array
+ may subsequently be used in later GSL functions by providing it as
+ the argument in the letm binding.
 </p>
 
  <h3>Status</h3>
@@ -113,14 +152,11 @@ will be visible; however, the function should not be used outside a
  on particular chapters:
 <ul>
 <base href="http://www.gnu.org/software/gsl/manual/html_node/">
-<li><a href="Vectors-and-Matrices.html">Vectors and Matrices</a>
-	are done for integer, real, double, complex.
-	 Subvectors and views don't work.  Other element types may be
-        difficult to port due to lack of CL definition.
-<li>Functions that provide file input and output to files are not tested and
- likely will need other definitions (perhaps in C) to function
- properly, unless CFFI and the CL platform provide C stream
- compatibility.
+  <li>Reading and writing through the GSL library is not supported due
+  to lack of support for foreign streams in Lisp.</li>
+  <li>For <a href="Vectors-and-Matrices.html">Vectors and Matrices</a>,
+	 subvectors and views are not defined.  In many functions, the
+	 stride is pre-set to 1. 
 <li><a href="BLAS-Support.html">BLAS</a> is completed, but with only very
  limited testing.
  <li><a href="Fast-Fourier-Transforms.html">FFTs</a> have not been done
@@ -154,7 +190,7 @@ gamma-randist, negative-binomial.
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-      Time-stamp: <2008-08-31 17:21:56EDT documentation.html>
+      Time-stamp: <2008-08-31 18:40:51EDT documentation.html>
       </small>
 <!-- hhmts end -->
  </div>

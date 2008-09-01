@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-31 12:49:38EDT gsll.asd>
+;; Time-stamp: <2008-08-31 22:50:22EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -78,7 +78,7 @@
 	     (:file "zeta" :depends-on (return-structures))))
    (:file "sorting" :depends-on (init data))
    (:module linear-algebra
-	    :depends-on (init data)
+	    :depends-on (init data special-functions)
 	    :components
 	    ((:file "blas1")
 	     (:file "blas2")

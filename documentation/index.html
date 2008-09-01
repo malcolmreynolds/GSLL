@@ -84,15 +84,16 @@ Input domain error |m| > 1.0 in elljac.c at line 46
         <ul>
         <li><a href="http://www.gnu.org/software/gsl/">GSL</a></li>
         <li><a href="http://common-lisp.net/project/cffi/">CFFI</a>
-        (Note: you will need a version <i>newer</i> than the current version
-	0.9.2. Use the darcs repository, a newer tarball, or Debian
-	testing/unstable.)</li>
+	  (Version 0.10.0 or newer,
+	  or <a href="http://packages.debian.org/lenny/cl-cffi">the
+	  version in Debian/lenny</a>)
+	</li>
         <li><a href="http://www.cliki.net/asdf">ASDF</a>
           </ul>
       <p>
-        In <a href="http://www.debian.org">Debian</a> unstable or testing,
+        In <a href="http://www.debian.org">Debian</a> Lenny (5.0) or newer,
         the following should work:</p>
-      <blockquote><pre>apt-get install <a
+      <blockquote><pre>aptitude install <a
         href="http://packages.debian.org/lenny/libgsl0ldbl">libgsl0ldbl</a> <a href="http://packages.debian.org/lenny/cl-cffi">cl-cffi</a></pre></blockquote>
       (asdf is automatically installed with your CL implementation).
       Once your CL implementation is running, do
@@ -111,20 +112,6 @@ Input domain error |m| > 1.0 in elljac.c at line 46
  <div class="content">
  <p>You may browse or download as follows:</p>
  <ul>
- <li><a href="http://subversion.tigris.org/">Subversion</a>:
-	  Repository at
-	  svn://common-lisp.net/project/gsll/svn/trunk.  For
-	  example, 
-<pre>
-svn list svn://common-lisp.net/project/gsll/svn/trunk
-svn checkout svn://common-lisp.net/project/gsll/svn/trunk gsll
-</pre>
- <li>Web:
-	<a href="http://trac.common-lisp.net/gsll/browser/trunk">browse</a>
-	using Trac.
- <li>Git: Thanks to Leonardo Varuzza, who is maintaining a 
- <a href="http://www.lambdatau.com/git/gsll.git">git mirror</a>
- of the Subversion repository.
  </ul>
  <p>Due to frequent changes, no tarballs are yet available.</p>
  </div>
@@ -144,12 +131,12 @@ svn checkout svn://common-lisp.net/project/gsll/svn/trunk gsll
 
  <h3>Similar or related projects from others</h3>
   <div class="content">
-  A partial automatically-generated interface to GSL is provided in <a
-  href="http://common-lisp.net/project/cl-gsl/">cl-gsl</a>.
   A Matlab-like array syntax and plotting is provided by
   <a href="http://nlisp.info/">NLISP</a> which might work well with
   GSLL.  Other numerical mathematics software for Lisp may be found 
   <a href="http://www.cliki.net/Mathematics">on Clicki</a>. 
+  A partial interface to GSL is provided in <a
+  href="http://common-lisp.net/project/cl-gsl/">cl-gsl</a>.
   </div>
 
  <div class="footer">
@@ -158,7 +145,7 @@ svn checkout svn://common-lisp.net/project/gsll/svn/trunk gsll
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-03-27 23:08:11EDT index.html>
+       Time-stamp: <2008-08-31 22:54:34EDT index.html>
        </small>
 <!-- hhmts end -->
  </div>
