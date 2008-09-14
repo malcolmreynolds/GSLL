@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-08-27 20:57:18EDT element-types.lisp>
+;; Time-stamp: <2008-09-14 18:09:39EDT element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -302,6 +302,17 @@
 (defparameter *double-types*
   (list 'double-float '(complex double-float))
   "All the supported double float element types.")
+
+(defun element-types (element-types)
+  "All the element types available of a given category."
+  (case element-types
+    ((nil t) *array-element-types*)
+    (:no-complex *array-element-types-no-complex*)
+    (:float *float-types*)
+    (:complex *complex-types*)
+    (:float-complex *float-complex-types*)
+    (:doubles *double-types*)
+    (t element-types)))
 
 ;;;;****************************************************************************
 ;;;; Types for CFFI (will eventually be in CFFI)

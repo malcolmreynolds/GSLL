@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT ffa.lisp
-;; Time-stamp: <2008-07-01 21:26:21EDT foreign-friendly.lisp>
+;; Time-stamp: <2008-09-14 16:16:50EDT foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Use Papp's Foreign-friendly arrays
@@ -54,7 +54,14 @@ defined in ffa will be usable.
   (assert (member element-type *array-element-types* :test 'equal)
 	  (element-type) "Specified element-type must be one of *array-element-types*.")
   (if initial-contents-p
-      (ffa:make-ffa dimensions element-type :initial-contents initial-contents)
+      (if (and (subtypep element-type 'complex)
+	       (= (length initial-contents)
+		  (* 2 (if (listp dimensions) (apply #'* dimensions) dimensions))))
+	  (ffa:make-ffa dimensions element-type
+			:initial-contents
+			(loop for (re im) on initial-contents by #'cddr
+			   collect (complex re im)))
+	  (ffa:make-ffa dimensions element-type :initial-contents initial-contents))
       (if initial-element-p
 	  (ffa:make-ffa dimensions element-type :initial-element initial-element)
 	  (ffa:make-ffa dimensions element-type))))

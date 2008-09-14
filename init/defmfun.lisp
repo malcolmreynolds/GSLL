@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-08-31 15:12:33EDT defmfun.lisp>
+;; Time-stamp: <2008-09-14 18:10:43EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -283,14 +283,7 @@
 		     (actual-gfn gsl-name)
 		     (actual-element-c-type eltype c-arguments)
 		     key-args))))
-	    (case element-types
-	      ((nil t) *array-element-types*)
-	      (:no-complex *array-element-types-no-complex*)
-	      (:float *float-types*)
-	      (:complex *complex-types*)
-	      (:float-complex *float-complex-types*)
-	      (:doubles *double-types*)
-	      (t element-types)))))
+	    (element-types element-types))))
 
 (defun actual-gsl-function-name (base-name category type)
   "Create the GSL or BLAS function name for data from the base name
