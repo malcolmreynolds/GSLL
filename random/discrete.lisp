@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-08-16 18:48:55EDT discrete.lisp>
+;; Time-stamp: <2008-09-14 21:44:32EDT discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -54,13 +54,13 @@
 (make-tests discrete
    ;; Must have two letms because the vector value is not set until
    ;; the body, but the discrete-random needs that set value.
-   (letm ((probabilities (vector-double-float #(0.25d0 0.5d0 0.25d0))))
+   (letm ((probabilities (vector-double-float (a 0.25d0 0.5d0 0.25d0))))
      (letm ((table (discrete-random probabilities))
 	    (rng (random-number-generator *mt19937* 0)))
        (loop for i from 0 to 10
 	     collect
 	     (discrete rng table))))
-   (letm ((probabilities (vector-double-float #(0.25d0 0.5d0 0.25d0))))
+   (letm ((probabilities (vector-double-float (a 0.25d0 0.5d0 0.25d0))))
       (letm ((table (discrete-random probabilities)))
 	(discrete-pdf 1 table))))
 |#
@@ -69,16 +69,16 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST (LIST 1 0 1 1 0 1 1 2 1 2 2))
    (MULTIPLE-VALUE-LIST
-    (LETM ((PROBABILITIES
-	    (VECTOR-DOUBLE-FLOAT #(0.25d0 0.5d0 0.25d0))))
+    (LETM ((PROBABILITIES (VECTOR-DOUBLE-FLOAT (A 0.25d0 0.5d0 0.25d0))))
       (LETM ((TABLE (DISCRETE-RANDOM PROBABILITIES))
-	     (RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+	   (RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
 	(LOOP FOR I FROM 0 TO 10 COLLECT
-	      (DISCRETE RNG TABLE))))))
+	     (DISCRETE RNG TABLE))))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.5d0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((PROBABILITIES (VECTOR-DOUBLE-FLOAT #(0.25d0 0.5d0 0.25d0))))
+    (LETM ((PROBABILITIES (VECTOR-DOUBLE-FLOAT (A 0.25d0 0.5d0 0.25d0))))
       (LETM ((TABLE (DISCRETE-RANDOM PROBABILITIES)))
 	(DISCRETE-PDF 1 TABLE))))))
+
 

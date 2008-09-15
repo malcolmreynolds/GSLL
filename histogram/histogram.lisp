@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-08-31 11:03:07EDT histogram.lisp>
+;; Time-stamp: <2008-09-14 22:06:19EDT histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -32,8 +32,7 @@
    pointer
    :ENOMEM
    (format nil "for ~a."
-	   (with-output-to-string (stream)
-	     (print-data-object object nil stream))))
+	   (with-output-to-string (stream) (princ object stream))))
   (setf (mpointer object) pointer))
 
 (defmfun alloc-histo-1 (object)

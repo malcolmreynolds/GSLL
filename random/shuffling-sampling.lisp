@@ -1,6 +1,6 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
-;; Time-stamp: <2008-08-16 18:55:38EDT shuffling-sampling.lisp>
+;; Time-stamp: <2008-09-14 21:41:43EDT shuffling-sampling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -72,7 +72,6 @@
 	(v2 (vector-fixnum 10)))
    (sample rng v2 v1)
    (data v2)))
-|#
 
 (LISP-UNIT:DEFINE-TEST SHUFFLING-SAMPLING
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -99,3 +98,4 @@
 	 (V1 (VECTOR-FIXNUM #(1 2 3 4 5 6 7 8)))
 	 (V2 (VECTOR-FIXNUM 10)))
       (SAMPLE RNG V2 V1) (DATA V2)))))
+|#

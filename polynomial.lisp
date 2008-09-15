@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-07-06 16:57:52EDT polynomial.lisp>
+;; Time-stamp: <2008-09-14 22:01:10EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -173,8 +173,8 @@
 
 #|
 (make-tests polynomial
- (letm ((xa (vector-double-float #(0.0d0 1.0d0 2.0d0 3.0d0)))
-	(ya (vector-double-float #(2.5d0 7.2d0 32.7d0 91.0d0)))
+ (letm ((xa (vector-double-float (a 0.0d0 1.0d0 2.0d0 3.0d0)))
+	(ya (vector-double-float (a 2.5d0 7.2d0 32.7d0 91.0d0)))
 	(dd (vector-double-float 4)))
    (divided-difference dd xa ya)
    (list
@@ -182,7 +182,7 @@
     (polynomial-eval-divided-difference dd xa 1.0d0)
     (polynomial-eval-divided-difference dd xa 2.0d0)
     (polynomial-eval-divided-difference dd xa 3.0d0)))
- (letm ((vec (vector-double-float #(1.0d0 2.0d0 3.0d0))))
+ (letm ((vec (vector-double-float (a 1.0d0 2.0d0 3.0d0))))
    (polynomial-eval vec -1.0d0))
  (solve-quadratic 1.0d0 0.0d0 1.0d0)
  (solve-quadratic 1.0d0 -2.0d0 1.0d0)
@@ -190,7 +190,7 @@
  (solve-cubic -6.0d0 -13.0d0 42.0d0)
  (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)
  ;; Example from GSL manual
- (polynomial-solve #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
+ (polynomial-solve (a double-float -1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
 |#
 
 (LISP-UNIT:DEFINE-TEST POLYNOMIAL
@@ -198,8 +198,8 @@
    (LIST (LIST 2.5d0 7.2d0 32.7d0 91.0d0))
    (MULTIPLE-VALUE-LIST
     (LETM
-	((XA (VECTOR-DOUBLE-FLOAT #(0.0d0 1.0d0 2.0d0 3.0d0)))
-	 (YA (VECTOR-DOUBLE-FLOAT #(2.5d0 7.2d0 32.7d0 91.0d0)))
+	((XA (VECTOR-DOUBLE-FLOAT (A 0.0d0 1.0d0 2.0d0 3.0d0)))
+	 (YA (VECTOR-DOUBLE-FLOAT (A 2.5d0 7.2d0 32.7d0 91.0d0)))
 	 (DD (VECTOR-DOUBLE-FLOAT 4)))
       (DIVIDED-DIFFERENCE DD XA YA)
       (LIST
@@ -210,7 +210,7 @@
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 2.0d0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT (A 1.0d0 2.0d0 3.0d0))))
       (POLYNOMIAL-EVAL VEC -1.0d0))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST (LIST) (LIST))
@@ -242,4 +242,4 @@
 	 #C(0.9999999999999999d0 0.0d0))
    (MULTIPLE-VALUE-LIST
     (POLYNOMIAL-SOLVE
-     #(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))))
+     (A DOUBLE-FLOAT -1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))))

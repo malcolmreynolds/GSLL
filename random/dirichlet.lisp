@@ -1,6 +1,6 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-08-16 18:45:15EDT dirichlet.lisp>
+;; Time-stamp: <2008-09-14 22:08:40EDT dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,15 +58,15 @@
 #|
 (make-tests dirichlet
   (letm ((rng (random-number-generator *mt19937* 0))
-	   (alpha (vector-double-float #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	   (alpha (vector-double-float (a 1.0d0 2.0d0 3.0d0 4.0d0)))
 	   (theta (vector-double-float 4)))
       (dirichlet rng alpha theta)
-      (data theta))
-  (letm ((alpha (vector-double-float #(1.0d0 2.0d0 3.0d0 4.0d0)))
-	  (theta (vector-double-float #(0.1d0 0.3d0 0.4d0 0.2d0))))
+      (cl-array theta))
+  (letm ((alpha (vector-double-float (a 1.0d0 2.0d0 3.0d0 4.0d0)))
+	  (theta (vector-double-float (a 0.1d0 0.3d0 0.4d0 0.2d0))))
      (dirichlet-pdf alpha theta))
-  (letm ((alpha (vector-double-float #(1.0d0 2.0d0 3.0d0 4.0d0)))
-	  (theta (vector-double-float #(0.1d0 0.3d0 0.4d0 0.2d0))))
+  (letm ((alpha (vector-double-float (a 1.0d0 2.0d0 3.0d0 4.0d0)))
+	  (theta (vector-double-float (a 0.1d0 0.3d0 0.4d0 0.2d0))))
      (dirichlet-log-pdf alpha theta)))
 |#
 
@@ -78,21 +78,21 @@
    (MULTIPLE-VALUE-LIST
     (LETM
 	((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
-	 (ALPHA (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0 4.0d0)))
+	 (ALPHA (VECTOR-DOUBLE-FLOAT (A 1.0d0 2.0d0 3.0d0 4.0d0)))
 	 (THETA (VECTOR-DOUBLE-FLOAT 4)))
-      (DIRICHLET RNG ALPHA THETA) (DATA THETA))))
+      (DIRICHLET RNG ALPHA THETA) (CL-ARRAY THETA))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 2.8800000000000043d0)
    (MULTIPLE-VALUE-LIST
     (LETM
-	((ALPHA (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0 4.0d0)))
-	 (THETA (VECTOR-DOUBLE-FLOAT #(0.1d0 0.3d0 0.4d0 0.2d0))))
+	((ALPHA (VECTOR-DOUBLE-FLOAT (A 1.0d0 2.0d0 3.0d0 4.0d0)))
+	 (THETA (VECTOR-DOUBLE-FLOAT (A 0.1d0 0.3d0 0.4d0 0.2d0))))
       (DIRICHLET-PDF ALPHA THETA))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 1.057790294147856d0)
    (MULTIPLE-VALUE-LIST
     (LETM
-	((ALPHA (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0 4.0d0)))
-	 (THETA (VECTOR-DOUBLE-FLOAT #(0.1d0 0.3d0 0.4d0 0.2d0))))
+	((ALPHA (VECTOR-DOUBLE-FLOAT (A 1.0d0 2.0d0 3.0d0 4.0d0)))
+	 (THETA (VECTOR-DOUBLE-FLOAT (A 0.1d0 0.3d0 0.4d0 0.2d0))))
       (DIRICHLET-LOG-PDF ALPHA THETA)))))
 

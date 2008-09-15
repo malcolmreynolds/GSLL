@@ -1,11 +1,11 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-08-28 21:54:43EDT updating-accessing.lisp>
+;; Time-stamp: <2008-09-14 22:04:40EDT updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun increment-fix (histogram value &optional weight)
+(defmfun increment (histogram value &optional weight)
   ("gsl_histogram_increment" "gsl_histogram_accumulate")
   ((((mpointer histogram) :pointer) (value :double))
    (((mpointer histogram) :pointer) (value :double) (weight :double)))
@@ -26,7 +26,7 @@
 
 (defmfun maref ((histogram histogram) i &optional i2 element-type)
   "gsl_histogram_get"
-  (((mpointer histogram) :pointer) ((first i) sizet))
+  (((mpointer histogram) :pointer) (i sizet))
   :definition :method 
   :c-return :double
   :documentation			; FDL
@@ -130,7 +130,7 @@
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
-   (values (gsl-min-range histo) (gsl-max-range histo)))
+   (values (min-range histo) (max-range histo)))
  (letm ((histo (histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
@@ -187,8 +187,8 @@
       (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
       (INCREMENT HISTO 2.7d0)
       (INCREMENT HISTO 6.9d0 2.0d0)
-      (VALUES (GSL-MIN-RANGE HISTO)
-	      (GSL-MAX-RANGE HISTO)))))
+      (VALUES (MIN-RANGE HISTO)
+	      (MAX-RANGE HISTO)))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 10)
    (MULTIPLE-VALUE-LIST

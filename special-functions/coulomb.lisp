@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-07-08 21:46:07EDT coulomb.lisp>
+;; Time-stamp: <2008-09-14 22:29:18EDT coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -133,17 +133,17 @@
   (hydrogenicr 3 1 1.0d0 2.5d0)
   (coulomb-wave-FG 0.0d0 1.0d0 2.0d0 0)
   (letm ((arr (vector-double-float 3)))
-    (coulomb-wave-F-array  0.0d0 1.0d0 2.0d0 arr)
-    (data arr))
+    (coulomb-wave-F-array 0.0d0 1.0d0 2.0d0 arr)
+    (cl-array arr))
   (coulomb-wave-fg 1.0d0 2.0d0 2.5d0 1)
   (letm ((Farr (vector-double-float 3)) (Garr (vector-double-float 3)))
     (coulomb-wave-FG-array 1.5d0 1.0d0 1.0d0 Farr Garr)
-    (append (coerce (data Farr) 'list) (coerce (data Garr) 'list)))
+    (append (coerce (cl-array Farr) 'list) (coerce (cl-array Garr) 'list)))
   (letm ((arr (vector-double-float 3)))
-    (coulomb-wave-sphF-array  0.0d0 1.0d0 2.0d0 arr) (data arr))
+    (coulomb-wave-sphF-array  0.0d0 1.0d0 2.0d0 arr) (cl-array arr))
   (coulomb-cl 1.0d0 2.5d0)
   (letm ((cl (vector-double-float 3)))
-    (coulomb-CL-array 0.0d0 1.0d0 cl) (data cl)))
+    (coulomb-CL-array 0.0d0 1.0d0 cl) (cl-array cl)))
 |#
 
 #|
@@ -169,7 +169,7 @@
    (MULTIPLE-VALUE-LIST
     (LETM ((ARR (VECTOR-DOUBLE-FLOAT 3)))
       (COULOMB-WAVE-F-ARRAY 0.0d0 1.0d0 2.0d0 ARR)
-      (DATA ARR))))
+      (CL-ARRAY ARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.07161779967468254d0 0.1278101031568499d0
 	 2.2510703464871114d0 -1.4245543587641651d0 0.0d0
@@ -187,8 +187,8 @@
     (LETM
 	((FARR (VECTOR-DOUBLE-FLOAT 3)) (GARR (VECTOR-DOUBLE-FLOAT 3)))
       (COULOMB-WAVE-FG-ARRAY 1.5d0 1.0d0 1.0d0 FARR GARR)
-      (APPEND (COERCE (DATA FARR) 'LIST)
-	      (COERCE (DATA GARR) 'LIST)))))
+      (APPEND (COERCE (CL-ARRAY FARR) 'LIST)
+	      (COERCE (CL-ARRAY GARR) 'LIST)))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST
     #(0.33089080691634065d0 0.18070642887252675d0
@@ -196,7 +196,7 @@
    (MULTIPLE-VALUE-LIST
     (LETM ((ARR (VECTOR-DOUBLE-FLOAT 3)))
       (COULOMB-WAVE-SPHF-ARRAY 0.0d0 1.0d0 2.0d0 ARR)
-      (DATA ARR))))
+      (CL-ARRAY ARR))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.0013809146441856027d0 2.759621819430441d-17)
    (MULTIPLE-VALUE-LIST (COULOMB-CL 1.0d0 2.5d0)))
@@ -206,6 +206,6 @@
       0.011428736368066591d0))
    (MULTIPLE-VALUE-LIST
     (LETM ((CL (VECTOR-DOUBLE-FLOAT 3)))
-      (COULOMB-CL-ARRAY 0.0d0 1.0d0 CL) (DATA CL)))))
+      (COULOMB-CL-ARRAY 0.0d0 1.0d0 CL) (CL-ARRAY CL)))))
 |#
 

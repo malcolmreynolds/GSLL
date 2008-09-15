@@ -1,6 +1,6 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-08-16 18:52:11EDT multinomial.lisp>
+;; Time-stamp: <2008-09-14 21:40:55EDT multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -51,19 +51,16 @@
 #|
 (make-tests multinomial
   (letm ((rng (random-number-generator *mt19937* 0))
-	  (p (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0)))
+	  (p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
 	  (n (vector-fixnum 4)))
      (multinomial rng 8 p n)
-     (data n))
-  (letm ((p (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0)))
-	  (n (vector-fixnum 4)))
-     (setf (data n) #(5 0 1 2))
+     (cl-array n))
+  (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
+	  (n (vector-fixnum 4) (a 5 0 1 2)))
      (multinomial-pdf p N))
-  (letm ((p (vector-double-float #(0.1d0 0.2d0 0.3d0 0.4d0)))
-	  (n (vector-fixnum 4)))
-     (setf (data n) #(5 0 1 2))
+  (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
+	  (n (vector-fixnum 4) (a 5 0 1 2)))
      (multinomial-log-pdf p n)))
-|#
 
 (LISP-UNIT:DEFINE-TEST MULTINOMIAL
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -90,3 +87,4 @@
       (SETF (DATA N) #(5 0 1 2))
       (MULTINOMIAL-LOG-PDF P N)))))
 
+|#

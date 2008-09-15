@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-08-16 20:17:54EDT quasi.lisp>
+;; Time-stamp: <2008-09-14 22:01:42EDT quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -132,7 +132,7 @@
 	  (vec (vector-double-float 2)))
      (loop repeat 5
 	   do (qrng-get gen vec)
-	   append (coerce (data vec) 'list))))
+	   append (coerce (cl-array vec) 'list))))
 |#
 
 (LISP-UNIT:DEFINE-TEST QUASI-RANDOM-NUMBER-GENERATORS
@@ -145,5 +145,5 @@
 	((GEN (QUASI-RANDOM-NUMBER-GENERATOR 2 *SOBOL*))
 	 (VEC (VECTOR-DOUBLE-FLOAT 2)))
       (LOOP REPEAT 5 DO (QRNG-GET GEN VEC) APPEND
-	    (COERCE (DATA VEC) 'LIST))))))
+	    (COERCE (CL-ARRAY VEC) 'LIST))))))
 

@@ -1,6 +1,6 @@
 ;; Gegenbauer polynomials
 ;; Liam Healy, Fri Apr 28 2006 - 20:40
-;; Time-stamp: <2008-07-08 21:53:11EDT gegenbauer.lisp>
+;; Time-stamp: <2008-09-14 21:38:13EDT gegenbauer.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -50,7 +50,7 @@
   (gegenbauer-3 1.0d0 3.0d0)
   (gegenbauer 4 1.0d0 3.0d0)
   (letm ((arr (vector-double-float 4)))
-      (gegenbauer-array 1.0d0 3.0d0 arr) (data arr)))
+      (gegenbauer-array 1.0d0 3.0d0 arr) (cl-array arr)))
 |#
 
 (LISP-UNIT:DEFINE-TEST GEGENBAUER
@@ -70,4 +70,4 @@
    (LIST #(1.0d0 6.0d0 35.0d0 204.0d0))
    (MULTIPLE-VALUE-LIST
     (LETM ((ARR (VECTOR-DOUBLE-FLOAT 4)))
-      (GEGENBAUER-ARRAY 1.0d0 3.0d0 ARR) (DATA ARR)))))
+      (GEGENBAUER-ARRAY 1.0d0 3.0d0 ARR) (CL-ARRAY ARR)))))

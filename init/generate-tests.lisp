@@ -1,6 +1,6 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-09-14 18:14:17EDT generate-tests.lisp>
+;; Time-stamp: <2008-09-14 18:22:22EDT generate-tests.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -103,6 +103,7 @@
 
 
 
+#|
 ;;;;;;;;;;
 
 ;;; doesn't work for complex because:
@@ -111,7 +112,7 @@
  '(letm ((v1 (vector-default 3 t))
 	 (v2 (vector-default 3)))
    (set-all v1 (scalar-default 2))
-   (m+ v1 v2))))
+   (m+ v1 v2)))
 
 
 ;;; doesn't work for complex because GSL 
@@ -119,3 +120,5 @@
  '(letm ((v1 (vector-default 3))
 	 (v2 (vector-default 3)))
    (m+ v1 v2)))
+
+|#
