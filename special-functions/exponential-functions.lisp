@@ -1,6 +1,6 @@
 ;; Exponential functions
 ;; Liam Healy, Tue Mar 21 2006 - 17:05
-;; Time-stamp: <2008-02-16 21:01:05EST exponential-functions.lisp>
+;; Time-stamp: <2008-09-16 22:51:18EDT exponential-functions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -97,7 +97,7 @@
 #|
 (make-tests exponential-functions
   (gsl-exp 3.0d0)
-  (exp-scaled 555.0d0)
+  (exp-scaled 2000.0d0)
   (exp-mult 101.0d0 5.0d0)
   (exp-mult-scaled 555.0d0 101.0d0)
   (expm1 0.0001d0)
@@ -113,8 +113,8 @@
    (LIST 20.085536923187668d0 8.91977022163267d-15)
    (MULTIPLE-VALUE-LIST (GSL-EXP 3.0d0)))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 1.0800340716201098d0 241 2.666751014771678d-13)
-   (MULTIPLE-VALUE-LIST (EXP-SCALED 555.0d0)))
+   (LIST 3.8811801942838993 868 3.448904081776264e-12)
+   (MULTIPLE-VALUE-LIST (EXP-SCALED 2000.0)))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 3.6535299896840335d44 8.355840218353793d30)
    (MULTIPLE-VALUE-LIST (EXP-MULT 101.0d0 5.0d0)))

@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-09-14 21:55:47EDT numerical-integration.lisp>
+;; Time-stamp: <2008-09-16 22:43:59EDT numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -50,7 +50,7 @@
 
 (defmfun integration-workspace-free (pointer)
   "gsl_integration_workspace_free"
-  ((mpointer :pointer))
+  ((pointer :pointer))
   :c-return :void
   :export nil
   :index (letm integration-workspace)
@@ -234,6 +234,8 @@
   (letm ((ws (integration-workspace 20)))
      (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws)))
 
+|#
+
 (LISP-UNIT:DEFINE-TEST NUMERICAL-INTEGRATION
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 2.0d0 2.220446049250313d-14 21)
@@ -249,5 +251,3 @@
    'GSL-CONDITION
    (LETM ((WS (INTEGRATION-WORKSPACE 20)))
      (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 50 WS))))
-
-|#
