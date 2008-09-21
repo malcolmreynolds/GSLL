@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-09-14 22:29:18EDT coulomb.lisp>
+;; Time-stamp: <2008-09-20 22:08:50EDT coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -146,7 +146,6 @@
     (coulomb-CL-array 0.0d0 1.0d0 cl) (cl-array cl)))
 |#
 
-#|
 (LISP-UNIT:DEFINE-TEST COULOMB
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.1641699972477976d0 1.8226531089715347d-16)
@@ -207,5 +206,3 @@
    (MULTIPLE-VALUE-LIST
     (LETM ((CL (VECTOR-DOUBLE-FLOAT 3)))
       (COULOMB-CL-ARRAY 0.0d0 1.0d0 CL) (CL-ARRAY CL)))))
-|#
-

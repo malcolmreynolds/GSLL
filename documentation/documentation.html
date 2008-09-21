@@ -145,6 +145,16 @@ will be visible; however, the function should not be used outside a
  the argument in the letm binding.
 </p>
 
+ <h3>Additional definitions</h3>
+Some definitions are provided because of their usefulness, even though
+GSL doesn't have them.  
+<ul>
+  <li><code>invert-matrix</code> finds the inverse of a matrix and uses
+  GSL's LU decomposition functions.</li>
+  <li>IEEE floating point number analysis.</li>
+</ul>
+
+
  <h3>Status</h3>
  <div class="content">
  Consistent with the <a href="development.html">development</a>
@@ -190,7 +200,7 @@ gamma-randist, negative-binomial.
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-      Time-stamp: <2008-08-31 18:40:51EDT documentation.html>
+      Time-stamp: <2008-09-21 15:37:13EDT documentation.html>
       </small>
 <!-- hhmts end -->
  </div>

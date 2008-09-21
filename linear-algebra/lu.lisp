@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-08-11 23:10:56EDT lu.lisp>
+;; Time-stamp: <2008-09-21 15:25:09EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -133,6 +133,7 @@
 
 ;;; Examples and unit test
 
+(export 'invert-matrix)
 (defun invert-matrix (mat)
   "Invert the matrix."
   (letm ((mmat (matrix-double-float mat))
@@ -149,3 +150,12 @@
 	     (make-array* '(2 2) 'double-float :initial-contents '(1.0d0 2.0d0 3.0d0 4.0d0))))
 |#
 
+(LISP-UNIT:DEFINE-TEST LU
+  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+   (LIST
+    #2A((-1.9999999999999998 1.0)
+	(1.4999999999999998 -0.49999999999999994)))
+   (MULTIPLE-VALUE-LIST
+    (INVERT-MATRIX
+     (MAKE-ARRAY* '(2 2) 'DOUBLE-FLOAT :INITIAL-CONTENTS
+		  '(1.0 2.0 3.0 4.0))))))

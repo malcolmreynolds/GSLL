@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-07-12 14:12:36EDT permutation.lisp>
+;; Time-stamp: <2008-09-20 21:59:49EDT permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -269,12 +269,12 @@
  (letm ((perm-1 (permutation 4 t)))	;maref
    (set-identity perm-1)
    (maref perm-1 2))
- (letm ((perm-1 (permutation 4 t)))	;data
+ (letm ((perm-1 (permutation 4 t)))	;cl-array
    (set-identity perm-1)
-   (data perm-1))
+   (cl-array perm-1))
  (letm ((perm-1 (permutation 4 t)))	;permutation-reverse
    (set-identity perm-1)
-   (data (permutation-reverse perm-1)))
+   (cl-array (permutation-reverse perm-1)))
  (letm				;permutation-next, permutation-inverse
      ((perm-1 (permutation 4 t)) (perm-2 (permutation 4 t)))
    (set-identity perm-1)
@@ -282,18 +282,18 @@
    (permutation-next perm-1)
    (permutation-next perm-1)
    (permutation-inverse perm-2 perm-1)
-   (data perm-2))
+   (cl-array perm-2))
  (letm ((perm-1 (permutation 4 t)))	;swap-elements
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
-   (data perm-1))
+   (cl-array perm-1))
  (letm ((perm-1 (permutation 4 t))	;permute-vector
-	(intvec (vector-fixnum #(11 22 33 44))))
+	(intvec (vector-signed-byte-32 (a 11 22 33 44))))
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (swap-elements perm-1 0 2)
    (permute-vector perm-1 intvec)
-   (data intvec))
+   (cl-array intvec))
  (letm ((perm-1 (permutation 4 t)))	;inversions
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
@@ -309,7 +309,6 @@
    (canonical-cycles perm-1)))
 |#
 
-#|
 (LISP-UNIT:DEFINE-TEST PERMUTATION
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 2)
@@ -322,14 +321,14 @@
    (MULTIPLE-VALUE-LIST
     (LETM ((PERM-1 (PERMUTATION 4 T)))
       (SET-IDENTITY PERM-1)
-      (DATA PERM-1))))
+      (CL-ARRAY PERM-1))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(3 2 1 0))
    (MULTIPLE-VALUE-LIST
     (LETM ((PERM-1 (PERMUTATION 4 T)))
       (SET-IDENTITY
        PERM-1)
-      (DATA (PERMUTATION-REVERSE PERM-1)))))
+      (CL-ARRAY (PERMUTATION-REVERSE PERM-1)))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(0 3 1 2))
    (MULTIPLE-VALUE-LIST
@@ -340,25 +339,25 @@
       (PERMUTATION-NEXT PERM-1)
       (PERMUTATION-NEXT PERM-1)
       (PERMUTATION-INVERSE PERM-2 PERM-1)
-      (DATA PERM-2))))
+      (CL-ARRAY PERM-2))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(0 3 2 1))
    (MULTIPLE-VALUE-LIST
     (LETM ((PERM-1 (PERMUTATION 4 T)))
       (SET-IDENTITY PERM-1)
       (SWAP-ELEMENTS PERM-1 1 3)
-      (DATA PERM-1))))
+      (CL-ARRAY PERM-1))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST #(33 44 11 22))
    (MULTIPLE-VALUE-LIST
     (LETM ((PERM-1 (PERMUTATION 4 T))
-	 (INTVEC (VECTOR-FIXNUM
-	   #(11 22 33 44))))
+	 (INTVEC (VECTOR-SIGNED-BYTE-32
+	   (A 11 22 33 44))))
       (SET-IDENTITY PERM-1)
       (SWAP-ELEMENTS PERM-1 1 3)
       (SWAP-ELEMENTS PERM-1 0 2)
       (PERMUTE-VECTOR PERM-1 INTVEC)
-      (DATA INTVEC))))
+      (CL-ARRAY INTVEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 3)
    (MULTIPLE-VALUE-LIST
@@ -381,5 +380,4 @@
       (SWAP-ELEMENTS PERM-1 1 3)
       (SWAP-ELEMENTS PERM-1 0 2)
       (CANONICAL-CYCLES PERM-1)))))
-|#
 

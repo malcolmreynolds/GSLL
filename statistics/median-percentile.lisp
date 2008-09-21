@@ -1,6 +1,6 @@
 ;; Median and percentile
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-08-20 22:35:08EDT median-percentile.lisp>
+;; Time-stamp: <2008-09-21 15:58:10EDT median-percentile.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -54,22 +54,22 @@
 
 #|
 (make-tests median-percentile
-  (letm ((vec (vector-double-float #(-3.21d0 1.0d0 12.8d0))))
+  (letm ((vec (vector-double-float (a -3.21d0 1.0d0 12.8d0))))
      (median vec))
   (letm ((vec (vector-double-float
-	       #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
+	       (a -18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
      (quantile vec 0.75d0)))
+|#
 
 (LISP-UNIT:DEFINE-TEST MEDIAN-PERCENTILE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 1.0d0)
    (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT #(-3.21d0 1.0d0 12.8d0))))
+    (LETM ((VEC (VECTOR-DOUBLE-FLOAT (A -3.21d0 1.0d0 12.8d0))))
       (MEDIAN VEC))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 1.85d0)
    (MULTIPLE-VALUE-LIST
     (LETM ((VEC (VECTOR-DOUBLE-FLOAT
-		 #(-18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
+		 (A -18.0d0 -12.0d0 -3.21d0 0.5d0 1.0d0 2.7d0 12.8d0))))
       (QUANTILE VEC 0.75d0)))))
-|#
