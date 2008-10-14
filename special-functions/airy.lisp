@@ -1,6 +1,6 @@
 ;; Airy functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:41
-;; Time-stamp: <2008-08-10 17:50:02EDT airy.lisp>
+;; Time-stamp: <2008-10-13 10:07:52EDT airy.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -80,6 +80,20 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
+(save-tests airy
+  (airy-ai 2.5d0)
+  (airy-bi 2.5d0)
+  (airy-ai-scaled 2.5d0)
+  (airy-bi-scaled 2.5d0)
+  (airy-ai-deriv 2.5d0)
+  (airy-bi-deriv 2.5d0)
+  (airy-ai-deriv-scaled 2.5d0)
+  (airy-bi-deriv-scaled 2.5d0)
+  (airy-zero-ai 1)
+  (airy-zero-bi 1)
+  (airy-zero-ai-deriv 1)
+  (airy-zero-bi-deriv 1))
+
 #|
 (make-tests airy
   (airy-ai 2.5d0)
@@ -146,3 +160,6 @@ Out[6]= -0.02625088103590323
 In[7]:= AiryBiPrime[2.5]
 Out[7]= 9.4214233173343
 |#
+
+
+

@@ -1,9 +1,64 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-09-14 18:22:22EDT generate-tests.lisp>
+;; Time-stamp: <2008-10-13 16:28:20EDT generate-tests.lisp>
 ;; $Id: $
 
 (in-package :gsl)
+
+;;;;****************************************************************************
+;;;; Data pool 
+;;;;****************************************************************************
+
+;;; (make-test '(legendre-conicalP-half 3.5d0 10.0d0))
+(defun make-test (form)
+  "Make a test for lisp-unit."
+  (let ((vals (multiple-value-list (ignore-errors (eval form)))))
+    (if (typep (second vals) 'condition)
+	`(lisp-unit::assert-error
+	  ',(type-of (second vals))
+	  ,form)
+	`(lisp-unit::assert-numerical-equal
+	  ,(numerical-serialize vals)
+	  (multiple-value-list ,form)))))
+
+(defmacro make-tests (name &rest forms)
+  (append
+   `(lisp-unit:define-test ,name)
+   (mapcar #'make-test forms)))
+
+(defparameter *all-generated-tests* nil) 
+(defmacro save-tests (name &rest forms)
+  "Save the each of the tests with the given name."
+  `(setf
+    (getf *all-generated-tests* ',name)
+    (remove-duplicates
+     (append
+      ',forms
+      (getf *all-generated-tests* ',name))
+     :test #'equal)))
+
+(defun create-test (test-name)
+  "Find the saved test by name and create it, with the generated results."
+  (append
+   `(lisp-unit:define-test ,test-name)
+   (mapcar #'make-test (getf *all-generated-tests* test-name))))
+
+(defun write-tests-to-file (filename)
+  "Write all the saved tests with expected results to the file."
+  (with-open-file (stream filename :direction :output :if-exists :supersede)
+    (format stream ";; Regression tests for GSLL, automatically generated~%~%")
+    (format stream "(in-package :gsl)~%~%")
+    (loop for (test-name forms) on *all-generated-tests* by #'cddr
+       do
+       (format t "Writing test ~a to file~&" test-name)
+       (format stream "~s~%~%" (create-test test-name)))))
+
+#|
+(defmacro make-tests (name &rest forms)
+  (append
+   `(lisp-unit:define-test ,name)
+   (mapcar #'make-test forms)))
+|#
 
 ;;;;****************************************************************************
 ;;;; Data pool 
@@ -89,10 +144,10 @@
       (if (member (first form) eval-list)
 	  (eval form)
 	  (mapcar (lambda (se)
-		    (stupid-walk-form-eval-some se eval-list))
+		    (stupid-code-walk-eval-some se eval-list))
 		  form))))
 
-(defun generate-all-array-tests (element-types test)
+(defun generate-all-array-tests-body (element-types test)
   (iter (for default-element-type in (element-types element-types))
 	(declare (special default-element-type starting-element))
 	(setf starting-element 0)
@@ -101,24 +156,20 @@
 	     test
 	     '(vector-default scalar-default)))))
 
+(defmacro generate-all-array-tests (name element-types test)
+  `(save-tests ,name ,@(generate-all-array-tests-body element-types test)))
+
 
 
 #|
-;;;;;;;;;;
+(generate-all-array-tests
+ set-all-m+ :no-complex
+ (letm ((v1 (vector-default 3 t))
+	(v2 (vector-default 3)))
+   (set-all v1 (scalar-default 2))
+   (cl-array (m+ v1 v2))))
 
 ;;; doesn't work for complex because:
 ;;; Cannot pass complex scalars to and from GSL functions (structs passed by value).
-(generate-all-array-tests :no-complex
- '(letm ((v1 (vector-default 3 t))
-	 (v2 (vector-default 3)))
-   (set-all v1 (scalar-default 2))
-   (m+ v1 v2)))
-
-
-;;; doesn't work for complex because GSL 
-(generate-all-array-tests :no-complex
- '(letm ((v1 (vector-default 3))
-	 (v2 (vector-default 3)))
-   (m+ v1 v2)))
 
 |#

@@ -58,21 +58,3 @@
   (lisp-unit::expand-assert
     :equal form form expected extras
     :test #'numerical-equal))
-
-
-;;; (make-test '(legendre-conicalP-half 3.5d0 10.0d0))
-(defun gsl::make-test (form)
-  "Make a test for lisp-unit."
-  (let ((vals (multiple-value-list (ignore-errors (eval form)))))
-    (if (typep (second vals) 'condition)
-	`(lisp-unit::assert-error
-	  ',(type-of (second vals))
-	  ,form)
-	`(lisp-unit::assert-numerical-equal
-	  ,(numerical-serialize vals)
-	  (multiple-value-list ,form)))))
-
-(defmacro gsl::make-tests (name &rest forms)
-  (append
-   `(lisp-unit:define-test ,name)
-   (mapcar #'gsl::make-test forms)))

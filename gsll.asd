@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-08-31 22:50:22EDT gsll.asd>
+;; Time-stamp: <2008-10-13 16:26:01EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -24,7 +24,8 @@
 	     (:file "callback" :depends-on (init))
 	     ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	     (:file "lisp-unit")
-	     (:file "tests" :depends-on (init lisp-unit))))
+	     (:file "tests" :depends-on (init lisp-unit))
+	     (:file "generate-tests" :depends-on (tests))))
    (:module floating-point
 	    :depends-on (init)
 	    :components
