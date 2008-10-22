@@ -1,6 +1,6 @@
 ;; Airy functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:41
-;; Time-stamp: <2008-10-13 10:07:52EDT airy.lisp>
+;; Time-stamp: <2008-10-20 22:27:27EDT airy.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -80,7 +80,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(save-tests airy
+(save-test airy
   (airy-ai 2.5d0)
   (airy-bi 2.5d0)
   (airy-ai-scaled 2.5d0)
@@ -93,61 +93,6 @@
   (airy-zero-bi 1)
   (airy-zero-ai-deriv 1)
   (airy-zero-bi-deriv 1))
-
-#|
-(make-tests airy
-  (airy-ai 2.5d0)
-  (airy-bi 2.5d0)
-  (airy-ai-scaled 2.5d0)
-  (airy-bi-scaled 2.5d0)
-  (airy-ai-deriv 2.5d0)
-  (airy-bi-deriv 2.5d0)
-  (airy-ai-deriv-scaled 2.5d0)
-  (airy-bi-deriv-scaled 2.5d0)
-  (airy-zero-ai 1)
-  (airy-zero-bi 1)
-  (airy-zero-ai-deriv 1)
-  (airy-zero-bi-deriv 1))
-|#
-
-(LISP-UNIT:DEFINE-TEST AIRY
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(0.01572592338047048d0 2.1573014423586447d-17)
-   (MULTIPLE-VALUE-LIST (AIRY-AI 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(6.48166073846058d0 8.77836191730236d-15)
-   (MULTIPLE-VALUE-LIST (AIRY-BI 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(0.21932220512871203d0 5.966864198455728d-17)
-   (MULTIPLE-VALUE-LIST (AIRY-AI-SCALED 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(0.4647504801960925d0 1.1831869152362144d-16)
-   (MULTIPLE-VALUE-LIST (AIRY-BI-SCALED 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(-0.02625088103590322d0 4.306971270221159d-17)
-   (MULTIPLE-VALUE-LIST (AIRY-AI-DERIV 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(9.421423317334305d0 1.5213125884867257d-14)
-   (MULTIPLE-VALUE-LIST (AIRY-BI-DERIV 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(-0.36610893847516224d0 1.167515239400716d-16)
-   (MULTIPLE-VALUE-LIST (AIRY-AI-DERIV-SCALED 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(0.6755384441644995d0 1.978922049880242d-16)
-   (MULTIPLE-VALUE-LIST (AIRY-BI-DERIV-SCALED 2.5d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(-2.338107410459767d0 5.19164136227827d-16)
-   (MULTIPLE-VALUE-LIST (AIRY-ZERO-AI 1)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(-1.173713222709128d0 2.606166888317336d-16)
-   (MULTIPLE-VALUE-LIST (AIRY-ZERO-BI 1)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(-1.018792971647471d0 2.2621748288986134d-16)
-   (MULTIPLE-VALUE-LIST (AIRY-ZERO-AI-DERIV 1)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   '(-2.294439682614123d0 5.094679528503672d-16)
-   (MULTIPLE-VALUE-LIST (AIRY-ZERO-BI-DERIV 1))))
-
 
 #|
 ;;; Mathematica results
@@ -160,6 +105,3 @@ Out[6]= -0.02625088103590323
 In[7]:= AiryBiPrime[2.5]
 Out[7]= 9.4214233173343
 |#
-
-
-

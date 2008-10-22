@@ -1,6 +1,6 @@
 ;; Deybe functions
 ;; Liam Healy, Sun Mar 19 2006 - 14:34
-;; Time-stamp: <2008-02-16 20:07:26EST debye.lisp>
+;; Time-stamp: <2008-10-21 22:55:48EDT debye.lisp>
 ;; $Id$
 
 #|
@@ -36,24 +36,9 @@ Stegun, Section 27.1.
   "The fourth-order Debye function
   D_4(x) = (4/x^4) \int_0^x dt (t^4/(e^t - 1)).")
 
-#|
-(make-tests debye
+(save-test debye
   (debye-1 1.0d0)
   (debye-2 1.0d0)
   (debye-3 1.0d0)
   (debye-4 1.0d0))
-|#
 
-(LISP-UNIT:DEFINE-TEST DEBYE
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.7775046341122482d0 4.117962028082377d-16)
-   (MULTIPLE-VALUE-LIST (DEBYE-1 1.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.7078784756278294d0 4.948781517277596d-16)
-   (MULTIPLE-VALUE-LIST (DEBYE-2 1.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.6744155640778147d0 5.450931753448871d-16)
-   (MULTIPLE-VALUE-LIST (DEBYE-3 1.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.654874068886737d0 5.769372522202218d-16)
-   (MULTIPLE-VALUE-LIST (DEBYE-4 1.0d0))))

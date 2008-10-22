@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-10-13 16:26:01EDT gsll.asd>
+;; Time-stamp: <2008-10-20 22:43:24EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -41,6 +41,7 @@
 	     (:file "matrix" :depends-on (data vector))
 	     (:file "maref" :depends-on (data vector matrix))
 	     (:file "both" :depends-on (data vector matrix))
+	     (:file "array-tests" :depends-on (both))
 	     (:file "permutation" :depends-on (data))
 	     (:file "combination"	; preload defgeneric
 		    :depends-on (data matrix both permutation))))

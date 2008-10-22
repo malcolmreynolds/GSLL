@@ -1,6 +1,6 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-10-13 16:28:20EDT generate-tests.lisp>
+;; Time-stamp: <2008-10-21 22:40:41EDT generate-tests.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -8,6 +8,11 @@
 ;;;;****************************************************************************
 ;;;; Data pool 
 ;;;;****************************************************************************
+
+(defun numerical-serialize (form)
+  (if (typep form 'list)
+      (cons 'list (mapcar #'numerical-serialize form))
+      form))
 
 ;;; (make-test '(legendre-conicalP-half 3.5d0 10.0d0))
 (defun make-test (form)
@@ -27,8 +32,8 @@
    (mapcar #'make-test forms)))
 
 (defparameter *all-generated-tests* nil) 
-(defmacro save-tests (name &rest forms)
-  "Save the each of the tests with the given name."
+(defmacro save-test (name &rest forms)
+  "Save the test with the given name."
   `(setf
     (getf *all-generated-tests* ',name)
     (remove-duplicates
@@ -43,6 +48,34 @@
    `(lisp-unit:define-test ,test-name)
    (mapcar #'make-test (getf *all-generated-tests* test-name))))
 
+(defun write-test-to-file (test path)
+  "Write the test to a file with the same name under path.
+   Use this function with caution; it will replace an existing
+   test file and thus the opportunity for regression test will be lost."
+  (let ((pathname (merge-pathnames (format nil "~(~a~).lisp" test) path))
+	(*read-default-float-format* 'single-float))
+    (with-open-file
+	(stream pathname :direction :output :if-exists :rename)
+      (format
+       stream
+       ";; Regression test ~a for GSLL, automatically generated~%~%" test)
+      (format stream "(in-package :gsl)~%~%")
+      (format t "Writing test ~a to file ~a~&" test pathname)
+      (format stream "~s~%~%" (create-test test)))))
+
+
+;;; This is commented out because it shouldn't be run.  It will
+;;; regenerate all tests, so there will be no regression tests to
+;;; previous versions.
+#+(or)
+(defun write-tests (path)
+  "Write all the tests to the appropriate file."
+  (iter
+    (for (key val) on *all-generated-tests* by #'cddr)
+    (write-test-to-file key path)))
+
+#|
+;;; Obsolete; to put all tests in one file.
 (defun write-tests-to-file (filename)
   "Write all the saved tests with expected results to the file."
   (with-open-file (stream filename :direction :output :if-exists :supersede)
@@ -53,7 +86,6 @@
        (format t "Writing test ~a to file~&" test-name)
        (format stream "~s~%~%" (create-test test-name)))))
 
-#|
 (defmacro make-tests (name &rest forms)
   (append
    `(lisp-unit:define-test ,name)
@@ -157,19 +189,5 @@
 	     '(vector-default scalar-default)))))
 
 (defmacro generate-all-array-tests (name element-types test)
-  `(save-tests ,name ,@(generate-all-array-tests-body element-types test)))
+  `(save-test ,name ,@(generate-all-array-tests-body element-types test)))
 
-
-
-#|
-(generate-all-array-tests
- set-all-m+ :no-complex
- (letm ((v1 (vector-default 3 t))
-	(v2 (vector-default 3)))
-   (set-all v1 (scalar-default 2))
-   (cl-array (m+ v1 v2))))
-
-;;; doesn't work for complex because:
-;;; Cannot pass complex scalars to and from GSL functions (structs passed by value).
-
-|#

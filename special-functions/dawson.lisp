@@ -1,6 +1,6 @@
 ;; Dawson function
 ;; Liam Healy, Sun Mar 19 2006 - 14:31
-;; Time-stamp: <2008-02-16 20:04:51EST dawson.lisp>
+;; Time-stamp: <2008-10-21 22:49:36EDT dawson.lisp>
 ;; $Id$
 
 #|
@@ -18,13 +18,6 @@ gsl_sf_dawson.h.
   :documentation			; FDL
   "Dawson's integral for x.")
 
-#|
-(make-tests dawson
-	    (dawson 1.0d0))
-|#
+(save-test dawson (dawson 1.0d0))
 
-(LISP-UNIT:DEFINE-TEST DAWSON
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.5380795069127684d0 1.424354102650492d-15)
-   (MULTIPLE-VALUE-LIST (DAWSON 1.0d0))))
 

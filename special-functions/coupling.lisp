@@ -1,6 +1,6 @@
 ;; Coupling coefficients
 ;; Liam Healy, Sun Mar 19 2006 - 13:30
-;; Time-stamp: <2008-02-16 20:02:09EST coupling.lisp>
+;; Time-stamp: <2008-10-21 22:48:31EDT coupling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,20 +56,7 @@ section are declared in the header file gsl_sf_coupling.h.
   ja = two_ja/2, ma = two_ma/2, etc.")
 
 ;; Check with online calculator http://www-stone.ch.cam.ac.uk/wigner.html
-#|
-(make-tests coupling
+(save-tests coupling
   (coupling-3j 0 1 1 0 1 -1)
   (coupling-6j 1 1 2 0 2 1)
   (coupling-9j 1 1 2 1 2 1 2 1 1))
-|#
-
-(LISP-UNIT:DEFINE-TEST COUPLING
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.7071067811865475d0 3.14018491736755d-16)
-   (MULTIPLE-VALUE-LIST (COUPLING-3J 0 1 1 0 1 -1)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.408248290463863d0 5.438959822042073d-16)
-   (MULTIPLE-VALUE-LIST (COUPLING-6J 1 1 2 0 2 1)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.1388888888888889d0 6.638400825147663d-16)
-   (MULTIPLE-VALUE-LIST (COUPLING-9J 1 1 2 1 2 1 2 1 1))))

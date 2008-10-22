@@ -49,11 +49,6 @@
 		       always (numerical-equal (aref result1 i j)
 					       (aref result2 i j)))))))))
 
-(defun numerical-serialize (form)
-  (if (typep form 'list)
-      (cons 'list (mapcar #'numerical-serialize form))
-      form))
-
 (defmacro assert-numerical-equal (expected form &rest extras)
   (lisp-unit::expand-assert
     :equal form form expected extras
