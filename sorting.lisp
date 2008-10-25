@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-09-20 22:29:33EDT sorting.lisp>
+;; Time-stamp: <2008-10-25 12:00:37EDT sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -243,8 +243,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests sorting
+(save-test sorting
  (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
    (sort-vector vec)
    (cl-array vec))
@@ -269,55 +268,4 @@
  (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
 	(comb (combination '(5 3))))
    (cl-array (sort-vector-largest-index comb vec))))
-|#
 
-
-(LISP-UNIT:DEFINE-TEST SORTING
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(-3.21 -2.0 1.0 7.1 12.8))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT (A 7.1 -2.0 12.8 -3.21 1.0))))
-      (SORT-VECTOR VEC) (CL-ARRAY VEC))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(3 1 4 0 2))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((PERM (PERMUTATION 5))
-	   (VEC (VECTOR-DOUBLE-FLOAT (A 7.1 -2.0 12.8 -3.21 1.0))))
-      (SORT-VECTOR-INDEX PERM VEC)
-      (CL-ARRAY PERM))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(-3.21 -2.0 1.0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT (A 7.1 -2.0 12.8 -3.21 1.0)))
-	   (SMALLEST (VECTOR-DOUBLE-FLOAT 3)))
-      (SORT-VECTOR-SMALLEST SMALLEST VEC)
-      (CL-ARRAY SMALLEST))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(3 1 4))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((VEC (VECTOR-DOUBLE-FLOAT
-	       (A 7.1 -2.0 12.8 -3.21 1.0)))
-	 (COMB (COMBINATION '(5 3))))
-      (CL-ARRAY (SORT-VECTOR-SMALLEST-INDEX COMB VEC)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(3 1 4))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT
-		 (A 7.1 -2.0 12.8 -3.21 1.0)))
-	   (SM (COMBINATION '(5 3))))
-      (CL-ARRAY (SORT-SMALLEST-INDEX SM VEC)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(12.8 7.1 1.0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT (A 7.1 -2.0 12.8 -3.21 1.0)))
-	   (LARGEST (VECTOR-DOUBLE-FLOAT 3)))
-      (SORT-VECTOR-LARGEST LARGEST VEC)
-      (CL-ARRAY LARGEST))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(2 0 4))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((VEC (VECTOR-DOUBLE-FLOAT (A 7.1 -2.0 12.8 -3.21 1.0)))
-	 (COMB (COMBINATION '(5 3))))
-      (CL-ARRAY (SORT-VECTOR-LARGEST-INDEX COMB VEC))))))

@@ -1,9 +1,11 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-10-21 22:40:41EDT generate-tests.lisp>
+;; Time-stamp: <2008-10-25 19:06:40EDT generate-tests.lisp>
 ;; $Id: $
 
 (in-package :gsl)
+
+(export 'examples)
 
 ;;;;****************************************************************************
 ;;;; Data pool 
@@ -26,12 +28,8 @@
 	  ,(numerical-serialize vals)
 	  (multiple-value-list ,form)))))
 
-(defmacro make-tests (name &rest forms)
-  (append
-   `(lisp-unit:define-test ,name)
-   (mapcar #'make-test forms)))
-
 (defparameter *all-generated-tests* nil) 
+
 (defmacro save-test (name &rest forms)
   "Save the test with the given name."
   `(setf
@@ -41,6 +39,15 @@
       ',forms
       (getf *all-generated-tests* ',name))
      :test #'equal)))
+
+(defun examples (&optional name)
+  "If no argument is supplied, list the names of the example categories.
+   If a category name is given as the argument, give the list of examples
+   in that category."
+  (if name 
+      (getf *all-generated-tests* name)
+      (loop for (key value) on *all-generated-tests* by #'cddr
+	 collect key)))
 
 (defun create-test (test-name)
   "Find the saved test by name and create it, with the generated results."
@@ -86,10 +93,6 @@
        (format t "Writing test ~a to file~&" test-name)
        (format stream "~s~%~%" (create-test test-name)))))
 
-(defmacro make-tests (name &rest forms)
-  (append
-   `(lisp-unit:define-test ,name)
-   (mapcar #'make-test forms)))
 |#
 
 ;;;;****************************************************************************

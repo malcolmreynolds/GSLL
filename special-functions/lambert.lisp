@@ -1,6 +1,6 @@
 ;; Lambert's W functions
 ;; Liam Healy, Fri Apr 28 2006 - 20:40
-;; Time-stamp: <2008-02-16 22:19:40EST lambert.lisp>
+;; Time-stamp: <2008-10-25 10:59:17EDT lambert.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,16 +30,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests lambert
+(save-test lambert
   (lambert-W0 1.0d0)
   (lambert-Wm1 1.0d0))
-|#
 
-(LISP-UNIT:DEFINE-TEST LAMBERT
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.5671432904097838d0 2.518622157098455d-16)
-   (MULTIPLE-VALUE-LIST (LAMBERT-W0 1.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.5671432904097838d0 2.518622157098455d-16)
-   (MULTIPLE-VALUE-LIST (LAMBERT-WM1 1.0d0))))

@@ -1,6 +1,6 @@
 ;; Exponential integrals
 ;; Liam Healy, Tue Mar 21 2006 - 17:37
-;; Time-stamp: <2008-03-27 21:29:32EDT exponential-integrals.lisp>
+;; Time-stamp: <2008-10-23 22:56:59EDT exponential-integrals.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -86,12 +86,11 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
 ;;; Macroexpanding in SLIME with slime-macroexpand-1 will produce the
 ;;; wrong error type for the first test.  Instead, evaluate in
 ;;; listener with (macroexpand-1 '(make-tests ... )).
 
-(make-tests exponential-integrals
+(save-test exponential-integrals
   (expint-E1 0.0d0)
   (expint-E1 1.0d0)
   (expint-Ei 2.0d0)
@@ -101,7 +100,6 @@
   (si 1.25d0)
   (ci 1.25d0)
   (atanint 1.25d0))
-|#
 
 (LISP-UNIT:DEFINE-TEST EXPONENTIAL-INTEGRALS
   (LISP-UNIT:ASSERT-ERROR 'GSL-CONDITION (EXPINT-E1 0.0d0))

@@ -1,6 +1,6 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-09-14 21:40:55EDT multinomial.lisp>
+;; Time-stamp: <2008-10-25 18:04:19EDT multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,43 +48,15 @@
    with parameters p[K], using the formula given for #'multinomial.")
 
 ;;; Examples and unit test
-#|
-(make-tests multinomial
-  (letm ((rng (random-number-generator *mt19937* 0))
-	  (p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
-	  (n (vector-fixnum 4)))
-     (multinomial rng 8 p n)
-     (cl-array n))
-  (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
-	  (n (vector-fixnum 4) (a 5 0 1 2)))
-     (multinomial-pdf p N))
-  (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
-	  (n (vector-fixnum 4) (a 5 0 1 2)))
-     (multinomial-log-pdf p n)))
-
-(LISP-UNIT:DEFINE-TEST MULTINOMIAL
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(5 0 1 2))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
-	 (P (VECTOR-DOUBLE-FLOAT #(0.1d0 0.2d0 0.3d0 0.4d0)))
-	 (N (VECTOR-FIXNUM 4)))
-      (MULTINOMIAL RNG 8 P N)
-      (DATA N))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 8.064000000000026d-5)
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((P (VECTOR-DOUBLE-FLOAT #(0.1d0 0.2d0 0.3d0 0.4d0)))
-	 (N (VECTOR-FIXNUM 4)))
-      (SETF (DATA N) #(5 0 1 2)) (MULTINOMIAL-PDF P N))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST -9.425515753641212d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((P (VECTOR-DOUBLE-FLOAT #(0.1d0 0.2d0 0.3d0 0.4d0)))
-	 (N (VECTOR-FIXNUM 4)))
-      (SETF (DATA N) #(5 0 1 2))
-      (MULTINOMIAL-LOG-PDF P N)))))
-
-|#
+(save-test multinomial
+ (letm ((rng (random-number-generator *mt19937* 0))
+	(p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
+	(n (vector-signed-byte-32 4)))
+   (multinomial rng 8 p n)
+   (cl-array n))
+ (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
+	(n (vector-signed-byte-32 (a 5 0 1 2))))
+   (multinomial-pdf p N))
+ (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
+	(n (vector-signed-byte-32 (a 5 0 1 2))))
+   (multinomial-log-pdf p n)))

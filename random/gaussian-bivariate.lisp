@@ -1,6 +1,6 @@
 ;; Gaussian bivariate distribution
 ;; Liam Healy, Sat Sep  2 2006 - 16:32
-;; Time-stamp: <2008-02-17 12:32:10EST gaussian-bivariate.lisp>
+;; Time-stamp: <2008-10-25 13:30:58EDT gaussian-bivariate.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -33,15 +33,13 @@
    rho, using the formula given for bivariate-gaussian.")
 
 ;;; Examples and unit test
-#|
-(make-tests gaussian-bivariate
+(save-test gaussian-bivariate
   (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (bivariate-gaussian rng 1.0d0 0.75d0 0.25d0)))
   (bivariate-gaussian-pdf 0.25d0 0.5d0 0.25d0
 			   0.4d0 0.2d0))
-|#
 
 (LISP-UNIT:DEFINE-TEST GAUSSIAN-BIVARIATE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

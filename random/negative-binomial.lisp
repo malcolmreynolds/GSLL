@@ -1,6 +1,6 @@
 ;; Negative binomial and Pascal distributions
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-09-20 21:28:50EDT negative-binomial.lisp>
+;; Time-stamp: <2008-10-25 18:06:14EDT negative-binomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -88,8 +88,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests negative-binomial
+(save-test negative-binomial
   (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
@@ -104,7 +103,6 @@
   (pascal-pdf 5 0.4d0 12)
   (pascal-P 5 0.4d0 12)
   (pascal-Q 5 0.4d0 12))
-|#
 
 (LISP-UNIT:DEFINE-TEST NEGATIVE-BINOMIAL
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

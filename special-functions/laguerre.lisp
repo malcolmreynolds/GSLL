@@ -1,6 +1,6 @@
 ;; Laguerre polynomials
 ;; Liam Healy, Fri Apr 28 2006 - 20:40
-;; Time-stamp: <2008-02-16 22:16:49EST laguerre.lisp>
+;; Time-stamp: <2008-10-25 10:56:55EDT laguerre.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -32,27 +32,12 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
 ;;; Don't slime-macroexpand-1, the last one will produce an error that
 ;;; shouldn't be there.
 
-(make-tests laguerre
+(save-test laguerre
   (laguerre-1 1.0d0 3.0d0)
   (laguerre-2 1.0d0 3.0d0)
   (laguerre-3 1.0d0 3.0d0)
   (laguerre 4 1.0d0 3.0d0))
-|#
 
-(LISP-UNIT:DEFINE-TEST LAGUERRE
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST -1.0d0 2.220446049250313d-15)
-   (MULTIPLE-VALUE-LIST (LAGUERRE-1 1.0d0 3.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST -1.5d0 1.7985612998927536d-14)
-   (MULTIPLE-VALUE-LIST (LAGUERRE-2 1.0d0 3.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST -0.5d0 6.59472476627343d-14)
-   (MULTIPLE-VALUE-LIST (LAGUERRE-3 1.0d0 3.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.875d0 6.793349802129357d-14)
-   (MULTIPLE-VALUE-LIST (LAGUERRE 4 1.0d0 3.0d0))))

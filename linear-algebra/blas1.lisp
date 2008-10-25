@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-08-31 15:12:31EDT blas1.lisp>
+;; Time-stamp: <2008-10-25 18:41:45EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -182,67 +182,58 @@
 ;;;;****************************************************************************
 
 #|
-;;; Before expanding, set 
-;;; (setf *read-default-float-format* 'double-float)
-(make-tests blas1-single
+(save-test blas1-single
  ;; single
- (letm ((a (vector-single-float #(1.0f0 2.0f0 3.0f0)))
-	(b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
+ (letm ((a (vector-single-float (a 1.0f0 2.0f0 3.0f0)))
+	(b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
    (dot a b))
- (letm ((b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
+ (letm ((b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
    (euclidean-norm b))
- (letm ((b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
-   (asum b))
- (letm ((b (vector-single-float #(3.0f0 5.0f0 4.0f0))))
-   (imax b))
- (letm ((a (vector-single-float #(1.0f0 2.0f0 3.0f0)))
-	 (b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
-    (setf (data a) #(1.0f0 2.0f0 3.0f0)
-	  (data b) #(3.0f0 4.0f0 5.0f0))
-    (axpy 2.0f0 a b)
-    (data b))
- (letm ((b (vector-single-float #(3.0f0 4.0f0 5.0f0))))
-    (setf (data b) #(3.0f0 4.0f0 5.0f0))
-    (scal 2.0f0 b)
-    (data b))
+ (letm ((b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
+   (absolute-sum b))
+ (letm ((b (vector-single-float (a 3.0f0 5.0f0 4.0f0))))
+   (index-max b))
+ (letm ((a (vector-single-float (a 1.0f0 2.0f0 3.0f0)))
+	(b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
+   (axpy 2.0f0 a b)
+   (cl-array b))
+ (letm ((b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
+   (scale 2.0f0 b)
+   (cl-array b))
  (letm ((a (vector-single-float #(1.0f0 3.0f0)))
-	 (b (vector-single-float #(8.0f0 9.0f0))))
-    (rot a b (/ (sqrt 2.0f0)) (/ (sqrt 2.0f0)))
-    (data b)))
+	(b (vector-single-float #(8.0f0 9.0f0))))
+   (givens-rotation a b (/ (sqrt 2.0f0)) (/ (sqrt 2.0f0)))
+   (cl-array b)))
 
-;;; Before expanding, set 
-;;; (setf *read-default-float-format* 'single-float)
-(make-tests blas1-double
- (letm ((a (vector-double-float #(1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
+(save-test blas1-double
+ (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
+	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
    (dot a b))
- (letm ((b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
+ (letm ((b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
    (euclidean-norm b))
- (letm ((b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
-   (setf (data b) #(3.0d0 4.0d0 5.0d0))
-   (asum b))
- (letm ((b (vector-double-float #(3.0d0 5.0d0 4.0d0))))
-   (setf (data b) #(3.0d0 5.0d0 4.0d0))
-   (imax b))
- (letm ((a (vector-double-float #(1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
+ (letm ((b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
+   (absolute-sum b))
+ (letm ((b (vector-double-float (a 3.0d0 5.0d0 4.0d0))))
+   (index-max b))
+ (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
+	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
    (blas-swap a b)
-   (data a))
- (letm ((a (vector-double-float #(1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
+   (cl-array a))
+ (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
+	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
    (blas-copy b a)
-   (data a))
- (letm ((a (vector-double-float #(1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
+   (cl-array a))
+ (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
+	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
    (axpy 2.0d0 a b)
-   (data b))
- (letm ((b (vector-double-float #(3.0d0 4.0d0 5.0d0))))
-   (scal 2.0d0 b)
-   (data b))
- (letm ((a (vector-double-float #(1.0d0 3.0d0)))
-	(b (vector-double-float #(8.0d0 9.0d0))))
-   (rot a b (/ (sqrt 2.0d0)) (/ (sqrt 2.0d0)))
-   (data b)))
+   (cl-array b))
+ (letm ((b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
+   (scale 2.0d0 b)
+   (cl-array b))
+ (letm ((a (vector-double-float (a 1.0d0 3.0d0)))
+	(b (vector-double-float (a 8.0d0 9.0d0))))
+   (givens-rotation a b (/ (sqrt 2.0d0)) (/ (sqrt 2.0d0)))
+   (cl-array b)))
 
 (LISP-UNIT:DEFINE-TEST BLAS1-SINGLE
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -348,4 +339,3 @@
       (ROT A B (/ (SQRT 2.0d0)) (/ (SQRT 2.0d0)))
       (DATA B)))))
 |#
-

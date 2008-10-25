@@ -1,6 +1,6 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-09-14 22:04:40EDT updating-accessing.lisp>
+;; Time-stamp: <2008-10-25 18:24:41EDT updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -99,8 +99,7 @@
 |#
 ;;; Examples and unit test
 
-#|
-(make-tests histogram
+(save-test histogram
    ;; The first one gives a warning while compiling in SBCL,
    ;; should only give a warning while runnin.
  (letm ((histo (histogram 10)))
@@ -141,67 +140,3 @@
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
    (histogram-find histo 5.5d0)))
-|#
-
-(LISP-UNIT:DEFINE-TEST HISTOGRAM
-  (LISP-UNIT:ASSERT-ERROR
-   'GSL-CONDITION
-   (LETM ((HISTO (HISTOGRAM 10)))
-     (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-     (INCREMENT HISTO -2.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.0d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((HISTO (HISTOGRAM 10)))
-      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-      (INCREMENT HISTO 2.7d0)
-      (INCREMENT HISTO 6.9d0 2.0d0)
-      (MAREF HISTO 1))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 1.0d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((HISTO (HISTOGRAM 10)))
-      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-      (INCREMENT HISTO 2.7d0)
-      (INCREMENT HISTO 6.9d0 2.0d0)
-      (MAREF HISTO 2))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 2.0d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((HISTO (HISTOGRAM 10)))
-      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-      (INCREMENT HISTO 2.7d0)
-      (INCREMENT HISTO 6.9d0 2.0d0)
-      (MAREF HISTO 6))))
-  (LISP-UNIT:ASSERT-ERROR
-   'GSL-CONDITION
-   (LETM ((HISTO (HISTOGRAM 10)))
-     (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-     (INCREMENT HISTO 2.7d0)
-     (INCREMENT HISTO 6.9d0 2.0d0)
-     (MAREF HISTO 16)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.0d0 10.0d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((HISTO (HISTOGRAM 10)))
-      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-      (INCREMENT HISTO 2.7d0)
-      (INCREMENT HISTO 6.9d0 2.0d0)
-      (VALUES (MIN-RANGE HISTO)
-	      (MAX-RANGE HISTO)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 10)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((HISTO (HISTOGRAM 10)))
-      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-      (INCREMENT HISTO 2.7d0)
-      (INCREMENT HISTO 6.9d0 2.0d0)
-      (BINS HISTO))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 5)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((HISTO (HISTOGRAM 10)))
-      (SET-RANGES-UNIFORM HISTO 0.0d0 10.0d0)
-      (INCREMENT HISTO 2.7d0)
-      (INCREMENT HISTO 6.9d0 2.0d0)
-      (HISTOGRAM-FIND HISTO 5.5d0)))))

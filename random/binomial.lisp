@@ -1,6 +1,6 @@
 ;; Binomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-02-17 13:46:01EST binomial.lisp>
+;; Time-stamp: <2008-10-25 12:09:46EDT binomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -40,8 +40,7 @@
    with parameters p and n.")
 
 ;;; Examples and unit test
-#|
-(make-tests binomial
+(save-test binomial
   (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
@@ -49,22 +48,5 @@
   (binomial-pdf 5 0.4d0 12)
   (binomial-P 5 0.4d0 12)
   (binomial-Q 5 0.4d0 12))
-|#
 
-(LISP-UNIT:DEFINE-TEST BINOMIAL
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST (LIST 11 3 4 8 4 5 8 6 5 6 6))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-      (LOOP FOR I FROM 0 TO 10 COLLECT
-	    (BINOMIAL RNG 0.4d0 12)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.22703033548799986d0)
-   (MULTIPLE-VALUE-LIST (BINOMIAL-PDF 5 0.4d0 12)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.6652085575680018d0)
-   (MULTIPLE-VALUE-LIST (BINOMIAL-P 5 0.4d0 12)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.33479144243199815d0)
-   (MULTIPLE-VALUE-LIST (BINOMIAL-Q 5 0.4d0 12))))
 

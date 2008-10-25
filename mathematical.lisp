@@ -1,6 +1,6 @@
 ;; Mathematical functions
 ;; Liam Healy, Wed Mar  8 2006 - 22:09
-;; Time-stamp: <2008-02-17 09:13:19EST mathematical.lisp>
+;; Time-stamp: <2008-10-25 19:09:09EDT mathematical.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -180,27 +180,18 @@ Function: double gsl_pow_9 (const double x)
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests mathematical
+(save-test mathematical
   (log+1 0.001d0)
   (exp-1 0.001d0)
   (hypotenuse 3.0d0 4.0d0))
-|#
 
+#| 
+;;; I would like to add
 (lisp-unit:define-test mathematical
   (lisp-unit:assert-true (nanp +nan+))
   (lisp-unit:assert-false (nanp 1.0d0))
   (lisp-unit:assert-true (finitep 1.0d0))
   (lisp-unit:assert-false (infinityp 1.0d0))
   (lisp-unit:assert-eq 1 (infinityp +positive-infinity+))
-  (lisp-unit:assert-false (finitep +positive-infinity+))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 9.995003330835331d-4)
-   (MULTIPLE-VALUE-LIST (LOG+1 0.001d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.0010005001667083417d0)
-   (MULTIPLE-VALUE-LIST (EXP-1 0.001d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 5.0d0 2.220446049250313d-15)
-   (MULTIPLE-VALUE-LIST (HYPOTENUSE 3.0d0 4.0d0)))
-  (lisp-unit:assert-false (double-float-unequal 1.0d0 1.0d0 0.001d0)))
+  (lisp-unit:assert-false (finitep +positive-infinity+)))
+|#

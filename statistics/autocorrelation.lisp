@@ -1,6 +1,6 @@
 ;; Autocorrelation
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-09-21 15:56:14EDT autocorrelation.lisp>
+;; Time-stamp: <2008-10-25 18:47:48EDT autocorrelation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,22 +25,9 @@
 
 ;;; Examples and unit test
 
-#|
-(make-tests autocorrelation
+(save-test autocorrelation
   (letm ((vec (vector-double-float (a -3.21d0 1.0d0 12.8d0))))
       (let ((mean (mean vec)))
 	(list
 	 (autocorrelation vec)
 	 (autocorrelation vec mean)))))
-|#
-
-(LISP-UNIT:DEFINE-TEST AUTOCORRELATION
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    (LIST -0.04646366834251103d0 -0.04646366834251103d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-DOUBLE-FLOAT (A -3.21d0 1.0d0 12.8d0))))
-      (LET ((MEAN (MEAN VEC)))
-	(LIST (AUTOCORRELATION VEC)
-	      (AUTOCORRELATION VEC MEAN)))))))
-

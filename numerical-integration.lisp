@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-09-16 22:43:59EDT numerical-integration.lisp>
+;; Time-stamp: <2008-10-25 11:35:53EDT numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -226,28 +226,10 @@
   (defun-single two-sine (x) (sin (* mult x))))
 |#
 
-#|
-(make-tests numerical-integration
+(save-test numerical-integration
   (integration-qng one-sine 0.0d0 pi)
   (letm ((ws (integration-workspace 20)))
      (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws))
   (letm ((ws (integration-workspace 20)))
      (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws)))
 
-|#
-
-(LISP-UNIT:DEFINE-TEST NUMERICAL-INTEGRATION
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 2.0d0 2.220446049250313d-14 21)
-   (MULTIPLE-VALUE-LIST
-    (INTEGRATION-QNG ONE-SINE 0.0d0 PI)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 2.0d0 2.220446049250313d-14)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((WS (INTEGRATION-WORKSPACE 20)))
-      (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 20
-		       WS))))
-  (LISP-UNIT:ASSERT-ERROR
-   'GSL-CONDITION
-   (LETM ((WS (INTEGRATION-WORKSPACE 20)))
-     (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 50 WS))))

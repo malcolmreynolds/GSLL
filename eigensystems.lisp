@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-08-14 22:48:02EDT eigensystems.lisp>
+;; Time-stamp: <2008-10-25 11:34:13EDT eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -168,17 +168,6 @@
     (eigenvalues-eigenvectors mat evals evecs ws)
     (values (cl-array evals) (cl-array evecs))))
 
-#|
-(make-tests eigensystems
-	    (eigenvalue-eigenvectors-example))
-|#
+(save-test eigensystems
+	   (eigenvalue-eigenvectors-example))
 
-(LISP-UNIT:DEFINE-TEST EIGENSYSTEMS
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    #(13.819660112501051d0 36.180339887498945d0 40.0d0)
-    #2A((0.8506508083520399d0 -0.5257311121191337d0 0.0d0)
-	(0.5257311121191337d0 0.8506508083520399d0 0.0d0)
-	(0.0d0 0.0d0 1.0d0)))
-   (MULTIPLE-VALUE-LIST
-    (EIGENVALUE-EIGENVECTORS-EXAMPLE))))

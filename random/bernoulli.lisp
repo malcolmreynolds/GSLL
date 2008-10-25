@@ -1,6 +1,6 @@
 ;; Bernoulli distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:59
-;; Time-stamp: <2008-02-17 13:39:15EST bernoulli.lisp>
+;; Time-stamp: <2008-10-25 12:08:06EDT bernoulli.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,23 +25,11 @@
   p, using the formula given in #'bernoulli.")
 
 ;;; Examples and unit test
-#|
-(make-tests bernoulli
+(save-test bernoulli
   (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
 	   (bernoulli rng 0.5d0)))
   (bernoulli-pdf 0 0.5d0))
-|#
-
-(LISP-UNIT:DEFINE-TEST BERNOULLI
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST (LIST 0 1 1 0 1 1 0 0 0 0 0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-      (LOOP FOR I FROM 0 TO 10 COLLECT
-	    (BERNOULLI RNG 0.5d0)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.5d0)
-   (MULTIPLE-VALUE-LIST (BERNOULLI-PDF 0 0.5d0))))
+b
 

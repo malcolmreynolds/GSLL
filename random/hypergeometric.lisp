@@ -1,6 +1,6 @@
 ;; Hypergeometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-02-17 15:35:14EST hypergeometric.lisp>
+;; Time-stamp: <2008-10-25 13:39:43EDT hypergeometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -46,8 +46,7 @@
    hypergeometric distribution with parameters n1, n2, and tt.")
 
 ;;; Examples and unit test
-#|
-(make-tests hypergeometric-randist
+(save-test hypergeometric-randist
   (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
@@ -55,22 +54,5 @@
   (hypergeometric-pdf 0 2 6 3)
   (hypergeometric-P 1 2 6 3)
   (hypergeometric-Q 1 2 6 3))
-|#
 
-(LISP-UNIT:DEFINE-TEST HYPERGEOMETRIC-RANDIST
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST (LIST 2 1 0 0 1 1 3 1 0 1 3))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-      (LOOP FOR I FROM 0 TO 10 COLLECT
-	    (HYPERGEOMETRIC RNG 3 6 3)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.35714285714285693d0)
-   (MULTIPLE-VALUE-LIST (HYPERGEOMETRIC-PDF 0 2 6 3)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.892857142857143d0)
-   (MULTIPLE-VALUE-LIST (HYPERGEOMETRIC-P 1 2 6 3)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.10714285714285704d0)
-   (MULTIPLE-VALUE-LIST (HYPERGEOMETRIC-Q 1 2 6 3))))
 

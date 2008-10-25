@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-09-20 22:04:48EDT combination.lisp>
+;; Time-stamp: <2008-10-25 19:05:36EDT combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -172,8 +172,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests combination
+(save-test combination
  (letm ((comb (combination '(4 2) t)))	; combination-range
    (combination-range comb))
  (letm ((comb (combination '(4 2) t)))	; combination-size
@@ -192,42 +191,3 @@
 	 (init-first comb)
 	 (loop collect (copy-seq (cl-array comb))
 	       while (combination-next comb)))))
-|#
-
-(LISP-UNIT:DEFINE-TEST COMBINATION
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 4)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((COMB (COMBINATION '(4 2) T)))
-      (COMBINATION-RANGE COMB))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 2)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((COMB (COMBINATION '(4 2) T)))
-      (COMBINATION-SIZE COMB))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST (LIST #(0 1) #(0 2) #(0 3) #(1 2) #(1 3) #(2 3)))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((COMB (COMBINATION '(4 2) T)))
-      (INIT-FIRST COMB)
-      (LOOP COLLECT (COPY-SEQ (CL-ARRAY COMB)) WHILE
-	   (COMBINATION-NEXT COMB)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST (LIST #(2 3) #(1 3) #(1 2) #(0 3) #(0 2) #(0 1)))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((COMB (COMBINATION '(4 2) T))) (INIT-LAST COMB)
-	  (LOOP COLLECT (COPY-SEQ (CL-ARRAY COMB)) WHILE
-	       (COMBINATION-PREVIOUS COMB)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    (LIST #() #(0) #(1) #(2) #(3) #(0 1) #(0 2) #(0 3)
-	  #(1 2) #(1 3) #(2 3) #(0 1 2) #(0 1 3) #(0 2 3)
-	  #(1 2 3) #(0 1 2 3)))
-   (MULTIPLE-VALUE-LIST
-    (LOOP FOR I FROM 0 TO 4 APPEND
-	 (LETM ((COMB (COMBINATION (LIST 4 I) T)))
-	   (INIT-FIRST COMB)
-	   (LOOP COLLECT (COPY-SEQ (CL-ARRAY COMB))
-	      WHILE (COMBINATION-NEXT COMB)))))))
-
-

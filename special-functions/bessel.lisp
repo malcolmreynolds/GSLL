@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2008-10-21 22:39:32EDT bessel.lisp>
+;; Time-stamp: <2008-10-23 22:37:15EDT bessel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -451,8 +451,6 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-
 ;; This bizarrely causes a division-by-zero error 
 ;;	    (bessel-jnu 3.0d0 4.0d0)
 ;; in macroexpansion the form from within SLIME using SBCL (expands
@@ -540,7 +538,3 @@
 	   (bessel-zero-J0 5)
 	   (bessel-zero-J1 5)
 	   (bessel-zero-Jnu 2.0d0 5))
-
-
-
-

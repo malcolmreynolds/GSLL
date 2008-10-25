@@ -39,10 +39,11 @@ to find that the Lisp function name is <code>#'jacobian-elliptic-functions</code
    </pre>
    to get an explanation of the arguments etc.
  </li>
- <li>Look at the end of the Lisp source file, or in an "example" file
- in the same directory, for examples.  Often, the examples are placed
- in a <code>make-tests</code> form (which will be commented out with
- a #| |# block).  If the 
+ <li>Use the function <code>(examples)</code> to get a list of example
+ categories.  Then use the function with a category name as the
+ argument to get a list of examples under that category, for
+ example 
+   <code>(examples 'higher-moments)</code>.  If the 
  <a href="http://www.gnu.org/software/gsl/manual/">GSL documentation</a>
  provides an example, there will usually be the same or similar
  example provided in GSLL.</li>
@@ -200,7 +201,7 @@ gamma-randist, negative-binomial.
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-      Time-stamp: <2008-09-21 15:37:13EDT documentation.html>
+      Time-stamp: <2008-10-25 18:59:39EDT documentation.html>
       </small>
 <!-- hhmts end -->
  </div>

@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-09-14 21:44:32EDT discrete.lisp>
+;; Time-stamp: <2008-10-25 12:14:54EDT discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -50,8 +50,7 @@
    around.")
 
 ;;; Examples and unit test
-#|
-(make-tests discrete
+(save-test discrete
    ;; Must have two letms because the vector value is not set until
    ;; the body, but the discrete-random needs that set value.
    (letm ((probabilities (vector-double-float (a 0.25d0 0.5d0 0.25d0))))
@@ -63,22 +62,6 @@
    (letm ((probabilities (vector-double-float (a 0.25d0 0.5d0 0.25d0))))
       (letm ((table (discrete-random probabilities)))
 	(discrete-pdf 1 table))))
-|#
 
-(LISP-UNIT:DEFINE-TEST DISCRETE
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST (LIST 1 0 1 1 0 1 1 2 1 2 2))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((PROBABILITIES (VECTOR-DOUBLE-FLOAT (A 0.25d0 0.5d0 0.25d0))))
-      (LETM ((TABLE (DISCRETE-RANDOM PROBABILITIES))
-	   (RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-	(LOOP FOR I FROM 0 TO 10 COLLECT
-	     (DISCRETE RNG TABLE))))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.5d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((PROBABILITIES (VECTOR-DOUBLE-FLOAT (A 0.25d0 0.5d0 0.25d0))))
-      (LETM ((TABLE (DISCRETE-RANDOM PROBABILITIES)))
-	(DISCRETE-PDF 1 TABLE))))))
 
 

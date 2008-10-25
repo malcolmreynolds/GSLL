@@ -1,6 +1,6 @@
 ;; Gamma distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-09-20 21:25:37EDT gamma.lisp>
+;; Time-stamp: <2008-10-25 13:30:58EDT gamma.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -62,8 +62,7 @@
    Q(x) for the Gamma distribution with parameters a and b.")
 
 ;;; Examples and unit test
-#|
-(make-tests gamma-randist
+(save-test gamma-randist
  (letm ((rng (random-number-generator *mt19937* 0)))
    (loop for i from 0 to 10
 	 collect
@@ -77,49 +76,3 @@
  (gamma-Q 0.1d0 1.0d0 2.0d0)
  (gamma-Pinv 0.048770575499286005d0 1.0d0 2.0d0)
  (gamma-Qinv 0.951229424500714d0 1.0d0 2.0d0))
-|#
-
-(LISP-UNIT:DEFINE-TEST GAMMA-RANDIST
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST
-                         (LIST 3.012983063768798 2.216796987787054
-                               5.033971231985026 0.6152002566487763
-                               0.1876159751197978 1.7884608326846099
-                               0.30812625873110316 1.1328459017528132
-                               0.7363931539298727 0.9843618987581162
-                               0.06871686155296197))
-                        (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (GAMMA-RD RNG 1.0 2.0)))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST
-                         (LIST 3.012983063768798 2.216796987787054
-                               5.033971231985026 0.6152002566487763
-                               0.1876159751197978 1.7884608326846099
-                               0.30812625873110316 1.1328459017528132
-                               0.7363931539298727 0.9843618987581162
-                               0.06871686155296197))
-                        (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (GAMMA-MT RNG 1.0 2.0)))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST 0.475614712250357)
-                        (MULTIPLE-VALUE-LIST (GAMMA-PDF 0.1 1.0 2.0)))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST 0.04877057549928599)
-                        (MULTIPLE-VALUE-LIST (GAMMA-P 0.1 1.0 2.0)))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST 0.951229424500714)
-                        (MULTIPLE-VALUE-LIST (GAMMA-Q 0.1 1.0 2.0)))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST 0.10000000000000006)
-                        (MULTIPLE-VALUE-LIST
-                         (GAMMA-PINV 0.048770575499286005 1.0 2.0)))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST 0.10000000000000003)
-                        (MULTIPLE-VALUE-LIST
-                         (GAMMA-QINV 0.951229424500714 1.0 2.0))))
-
-

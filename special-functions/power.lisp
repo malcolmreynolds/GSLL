@@ -1,6 +1,6 @@
 ;; Integer powers
 ;; Liam Healy, Sun Apr 30 2006 - 22:46
-;; Time-stamp: <2008-02-16 22:39:17EST power.lisp>
+;; Time-stamp: <2008-10-25 11:25:23EDT power.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,10 +14,8 @@
   multiplications.  For reasons of efficiency, these functions do not
   check for overflow or underflow conditions.")
 
-#|
-(make-tests power
+(save-test power
   (pow 3.5d0 5))
-|#
 
 (LISP-UNIT:DEFINE-TEST POWER
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

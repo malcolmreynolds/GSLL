@@ -1,6 +1,6 @@
 ;; Geometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-02-17 13:45:43EST geometric.lisp>
+;; Time-stamp: <2008-10-25 13:35:34EDT geometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -41,8 +41,7 @@
   Q(k) for the geometric distribution with parameters p.")
 
 ;;; Examples and unit test
-#|
-(make-tests geometric
+(save-test geometric
   (letm ((rng (random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
@@ -50,22 +49,3 @@
   (geometric-pdf 2 0.4d0)
   (geometric-P 2 0.4d0)
   (geometric-Q 2 0.4d0))
-|#
-
-(LISP-UNIT:DEFINE-TEST GEOMETRIC
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST (LIST 1 4 3 1 3 2 1 1 2 1 1))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-      (LOOP FOR I FROM 0 TO 10 COLLECT
-	    (GEOMETRIC RNG 0.4d0)))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.24d0)
-   (MULTIPLE-VALUE-LIST (GEOMETRIC-PDF 2 0.4d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.64d0)
-   (MULTIPLE-VALUE-LIST (GEOMETRIC-P 2 0.4d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.36d0)
-   (MULTIPLE-VALUE-LIST (GEOMETRIC-Q 2 0.4d0))))
-

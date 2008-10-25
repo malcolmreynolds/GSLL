@@ -1,6 +1,6 @@
 ;; Synchrotron functions
 ;; Liam Healy, Mon May  1 2006 - 22:29
-;; Time-stamp: <2008-02-16 22:48:24EST synchrotron.lisp>
+;; Time-stamp: <2008-10-25 11:30:06EDT synchrotron.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,16 +19,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests synchrotron
+(save-test synchrotron
   (synchrotron-1 4.0d0)
   (synchrotron-2 4.0d0))
-|#
 
-(LISP-UNIT:DEFINE-TEST SYNCHROTRON
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.052827396697912476d0 4.825849878208132d-14)
-   (MULTIPLE-VALUE-LIST (SYNCHROTRON-1 4.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.04692320582614684d0 6.854449168174663d-14)
-   (MULTIPLE-VALUE-LIST (SYNCHROTRON-2 4.0d0))))

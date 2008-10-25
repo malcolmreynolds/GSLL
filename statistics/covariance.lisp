@@ -1,6 +1,6 @@
 ;; Covariance
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-09-21 15:57:06EDT covariance.lisp>
+;; Time-stamp: <2008-10-25 18:50:08EDT covariance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,8 +28,7 @@
 
 ;;; Examples and unit test
 
-#|
-(make-tests covariance
+(save-test covariance
   (letm ((vec1 (vector-double-float (a -3.21d0 1.0d0 12.8d0)))
 	   (vec2 (vector-double-float (a 1.15d0 -1.0d0 0.5d0))))
       (let ((mean1 (mean vec1))
@@ -37,16 +36,3 @@
 	(list
 	 (covariance vec1 vec2)
 	 (covariance vec1 vec2 mean1 mean2)))))
-|#
-
-(LISP-UNIT:DEFINE-TEST COVARIANCE
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    (LIST -0.2929999999999998d0 -0.2929999999999998d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((VEC1 (VECTOR-DOUBLE-FLOAT (a -3.21d0 1.0d0 12.8d0)))
-	 (VEC2 (VECTOR-DOUBLE-FLOAT (a 1.15d0 -1.0d0 0.5d0))))
-      (LET ((MEAN1 (MEAN VEC1)) (MEAN2 (MEAN VEC2)))
-	(LIST (COVARIANCE VEC1 VEC2)
-	      (COVARIANCE VEC1 VEC2 MEAN1 MEAN2)))))))

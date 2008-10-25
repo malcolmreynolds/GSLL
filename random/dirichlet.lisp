@@ -1,6 +1,6 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-09-20 21:24:25EDT dirichlet.lisp>
+;; Time-stamp: <2008-10-25 12:13:42EDT dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -55,8 +55,7 @@
    alpha[K].")
 
 ;;; Examples and unit test
-#|
-(make-tests dirichlet
+(save-test dirichlet
   (letm ((rng (random-number-generator *mt19937* 0))
 	   (alpha (vector-double-float (a 1.0d0 2.0d0 3.0d0 4.0d0)))
 	   (theta (vector-double-float 4)))
@@ -68,32 +67,6 @@
   (letm ((alpha (vector-double-float (a 1.0d0 2.0d0 3.0d0 4.0d0)))
 	  (theta (vector-double-float (a 0.1d0 0.3d0 0.4d0 0.2d0))))
      (dirichlet-log-pdf alpha theta)))
-|#
 
-(LISP-UNIT:DEFINE-TEST DIRICHLET
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    #(0.12448073544131681 0.19182353706734917
-      0.46054388544826397 0.22315184204307006))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
-	 (ALPHA (VECTOR-DOUBLE-FLOAT (A 1.0 2.0 3.0 4.0)))
-	 (THETA (VECTOR-DOUBLE-FLOAT 4)))
-      (DIRICHLET RNG ALPHA THETA) (CL-ARRAY THETA))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 2.8800000000000043)
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((ALPHA (VECTOR-DOUBLE-FLOAT (A 1.0 2.0 3.0 4.0)))
-	 (THETA (VECTOR-DOUBLE-FLOAT (A 0.1 0.3 0.4 0.2))))
-      (DIRICHLET-PDF ALPHA THETA))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 1.057790294147856)
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((ALPHA (VECTOR-DOUBLE-FLOAT (A 1.0 2.0 3.0 4.0)))
-	 (THETA (VECTOR-DOUBLE-FLOAT (A 0.1 0.3 0.4 0.2))))
-      (DIRICHLET-LOG-PDF ALPHA THETA)))))
 
 

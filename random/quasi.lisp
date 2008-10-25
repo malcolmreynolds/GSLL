@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-09-14 22:01:42EDT quasi.lisp>
+;; Time-stamp: <2008-10-25 18:09:21EDT quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -125,25 +125,10 @@
   "gsl_qrng_sobol")
 
 ;;; Examples and unit test
-#|
-(make-tests quasi-random-number-generators
+(save-test quasi-random-number-generators
   ;; This example is given in the GSL documentation
   (letm ((gen (quasi-random-number-generator 2 *sobol*))
 	  (vec (vector-double-float 2)))
      (loop repeat 5
 	   do (qrng-get gen vec)
 	   append (coerce (cl-array vec) 'list))))
-|#
-
-(LISP-UNIT:DEFINE-TEST QUASI-RANDOM-NUMBER-GENERATORS
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    (LIST 0.5d0 0.5d0 0.75d0 0.25d0 0.25d0 0.75d0 0.375d0
-	  0.375d0 0.875d0 0.875d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((GEN (QUASI-RANDOM-NUMBER-GENERATOR 2 *SOBOL*))
-	 (VEC (VECTOR-DOUBLE-FLOAT 2)))
-      (LOOP REPEAT 5 DO (QRNG-GET GEN VEC) APPEND
-	    (COERCE (CL-ARRAY VEC) 'LIST))))))
-

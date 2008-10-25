@@ -1,6 +1,6 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
-;; Time-stamp: <2008-09-14 21:41:43EDT shuffling-sampling.lisp>
+;; Time-stamp: <2008-10-25 18:16:45EDT shuffling-sampling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,46 +56,18 @@
    in this case.")
 
 ;;; Examples and unit test
-#|
-(make-tests shuffling-sampling
+(save-test shuffling-sampling
  (letm ((rng (random-number-generator *mt19937* 0))
-	(v1 (vector-fixnum #(1 2 3 4 5 6 7 8))))
+	(v1 (vector-signed-byte-32 (a 1 2 3 4 5 6 7 8))))
    (shuffle rng v1)
-   (data v1))
+   (cl-array v1))
  (letm ((rng (random-number-generator *mt19937* 0))
-	(v1 (vector-fixnum #(1 2 3 4 5 6 7 8)))
-	(v2 (vector-fixnum 4)))
+	(v1 (vector-signed-byte-32 (a 1 2 3 4 5 6 7 8)))
+	(v2 (vector-signed-byte-32 4)))
    (choose-random rng v2 v1)
-   (data v2))
+   (cl-array v2))
  (letm ((rng (random-number-generator *mt19937* 0))
-	(v1 (vector-fixnum #(1 2 3 4 5 6 7 8)))
-	(v2 (vector-fixnum 10)))
+	(v1 (vector-signed-byte-32 (a 1 2 3 4 5 6 7 8)))
+	(v2 (vector-signed-byte-32 10)))
    (sample rng v2 v1)
-   (data v2)))
-
-(LISP-UNIT:DEFINE-TEST SHUFFLING-SAMPLING
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(4 3 6 1 5 7 2 8))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
-	 (V1 (VECTOR-FIXNUM #(1 2 3 4 5 6 7 8))))
-      (SHUFFLE RNG V1) (DATA V1))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(2 3 5 8))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
-	 (V1 (VECTOR-FIXNUM #(1 2 3 4 5 6 7 8)))
-	 (V2 (VECTOR-FIXNUM 4)))
-      (CHOOSE-RANDOM RNG V2 V1)
-      (DATA V2))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(8 2 3 8 2 4 8 6 5 6))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0))
-	 (V1 (VECTOR-FIXNUM #(1 2 3 4 5 6 7 8)))
-	 (V2 (VECTOR-FIXNUM 10)))
-      (SAMPLE RNG V2 V1) (DATA V2)))))
-|#
+   (cl-array v2)))

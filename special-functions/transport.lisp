@@ -1,6 +1,6 @@
 ;; Transport functions
 ;; Liam Healy, Mon May  1 2006 - 22:29
-;; Time-stamp: <2008-02-16 22:50:39EST transport.lisp>
+;; Time-stamp: <2008-10-25 11:30:06EDT transport.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -34,24 +34,9 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests transport
+(save-test transport
   (transport-2 4.0d0)
   (transport-3 4.0d0)
   (transport-4 4.0d0)
   (transport-5 4.0d0))
-|#
 
-(LISP-UNIT:DEFINE-TEST TRANSPORT
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 2.806666404563118d0 2.2867923780257255d-15)
-   (MULTIPLE-VALUE-LIST (TRANSPORT-2 4.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 4.579217437229157d0 3.242324689309112d-15)
-   (MULTIPLE-VALUE-LIST (TRANSPORT-3 4.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 10.731932392998623d0 1.0925209116254758d-14)
-   (MULTIPLE-VALUE-LIST (TRANSPORT-4 4.0d0)))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 29.488339015245842d0 3.204450601879883d-14)
-   (MULTIPLE-VALUE-LIST (TRANSPORT-5 4.0d0))))

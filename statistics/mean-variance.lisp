@@ -1,6 +1,6 @@
 ;; Mean, standard deviation, and variance    
 ;; Liam Healy, Sat Dec  2 2006 - 22:15
-;; Time-stamp: <2008-09-21 15:52:16EDT mean-variance.lisp>
+;; Time-stamp: <2008-10-25 18:44:21EDT mean-variance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -186,8 +186,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(make-tests mean-variance
+(save-test mean-variance
  (letm ((vec (vector-double-float (a -3.21d0 1.0d0 12.8d0)))
 	(weights (vector-double-float (a 3.0d0 1.0d0 2.0d0))))
    (let ((mean (mean vec))
@@ -212,42 +211,3 @@
       (standard-deviation vec mean)
       (variance-with-fixed-mean vec 4.0d0)
       (standard-deviation-with-fixed-mean vec 4.0d0)))))
-|#
-
-(LISP-UNIT:DEFINE-TEST MEAN-VARIANCE
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    (LIST 3.5300000000000002d0 2.8283333333333336d0
-	  68.88069999999999d0 68.88069999999999d0
-	  84.98058636363639d0 84.98058636363639d0
-	  8.29943974012704d0 8.29943974012704d0
-	  46.14136666666667d0 6.792743677385941d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((VEC (VECTOR-DOUBLE-FLOAT (A -3.21d0 1.0d0 12.8d0)))
-	 (WEIGHTS (VECTOR-DOUBLE-FLOAT (A 3.0d0 1.0d0 2.0d0))))
-      (LET ((MEAN (MEAN VEC))
-	    (WMEAN (WEIGHTED-MEAN VEC WEIGHTS)))
-	(LIST MEAN WMEAN (VARIANCE VEC) (VARIANCE VEC MEAN)
-	      (WEIGHTED-VARIANCE VEC WEIGHTS)
-	      (WEIGHTED-VARIANCE VEC WEIGHTS WMEAN)
-	      (STANDARD-DEVIATION VEC)
-	      (STANDARD-DEVIATION VEC MEAN)
-	      (VARIANCE-WITH-FIXED-MEAN VEC 4.0d0)
-	      (STANDARD-DEVIATION-WITH-FIXED-MEAN VEC
-						  4.0d0))))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    (LIST 3.3333333333333335d0 25.333333333333336d0
-	  25.333333333333336d0 5.033222956847167d0
-	  5.033222956847167d0 17.333333333333332d0
-	  4.163331998932265d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((VEC (VECTOR-SIGNED-BYTE-32 (A 8 4 -2))))
-      (LET ((MEAN (MEAN VEC)))
-	(LIST MEAN (VARIANCE VEC) (VARIANCE VEC MEAN)
-	      (STANDARD-DEVIATION VEC)
-	      (STANDARD-DEVIATION VEC MEAN)
-	      (VARIANCE-WITH-FIXED-MEAN VEC 4.0d0)
-	      (STANDARD-DEVIATION-WITH-FIXED-MEAN VEC
-						  4.0d0)))))))

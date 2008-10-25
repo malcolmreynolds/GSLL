@@ -1,6 +1,6 @@
 ;; Lognormal distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-02-17 13:10:13EST lognormal.lisp>
+;; Time-stamp: <2008-10-25 17:57:40EDT lognormal.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -55,8 +55,7 @@
    zeta and sigma.")
 
 ;;; Examples and unit test
-#|
-(make-tests lognormal
+(save-test lognormal
   (letm ((rng (random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
@@ -66,7 +65,6 @@
   (lognormal-Q 1.2d0 1.0d0 2.0d0)
   (lognormal-Pinv 0.3413288272347352d0 1.0d0 2.0d0)
   (lognormal-Qinv 0.6586711727652649d0 1.0d0 2.0d0))
-|#
 
 (LISP-UNIT:DEFINE-TEST LOGNORMAL
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

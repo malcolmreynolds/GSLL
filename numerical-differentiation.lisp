@@ -1,6 +1,6 @@
 ;; Numerical differentiation.                
 ;; Liam Healy Mon Nov 12 2007 - 22:07
-;; Time-stamp: <2008-09-20 18:23:28EDT numerical-differentiation.lisp>
+;; Time-stamp: <2008-10-25 12:00:36EDT numerical-differentiation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -102,27 +102,25 @@
 (forward-derivative deriv-f6 10.0d0 1.0d-4)
 (backward-derivative deriv-f6 10.0d0 1.0d-4)
 
-#|
-(make-tests numerical-differentiation
-	    (central-derivative deriv-f1 1.0d0 1.0d-4)
-	    (forward-derivative deriv-f1 1.0d0 1.0d-4)
-	    (backward-derivative deriv-f1 1.0d0 1.0d-4)
-	    (central-derivative deriv-f2 0.1d0 1.0d-4)
-	    (forward-derivative deriv-f2 0.1d0 1.0d-4)
-	    (backward-derivative deriv-f2 0.1d0 1.0d-4)
-	    (central-derivative deriv-f3 0.45d0 1.0d-4)
-	    (forward-derivative deriv-f3 0.45d0 1.0d-4)
-	    (backward-derivative deriv-f3 0.45d0 1.0d-4)
-	    (central-derivative deriv-f4 0.5d0 1.0d-4)
-	    (forward-derivative deriv-f4 0.5d0 1.0d-4)
-	    (backward-derivative deriv-f4 0.5d0 1.0d-4)
-	    (central-derivative deriv-f5 0.0d0 1.0d-4)
-	    (forward-derivative deriv-f5 0.0d0 1.0d-4)
-	    (backward-derivative deriv-f5 0.0d0 1.0d-4)
-	    (central-derivative deriv-f6 10.0d0 1.0d-4)
-	    (forward-derivative deriv-f6 10.0d0 1.0d-4)
-	    (backward-derivative deriv-f6 10.0d0 1.0d-4))
-|#
+(save-test numerical-differentiation
+	   (central-derivative deriv-f1 1.0d0 1.0d-4)
+	   (forward-derivative deriv-f1 1.0d0 1.0d-4)
+	   (backward-derivative deriv-f1 1.0d0 1.0d-4)
+	   (central-derivative deriv-f2 0.1d0 1.0d-4)
+	   (forward-derivative deriv-f2 0.1d0 1.0d-4)
+	   (backward-derivative deriv-f2 0.1d0 1.0d-4)
+	   (central-derivative deriv-f3 0.45d0 1.0d-4)
+	   (forward-derivative deriv-f3 0.45d0 1.0d-4)
+	   (backward-derivative deriv-f3 0.45d0 1.0d-4)
+	   (central-derivative deriv-f4 0.5d0 1.0d-4)
+	   (forward-derivative deriv-f4 0.5d0 1.0d-4)
+	   (backward-derivative deriv-f4 0.5d0 1.0d-4)
+	   (central-derivative deriv-f5 0.0d0 1.0d-4)
+	   (forward-derivative deriv-f5 0.0d0 1.0d-4)
+	   (backward-derivative deriv-f5 0.0d0 1.0d-4)
+	   (central-derivative deriv-f6 10.0d0 1.0d-4)
+	   (forward-derivative deriv-f6 10.0d0 1.0d-4)
+	   (backward-derivative deriv-f6 10.0d0 1.0d-4))
 
 (LISP-UNIT:DEFINE-TEST NUMERICAL-DIFFERENTIATION
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

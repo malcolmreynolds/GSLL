@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-08-23 11:27:10EDT chebyshev.lisp>
+;; Time-stamp: <2008-10-25 11:33:06EDT chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -123,16 +123,6 @@
      (evaluate-chebyshev deriv x)
      (evaluate-chebyshev integ x))))
 
-
-#|
-(make-tests chebyshev
+;;; Unit test
+(save-test chebyshev
   (chebyshev-point-example 0.55d0))
-|#
-
-(LISP-UNIT:DEFINE-TEST CHEBYSHEV
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST
-    (LIST 0.7159209901689866d0 -1.5019966658054353d0
-	  0.17239719403979925d0))
-   (MULTIPLE-VALUE-LIST (CHEBYSHEV-POINT-EXAMPLE 0.55d0))))
-
