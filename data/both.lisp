@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-08-28 21:41:15EDT both.lisp>
+;; Time-stamp: <2008-11-02 18:00:49EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -76,7 +76,8 @@
 ;;; These functions are here as debugging tools only; they do not insure
 ;;; coherency between the C and CL sides and therefore should not be
 ;;; used in production.
-(defmfun set-value ((object both) index value)
+;;; For matrix functions, there should be another index argument
+(defmfun set-value ((object vector) index value)
   ("gsl_"  :category :type "_set")
   (((mpointer object) :pointer) (index sizet) (value :element-c-type))
   :definition :generic
@@ -87,7 +88,7 @@
   :documentation
   "Set single element to the value.  For debugging only; do not use.")
 
-(defmfun get-value ((object both) index)
+(defmfun get-value ((object vector) index)
   ("gsl_"  :category :type "_get")
   (((mpointer object) :pointer) (index sizet))
   :definition :generic

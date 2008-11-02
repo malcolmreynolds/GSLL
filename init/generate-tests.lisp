@@ -1,6 +1,6 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-11-02 10:56:53EST generate-tests.lisp>
+;; Time-stamp: <2008-11-02 17:50:39EST generate-tests.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -108,11 +108,12 @@
 
 ;;; (loop repeat 50 collect (coerce (- (/ (random 10000) 100) 50) 'double-float))
 (defparameter *double-float-pool*
-  '(-37.61 -48.84 -48.86 29.32 2.43 10.83 20.93 -15.27 11.26 -9.16 38.5 25.53
-    -25.72 -13.99 -10.95 -0.71 36.53 -24.44 -21.79 -17.01 11.59 -37.64 -20.97
-    -44.42 42.09 -46.72 13.32 -37.18 25.98 -21.06 40.78 21.35 43.15 9.23
-    31.73 33.38 -48.95 -42.69 22.95 -47.97 37.37 3.01 -3.53 -38.5 -12.8 42.14
-    -6.44 29.57 -34.1 -11.98)
+  '(-34.5d0 8.24d0 3.29d0 -8.93d0 34.12d0 -6.15d0 49.27d0 -13.49d0 32.5d0
+    42.73d0 -17.24d0 43.31d0 -16.12d0 -8.25d0 21.44d0 -49.08d0 -39.66d0
+    -49.46d0 19.68d0 -5.55d0 -8.82d0 25.37d0 -30.58d0 31.67d0 29.36d0
+    -33.24d0 -27.03d0 -41.67d0 42.0d0 -20.81d0 37.93d0 -30.02d0 11.41d0
+    22.0d0 33.43d0 42.97d0 -36.7d0 -9.69d0 10.18d0 -47.96d0 37.42d0 -42.55d0
+    40.77d0 18.19d0 -43.66d0 -9.3d0 -29.79d0 -38.88d0 -45.6d0 -31.91d0)
   "A sequence of random double floats ranging between -100.0d0 and +100.0d0.")
 
 ;;; (loop repeat 50 collect (random 256))
@@ -141,34 +142,53 @@
   "Make a list for :initial-contents of the specified element type and
    length using the pool data for the type and starting at the
    specified point in the pool."
-  (subseq
-   (cond ((subtypep type 'unsigned-byte) *unsigned-byte-pool*)
-	 ((subtypep type 'signed-byte) *signed-byte-pool*)
-	 ((subtypep type 'float) *double-float-pool*)
-	 ((subtypep type 'complex) *double-float-pool*))
-   starting
-   (+ starting (if (subtypep type 'complex) (* 2 length) length))))
+  (mapcar
+   (lambda (num) (coerce num (component-float-type type)))
+   (subseq
+    (cond ((subtypep type 'unsigned-byte) *unsigned-byte-pool*)
+	  ((subtypep type 'signed-byte) *signed-byte-pool*)
+	  ((subtypep type 'float) *double-float-pool*)
+	  ((subtypep type 'complex) *double-float-pool*))
+    starting
+    (+ starting (if (subtypep type 'complex) (* 2 length) length)))))
 
 
 ;;;;****************************************************************************
 ;;;; Generate forms for all array types
 ;;;;****************************************************************************
 
-(defun vector-default (spec &optional no-init sync-on-exit)
+(defun array-default (spec &optional no-init sync-on-exit)
+  "Make an array of the current type and intialize from the pool."
+  (declare (special default-element-type starting-element))
+  (let ((matrixp (listp spec)))
+    `(,(data-class-name (if matrixp 'matrix 'vector) default-element-type)
+       ,(if no-init
+	    `',spec		   ; no initial values, just dimension
+	    (cons		   ; macro to make initial-contents
+	     'a
+	     (if matrixp
+		 (loop repeat (first spec)
+		    collect
+		    (make-list-from-pool
+		     default-element-type (second spec) starting-element)
+		    do
+		    (incf starting-element (second spec)))
+		 (prog1 
+		     (make-list-from-pool
+		      default-element-type spec starting-element)
+		   (incf starting-element spec)))))
+       ,sync-on-exit)))
+
+(defun scalar-default ()
+  "Make a scalar of the current type from the pool."
   (declare (special default-element-type starting-element))
   (prog1
-      `(,(data-class-name 'vector default-element-type)
-	 ,(if no-init
-	      spec		   ; no initial values, just dimension
-	      (cons		   ; macro to make initial-contents
-	       'a
-	       (make-list-from-pool default-element-type spec starting-element)))
-	 ,sync-on-exit)
-    (incf starting-element spec)))
-
-(defun scalar-default (spec)
-  (declare (special default-element-type))
-  (coerce spec default-element-type))
+      (if (subtypep default-element-type 'complex)
+	  (apply #'complex
+		 (make-list-from-pool default-element-type 1 starting-element))
+	  (first
+	   (make-list-from-pool default-element-type 1 starting-element)))
+    (incf starting-element)))
 
 (defun stupid-code-walk-eval-some (form eval-list)
   "Walk the form and if the first symbol of the list is a member of
@@ -189,7 +209,7 @@
 	(collect
 	    (stupid-code-walk-eval-some
 	     test
-	     '(vector-default scalar-default)))))
+	     '(array-default vector-default scalar-default)))))
 
 (defmacro generate-all-array-tests (name element-types test)
   `(save-test ,name ,@(generate-all-array-tests-body element-types test)))
