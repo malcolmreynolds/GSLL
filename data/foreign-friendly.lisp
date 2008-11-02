@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT ffa.lisp
-;; Time-stamp: <2008-09-14 16:16:50EDT foreign-friendly.lisp>
+;; Time-stamp: <2008-11-02 12:20:23EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Use Papp's Foreign-friendly arrays
@@ -47,12 +47,14 @@ defined in ffa will be usable.
 
 (defun make-array*
     (dimensions element-type
-     &key (initial-element nil initial-element-p) (initial-contents nil initial-contents-p))
+     &key (initial-element nil initial-element-p)
+     (initial-contents nil initial-contents-p))
   "Make an array for possible use in foreign code.
    Syntax is similar to make-array, but note that element-type
    is mandatory and limited to certain types."
   (assert (member element-type *array-element-types* :test 'equal)
-	  (element-type) "Specified element-type must be one of *array-element-types*.")
+	  (element-type)
+	  "Specified element-type must be one of *array-element-types*.")
   (if initial-contents-p
       (if (and (subtypep element-type 'complex)
 	       (= (length initial-contents)

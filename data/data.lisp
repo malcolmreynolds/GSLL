@@ -1,6 +1,6 @@
 ;; Data using ffa
 ;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-08-28 21:31:49EDT data.lisp>
+;; Time-stamp: <2008-11-02 12:50:17EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -157,14 +157,24 @@
 	 (cont
 	  (if firsttype
 	      (rest type-contents)
-	      type-contents)))
+	      type-contents))
+	 (matrixp (listp (first cont)))
+	 (complex-with-real-init
+	  (and (subtypep element-type 'complex)
+	       (typep (if matrixp (caar cont) (first cont)) 'real))))
+    (when complex-with-real-init
+      (assert
+       (evenp (length cont)) (cont)
+       "Complex arrays require initial contents of even length."))
     (make-array*
-     (if (listp (first cont))		; make a matrix
-	 (list (length cont) (length (first cont)))
-	 (list (length cont)))		; make a vector
+     (if matrixp
+	 (list (length cont)
+	       (* (if complex-with-real-init 1/2 1) (length (first cont))))
+	 ;; make a vector
+	 (list (* (if complex-with-real-init 1/2 1) (length cont))))
      element-type
      :initial-contents
-     (if (listp (first cont))
+     (if matrixp
 	 (apply #'append cont)		; flatten lists
 	 cont))))
 

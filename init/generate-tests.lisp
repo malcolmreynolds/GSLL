@@ -1,6 +1,6 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-10-25 19:06:40EDT generate-tests.lisp>
+;; Time-stamp: <2008-11-02 10:56:53EST generate-tests.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -122,11 +122,11 @@
     156 158 157 167 157 34 219 249)
   "A sequence of random integers ranging between 0 and 255.")
 
-;;; (loop repeat 50 collect (* (if (zerop (random 2)) -1 1) (random 256)))
+;;; (loop repeat 50 collect (* (if (zerop (random 2)) -1 1) (random 128)))
 (defparameter *signed-byte-pool*
-  '(-161 17 -194 -135 -90 253 -22 22 -102 -27 -254 175 -107 -76 108 -209 54
-    -239 -73 237 -80 -92 150 -107 164 63 -48 -142 0 105 182 253 96 124 -28
-    -153 -84 188 181 3 96 -114 -222 -39 225 233 84 -218 51 -188)
+  '(-64 -68 71 -91 52 -10 73 -5 123 32 28 30 37 -73 -8 -15 -22 68 -47 -81 -68
+    125 -15 -53 -17 -114 24 -60 32 106 -3 37 -1 97 -96 -12 -20 -61 18 108 61
+    -82 75 -30 -71 44 48 88 121 106)
   "A sequence of random integers ranging between -255 and 255.")
 
 (defun make-vector-from-pool (type length &optional (starting 0))
