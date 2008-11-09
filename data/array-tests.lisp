@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2008-11-08 19:04:34EST array-tests.lisp>
+;; Time-stamp: <2008-11-08 22:27:39EST array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -190,3 +190,72 @@
    (minmax-index m1)))
 
 ;;; No test for mzerop yet.
+
+;;;;****************************************************************************
+;;;; Vector-only function definitions
+;;;;****************************************************************************
+
+(generate-all-array-tests set-basis t
+ (letm ((v1 (array-default 8)))
+   (set-basis v1 2)
+   (cl-array v1)))
+
+(generate-all-array-tests swap-elements t
+ (letm ((v1 (array-default 8)))
+   (swap-elements v1 2 5)
+   (cl-array v1)))
+
+(generate-all-array-tests vector-reverse t
+ (letm ((v1 (array-default 8)))
+   (cl-array (vector-reverse v1))))
+
+;;;;****************************************************************************
+;;;; Matrix-only function definitions
+;;;;****************************************************************************
+
+(generate-all-array-tests set-identity t
+ (letm ((m1 (array-default '(3 3))))
+   (set-identity m1)))
+
+(generate-all-array-tests row t
+ (letm ((m1 (array-default '(3 3)))
+	(row (array-default 3 t)))
+   (cl-array (row row m1 1))))
+
+(generate-all-array-tests setf-row t
+ (letm ((m1 (array-default '(3 3)))
+	(row (array-default 3)))
+   (setf (row m1 2) row)
+   (cl-array m1)))
+
+(generate-all-array-tests column t
+ (letm ((m1 (array-default '(3 3)))
+	(col (array-default 3 t)))
+   (cl-array (column col m1 1))))
+
+(generate-all-array-tests setf-column t
+ (letm ((m1 (array-default '(3 3)))
+	(col (array-default 3)))
+   (setf (column m1 2) col)
+   (cl-array m1)))
+
+(generate-all-array-tests swap-rows t
+ (letm ((m1 (array-default '(3 3))))
+   (cl-array (swap-rows m1 0 1))))
+
+(generate-all-array-tests swap-columns t
+ (letm ((m1 (array-default '(3 3))))
+   (cl-array (swap-columns m1 1 2))))
+
+(generate-all-array-tests swap-row-column t
+ (letm ((m1 (array-default '(3 3))))
+   (cl-array (swap-row-column m1 0 2))))
+
+(generate-all-array-tests matrix-transpose t
+ (letm ((m1 (array-default '(3 3))))
+   (cl-array (matrix-transpose m1))))
+
+(generate-all-array-tests matrix-transpose-copy t
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(3 3) t)))
+   (cl-array (matrix-transpose-copy m2 m1))))

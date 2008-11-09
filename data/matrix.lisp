@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix-ffa.lisp
-;; Time-stamp: <2008-06-30 22:53:27EDT matrix.lisp>
+;; Time-stamp: <2008-11-08 22:33:17EST matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -34,6 +34,7 @@
   (((mpointer matrix) :pointer))
   :definition :generic
   :c-return :void
+  :outputs (matrix)
   :return (matrix)
   :documentation			; FDL
   "Set the elements of the matrix to the
@@ -49,6 +50,8 @@
   ("gsl_matrix" :type "_get_row")
   (((mpointer vector) :pointer) ((mpointer matrix) :pointer) (i sizet))
   :definition :generic
+  :inputs (matrix)
+  :outputs (vector)
   :return (vector)
   :documentation			; FDL
   "Copy the elements of the ith row of the matrix
@@ -59,6 +62,7 @@
   ("gsl_matrix" :type "_set_row")
   (((mpointer matrix) :pointer) (i sizet) ((mpointer vector) :pointer))
   :definition :generic
+  :inputs (vector matrix)
   :return (vector)			;setf should return
   :documentation			; FDL
   "Copy the elements of the vector into the jth column of the matrix.
@@ -68,6 +72,8 @@
   ("gsl_matrix" :type "_get_col")
   (((mpointer vector) :pointer) ((mpointer matrix) :pointer) (i sizet))
   :definition :generic
+  :inputs (matrix)
+  :outputs (vector)
   :return (vector)
   :documentation			; FDL
   "Copy the elements of the ith column of the matrix
@@ -78,6 +84,7 @@
   ("gsl_matrix" :type "_set_col")
   (((mpointer matrix) :pointer) (i sizet) ((mpointer vector) :pointer))
   :definition :generic
+  :outputs (matrix)
   :return (vector)			;setf should return
   :documentation			; FDL
   "Copy the elements of the vector into the ith column of the matrix.
@@ -142,88 +149,3 @@
   "Make the destination matrix the transpose of the source matrix
    by copying the elements.  The dimensions of the destination
    matrix must match the transposed dimensions of the source.")
-
-;;;;****************************************************************************
-;;;; Examples and unit test
-;;;;****************************************************************************
-
-#|
-(letm ((mat (matrix-double-float (els (2.0d0 -23.1d0) (55.0d0 -1.0d0)) t)))
-  (minmax mat))
-|#
-
-#|
-(make-tests matrix-signed-byte-32
- (letm ((intmat (matrix-signed-byte-32 2 2)))	;(setf maref), maref
-   (setf (maref intmat 0 1) 77)
-   (maref intmat 0 1))
- (letm ((intmat (matrix-signed-byte-32 2 2)))	;(setf data)
-   (setf (data intmat) #2A((4 6) (8 2)))
-   (data intmat))
- (letm ((intmat (matrix-signed-byte-32 2 2)))	;set-zero
-   (set-zero intmat)
-   (data intmat))
- (letm ((intmat (matrix-signed-byte-32 2 2)))	;set-all
-   (set-all intmat 44)
-   (data intmat))
- (letm ((intmat (matrix-signed-byte-32 2 2)))	;set-identity
-   (set-identity intmat)
-   (data intmat))
- (letm ((intmat (matrix-signed-byte-32 #2A((4 6) (8 2)))) ;row
-	(vect (vector-signed-byte-32 2)))
-   (row vect intmat 0)
-   (data vect))
- (letm ((intmat (matrix-signed-byte-32 #2A((4 6) (8 2)))) ;column
-	(vect (vector-signed-byte-32 2)))
-   (column vect intmat 1)
-   (data vect))
- (letm ((intmat (matrix-signed-byte-32 #2A((-1 -12) (8 3))))) ;gsl-min
-   (gsl-min intmat))
- (letm ((intmat (matrix-signed-byte-32 #2A((-1 -12) (8 3))))) ;gsl-max
-   (gsl-max intmat))
- (letm ((intmat (matrix-signed-byte-32 #2A((-1 -12) (8 3))))) ;gsl-minmax
-   (multiple-value-list (gsl-minmax intmat)))
- (letm ((intmat (matrix-signed-byte-32 #2A((-1 -12) (8 3))))) ;gsl-min-index
-   (gsl-min-index intmat))
- (letm ((intmat (matrix-signed-byte-32 #2A((-1 -12) (8 3))))) ;gsl-max-index
-   (gsl-max-index intmat))
- (letm ((intmat (matrix-signed-byte-32 #2A((-1 -12) (8 3))))) ;gsl-minmax-index
-   (multiple-value-list (gsl-minmax-index intmat)))
- (letm ((intmat1 (matrix-signed-byte-32 #2A((1 2)(3 4)))) ;copy
-	(intmat2 (matrix-signed-byte-32 2 2)))
-   (copy intmat2 intmat1)
-   (data intmat2))
- (letm ((intmat1 (matrix-signed-byte-32 #2A((1 2)(3 4)))) ;swap
-	(intmat2 (matrix-signed-byte-32 #2A((5 6) (7 8)))))
-   (swap intmat1 intmat2)
-   (data intmat1))
- (letm ((intmat1 (matrix-signed-byte-32 #2A((1 2)(3 4))))) ;swap-rows
-   (swap-rows intmat1 0 1)
-   (data intmat1))
- (letm ((intmat1 (matrix-signed-byte-32 #2A((1 2)(3 4))))) ;swap-columns
-   (swap-columns intmat1 0 1)
-   (data intmat1))
- (letm ((intmat1 (matrix-signed-byte-32 #2A((1 2)(3 4))))) ;swap-rowcol
-   (swap-rowcol intmat1 0 1)
-   (data intmat1)))
-|#
-
-#|
-(make-tests
- matrix-double
- (letm ((mat (matrix-double-float 10 3)))
-   (loop for i from 0 below 10
-	 do
-	 (loop for j from 0 below 3
-	       do (setf (maref mat i j) (+ 0.23d0 j (* 100 i)))))
-   (data mat))
- (letm ((mat (matrix-double-float #2A((1.0d0 2.0d0) (3.0d0 4.0d0))))
-	(ans (matrix-double-float 2 2)))
-   (copy ans mat)
-   (data ans))
- (letm ((mat (matrix-double-float #2A((1.0d0 2.0d0) (3.0d0 4.0d0)))))
-   (m* mat mat)
-   (data mat))
- (letm ((mat (matrix-double-float #2A((1.0d0 2.0d0) (-3.0d0 4.0d0)))))
-   (list (maref mat 0 0) (maref mat 0 1) (maref mat 1 0) (maref mat 1 1))))
-|#
