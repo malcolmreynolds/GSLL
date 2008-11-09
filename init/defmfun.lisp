@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-09-14 18:10:43EDT defmfun.lisp>
+;; Time-stamp: <2008-11-08 18:10:32EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -223,11 +223,11 @@
 		 (generate-methods
 		  :method 'vector
 		  name arglist gsl-name (actual-array-c-type 'vector c-arguments)
-		  key-args 'vector)
+		  (copy-list key-args) 'vector)
 		 (generate-methods
 		  :method 'matrix
 		  name arglist gsl-name (actual-array-c-type 'matrix c-arguments)
-		  key-args 'matrix)))
+		  (copy-list key-args) 'matrix)))
 	      ;; Generate forms for one category
 	      (generate-methods
 	       :method (first categories)

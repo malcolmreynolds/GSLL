@@ -1,7 +1,25 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-11-02 17:50:39EST generate-tests.lisp>
+;; Time-stamp: <2008-11-08 15:10:41EST generate-tests.lisp>
 ;; $Id: $
+
+;;; Througout the GSLL interface definition files are #'save-test
+;;; forms.  These serve to define both examples and tests.  Getting an
+;;; example involves calling (examples) to get a list of names, then
+;;; the calling the function with a particular name to get the
+;;; examples, e.g.
+;;; (examples)
+;;; (examples 'matrix-m+)
+
+;;; To do all the tests,
+;;; (lisp-unit:run-tests)
+
+;;; The files that define the tests are in tests/.  These files are
+;;; generated automatically and checked into the repository; they
+;;; shouldn't be changed very often.  Rarely, it may be necessary to
+;;; generate such a file.  In this case, #'write-test-to-file recreates
+;;; the file, e.g.
+;;; (write-test-to-file 'matrix-m+ "test/")
 
 (in-package :gsl)
 
@@ -39,6 +57,10 @@
       ',forms
       (getf *all-generated-tests* ',name))
      :test #'equal)))
+
+;;; This is needed for debugging, to remove the previous definitions.
+(defun delete-test-definition (name)
+  (remf *all-generated-tests* name))
 
 (defun examples (&optional name)
   "If no argument is supplied, list the names of the example categories.

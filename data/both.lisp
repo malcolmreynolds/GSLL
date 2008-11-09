@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-11-02 18:00:49EST both.lisp>
+;; Time-stamp: <2008-11-08 17:23:47EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -102,11 +102,17 @@
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
+;;; Errors in GSL:
+;;; 1) complex operations in older versions of GSL
+;;; https://savannah.gnu.org/bugs/index.php?22478
+;;; 2) Scalar operation m*c, m+c require a double
+;;; for the scalar.  Reported 2008-11-08.
+
 (defmfun m+ ((a both) (b both))
   ("gsl_" :category :type "_add")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -118,7 +124,7 @@
   ("gsl_" :category :type "_sub")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -130,7 +136,7 @@
   ("gsl_" :category :type "_mul")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -142,7 +148,7 @@
   ("gsl_" :category :type "_mul_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :methods
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a b)
   :outputs (a)
   :return (a))
@@ -151,7 +157,7 @@
   ("gsl_" :category :type "_div")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -163,7 +169,7 @@
   ("gsl_" :category :type "_div_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :methods
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a b)
   :outputs (a)
   :return (a))
@@ -172,7 +178,7 @@
   ("gsl_" :category :type "_scale")
   (((mpointer a) :pointer) (x :element-c-type))
   :definition :generic
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a)
   :outputs (a)
   :return (a)
@@ -183,7 +189,7 @@
   ("gsl_" :category :type "_add_constant")
   (((mpointer a) :pointer) (x :element-c-type))
   :definition :generic
-  :element-types :no-complex		; Question for GSL: why no complex?
+  :element-types :no-complex
   :inputs (a)
   :outputs (a)
   :return (a)
