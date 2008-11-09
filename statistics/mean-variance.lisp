@@ -1,6 +1,6 @@
 ;; Mean, standard deviation, and variance    
 ;; Liam Healy, Sat Dec  2 2006 - 22:15
-;; Time-stamp: <2008-10-25 18:44:21EDT mean-variance.lisp>
+;; Time-stamp: <2008-11-09 11:50:03EST mean-variance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,22 +12,22 @@
 ;;;; Mean and weighted mean
 ;;;;****************************************************************************
 
-(defmfun mean ((vector vector))
+(defmfun mean ((array both))
   ("gsl_stats" :type "_mean")
-  (((c-pointer vector) :pointer) (1 :int) ((dim0 vector) sizet))
+  (((c-pointer array) :pointer) (1 :int) ((total-size array) sizet))
   :definition :generic
   :element-types :no-complex
   :c-return :double
   :documentation			; FDL
-   "The arithmetic mean of the vector.
+   "The arithmetic mean of the array.
    The arithmetic mean, or sample mean, is denoted by
    \Hat\mu and defined as \Hat\mu = (1/N) \sum x_i.  Returns a double-float.")
 
-(defmfun weighted-mean ((vector vector) (weights vector))
+(defmfun weighted-mean ((array both) (weights both))
   ("gsl_stats" :type "_wmean")
   (((c-pointer weights) :pointer) (1 :int)
-   ((c-pointer vector) :pointer) (1 :int)
-   ((dim0 vector) sizet))
+   ((c-pointer array) :pointer) (1 :int)
+   ((total-size array) sizet))
   :definition :generic
   :element-types :float
   :c-return :element-c-type
@@ -40,12 +40,12 @@
 ;;;; Variance
 ;;;;****************************************************************************
 
-(defmfun variance ((vector vector) &optional mean)
+(defmfun variance ((array both) &optional mean)
   (("gsl_stats" :type "_variance")
    ("gsl_stats" :type "_variance_m"))
-  ((((c-pointer vector) :pointer) (1 :int) ((dim0 vector) sizet))
-   (((c-pointer vector) :pointer) (1 :int)
-   ((dim0 vector) sizet) (mean :double)))
+  ((((c-pointer array) :pointer) (1 :int) ((total-size array) sizet))
+   (((c-pointer array) :pointer) (1 :int)
+   ((total-size array) sizet) (mean :double)))
   :definition :generic
   :element-types :no-complex
   :c-return :double
@@ -61,15 +61,15 @@
    If the mean value is known, it may be supplied which will use more
    efficient routines to compute the variance.")
 
-(defmfun weighted-variance ((vector vector) (weights vector) &optional mean)
+(defmfun weighted-variance ((array both) (weights both) &optional mean)
   (("gsl_stats" :type "_wvariance")
    ("gsl_stats" :type "_wvariance_m"))
   ((((c-pointer weights) :pointer) (1 :int)
-    ((c-pointer vector) :pointer) (1 :int)
-    ((dim0 vector) sizet))
+    ((c-pointer array) :pointer) (1 :int)
+    ((total-size array) sizet))
    (((c-pointer weights) :pointer) (1 :int)
-    ((c-pointer vector) :pointer) (1 :int)
-    ((dim0 vector) sizet) (mean :double)))
+    ((c-pointer array) :pointer) (1 :int)
+    ((total-size array) sizet) (mean :double)))
   :definition :generic
   :element-types :float
   :c-return :double
@@ -86,12 +86,12 @@
 ;;;; Standard deviation
 ;;;;****************************************************************************
 
-(defmfun standard-deviation ((vector vector) &optional mean)
+(defmfun standard-deviation ((array both) &optional mean)
   (("gsl_stats" :type "_sd")
    ("gsl_stats" :type "_sd_m"))
-  ((((c-pointer vector) :pointer) (1 :int) ((dim0 vector) sizet))
-   (((c-pointer vector) :pointer) (1 :int)
-   ((dim0 vector) sizet) (mean :double)))
+  ((((c-pointer array) :pointer) (1 :int) ((total-size array) sizet))
+   (((c-pointer array) :pointer) (1 :int)
+   ((total-size array) sizet) (mean :double)))
   :definition :generic
   :element-types :no-complex
   :c-return :double
@@ -100,15 +100,15 @@
    If the mean value is known, it may be supplied which will use more
    efficient routines to compute the variance.")
 
-(defmfun weighted-standard-deviation ((vector vector) (weights vector) &optional mean)
+(defmfun weighted-standard-deviation ((array both) (weights both) &optional mean)
   (("gsl_stats" :type "_wsd")
    ("gsl_stats" :type "_wsd_m"))
   ((((c-pointer weights) :pointer) (1 :int)
-    ((c-pointer vector) :pointer) (1 :int)
-    ((dim0 vector) sizet))
+    ((c-pointer array) :pointer) (1 :int)
+    ((total-size array) sizet))
    (((c-pointer weights) :pointer) (1 :int)
-    ((c-pointer vector) :pointer) (1 :int)
-    ((dim0 vector) sizet) (mean :double)))
+    ((c-pointer array) :pointer) (1 :int)
+    ((total-size array) sizet) (mean :double)))
   :definition :generic
   :element-types :float
   :c-return :double
@@ -121,25 +121,25 @@
 ;;;; With fixed mean
 ;;;;****************************************************************************
 
-(defmfun variance-with-fixed-mean ((vector vector) mean)
+(defmfun variance-with-fixed-mean ((array both) mean)
   ("gsl_stats" :type "_variance_with_fixed_mean")
-  (((c-pointer vector) :pointer) (1 :int)
-   ((dim0 vector) sizet) (mean :double))
+  (((c-pointer array) :pointer) (1 :int)
+   ((total-size array) sizet) (mean :double))
   :definition :generic
   :element-types :no-complex
   :c-return :double
   :documentation			; FDL
   "An unbiased estimate of the variance of
-    data when the population mean mean of the underlying
+    data when the population mean of the underlying
     distribution is known a priori.  In this case the estimator for
     the variance uses the factor 1/N and the sample mean
     \Hat\mu is replaced by the known population mean \mu,
     \Hat\sigma^2 = (1/N) \sum (x_i - \mu)^2.")
 
-(defmfun standard-deviation-with-fixed-mean ((vector vector) mean)
+(defmfun standard-deviation-with-fixed-mean ((array both) mean)
   ("gsl_stats" :type "_sd_with_fixed_mean")
-  (((c-pointer vector) :pointer) (1 :int)
-   ((dim0 vector) sizet) (mean :double))
+  (((c-pointer array) :pointer) (1 :int)
+   ((total-size array) sizet) (mean :double))
   :definition :generic
   :element-types :no-complex
   :c-return :double
@@ -153,11 +153,11 @@
 ;;;;****************************************************************************
 
 (defmfun weighted-variance-with-fixed-mean
-    ((vector vector) (weights vector) mean)
+    ((array both) (weights both) mean)
   ("gsl_stats" :type "_wvariance_with_fixed_mean")
   (((c-pointer weights) :pointer) (1 :int)
-   ((c-pointer vector) :pointer) (1 :int)
-   ((dim0 vector) sizet) (mean :double))
+   ((c-pointer array) :pointer) (1 :int)
+   ((total-size array) sizet) (mean :double))
   :definition :generic
   :element-types :float
   :c-return :double
@@ -170,11 +170,11 @@
     \Hat\sigma^2 = (\sum w_i (x_i - \mu)^2) / (\sum w_i).")
 
 (defmfun weighted-standard-deviation-with-fixed-mean
-    ((vector vector) (weights vector) mean)
+    ((array both) (weights both) mean)
   ("gsl_stats" :type "_wsd_with_fixed_mean")
   (((c-pointer weights) :pointer) (1 :int)
-   ((c-pointer vector) :pointer) (1 :int)
-   ((dim0 vector) sizet) (mean :double))
+   ((c-pointer array) :pointer) (1 :int)
+   ((total-size array) sizet) (mean :double))
   :definition :generic
   :element-types :float
   :c-return :double
@@ -186,28 +186,70 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(save-test mean-variance
- (letm ((vec (vector-double-float (a -3.21d0 1.0d0 12.8d0)))
-	(weights (vector-double-float (a 3.0d0 1.0d0 2.0d0))))
-   (let ((mean (mean vec))
-	 (wmean (weighted-mean vec weights)))
-     (list
-      mean wmean
-      (variance vec)
-      (variance vec mean)
-      (weighted-variance vec weights)
-      (weighted-variance vec weights wmean)
-      (standard-deviation vec)
-      (standard-deviation vec mean)
-      (variance-with-fixed-mean vec 4.0d0)
-      (standard-deviation-with-fixed-mean vec 4.0d0))))
- (letm ((vec (vector-signed-byte-32 (a 8 4 -2))))
-   (let ((mean (mean vec)))
-     (list
-      mean
-      (variance vec)
-      (variance vec mean)
-      (standard-deviation vec)
-      (standard-deviation vec mean)
-      (variance-with-fixed-mean vec 4.0d0)
-      (standard-deviation-with-fixed-mean vec 4.0d0)))))
+(generate-all-array-tests vector-mean :no-complex
+ (letm ((v1 (array-default 8)))
+   (mean v1)))
+
+(generate-all-array-tests matrix-mean :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (mean m1)))
+
+(generate-all-array-tests vector-variance :no-complex
+ (letm ((v1 (array-default 8)))
+   (variance v1)))
+
+(generate-all-array-tests matrix-variance :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (variance m1)))
+
+(generate-all-array-tests vector-variance-with-mean :no-complex
+ (letm ((v1 (array-default 8)))
+   (variance v1 (mean v1))))
+
+(generate-all-array-tests matrix-variance-with-mean :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (variance m1 (mean m1))))
+
+(generate-all-array-tests vector-standard-deviation :no-complex
+ (letm ((v1 (array-default 8)))
+   (standard-deviation v1)))
+
+(generate-all-array-tests matrix-standard-deviation :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (standard-deviation m1)))
+
+(generate-all-array-tests vector-standard-deviation-with-mean :no-complex
+ (letm ((v1 (array-default 8)))
+   (standard-deviation v1 (mean v1))))
+
+(generate-all-array-tests matrix-standard-deviation-with-mean :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (standard-deviation m1 (mean m1))))
+
+(generate-all-array-tests vector-variance-with-fixed-mean :no-complex
+ (letm ((v1 (array-default 8)))
+   (variance-with-fixed-mean v1 (mean v1))))
+
+(generate-all-array-tests matrix-variance-with-fixed-mean :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (variance-with-fixed-mean m1 (mean m1))))
+
+(generate-all-array-tests vector-standard-deviation-with-fixed-mean :no-complex
+ (letm ((v1 (array-default 8)))
+   (standard-deviation-with-fixed-mean v1 (mean v1))))
+
+(generate-all-array-tests matrix-standard-deviation-with-fixed-mean :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (standard-deviation-with-fixed-mean m1 (mean m1))))
+
+#|
+;;; Weighted mean seems to be in error in GSL
+;;; Hold off on all weghted tests until this is resolved.
+(generate-all-array-tests weighted-mean :float
+ (letm ((v1 (array-default 8))
+	(v2 (array-default 8)))
+   (loop for i below (first (dimensions v2))
+      do (setf (maref v2 i) (abs (maref v2 i))))
+   (weighted-mean v1 v2)))
+|#
+

@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-11-08 18:10:32EST defmfun.lisp>
+;; Time-stamp: <2008-11-09 11:11:50EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -220,13 +220,17 @@
 		  (error "Internal: mixed both and actual category."))
 		;; Generate forms for matrix and vector
 		(append
+		 ;; Multiple C arguments for an &optional argument is
+		 ;; accomodated with the llkp call.
 		 (generate-methods
 		  :method 'vector
-		  name arglist gsl-name (actual-array-c-type 'vector c-arguments)
+		  name arglist gsl-name
+		  (actual-array-c-type 'vector c-arguments (llkp arglist))
 		  (copy-list key-args) 'vector)
 		 (generate-methods
 		  :method 'matrix
-		  name arglist gsl-name (actual-array-c-type 'matrix c-arguments)
+		  name arglist gsl-name
+		  (actual-array-c-type 'matrix c-arguments (llkp arglist))
 		  (copy-list key-args) 'matrix)))
 	      ;; Generate forms for one category
 	      (generate-methods
@@ -246,7 +250,7 @@
      &optional replace-both)
   "Create all the methods for a generic function."
   ;; Methods may have &optional in two ways: the optional argument(s)
-  ;; are defaulted if not supplied and a  single GSL function called,
+  ;; are defaulted if not supplied and a single GSL function called,
   ;; or the presence/absence of optional arguments switches between two
   ;; GSL functions.
   (with-defmfun-key-args key-args
@@ -362,20 +366,26 @@
      into noclass-arglist
      finally (return (values noclass-arglist categories))))
 
-(defun actual-array-c-type (category c-arguments)
-  "Replace the declared proto-type with an actual GSL struct type."
-  (mapcar
-   (lambda (v)
-     (if (st-arrayp v)
-	 (make-st (st-symbol v)
-		  (intern
-		   (apply #'concatenate
-			  'string
-			  (mapcar #'string
-				  (substitute category :category (st-type v))))
-		   :gsl))
-	 v))
-   c-arguments))
+(defun actual-array-c-type (category c-arguments &optional map-down)
+  "Replace the declared proto-type with an actual GSL struct type
+   in the GSL function name."
+  (if map-down
+      ;; If there are multiple C argument lists due to an optional
+      ;; argument, than map this function onto each.
+      (mapcar (lambda (carg) (actual-array-c-type category carg nil))
+	      c-arguments)
+      (mapcar
+       (lambda (v)
+	 (if (st-arrayp v)
+	     (make-st (st-symbol v)
+		      (intern
+		       (apply #'concatenate
+			      'string
+			      (mapcar #'string
+				      (substitute category :category (st-type v))))
+		       :gsl))
+	     v))
+       c-arguments)))
 
 (defun actual-element-c-type (element-type c-arguments)
   "Replace the generic element type :element-c-type with the
