@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-08-23 19:49:54EDT blas3.lisp>
+;; Time-stamp: <2008-11-09 18:12:05EST blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -35,7 +35,8 @@
      &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
   ("gsl_blas_" :type "symm")
   ((side cblas-side) (uplo cblas-uplo) (alpha :element-c-type)
-   (A :pointer) (B :pointer) (beta :element-c-type) (C :pointer)) 
+   ((mpointer A) :pointer) ((mpointer B) :pointer)
+   (beta :element-c-type) ((mpointer C) :pointer)) 
   :definition :methods
   :element-types :float-complex
   :inputs (A B C)
@@ -45,6 +46,8 @@
 (defmfun matrix-product-hermitian
     ((A matrix) (B matrix) (C matrix)
      &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
+  ;; This always signals an error because you can't pass a
+  ;; struct in CFFI yet.
   ("gsl_blas_" :type "hemm")
   ((side cblas-side) (uplo cblas-uplo) (alpha :element-c-type)
    ((mpointer A) :pointer) ((mpointer B) :pointer)
@@ -73,9 +76,12 @@
     ((A matrix) (B matrix)
      &optional (alpha 1) (uplo :upper) (TransA :notrans)
      (diag :nonunit) (side :left))
+  ;; This signals an error for complex arguments because you can't pass a
+  ;; struct in CFFI yet.
   ("gsl_blas_" :type "trsm")
-  ((uplo cblas-uplo) (TransA cblas-transpose) (diag cblas-diag)
-   ((mpointer A) :pointer) ((mpointer B) :pointer))
+  ((side cblas-side) (uplo cblas-uplo)
+   (TransA cblas-transpose) (diag cblas-diag)
+   (alpha :element-c-type) ((mpointer A) :pointer) ((mpointer B) :pointer))
   :definition :methods
   :element-types :float-complex
   :inputs (A B)
@@ -140,3 +146,38 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
+(generate-all-array-tests matrix-product :float-complex
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(3 3)))
+	(answer (array-default '(3 3) t))
+	(s1 (scalar-default))
+	(s2 (scalar-default)))
+   (cl-array (matrix-product m1 m2 answer s1 s2))))
+
+(generate-all-array-tests matrix-product-triangular :float-complex
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(3 3)))
+	(s1 (scalar-default)))
+   (cl-array (matrix-product-triangular m1 m2 s1))))
+
+(generate-all-array-tests inverse-matrix-product :float-complex
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(3 3)))
+	(s1 (scalar-default)))
+   (cl-array (inverse-matrix-product m1 m2 s1))))
+
+(generate-all-array-tests matrix-product-symmetric :float
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(3 3)))
+	(answer (array-default '(3 3) t))
+	(s1 (scalar-default))
+	(s2 (scalar-default)))
+   (cl-array (matrix-product-symmetric m1 m2 answer s1 s2))))
+
+(generate-all-array-tests matrix-product-hermitian :complex
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(3 3)))
+	(answer (array-default '(3 3) t))
+	(s1 (scalar-default))
+	(s2 (scalar-default)))
+   (cl-array (matrix-product-hermitian m1 m2 answer s1 s2))))

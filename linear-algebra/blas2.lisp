@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-08-09 19:43:20EDT blas2.lisp>
+;; Time-stamp: <2008-11-09 18:15:43EST blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,6 +25,7 @@
 ;;;; Functions
 ;;;;****************************************************************************
 
+;;; To do: the y should be an optional argument, default to a zero vector.
 (defmfun matrix-product
     ((A matrix) (x vector) (y vector)
      &optional (alpha 1) (beta 1) (TransA :notrans) TransB)
@@ -142,6 +143,8 @@
 (defmfun matrix-product-hermitian
     ((A matrix) (x vector) (y vector)
      &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
+  ;; This always signals an error because you can't pass a
+  ;; struct in CFFI yet.
   ("gsl_blas_" :type "hemv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
@@ -305,3 +308,51 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
+(generate-all-array-tests matrix-product :float-complex
+ (letm ((m1 (array-default '(3 3)))
+	(v1 (array-default 3))
+	(answer (array-default 3 t))
+	(s1 (scalar-default))
+	(s2 (scalar-default)))
+   (cl-array (matrix-product m1 v1 answer s1 s2))))
+
+(generate-all-array-tests matrix-product-triangular :float-complex
+ (letm ((m1 (array-default '(3 3)))
+	(v1 (array-default 3))
+	(s1 (scalar-default)))
+   (cl-array (matrix-product-triangular m1 v1 s1))))
+
+(generate-all-array-tests inverse-matrix-product :float-complex
+ (letm ((m1 (array-default '(3 3)))
+	(v1 (array-default 3))
+	(s1 (scalar-default)))
+   (cl-array (inverse-matrix-product m1 v1 s1))))
+
+(generate-all-array-tests matrix-product-symmetric :float
+ (letm ((m1 (array-default '(3 3)))
+	(v1 (array-default 3))
+	(answer (array-default 3 t))
+	(s1 (scalar-default))
+	(s2 (scalar-default)))
+   (cl-array (matrix-product-symmetric m1 v1 answer s1 s2))))
+
+(generate-all-array-tests matrix-product-hermitian :complex
+ (letm ((m1 (array-default '(3 3)))
+	(v1 (array-default 3))
+	(answer (array-default 3 t))
+	(s1 (scalar-default))
+	(s2 (scalar-default)))
+   (cl-array (matrix-product-hermitian m1 v1 answer s1 s2))))
+
+#|
+;;; Error, needs to be tracked down
+;;; Matrix, vector lengths are not conformant invalid length in blas.c at line 1013
+;;;   [Condition of type EBADLEN]
+
+(generate-all-array-tests rank-1-update :float-complex
+ (letm ((m1 (array-default '(3 3)))
+	(v1 (array-default 3))
+	(v2 (array-default 3))
+	(s1 (scalar-default)))
+   (cl-array (rank-1-update s1 v1 v2 m1))))
+|#
