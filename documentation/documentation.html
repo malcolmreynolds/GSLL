@@ -167,9 +167,9 @@ GSL doesn't have them.
 <base href="http://www.gnu.org/software/gsl/manual/html_node/">
   <li>Reading and writing through the GSL library is not supported due
   to lack of support for foreign streams in Lisp.</li>
-  <li>For <a href="Vectors-and-Matrices.html">Vectors and Matrices</a>,
-	 subvectors and views are not defined.  In many functions, the
-	 stride is pre-set to 1. 
+  <li>For <a href="Vectors-and-Matrices.html">Vectors and
+	 Matrices</a>, subvectors and views are not defined.  For GSL
+	 functions that take a stride, it is pre-set to 1 in GSLL.
 <li><a href="BLAS-Support.html">BLAS</a> is completed, but with only very
  limited testing.
  <li><a href="Fast-Fourier-Transforms.html">FFTs</a> have not been done
@@ -203,7 +203,7 @@ gamma-randist, negative-binomial.
     <address><a href="mailto:gsll-devel@common-lisp.net">Liam Healy</a></address>
 <!-- hhmts start -->
     <small>
-      Time-stamp: <2008-11-08 14:14:02EST documentation.html>
+      Time-stamp: <2008-11-09 12:29:17EST documentation.html>
       </small>
 <!-- hhmts end -->
  </div>

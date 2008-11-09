@@ -1,12 +1,11 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-10-25 12:00:37EDT sorting.lisp>
+;; Time-stamp: <2008-11-09 13:10:16EST sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; #'heapsort has just a cursory port, use CL's #'sort.
-;;; Raw C array functions not ported, not policy.
 
 ;;;;****************************************************************************
 ;;;; Heapsort, not recommended
@@ -49,19 +48,19 @@
 
 ;;; The GSL vector sorting routines come in two forms, those that sort
 ;;; on GSL vectors (with "vector" in the name), and those that sort on
-;;; C arrays.  From the point of view of GSLL, it makes little sense
-;;; to have both, since we can always use the C form, and if we don't
-;;; need the GSL vector, it won't be constructed.  However, it is
-;;; trivial to make both forms, so they are both defined here.
+;;; C arrays.  The former can sort vectors, the latter can both
+;;; vectors and matrices.  The functions #'sort-index,
+;;; #'sort-smallest-index, #'sort-largest-index could be made to work
+;;; on matrices, but the indexing would have to be worked out
+;;; correctly.
 
 ;;; It ought to be possible to provide a stride argument, but this
 ;;; gives an error:
 ;;;(defmfun msort ((v vector) &optional (stride 1))
 
-
-(defmfun msort ((v vector))
+(defmfun msort ((v both))
   ("gsl_sort" :type)
-  (((c-pointer v) :pointer) (1 sizet) ((dim0 v) sizet))
+  (((c-pointer v) :pointer) (1 sizet) ((total-size v) sizet))
   :definition :generic
   :element-types :no-complex
   :c-return :void
@@ -132,10 +131,12 @@
   "Find the smallest elements of the vector v and put them into dest,
    which must be shorter than v.")
 
-(defmfun sort-smallest (dest (v vector))
+(defmfun sort-smallest (dest (v both))
   ("gsl_sort" :type "_smallest")
-  (((c-pointer dest) :pointer) ((dim0 dest) sizet)
-   ((c-pointer v) :pointer))
+  (((c-pointer dest) :pointer) ((total-size dest) sizet)
+   ((c-pointer v) :pointer)
+   (1 sizet)				; stride, set to 1 for now
+   ((total-size v) sizet))
   :definition :generic
   :element-types :no-complex
   :c-return :void
@@ -191,10 +192,12 @@
   "Find the largest elements of the vector v and put them into dest,
    which must be shorter than v.")
 
-(defmfun sort-largest (dest (v vector))
+(defmfun sort-largest (dest (v both))
   ("gsl_sort" :type "_largest")
-  (((c-pointer dest) :pointer) ((dim0 dest) sizet)
-   ((c-pointer v) :pointer))
+  (((c-pointer dest) :pointer) ((total-size dest) sizet)
+   ((c-pointer v) :pointer)
+   (1 sizet)				; stride, set to 1 for now
+   ((total-size v) sizet))
   :definition :generic
   :element-types :no-complex
   :c-return :void
@@ -243,29 +246,47 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(save-test sorting
- (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
-   (sort-vector vec)
-   (cl-array vec))
- (letm ((perm (permutation 5))
-	(vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0))))
-   (sort-vector-index perm vec)
-   (cl-array perm))
- (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	(smallest (vector-double-float 3)))
-   (sort-vector-smallest smallest vec)
-   (cl-array smallest))
- (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	(comb (combination '(5 3))))
-   (cl-array (sort-vector-smallest-index comb vec)))
- (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	(sm (combination '(5 3))))
-   (cl-array (sort-smallest-index sm vec)))
- (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	(largest (vector-double-float 3)))
-   (sort-vector-largest largest vec)
-   (cl-array largest))
- (letm ((vec (vector-double-float (a 7.1d0 -2.0d0 12.8d0 -3.21d0 1.0d0)))
-	(comb (combination '(5 3))))
-   (cl-array (sort-vector-largest-index comb vec))))
+(generate-all-array-tests sort-vector :no-complex
+ (letm ((v1 (array-default 8)))
+   ;; or you can use msort
+   (sort-vector v1)))
 
+(generate-all-array-tests sort-matrix :no-complex
+ (letm ((m1 (array-default '(3 3))))
+   (msort m1)))
+
+(generate-all-array-tests sort-vector-index :no-complex
+ (letm ((perm (permutation 8))
+	(v1 (array-default 8)))
+   (sort-vector-index perm v1)
+   (cl-array perm)))
+
+(generate-all-array-tests sort-vector-smallest :no-complex
+ (letm ((v1 (array-default 8))
+	(v2 (array-default 3)))
+   (cl-array (sort-vector-smallest v2 v1))))
+
+(generate-all-array-tests sort-matrix-smallest :no-complex
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(2 3) t)))
+   (cl-array (sort-smallest m2 m1))))
+
+(generate-all-array-tests sort-vector-smallest-index :no-complex
+ (letm ((comb (combination '(8 3)))
+	(v1 (array-default 8)))
+   (cl-array (sort-vector-smallest-index comb v1))))
+
+(generate-all-array-tests sort-vector-largest :no-complex
+ (letm ((v1 (array-default 8))
+	(v2 (array-default 3)))
+   (cl-array (sort-vector-largest v2 v1))))
+
+(generate-all-array-tests sort-matrix-largest :no-complex
+ (letm ((m1 (array-default '(3 3)))
+	(m2 (array-default '(2 3) t)))
+   (cl-array (sort-largest m2 m1))))
+
+(generate-all-array-tests sort-vector-largest-index :no-complex
+ (letm ((comb (combination '(8 3)))
+	(v1 (array-default 8)))
+   (cl-array (sort-vector-largest-index comb v1))))
