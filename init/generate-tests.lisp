@@ -1,6 +1,6 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-11-08 15:10:41EST generate-tests.lisp>
+;; Time-stamp: <2008-11-09 16:50:26EST generate-tests.lisp>
 ;; $Id: $
 
 ;;; Througout the GSLL interface definition files are #'save-test
@@ -201,13 +201,20 @@
 		   (incf starting-element spec)))))
        ,sync-on-exit)))
 
-(defun scalar-default ()
-  "Make a scalar of the current type from the pool."
+(defun scalar-default (&optional float-type)
+  "Make a scalar of the current type from the pool.  For complex
+   types, setting float-type will select a real of the corresponding
+   component float type."
   (declare (special default-element-type starting-element))
   (prog1
       (if (subtypep default-element-type 'complex)
-	  (apply #'complex
-		 (make-list-from-pool default-element-type 1 starting-element))
+	  (if float-type
+	      (first
+	       (make-list-from-pool
+		(component-float-type default-element-type) 1 starting-element))
+	      (apply
+	       #'complex
+	       (make-list-from-pool default-element-type 1 starting-element)))
 	  (first
 	   (make-list-from-pool default-element-type 1 starting-element)))
     (incf starting-element)))

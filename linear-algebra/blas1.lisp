@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-10-25 18:41:45EDT blas1.lisp>
+;; Time-stamp: <2008-11-09 17:11:25EST blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -47,17 +47,17 @@
 
 (defmfun absolute-sum ((x vector))
   ("gsl_blas_" :component-float-type :type "asum")
-  (((mpointer x) :pointer)
-   (result :component-float-type))
+  (((mpointer x) :pointer))
   :definition :generic
   :element-types :float-complex
+  :c-return :component-float-type
   :inputs (x)
   :documentation			; FDL
   "The absolute sum \sum |x_i| of the elements of the vector x.")
 
 (defmfun index-max ((vec vector))
   ("gsl_blas_i" :type "amax")
-  (((c-pointer vec) :pointer))
+  (((mpointer vec) :pointer))
   :definition :generic
   :element-types :float-complex
   :c-return sizet
@@ -87,18 +87,22 @@
   :element-types :float-complex
   :inputs (x)
   :outputs (y)
+  :return (y)
   :documentation			; FDL
   "Copy the elements of the vector x into the vector y.")
 
 (defmfun axpy (alpha (x vector) (y vector))
+  ;; This gets an error for complex types because you can't pass a
+  ;; struct in CFFI yet.
   ("gsl_blas_" :type "axpy")
   ((alpha  :element-c-type) ((mpointer x) :pointer) ((mpointer y) :pointer))
   :definition :generic
   :element-types :float-complex
   :inputs (x y)
   :outputs (y)
+  :return (y)
   :documentation			; FDL
-  "Copy the elements of the vector x into the vector y.")
+  "Compute the sum y = \alpha x + y for the vectors x and y.")
 
 (defmfun scale ((alpha :element-type) (x vector))
   ;; Alpha is the same type as the elements of vector, so for complex
@@ -107,8 +111,10 @@
   ((alpha :element-c-type) ((mpointer x) :pointer))
   :definition :generic
   :element-types :float-complex
+  :c-return :void
   :inputs (x)
   :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Rescale the vector x by the multiplicative factor alpha.")
 
@@ -118,8 +124,10 @@
   ((alpha :component-float-type) ((mpointer x) :pointer))
   :definition :methods
   :element-types :complex
+  :c-return :void
   :inputs (x)
-  :outputs (x))
+  :outputs (x)
+  :return (x))
 
 ;;; The Givens rotations come in two forms, those that work on bare C
 ;;; arrays, and those that work on GSL vectors.  Ports of both are
@@ -133,6 +141,7 @@
   :element-types :float
   :inputs (x y c s)
   :outputs (x y)
+  :return (x y)
   :documentation			; FDL
   "These functions compute a Givens rotation (c,s) to the vector (x,y),
           [  c  s ] [ x ] = [ r ]
@@ -181,161 +190,64 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-#|
-(save-test blas1-single
- ;; single
- (letm ((a (vector-single-float (a 1.0f0 2.0f0 3.0f0)))
-	(b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
-   (dot a b))
- (letm ((b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
-   (euclidean-norm b))
- (letm ((b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
-   (absolute-sum b))
- (letm ((b (vector-single-float (a 3.0f0 5.0f0 4.0f0))))
-   (index-max b))
- (letm ((a (vector-single-float (a 1.0f0 2.0f0 3.0f0)))
-	(b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
-   (axpy 2.0f0 a b)
-   (cl-array b))
- (letm ((b (vector-single-float (a 3.0f0 4.0f0 5.0f0))))
-   (scale 2.0f0 b)
-   (cl-array b))
- (letm ((a (vector-single-float #(1.0f0 3.0f0)))
-	(b (vector-single-float #(8.0f0 9.0f0))))
-   (givens-rotation a b (/ (sqrt 2.0f0)) (/ (sqrt 2.0f0)))
-   (cl-array b)))
+(generate-all-array-tests dot :float-complex
+ (letm ((v1 (array-default 8))
+	(v2 (array-default 8)))
+   (dot v1 v2)))
 
-(save-test blas1-double
- (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
-   (dot a b))
- (letm ((b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
-   (euclidean-norm b))
- (letm ((b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
-   (absolute-sum b))
- (letm ((b (vector-double-float (a 3.0d0 5.0d0 4.0d0))))
-   (index-max b))
- (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
-   (blas-swap a b)
-   (cl-array a))
- (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
-   (blas-copy b a)
-   (cl-array a))
- (letm ((a (vector-double-float (a 1.0d0 2.0d0 3.0d0)))
-	(b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
-   (axpy 2.0d0 a b)
-   (cl-array b))
- (letm ((b (vector-double-float (a 3.0d0 4.0d0 5.0d0))))
-   (scale 2.0d0 b)
-   (cl-array b))
- (letm ((a (vector-double-float (a 1.0d0 3.0d0)))
-	(b (vector-double-float (a 8.0d0 9.0d0))))
-   (givens-rotation a b (/ (sqrt 2.0d0)) (/ (sqrt 2.0d0)))
-   (cl-array b)))
+(generate-all-array-tests cdot :complex
+ (letm ((v1 (array-default 8))
+	(v2 (array-default 8)))
+   (cdot v1 v2)))
 
-(LISP-UNIT:DEFINE-TEST BLAS1-SINGLE
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 26.0f0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-SINGLE-FLOAT #(1.0f0 2.0f0 3.0f0)))
-	   (B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
-      (DOT A B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 7.071068f0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
-      (EUCLIDEAN-NORM B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 12.0f0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
-      (ASUM B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 1)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 5.0f0 4.0f0))))
-      (IMAX B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(5.0f0 8.0f0 11.0f0))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((A (VECTOR-SINGLE-FLOAT #(1.0f0 2.0f0 3.0f0)))
-	 (B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
-      (SETF (DATA A)
-	    #(1.0f0 2.0f0 3.0f0)
-	    (DATA B)
-	    #(3.0f0 4.0f0 5.0f0))
-      (AXPY 2.0f0 A B) (DATA B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(6.0f0 8.0f0 10.0f0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-SINGLE-FLOAT #(3.0f0 4.0f0 5.0f0))))
-      (SETF (DATA B) #(3.0f0 4.0f0 5.0f0))
-      (SCAL 2.0f0 B) (DATA B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(4.9497476f0 4.2426405f0))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((A (VECTOR-SINGLE-FLOAT #(1.0f0 3.0f0)))
-	 (B (VECTOR-SINGLE-FLOAT #(8.0f0 9.0f0))))
-      (ROT A B (/ (SQRT 2.0f0)) (/ (SQRT 2.0f0)))
-      (DATA B)))))
+(generate-all-array-tests euclidean-norm :float-complex
+ (letm ((v1 (array-default 8)))
+   (euclidean-norm v1)))
 
-(LISP-UNIT:DEFINE-TEST BLAS1-DOUBLE
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 26.0d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0)))
-	   (B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (DOT A B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 7.0710678118654755d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (EUCLIDEAN-NORM B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 12.0d0)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (SETF (DATA B) #(3.0d0 4.0d0 5.0d0))
-      (ASUM B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 1)
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-DOUBLE-FLOAT #(3.0d0 5.0d0 4.0d0))))
-      (SETF (DATA B) #(3.0d0 5.0d0 4.0d0))
-      (IMAX B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(3.0d0 4.0d0 5.0d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM
-	((A (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0)))
-	 (B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (BLAS-SWAP A B) (DATA A))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(3.0d0 4.0d0 5.0d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0)))
-	   (B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (BLAS-COPY B A) (DATA A))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(5.0d0 8.0d0 11.0d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-DOUBLE-FLOAT #(1.0d0 2.0d0 3.0d0)))
-	   (B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (AXPY 2.0d0 A B) (DATA B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(6.0d0 8.0d0 10.0d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((B (VECTOR-DOUBLE-FLOAT #(3.0d0 4.0d0 5.0d0))))
-      (SCAL 2.0d0 B) (DATA B))))
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST #(4.949747468305832d0 4.242640687119286d0))
-   (MULTIPLE-VALUE-LIST
-    (LETM ((A (VECTOR-DOUBLE-FLOAT #(1.0d0 3.0d0)))
-	   (B (VECTOR-DOUBLE-FLOAT #(8.0d0 9.0d0))))
-      (ROT A B (/ (SQRT 2.0d0)) (/ (SQRT 2.0d0)))
-      (DATA B)))))
-|#
+(generate-all-array-tests absolute-sum :float-complex
+ (letm ((v1 (array-default 8)))
+   (absolute-sum v1)))
+
+(generate-all-array-tests index-max :float-complex
+ (letm ((v1 (array-default 8)))
+   (index-max v1)))
+
+(generate-all-array-tests blas-swap :float-complex
+ (letm ((v1 (array-default 3))
+	(v2 (array-default 3)))
+   (blas-swap v2 v1)
+   (list (cl-array v1) (cl-array v2))))
+
+(generate-all-array-tests blas-copy :float-complex
+ (letm ((v1 (array-default 3))
+	(v2 (array-default 3 t)))
+   (blas-copy v1 v2)
+   (cl-array v2)))
+
+(generate-all-array-tests axpy :float-complex
+ (letm ((v1 (array-default 8))
+	(v2 (array-default 8))
+	(scalar (scalar-default)))
+   (cl-array (axpy scalar v1 v2))))
+
+(generate-all-array-tests scale :float-complex
+ (letm ((v1 (array-default 8))
+	(scalar (scalar-default)))
+   (cl-array (scale scalar v1))))
+
+(generate-all-array-tests scale :complex
+ (letm ((v1 (array-default 8))
+	(scalar (scalar-default t)))
+   (cl-array (scale scalar v1))))
+
+(generate-all-array-tests givens :float
+ (letm ((v1 (array-default 8))
+	(v2 (array-default 8))
+	(angles (array-default 8))
+	(sines (array-default 8 t))
+	(cosines (array-default 8 t)))
+   (loop for i below 8 do
+	(setf (maref sines i) (sin (maref angles i)))
+	(setf (maref cosines i) (cos (maref angles i))))
+   (givens-rotation v1 v2 cosines sines)
+   (list (cl-array v1) (cl-array v2))))
