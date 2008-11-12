@@ -1,6 +1,6 @@
 ;; Get/set array or elements: cl-array, maref
 ;; Liam Healy 2008-08-27 22:43:10EDT maref.lisp
-;; Time-stamp: <2008-08-31 11:07:34EDT maref.lisp>
+;; Time-stamp: <2008-11-11 21:37:44EST maref.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -128,8 +128,8 @@
 		       category tp)
 		     ,@ffrestargs
 		     ,@(if value-symbol
-			   (list (cl-ffa tp) value-symbol)
-			   (list (cl-ffa tp))))))
+			   (list (cl-cffi tp) value-symbol)
+			   (list (cl-cffi tp))))))
 		*array-element-types*))))
 
 (defmethod maref

@@ -1,6 +1,7 @@
-;; Data using ffa
-;; Liam Healy 2008-04-06 21:23:41EDT data-ffa.lisp
-;; Time-stamp: <2008-11-02 17:38:20EST data.lisp>
+;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
+;; combinations, or histograms.
+;; Liam Healy 2008-04-06 21:23:41EDT
+;; Time-stamp: <2008-11-11 21:37:21EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,7 +59,7 @@
 
 (defun element-size (object)
   "The size of each element as stored in C."
-  (cffi:foreign-type-size (cl-ffa (element-type object))))
+  (cffi:foreign-type-size (cl-cffi (element-type object))))
 
 ;;;;****************************************************************************
 ;;;; Definition of specific data classes
@@ -134,7 +135,7 @@
 ;;;;****************************************************************************
 
 (defun component-type (eltype)
-  (cl-ffa (component-float-type eltype)))
+  (cl-cffi (component-float-type eltype)))
 
 (defun component-size (object)
   (if (subtypep (element-type object) 'complex)

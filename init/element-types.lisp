@@ -1,19 +1,19 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-09-14 18:09:39EDT element-types.lisp>
+;; Time-stamp: <2008-11-11 21:34:47EST element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
-;;; C standard full      :unsigned-char
-;;; GSL splice name      "uchar"
-;;; C explicit           :uint8     (not used here)
-;;; CL                   '(unsigned-byte 8)
-;;; Single               'unsigned-byte-8 
+;;; C standard full, or "CFFI"  :unsigned-char
+;;; GSL splice name             "uchar"
+;;; C explicit                  :uint8     (not used here)
+;;; CL                          '(unsigned-byte 8)
+;;; Single                      'unsigned-byte-8 
 
 ;;; Functions to perform conversions
 ;;; CL -> single in function #'cl-single
 ;;; CL -> GSL in function #'cl-gsl
-;;; CL -> Cstd in function #'cl-ffa
+;;; CL -> CFFI (Cstd) in function #'cl-cffi
 ;;; CFFI (Cstd) -> CL in function #'cffi-cl
 
 ;;; Sources of equivalence
@@ -181,12 +181,12 @@
 	(concatenate 'string "_" string)
 	string)))
 
-(defun cl-ffa (cl-type)
-  "The FFA/CFFI element type from the CL type."
+(defun cl-cffi (cl-type)
+  "The CFFI element type from the CL type."
   (lookup-type (clean-type cl-type) *cstd-cl-type-mapping* t))
 
 (defun cffi-cl (cffi-type)
-  "The CL type from the FFA/CFFI element type."
+  "The CL type from the CFFI element type."
   (unless (eq cffi-type :pointer)
     (lookup-type cffi-type *cstd-cl-type-mapping*)))
 
@@ -238,9 +238,9 @@
   (cerror "Accept gibberish."
 	  "Cannot pass complex scalars to and from GSL functions (structs passed by value).")
   (let* ((cleantype (clean-type (type-of number)))
-	 (comptype (cl-ffa (second cleantype)))
+	 (comptype (cl-cffi (second cleantype)))
 	 (datslot
-	  (cffi:foreign-slot-pointer gsl (cl-ffa cleantype) 'dat)))
+	  (cffi:foreign-slot-pointer gsl (cl-cffi cleantype) 'dat)))
     (setf (cffi:mem-aref datslot comptype 0) (realpart number)
 	  (cffi:mem-aref datslot comptype 1) (imagpart number))
     gsl))
@@ -280,7 +280,6 @@
 
 (defparameter *array-element-types*
   (remove-duplicates (all-types *cstd-cl-type-mapping* t) :test 'equal)
-  ;;(all-types ffa::*cffi-and-lisp-types* t)
   "All the array element types supported.")
 
 (defparameter *array-element-types-no-complex*
