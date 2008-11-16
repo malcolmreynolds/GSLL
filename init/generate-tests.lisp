@@ -1,6 +1,6 @@
 ;; Make tests and examples
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-11-09 16:50:26EST generate-tests.lisp>
+;; Time-stamp: <2008-11-15 13:29:28EST generate-tests.lisp>
 ;; $Id: $
 
 ;;; Througout the GSLL interface definition files are #'save-test
@@ -232,13 +232,14 @@
 		  form))))
 
 (defun generate-all-array-tests-body (element-types test)
-  (iter (for default-element-type in (element-types element-types))
-	(declare (special default-element-type starting-element))
-	(setf starting-element 0)
-	(collect
-	    (stupid-code-walk-eval-some
-	     test
-	     '(array-default vector-default scalar-default)))))
+  (loop for det in (element-types element-types)
+     collect
+     (let ((default-element-type det))
+       (declare (special default-element-type starting-element))
+       (setf starting-element 0)
+       (stupid-code-walk-eval-some
+	test
+	'(array-default vector-default scalar-default)))))
 
 (defmacro generate-all-array-tests (name element-types test)
   `(save-test ,name ,@(generate-all-array-tests-body element-types test)))

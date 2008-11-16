@@ -1,6 +1,6 @@
 ;; Matrices
-;; Liam Healy 2008-04-15 21:57:52EDT matrix-ffa.lisp
-;; Time-stamp: <2008-11-08 22:33:17EST matrix.lisp>
+;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
+;; Time-stamp: <2008-11-15 13:35:20EST matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,7 +22,7 @@
   ()
   (:documentation "GSL matrices."))
 
-;;; Define all the mvector subclasses that are supported by FFA
+;;; Define all supported matrix subclasses
 #.(data-defclass 'matrix 'matrix)
 
 ;;;;****************************************************************************

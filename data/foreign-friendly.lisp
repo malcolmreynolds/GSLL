@@ -1,10 +1,12 @@
 ;; Use the foreign-friendly arrays package.
-;; Liam Healy 2008-03-22 15:40:08EDT ffa.lisp
-;; Time-stamp: <2008-11-11 22:13:20EST foreign-friendly.lisp>
+;; Liam Healy 2008-03-22 15:40:08EDT
+;; Time-stamp: <2008-11-15 16:54:15EST foreign-friendly.lisp>
 ;; $Id$
 
-;;; Use Papp's Foreign-friendly arrays
+;;; Foreign-friendly arrays (original implementation by Tamas Papp)
 ;;; http://www.princeton.edu/~tpapp/software.html
+;;; The replacements here don't do coercions or checks
+;;; on type as they are unnecessary, and handle complex types.
 
 (in-package :gsl)
 
@@ -28,17 +30,16 @@
       (if (and (subtypep element-type 'complex)
 	       (= (length initial-contents)
 		  (* 2 (if (listp dimensions) (apply #'* dimensions) dimensions))))
-	  (make-ffa* dimensions element-type
+	  (make-ffa dimensions element-type
 			:initial-contents
 			(loop for (re im) on initial-contents by #'cddr
 			   collect (complex re im)))
-	  (make-ffa* dimensions element-type :initial-contents initial-contents))
+	  (make-ffa dimensions element-type :initial-contents initial-contents))
       (if initial-element-p
-	  (make-ffa* dimensions element-type :initial-element initial-element)
-	  (make-ffa* dimensions element-type))))
+	  (make-ffa dimensions element-type :initial-element initial-element)
+	  (make-ffa dimensions element-type))))
 
-;;; From Tamas Papp's foreign-friendly arrays (FFA)
-(defun make-ffa* (dimensions element-type &key
+(defun make-ffa (dimensions element-type &key
 		 (initial-element 0 initial-element-p)
 		 (initial-contents nil initial-contents-p))
   "Make an array that is either one-dimensional or displaced to a
@@ -70,3 +71,62 @@
 	(make-array dimensions :element-type element-type 
 		    :displaced-to array)
 	array)))
+
+;;;;****************************************************************************
+;;;; Pointer management
+;;;;****************************************************************************
+
+#+native
+(defmacro with-pointer-to-array ((array pointer cffi-type length)
+				 &body body)
+  (assert (symbolp pointer))
+  (once-only (array cffi-type)
+    (with-unique-names (original-array index-offset)
+      `(multiple-value-bind (,original-array ,index-offset)
+	   (find-original-array ,array)
+	 (pin-to-pointer (,original-array ,pointer ,cffi-type
+					  ,length ,index-offset)
+	   ,@body)))))
+
+#-native
+(defmacro with-pointer-to-array ((array pointer cffi-type length)
+				 &body body)
+  (assert (symbolp pointer))
+  (once-only (array cffi-type)
+    (with-unique-names (original-array index-offset)
+      `(multiple-value-bind (,original-array ,index-offset)
+	   (find-original-array ,array)
+	 (cffi:with-foreign-object (,pointer ,cffi-type ,length)
+	   ,@body)))))
+
+#+sbcl
+(defmacro pin-to-pointer ((array pointer cffi-type length index-offset)
+			  &body body)
+  (declare (ignorable length))
+  "Use SBCL's sb-sys:with-pinned-objects and sb-sys:vector-sap for
+mapping an array to a memory location.  NOTE: checking that cffi-type
+matches the type of the array is the responsibility of the user of
+this macro.  The size of the array is checked.  The array is required
+to have rank one."
+  (once-only (array)
+    `(sb-sys:with-pinned-objects (,array)
+       ;;(assert (<= (+ ,index-offset ,length) (length ,array)))
+       (let ((,pointer
+	      (cffi:inc-pointer
+	       (sb-sys:vector-sap ,array)
+	       (* ,index-offset (cffi:foreign-type-size ,cffi-type)))))
+	 ,@body))))
+
+(defun find-original-array (array)
+  "Find the original parent of a displaced array, return this and the
+sum of displaced index offsets."
+  (let ((sum-of-offsets 0))
+    (tagbody
+     check-displacement
+       (multiple-value-bind (displaced-to displaced-index-offset)
+	   (array-displacement array)
+	 (when displaced-to
+	   (setf array displaced-to)
+	   (incf sum-of-offsets displaced-index-offset)
+	   (go check-displacement))))
+    (values array sum-of-offsets)))

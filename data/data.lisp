@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-11-11 21:37:21EST data.lisp>
+;; Time-stamp: <2008-11-15 19:46:51EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -190,30 +190,29 @@
    within the body to the object.  The argument
    init-or-spec is either the
    array dimensions or something made by make-array*."
-  (cl-utilities:with-unique-names (cptr eltype)
+  (with-unique-names (cptr eltype)
     `(macrolet
-      ;; #'els is a convenience macro to define the make-array*
-      ((a (&rest contents)
-	`(abody ',',(lookup-type type *class-element-type*)
-	  ,@(mapcar (lambda (e) `(quote ,e)) contents)))
-       (a* (&rest contents)
-	`(abody ',',(lookup-type type *class-element-type*)
-	  ,@contents)))
-      (let* ((,symbol (make-data ',type ,init-or-spec))
-	     (,eltype (element-type ,symbol)))
-	(ffa:with-pointer-to-array
-	    ((cl-array ,symbol)
-	     ,cptr
-	     (component-type ,eltype)
-	     (component-size ,symbol)
-	     nil)		      ; we need to allow nil direction
-	  (unwind-protect
-	       (multiple-value-prog1
-		   (progn
-		     (setf (c-pointer ,symbol) ,cptr)
-		     ,@body)
-		 ,@(when sync-exit `((copy-c-to-cl ,symbol))))
-	    (free-gsl-struct ,symbol)))))))
+	 ;; #'els is a convenience macro to define the make-array*
+	 ((a (&rest contents)
+	    `(abody ',',(lookup-type type *class-element-type*)
+		    ,@(mapcar (lambda (e) `(quote ,e)) contents)))
+	  (a* (&rest contents)
+	    `(abody ',',(lookup-type type *class-element-type*)
+		    ,@contents)))
+       (let* ((,symbol (make-data ',type ,init-or-spec))
+	      (,eltype (element-type ,symbol)))
+	 (with-pointer-to-array
+	     ((cl-array ,symbol)
+	      ,cptr
+	      (component-type ,eltype)
+	      (component-size ,symbol))
+	   (unwind-protect
+		(multiple-value-prog1
+		    (progn
+		      (setf (c-pointer ,symbol) ,cptr)
+		      ,@body)
+		  ,@(when sync-exit `((copy-c-to-cl ,symbol))))
+	     (free-gsl-struct ,symbol)))))))
 
 ;;;;****************************************************************************
 ;;;; Syncronize C and CL
@@ -254,27 +253,25 @@
      (component-size object))
     (setf cl-invalid nil)))
 
-;;; My replacement for ffa's routines.  I don't do coercions or checks
-;;; on type as they are unnecessary, and I handle complex types.
-
 #-native
 (defun copy-array-to-pointer (array pointer lisp-type index-offset length)
   "Copy length elements from array (starting at index-offset) of type
    lisp-type to the memory area that starts at pointer, coercing the
    elements if necessary."
   (let ((cffi-type (component-type lisp-type)))
-    (iter:iter
-      (iter:for pointer-index :from 0
-		:below (if (subtypep lisp-type 'complex) (* 2 length) length)
-		:by (if (subtypep lisp-type 'complex) 2 1))
-      (iter:for array-index :from index-offset)
-      (if (subtypep lisp-type 'complex)
-	  (setf (cffi:mem-aref pointer cffi-type pointer-index)
-		(realpart (row-major-aref array array-index))
-		(cffi:mem-aref pointer cffi-type (1+ pointer-index))
-		(imagpart (row-major-aref array array-index)))
-	  (setf (cffi:mem-aref pointer cffi-type pointer-index)
-		(row-major-aref array array-index))))))
+    (loop
+       for pointer-index :from 0
+       :below (if (subtypep lisp-type 'complex) (* 2 length) length)
+       :by (if (subtypep lisp-type 'complex) 2 1)
+       for array-index :from index-offset
+       do
+       (if (subtypep lisp-type 'complex)
+	   (setf (cffi:mem-aref pointer cffi-type pointer-index)
+		 (realpart (row-major-aref array array-index))
+		 (cffi:mem-aref pointer cffi-type (1+ pointer-index))
+		 (imagpart (row-major-aref array array-index)))
+	   (setf (cffi:mem-aref pointer cffi-type pointer-index)
+		 (row-major-aref array array-index))))))
 
 #-native
 (defun copy-array-from-pointer (array pointer lisp-type index-offset length)
@@ -282,15 +279,16 @@
    lisp-type from the memory area that starts at pointer, coercing the
    elements if necessary."
   (let ((cffi-type (component-type lisp-type)))
-    (iter:iter
-      (iter:for pointer-index :from 0
-		:below (if (subtypep lisp-type 'complex) (* 2 length) length)
-		:by (if (subtypep lisp-type 'complex) 2 1))
-      (iter:for array-index :from index-offset)
-      (setf (row-major-aref array array-index)
-	    (complex 
-	     (cffi:mem-aref pointer cffi-type pointer-index)
-	     (cffi:mem-aref pointer cffi-type (1+ pointer-index)))))))
+    (loop
+       for pointer-index :from 0
+       :below (if (subtypep lisp-type 'complex) (* 2 length) length)
+       :by (if (subtypep lisp-type 'complex) 2 1)
+       for array-index :from index-offset
+       do
+       (setf (row-major-aref array array-index)
+	     (complex 
+	      (cffi:mem-aref pointer cffi-type pointer-index)
+	      (cffi:mem-aref pointer cffi-type (1+ pointer-index)))))))
 
 ;;;;****************************************************************************
 ;;;; C structures
@@ -329,8 +327,9 @@
 
 (defun free-gsl-struct (object)
   "Free the C structure(s) and memory for data."
-  ;; This should happen immediately after the with-pointer-to-array
-  ;; and substitutes for the GSL "_free" functions.
+  ;; This should happen immediately at the end of the
+  ;; with-pointer-to-array and substitutes for the GSL "_free"
+  ;; functions.
   (when (block-pointer object)
     (unless (eq (block-pointer object) (mpointer object))
       (cffi:foreign-free (block-pointer object))) ; free the block struct

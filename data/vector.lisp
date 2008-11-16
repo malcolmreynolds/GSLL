@@ -1,6 +1,6 @@
 ;; Vectors
-;; Liam Healy 2008-04-13 09:39:02EDT vector-ffa.lisp
-;; Time-stamp: <2008-11-08 21:08:10EST vector.lisp>
+;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
+;; Time-stamp: <2008-11-15 13:35:01EST vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -21,7 +21,7 @@
   ()
   (:documentation "GSL vectors."))
 
-;;; Define all the mvector subclasses that are supported by FFA
+;;; Define all supported mvector subclasses
 #.(data-defclass 'vector 'mvector)
 
 (defun make-vector-from-pointer ())
