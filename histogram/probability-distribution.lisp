@@ -1,6 +1,6 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
-;; Time-stamp: <2008-08-17 09:37:15EDT probability-distribution.lisp>
+;; Time-stamp: <2008-11-16 13:26:02EST probability-distribution.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -59,7 +59,7 @@
   :documentation			; FDL
   "Initialize the probability distribution pdf with the contents
    of the histogram.  If any of the bins are negative then an
-   EDOM error is signalled because a probability distribution
+   input-domain error is signalled because a probability distribution
    cannot contain negative values.")
 
 (defmfun pdf-init-2 (pdf histogram)
@@ -71,14 +71,14 @@
   :documentation			; FDL
   "Initialize the probability distribution pdf with the contents
    of the histogram.  If any of the bins are negative then an
-   EDOM error is signalled because a probability distribution
+   input-domain error is signalled because a probability distribution
    cannot contain negative values.")
 
 (export 'pdf-init)
 (defun pdf-init (pdf histogram)		; FDL
   "Initialize the probability distribution pdf with the contents
    of the histogram.  If any of the bins are negative then an
-   EDOM error is signalled because a probability distribution
+   input-domain error is signalled because a probability distribution
    cannot contain negative values."
   (histo-1d2d pdf pdf-init (histogram)))
 

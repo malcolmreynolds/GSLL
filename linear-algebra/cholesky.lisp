@@ -1,6 +1,6 @@
 ;; Cholesky Decomposition
 ;; Liam Healy, Wed May  3 2006 - 16:38
-;; Time-stamp: <2008-08-11 22:49:09EDT cholesky.lisp>
+;; Time-stamp: <2008-11-16 13:26:42EST cholesky.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -29,7 +29,7 @@
   L.  The upper triangular part of the input matrix contains
   L^T, the diagonal terms being identical for both L and
   L^T.  If the matrix is not positive-definite then the
-  decomposition will fail, returning the error EDOM.")
+  decomposition will fail, returning the error input-domain.")
 
 (defmfun cholesky-solve (A x b)
   "gsl_linalg_cholesky_solve"

@@ -1,6 +1,6 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-10-25 18:24:41EDT updating-accessing.lisp>
+;; Time-stamp: <2008-11-16 13:26:01EST updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,10 +16,10 @@
 
    If x lies in the valid range of the histogram then the function
    returns zero to indicate success.  If x is less than the lower
-   limit of the histogram then the function issues a warning :EDOM, and
+   limit of the histogram then the function issues a warning input-domain, and
    none of bins are modified.  Similarly, if the value of x is greater
    than or equal to the upper limit of the histogram then the function
-   issues a warning :EDOM, and none of the bins are modified.  The error
+   issues a warning input-domain, and none of the bins are modified.  The error
    handler is not called, however, since it is often necessary to compute
    histograms for a small range of a larger dataset, ignoring the values
    outside the range of interest.")
@@ -32,7 +32,7 @@
   :documentation			; FDL
   "Return the contents of the i-th bin of the histogram.
    If i lies outside the valid range of indices for the
-   histogram then an error (:EDOM) is signalled.")
+   histogram then an error (input-domain) is signalled.")
 
 (defmfun range (histogram i)
   "gsl_histogram_get_range"
@@ -47,7 +47,7 @@
    the coordinate of the upper limit are excluded and fall in the
    neighboring higher bin, if it exists).
    If i lies outside the valid range of indices for
-   the histogram, then the error :EDOM is signalled.")
+   the histogram, then the error input-domain is signalled.")
 
 (defmfun max-range (histogram)
   "gsl_histogram_max"
@@ -89,7 +89,7 @@
    range, and will return the correct bin immediately in this
    case.  If the value is found in the range of the histogram
    then the function returns the index.  If value lies outside
-   the valid range of the histogram then the error :EDOM is
+   the valid range of the histogram then the error input-domain is
    signalled.")
 
 #|

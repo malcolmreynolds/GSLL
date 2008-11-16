@@ -1,6 +1,6 @@
 ;; Jacobian elliptic functions
 ;; Liam Healy, Mon Mar 20 2006 - 22:21
-;; Time-stamp: <2008-10-21 23:08:02EDT elliptic-functions.lisp>
+;; Time-stamp: <2008-11-15 22:31:54EST elliptic-functions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,18 +24,6 @@
 ;;; > (jacobian-elliptic-functions 0.61802d0 1.5d0)
 ;;; ;;;error
 
-
 (save-test elliptic-functions
 	   (jacobian-elliptic-functions 0.2d0 0.81d0)
 	   (jacobian-elliptic-functions 0.61802d0 1.5d0))
-
-(LISP-UNIT:DEFINE-TEST ELLIPTIC-FUNCTIONS
-  (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-   (LIST 0.19762082367187703d0 0.9802785369736752d0
-	 0.9840560289645665d0 0.0d0 0.0d0 0.0d0)
-   (MULTIPLE-VALUE-LIST
-    (JACOBIAN-ELLIPTIC-FUNCTIONS 0.2d0 0.81d0)))
-  (LISP-UNIT:ASSERT-ERROR 'GSL-CONDITION
-			  (JACOBIAN-ELLIPTIC-FUNCTIONS
-			   0.61802d0 1.5d0)))
-

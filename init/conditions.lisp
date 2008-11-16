@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2008-08-31 22:52:09EDT conditions.lisp>
+;; Time-stamp: <2008-11-16 13:26:03EST conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,7 +48,7 @@
     (setf *errorno-keyword* (acons ,number ',keyword *errorno-keyword*))
     (export ',keyword)))
 
-(define-gsl-condition EDOM 1 "Input domain error")
+(define-gsl-condition input-domain 1 "Input domain error")
 (define-gsl-condition ERANGE 2 "Output range error")
 (define-gsl-condition EFAULT 3 "Invalid pointer")
 (define-gsl-condition EINVAL 4 "Invalid argument")

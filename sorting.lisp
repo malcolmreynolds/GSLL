@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-11-09 13:10:16EST sorting.lisp>
+;; Time-stamp: <2008-11-15 22:51:52EST sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -249,11 +249,11 @@
 (generate-all-array-tests sort-vector :no-complex
  (letm ((v1 (array-default 8)))
    ;; or you can use msort
-   (sort-vector v1)))
+   (cl-array (sort-vector v1))))
 
 (generate-all-array-tests sort-matrix :no-complex
  (letm ((m1 (array-default '(3 3))))
-   (msort m1)))
+   (cl-array (msort m1))))
 
 (generate-all-array-tests sort-vector-index :no-complex
  (letm ((perm (permutation 8))
