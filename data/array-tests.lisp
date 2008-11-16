@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2008-11-08 22:27:39EST array-tests.lisp>
+;; Time-stamp: <2008-11-16 10:28:21EST array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -113,27 +113,21 @@
 	(m2 (array-default '(3 3))))
    (cl-array (m/ m1 m2))))
 
-#|  Temporarily commented out due to GSL bug
 (generate-all-array-tests vector-mult-scalar :no-complex
- (letm ((v1 (array-default 3))
-	(scalar (scalar-default)))
-   (cl-array (m*c v1 scalar))))
+ (letm ((v1 (array-default 3)))
+   (cl-array (m*c v1 1.39d0))))
 
 (generate-all-array-tests matrix-mult-scalar :no-complex
- (letm ((m1 (array-default '(3 3)))
-	(scalar (scalar-default)))
-   (cl-array (m*c m1 scalar))))
+ (letm ((m1 (array-default '(3 3))))
+   (cl-array (m*c m1 1.39d0))))
 
 (generate-all-array-tests vector-add-scalar :no-complex
- (letm ((v1 (array-default 3))
-	(scalar (scalar-default)))
-   (cl-array (m+c v1 scalar))))
+ (letm ((v1 (array-default 3)))
+   (cl-array (m+c v1 18.19d0))))
 
 (generate-all-array-tests matrix-add-scalar :no-complex
- (letm ((m1 (array-default '(3 3)))
-	(scalar (scalar-default)))
-   (cl-array (m+c m1 scalar))))
-|#
+ (letm ((m1 (array-default '(3 3))))
+   (cl-array (m+c m1 18.19d0))))
 
 ;;;;****************************************************************************
 ;;;; Maximum and minimum elements
@@ -215,7 +209,7 @@
 
 (generate-all-array-tests set-identity t
  (letm ((m1 (array-default '(3 3))))
-   (set-identity m1)))
+   (cl-array (set-identity m1))))
 
 (generate-all-array-tests row t
  (letm ((m1 (array-default '(3 3)))

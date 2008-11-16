@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-11-08 17:23:47EST both.lisp>
+;; Time-stamp: <2008-11-16 10:23:32EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -105,8 +105,6 @@
 ;;; Errors in GSL:
 ;;; 1) complex operations in older versions of GSL
 ;;; https://savannah.gnu.org/bugs/index.php?22478
-;;; 2) Scalar operation m*c, m+c require a double
-;;; for the scalar.  Reported 2008-11-08.
 
 (defmfun m+ ((a both) (b both))
   ("gsl_" :category :type "_add")
@@ -176,25 +174,25 @@
 
 (defmfun m*c ((a both) x)
   ("gsl_" :category :type "_scale")
-  (((mpointer a) :pointer) (x :element-c-type))
+  (((mpointer a) :pointer) (x :double))
   :definition :generic
   :element-types :no-complex
   :inputs (a)
   :outputs (a)
   :return (a)
   :documentation			; FDL
-  "Multiply the elements of a by the constant factor x.")
+  "Multiply the elements of a by the scalar factor x.")
 
 (defmfun m+c ((a both) x)
   ("gsl_" :category :type "_add_constant")
-  (((mpointer a) :pointer) (x :element-c-type))
+  (((mpointer a) :pointer) (x :double))
   :definition :generic
   :element-types :no-complex
   :inputs (a)
   :outputs (a)
   :return (a)
   :documentation			; FDL
-  "Add the constant value x to the elements of the a.")
+  "Add the scalar double x to all the elements of array a.")
 
 ;;;;****************************************************************************
 ;;;; Maximum and minimum elements
