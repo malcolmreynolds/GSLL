@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-08-23 11:45:54EDT wavelet.lisp>
+;; Time-stamp: <2008-11-16 13:46:02EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -29,10 +29,10 @@
   :export nil
   :index (letm wavelet)
   :documentation			; FDL
-  "Allocate and initialize a wavelet object of type
-   'type.  The parameter 'member selects the specific member of the
-   wavelet family.  An error of :ENOMEM indicates either lack
-   of memory or an unsupported member requested.")
+  "Allocate and initialize a wavelet object of type 'type.  The
+   parameter 'member selects the specific member of the wavelet
+   family.  A memory-allocation-failure error indicates either
+   lack of memory or an unsupported member requested.")
 
 (defmfun free-wavelet (wavelet)
   "gsl_wavelet_free"
@@ -203,7 +203,7 @@
   workspace of the appropriate size must be provided.  On exit,
   the appropriate elements of the array data are replaced by their
   two-dimensional wavelet transform.
-  An error :EINVAL is signalled if the matrix is not square
+  An error invalid-argument is signalled if the matrix is not square
   with dimension a power of 2, or if insufficient
   workspace is provided.")
 
@@ -221,7 +221,7 @@
   workspace of the appropriate size must be provided.  On exit,
   the appropriate elements of the array data are replaced by their
   two-dimensional wavelet transform.
-  An error :EINVAL is signalled if the matrix is not square
+  An error invalid-argument is signalled if the matrix is not square
   with dimension a power of 2, or if insufficient
   workspace is provided.")
 
@@ -238,7 +238,7 @@
    and are restricted to powers of two.  A workspace of the appropriate
    size must be provided.  On exit, the appropriate elements of the array
    data are replaced by their two-dimensional wavelet transform.  An
-   error :EINVAL is signalled if the matrix is not square with dimension
+   error invalid-argument is signalled if the matrix is not square with dimension
    a power of 2, or if insufficient workspace is provided.")
 
 (defmfun wavelet-2d-transform-matrix (wavelet data direction workspace)

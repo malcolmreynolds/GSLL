@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-11-11 21:37:46EST defmfun.lisp>
+;; Time-stamp: <2008-11-16 14:51:48EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -586,9 +586,10 @@
 	    #-native
 	    ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
 	    ,@(when (or null-pointer-info (eq c-return :pointer))
-		    `((check-null-pointer ,cret-name
-					  ,@(or null-pointer-info
-						'(:ENOMEM "No memory allocated")))))
+		    `((check-null-pointer
+		       ,cret-name
+		       ,@(or null-pointer-info
+			     '('memory-allocation-failure "No memory allocated")))))
 	    ,@after
 	    (values
 	     ,@(defmfun-return

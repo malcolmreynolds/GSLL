@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-02-17 18:13:47EST roots-one.lisp>
+;; Time-stamp: <2008-11-16 14:34:13EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -126,23 +126,23 @@
   "gsl_root_fsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
-  "Perform a single iteration of the solver.  The following
-   errors may be signalled: :EBADFUNC,
-   the iteration encountered a singular point where the function or its
-   derivative evaluated to infinity or NaN, or
-   :EZERODIV, the derivative of the function vanished at the iteration point,
-   preventing the algorithm from continuing without a division by zero.")
+  "Perform a single iteration of the solver.  The following errors may
+   be signalled: 'bad-function-supplied, the iteration encountered a
+   singular point where the function or its derivative evaluated to
+   infinity or NaN, or 'gsl-division-by-zero, the derivative of the
+   function vanished at the iteration point, preventing the algorithm
+   from continuing without a division by zero.")
 
 (defmfun iterate-fdfsolver (solver)
   "gsl_root_fdfsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
-  "Perform a single iteration of the solver.  The following
-   errors may be signalled: :EBADFUNC,
-   the iteration encountered a singular point where the function or its
-   derivative evaluated to infinity or NaN, or
-   :EZERODIV, the derivative of the function vanished at the iteration point,
-   preventing the algorithm from continuing without a division by zero.")
+  "Perform a single iteration of the solver.  The following errors may
+   be signalled: 'bad-function-supplied, the iteration encountered a
+   singular point where the function or its derivative evaluated to
+   infinity or NaN, or 'gsl-division-by-zero, the derivative of the
+   function vanished at the iteration point, preventing the algorithm
+   from continuing without a division by zero.")
 
 (defmfun fsolver-root (solver)
   "gsl_root_fsolver_root"

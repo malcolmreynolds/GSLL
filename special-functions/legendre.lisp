@@ -1,6 +1,6 @@
 ;; Legendre functions
 ;; Liam Healy, Sat Apr 29 2006 - 19:16
-;; Time-stamp: <2008-10-25 11:02:54EDT legendre.lisp>
+;; Time-stamp: <2008-11-16 14:39:40EST legendre.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -78,7 +78,7 @@
 ;;; l and can overflow for l larger than about 150.  There is
 ;;; no trouble for small m, but overflow occurs when m and
 ;;; l are both large.  Rather than allow overflows, these functions
-;;; refuse to calculate P_l^m(x) and return :EOVRFLW when
+;;; refuse to calculate P_l^m(x) and signal 'overflow when
 ;;; they can sense that l and m are too big.
 
 ;;; If you want to calculate a spherical harmonic, then do not use

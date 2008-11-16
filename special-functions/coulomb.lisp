@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-10-21 22:46:00EDT coulomb.lisp>
+;; Time-stamp: <2008-11-16 14:39:08EST coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -29,8 +29,6 @@
 ;;;; Coulomb Wave Functions
 ;;;;****************************************************************************
 
-;;; Comments are direct from GSL and aren't lispized yet.
-
 (defmfun coulomb-wave-FG (eta x L-F k)
   "gsl_sf_coulomb_wave_FG_e"
   ((eta :double) (x :double) (L-F :double) (k :int)
@@ -42,14 +40,13 @@
    (err F) (err Fp) (err G) (err Gp))
   :documentation			; FDL
   "The Coulomb wave functions F_L(\eta,x),
-  G_{L-k}(\eta,x) and their derivatives F'_L(\eta,x), 
-  G'_{L-k}(\eta,x) with respect to x.  The parameters are restricted to
-  L, L-k > -1/2}, x > 0 and integer k.  Note that L
-  itself is not restricted to being an integer. The results are stored in
-  the parameters F, G for the function values and Fp,
-  Gp for the derivative values.  If an overflow occurs,
-  :EOVRFLW is signalled and scaling exponents are stored in
-  the modifiable parameters exp-F, exp-G.")
+  G_{L-k}(\eta,x) and their derivatives F'_L(\eta,x), G'_{L-k}(\eta,x)
+  with respect to x.  The parameters are restricted to L, L-k > -1/2},
+  x > 0 and integer k.  Note that L itself is not restricted to being
+  an integer. The results are stored in the parameters F, G for the
+  function values and Fp, Gp for the derivative values.  If an
+  overflow occurs, the condition 'overflow is signalled and scaling
+  exponents are stored in the modifiable parameters exp-F, exp-G.")
 
 (defmfun coulomb-wave-F-array (L-min eta x fc-array)
   "gsl_sf_coulomb_wave_F_array"

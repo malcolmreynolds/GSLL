@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-02-17 18:37:39EST minimization-one.lisp>
+;; Time-stamp: <2008-11-16 14:25:08EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -72,7 +72,7 @@
   :c-return :success-continue
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  The following
-   errors may be signalled: :EBADFUNC,
+   errors may be signalled: 'bad-function-supplied,
    the iteration encountered a singular point where the function or its
    derivative evaluated to infinity or NaN, or
    :FAILURE, the algorithm could not improve the current best approximation or

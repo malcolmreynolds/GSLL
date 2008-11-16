@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-08-23 23:04:50EDT roots-multi.lisp>
+;;; Time-stamp: <2008-11-16 14:44:38EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -130,23 +130,23 @@
   "gsl_multiroot_fsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
-  "Perform a single iteration of the solver.  The following
-   errors may be signalled: :EBADFUNC,
-   the iteration encountered a singular point where the function or its
-   derivative evaluated to infinity or NaN, or
-   :EZERODIV, the derivative of the function vanished at the iteration point,
-   preventing the algorithm from continuing without a division by zero.")
+  "Perform a single iteration of the solver.  The following errors may
+   be signalled: 'bad-function-supplied, the iteration encountered a
+   singular point where the function or its derivative evaluated to
+   infinity or NaN, or 'gsl-division-by-zero, the derivative of the
+   function vanished at the iteration point, preventing the algorithm
+   from continuing without a division by zero.")
 
 (defmfun iterate-mfdfsolver (solver)
   "gsl_multiroot_fdfsolver_iterate"
   ((solver :pointer))
   :documentation			; FDL
-  "Perform a single iteration of the solver.  The following
-   errors may be signalled: :EBADFUNC,
-   the iteration encountered a singular point where the function or its
-   derivative evaluated to infinity or NaN, or
-   :EZERODIV, the derivative of the function vanished at the iteration point,
-   preventing the algorithm from continuing without a division by zero.")
+  "Perform a single iteration of the solver.  The following errors may
+   be signalled: 'bad-function-supplied, the iteration encountered a
+   singular point where the function or its derivative evaluated to
+   infinity or NaN, or 'gsl-division-by-zero, the derivative of the
+   function vanished at the iteration point, preventing the algorithm
+   from continuing without a division by zero.")
 
 (defmfun mfsolver-root (solver)
   "gsl_multiroot_fsolver_root"
@@ -285,10 +285,10 @@
    attempts fail to reduce the residual then the full Jacobian is
    recomputed.  The algorithm also monitors the progress of the solution
    and returns an error if several steps fail to make any improvement,
-   :ENOPROG
+   'no-progress
    the iteration is not making any progress, preventing the algorithm from
    continuing.
-   :ENOPROGJ
+   'jacobian-not-improving
    re-evaluations of the Jacobian indicate that the iteration is not
    making any progress, preventing the algorithm from continuing.")
 

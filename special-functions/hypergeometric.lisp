@@ -1,6 +1,6 @@
 ;; Hypergeometric function
 ;; Liam Healy, Fri Apr 28 2006 - 23:00
-;; Time-stamp: <2008-10-23 23:11:41EDT hypergeometric.lisp>
+;; Time-stamp: <2008-11-16 14:27:48EST hypergeometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -75,7 +75,7 @@
   "The Gauss hypergeometric function
   2F1(a,b,c,x) for |x| < 1. If the arguments
   (a,b,c,x) are too close to a singularity then the function can
-  return the error code :EMAXITER when the series
+  signal the error 'exceeded-maximum-iterations when the series
   approximation converges too slowly.  This occurs in the region of
   x=1, c - a - b = m for integer m.")
 

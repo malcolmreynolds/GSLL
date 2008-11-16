@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-09-14 22:06:19EDT histogram.lisp>
+;; Time-stamp: <2008-11-16 13:46:24EST histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,7 +30,7 @@
   "Check that a GSL data pointer is not null, then assign it to the object."
   (check-null-pointer
    pointer
-   :ENOMEM
+   'memory-allocation-failure
    (format nil "for ~a."
 	   (with-output-to-string (stream) (princ object stream))))
   (setf (mpointer object) pointer))

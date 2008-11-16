@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-08-31 15:13:29EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-11-16 14:49:15EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -256,14 +256,17 @@
    the trust region, then the size of the trust region is decreased and
    another trial step is computed.
 
-   The algorithm also monitors the progress of the solution and returns an
-   error if the changes in the solution are smaller than the machine
-   precision.  The possible error codes are,
-   :ETOLF the decrease in the function falls below machine precision,
-   :ETOLX the change in the position vector falls below machine precision,
-   :ETOLG the norm of the gradient, relative to the norm of the function,
+   The algorithm also monitors the progress of the solution and
+   returns an error if the changes in the solution are smaller than
+   the machine precision.  The possible errors signalled are:
+   'failure-to-reach-tolerance-f the decrease in the function falls
+   below machine precision,
+   'failure-to-reach-tolerance-x
+    the change in the position vector falls below machine precision,
+   'failure-to-reach-tolerance-g
+    the norm of the gradient, relative to the norm of the function,
    falls below machine precision.
-   These error codes indicate that further iterations will be unlikely to
+   These errors indicate that further iterations would be unlikely to
    change the solution from its current value.")
 
 (defmpar *levenberg-marquardt-unscaled* "gsl_multifit_fdfsolver_lmder"

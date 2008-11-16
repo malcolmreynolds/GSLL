@@ -13,7 +13,7 @@
                          (LETM ((WS (INTEGRATION-WORKSPACE 20)))
                                (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 20
                                                 WS))))
-                       (LISP-UNIT:ASSERT-ERROR 'EINVAL
+                       (LISP-UNIT:ASSERT-ERROR 'invalid-argument
                                                (LETM
                                                 ((WS
                                                   (INTEGRATION-WORKSPACE 20)))
