@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2008-08-07 20:53:59EDT interface.lisp>
+;; Time-stamp: <2008-11-16 18:57:24EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,7 +12,7 @@
 ;;;;****************************************************************************
 
 (defparameter *gsl-symbol-equivalence*
-  (make-hash-table :test 'equal :size 1500))
+  (make-hash-table :test 'equal :size 2000))
 
 (defun map-name (cl-name gsl-name)
   ;; Trust here that the library does not have two symbols that differ

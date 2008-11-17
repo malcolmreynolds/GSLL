@@ -28,19 +28,18 @@
       getting quick answers, even for someone not intending
       to program in Lisp.
       </p>
-      <p>Topics include:
- 	roots of polynomials, special functions, vectors and matrices,
-	permutations, sorting, BLAS support, linear algebra,
-	eigensystems, fast Fourier transforms,
-	quadrature, random numbers, quasi-random sequences,
-	random distributions, statistics, histograms, N-tuples,
-	Monte Carlo integration, simulated annealing, differential
- 	equations, interpolation, numerical differentiation,
-	Chebyshev approximation, series acceleration,
-	discrete Hankel transforms, root-finding, minimization
-	least-squares fitting, IEEE floating-point,
-	discrete wavelet transforms.  See documentation on status of
-	some incomplete topics.
+      <p>Topics include: roots of polynomials, special functions,
+ 	vectors and matrices, permutations, sorting, BLAS (basic
+ 	linear algebra subprograms), linear algebra, eigensystems,
+ 	fast Fourier transforms, quadrature, random numbers,
+ 	quasi-random sequences, random distributions, statistics,
+ 	histograms, N-tuples, Monte Carlo integration, simulated
+ 	annealing, differential equations, interpolation, numerical
+ 	differentiation, Chebyshev approximation, series acceleration,
+ 	discrete Hankel transforms, root-finding, minimization
+ 	least-squares fitting, IEEE floating-point, discrete wavelet
+ 	transforms.  See documentation on status of some incomplete
+ 	topics.
       <p>This code should be considered alpha and is still under
       development, but it is largely usable
       now, with some GSL capability not yet available.</p>
@@ -70,7 +69,7 @@
 <pre>
 (jacobian-elliptic-functions 0.61802d0 1.5d0)
 Input domain error |m| > 1.0 in elljac.c at line 46
-   [Condition of type EDOM]
+   [Condition of type INPUT-DOMAIN]
 </pre>
  </div>
 
@@ -122,9 +121,7 @@ Input domain error |m| > 1.0 in elljac.c at line 46
  <li>A <a href="documentation.html">documentation</a> guide is
  available.
  <li>The <a href="development.html">development</a> process is described
- separately for those interested, and a <a
- href="http://trac.common-lisp.net/gsll">Trac page</a> is used to
- track it and for bug reports (file a "New Ticket").
+ separately for those interested.
  <li>There is a <a
  href="http://common-lisp.net/cgi-bin/mailman/listinfo/gsll-devel">mailing
  list</a> for all aspects of this project.
@@ -146,7 +143,7 @@ Input domain error |m| > 1.0 in elljac.c at line 46
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-11-15 21:51:03EST index.html>
+       Time-stamp: <2008-11-16 15:35:22EST index.html>
        </small>
 <!-- hhmts end -->
  </div>
