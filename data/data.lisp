@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-11-15 19:46:51EST data.lisp>
+;; Time-stamp: <2008-11-23 08:55:31EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -211,8 +211,7 @@
 		    (progn
 		      (setf (c-pointer ,symbol) ,cptr)
 		      ,@body)
-		  ,@(when sync-exit `((copy-c-to-cl ,symbol))))
-	     (free-gsl-struct ,symbol)))))))
+		  ,@(when sync-exit `((copy-c-to-cl ,symbol))))))))))
 
 ;;;;****************************************************************************
 ;;;; Syncronize C and CL
@@ -315,25 +314,18 @@
 	  (cffi:foreign-slot-value blockptr 'gsl-block-c 'data)
 	  (c-pointer object)
 	  (cffi:foreign-slot-value blockptr 'gsl-block-c 'size)
-	  (total-size object)
-	  (mpointer object)
-	  (alloc-from-block object))))
+	  (total-size object))
+    (let ((array-struct (alloc-from-block object)))
+      (tg:finalize
+       object
+       (lambda ()
+	 (unless (eq blockptr array-struct)
+	   (cffi:foreign-free blockptr))
+	 (cffi:foreign-free array-struct)))
+      (setf (mpointer object) array-struct))))
 
 (defmethod mpointer :before ((object gsl-data))
   "Make a GSL struct if there isn't one already."
   (unless (slot-value object 'mpointer)
     (alloc-gsl-struct object)
     nil))
-
-(defun free-gsl-struct (object)
-  "Free the C structure(s) and memory for data."
-  ;; This should happen immediately at the end of the
-  ;; with-pointer-to-array and substitutes for the GSL "_free"
-  ;; functions.
-  (when (block-pointer object)
-    (unless (eq (block-pointer object) (mpointer object))
-      (cffi:foreign-free (block-pointer object))) ; free the block struct
-    (setf (block-pointer object) nil))
-  (when (mpointer object)
-    (cffi:foreign-free (mpointer object)) ; free the larger struct
-    (setf (mpointer object) nil)))

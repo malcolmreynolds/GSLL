@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-11-16 12:14:14EST gsll.asd>
+;; Time-stamp: <2008-11-22 17:13:51EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -9,7 +9,7 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "LLGPL v3, FDL"
-  :depends-on (cffi cl-utilities)
+  :depends-on (cffi trivial-garbage cl-utilities)
   :components
   ((:module init
 	    :components
@@ -33,7 +33,7 @@
 	    :depends-on (init)
 	    :components
 	    ((:file "foreign-friendly")
-	     (:file "data")
+	     (:file "data" :depends-on (foreign-friendly))
 	     (:file "vector" :depends-on (data))
 	     (:file "matrix" :depends-on (data vector))
 	     (:file "maref" :depends-on (data vector matrix))
