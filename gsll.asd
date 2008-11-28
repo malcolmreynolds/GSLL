@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-11-22 17:13:51EST gsll.asd>
+;; Time-stamp: <2008-11-23 14:08:05EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -23,10 +23,12 @@
 	     (:file "defmfun" :depends-on (init element-types interface))
 	     (:file "callback" :depends-on (init))
 	     (:file "generate-examples" :depends-on (init))))
+   #+(or)
    (:module floating-point
 	    :depends-on (init)
 	    :components
 	    ((:file "ieee-modes")))
+   #+(or)
    (:file "mathematical" :depends-on (init))
    ;; complex numbers not necessary?  Just make a struct.
    (:module data

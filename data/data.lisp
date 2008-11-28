@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-11-23 08:55:31EST data.lisp>
+;; Time-stamp: <2008-11-27 22:58:31EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,11 +16,14 @@
 	     :documentation "A pointer to the GSL representation of the data.")
    (block-pointer :initform nil :accessor block-pointer
 		  :documentation "A pointer to the gsl-block-c.")
+   #-native
    (c-pointer :initarg :c-pointer :accessor c-pointer
 	      :documentation "A pointer to the C array.")
    (dimensions :initarg :dimensions :reader dimensions)
    (total-size :initarg :total-size :reader total-size)
    (element-type :initarg :element-type :reader element-type)
+   (original-array :initarg :original-array :reader original-array)
+   (offset :initarg :offset :reader offset)
    #-native
    (cl-invalid
     :initform t :accessor cl-invalid
@@ -43,6 +46,17 @@
    etc."))
 
 (export '(dimensions total-size element-type))
+
+(defmethod initialize-instance :after ((object gsl-data) &rest initargs)
+  (declare (ignore initargs))
+  (multiple-value-bind  (oa index-offset)
+      (find-original-array (cl-array object))
+    (with-slots (original-array offset) object
+      (setf original-array oa
+	    offset
+	    (* index-offset
+	       (cffi:foreign-type-size (cl-cffi (element-type object)))))))
+  (alloc-gsl-struct object))
 
 (defmethod print-object ((object gsl-data) stream)
   (print-unreadable-object (object stream :type t) 
@@ -113,8 +127,8 @@
   "Make the data object from the CL array make with make-array*."
   (make-instance class
 		 :cl-array array
-		 :mpointer nil	; this will be set by :before method below.
-		 :c-pointer nil		; this will be set by defmfun
+		 :mpointer nil ; this will be set by :before method below.
+		 #-native :c-pointer #-native nil ; this will be set by defmfun
 		 :dimensions (array-dimensions array)
 		 :total-size (array-total-size array)))
 
@@ -190,7 +204,7 @@
    within the body to the object.  The argument
    init-or-spec is either the
    array dimensions or something made by make-array*."
-  (with-unique-names (cptr eltype)
+  (with-unique-names (eltype)
     `(macrolet
 	 ;; #'els is a convenience macro to define the make-array*
 	 ((a (&rest contents)
@@ -200,18 +214,14 @@
 	    `(abody ',',(lookup-type type *class-element-type*)
 		    ,@contents)))
        (let* ((,symbol (make-data ',type ,init-or-spec))
-	      (,eltype (element-type ,symbol)))
-	 (with-pointer-to-array
-	     ((cl-array ,symbol)
-	      ,cptr
-	      (component-type ,eltype)
-	      (component-size ,symbol))
-	   (unwind-protect
-		(multiple-value-prog1
-		    (progn
-		      (setf (c-pointer ,symbol) ,cptr)
-		      ,@body)
-		  ,@(when sync-exit `((copy-c-to-cl ,symbol))))))))))
+	      ;;(,eltype (element-type ,symbol))
+	      )
+	 (unwind-protect
+	      (multiple-value-prog1
+		  (progn
+		    #-native (setf (c-pointer ,symbol) ,cptr)
+		    ,@body)
+		,@(when sync-exit `((copy-c-to-cl ,symbol)))))))))
 
 ;;;;****************************************************************************
 ;;;; Syncronize C and CL
@@ -305,27 +315,24 @@
   (data :pointer))
 
 (defun alloc-gsl-struct (object)
-  ;; Allocate the GSL structure; this should only be called from #'mpointer
+  "Allocate the GSL structure."
+  ;; Need to check that all allocations succeeded.
+  ;; This should only be called from #'mpointer
   ;; thus it will be created only when first needed.
-  (unless (c-pointer object) (error "No C array.")) ; safety while developing
-  (let ((blockptr (cffi:foreign-alloc 'gsl-block-c)))
-    (setf (block-pointer object)
-	  blockptr
-	  (cffi:foreign-slot-value blockptr 'gsl-block-c 'data)
-	  (c-pointer object)
-	  (cffi:foreign-slot-value blockptr 'gsl-block-c 'size)
-	  (total-size object))
-    (let ((array-struct (alloc-from-block object)))
-      (tg:finalize
-       object
-       (lambda ()
-	 (unless (eq blockptr array-struct)
-	   (cffi:foreign-free blockptr))
-	 (cffi:foreign-free array-struct)))
-      (setf (mpointer object) array-struct))))
-
-(defmethod mpointer :before ((object gsl-data))
-  "Make a GSL struct if there isn't one already."
-  (unless (slot-value object 'mpointer)
-    (alloc-gsl-struct object)
-    nil))
+  (unless (block-pointer object)
+    (let ((blockptr (cffi:foreign-alloc 'gsl-block-c)))
+      (setf (block-pointer object)
+	    blockptr
+	    (cffi:foreign-slot-value blockptr 'gsl-block-c 'size)
+	    (total-size object))
+      (setf
+       (cffi:foreign-slot-value (block-pointer object) 'gsl-block-c 'data)
+       (c-pointer object))
+      (let ((array-struct (alloc-from-block object)))
+	(tg:finalize
+	 object
+	 (lambda ()
+	   (unless (eq blockptr array-struct)
+	     (cffi:foreign-free blockptr))
+	   (cffi:foreign-free array-struct)))
+	(setf (mpointer object) array-struct)))))

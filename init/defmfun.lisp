@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-11-16 14:51:48EST defmfun.lisp>
+;; Time-stamp: <2008-11-23 14:09:12EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -514,7 +514,7 @@
      (mapdown (eq body-maker 'body-optional-arg)))
   "A complete definition form, starting with defun, :method, or defmethod."
   (destructuring-bind
-	(&key documentation &allow-other-keys) key-args
+	(&key documentation inputs outputs &allow-other-keys) key-args
     `(,definition
 	 ,@(when (and name (not (defgeneric-method-p name)))
 		 (list name))
@@ -527,7 +527,12 @@
 				    (mapcar 'variables-used-in-c-arguments c-arguments))
 			     (variables-used-in-c-arguments c-arguments))))
        ,@(when documentation (list documentation))
-       ,(funcall body-maker name arglist gsl-name c-arguments key-args))))
+       #-native
+       ,(funcall body-maker name arglist gsl-name c-arguments key-args)
+       #+native
+       ,(native-pointer
+	 (union inputs outputs)
+	 (funcall body-maker name arglist gsl-name c-arguments key-args)))))
 
 (defun body-no-optional-arg (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
