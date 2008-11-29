@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-10-25 18:24:40EDT lu.lisp>
+;; Time-stamp: <2008-11-29 15:30:45EST lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -96,7 +96,7 @@
 
 (defmfun LU-determinant ((LU matrix) signum)
   ("gsl_linalg" :complex "_LU_det")
-  (((mpointer LU) gsl-matrix-c) (signum :int))
+  (((mpointer LU) :pointer) (signum :int))
   :c-return :double
   :definition :generic
   :inputs (LU)
@@ -109,7 +109,7 @@
 
 (defmfun LU-log-determinant ((LU matrix))
   ("gsl_linalg" :complex "_LU_lndet")
-  (((mpointer LU) gsl-matrix-c))
+  (((mpointer LU) :pointer))
   :c-return :double
   :definition :generic
   :inputs (LU)
@@ -122,7 +122,7 @@
 
 (defmfun LU-sgndet ((LU matrix) signum)
   ("gsl_linalg" :complex "_LU_sgndet")
-  (((mpointer LU) gsl-matrix-c) (signum :int))
+  (((mpointer LU) :pointer) (signum :int))
   :c-return :int
   :definition :generic
   :inputs (LU)

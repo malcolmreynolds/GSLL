@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-11-29 14:20:17EST defmfun.lisp>
+;; Time-stamp: <2008-11-29 15:30:45EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -157,7 +157,7 @@
  'gsl-zerop
  '((v matrix))
  '("gsl_" :category :type "_isnull")
- '(((pointer v) gsl-matrix-c))
+ '(((pointer v) :pointer))
  '(:c-return :boolean
    :definition :generic
    :documentation			; FDL

@@ -1,6 +1,6 @@
 ;; Cholesky Decomposition
 ;; Liam Healy, Wed May  3 2006 - 16:38
-;; Time-stamp: <2008-11-16 13:26:42EST cholesky.lisp>
+;; Time-stamp: <2008-11-29 15:33:14EST cholesky.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -43,9 +43,9 @@
   decomposition of A into the matrix cholesky given by
   #'cholesky-decomposition.")
 
-(defmfun cholesky-solvex (cholesky x)
+(defmfun cholesky-solvex (A x)
   "gsl_linalg_cholesky_svx"
-  (((mpointer cholesky) :pointer) ((mpointer x) :pointer))
+  (((mpointer A) :pointer) ((mpointer x) :pointer))
   :inputs (A x)
   :outputs (x)
   :return (x)
