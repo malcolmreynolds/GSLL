@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-11-27 22:58:31EST data.lisp>
+;; Time-stamp: <2008-11-29 15:08:23EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -314,25 +314,25 @@
   (size sizet)
   (data :pointer))
 
-(defun alloc-gsl-struct (object)
-  "Allocate the GSL structure."
-  ;; Need to check that all allocations succeeded.
-  ;; This should only be called from #'mpointer
-  ;; thus it will be created only when first needed.
-  (unless (block-pointer object)
-    (let ((blockptr (cffi:foreign-alloc 'gsl-block-c)))
-      (setf (block-pointer object)
-	    blockptr
-	    (cffi:foreign-slot-value blockptr 'gsl-block-c 'size)
-	    (total-size object))
-      (setf
-       (cffi:foreign-slot-value (block-pointer object) 'gsl-block-c 'data)
-       (c-pointer object))
-      (let ((array-struct (alloc-from-block object)))
-	(tg:finalize
-	 object
-	 (lambda ()
-	   (unless (eq blockptr array-struct)
-	     (cffi:foreign-free blockptr))
-	   (cffi:foreign-free array-struct)))
-	(setf (mpointer object) array-struct)))))
+(defgeneric alloc-gsl-struct (object)
+  (:documentation "Allocate the GSL structure.")
+  (:method ((object gsl-data))
+    ;; Need to check that all allocations succeeded.
+    (unless (block-pointer object)
+      (let ((blockptr (cffi:foreign-alloc 'gsl-block-c)))
+	(setf (block-pointer object)
+	      blockptr
+	      (cffi:foreign-slot-value blockptr 'gsl-block-c 'size)
+	      (total-size object)
+	      (cffi:foreign-slot-value (block-pointer object) 'gsl-block-c 'data)
+	      (c-pointer object))
+	(let ((array-struct (alloc-from-block object)))
+	  (tg:finalize
+	   object
+	   (lambda ()
+	     (unless (eq blockptr array-struct)
+	       (cffi:foreign-free blockptr))
+	     (cffi:foreign-free array-struct)))
+	  (setf (mpointer object) array-struct))))))
+
+;;; For #-native, do the whole thing using _alloc, _free functions.

@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2008-11-27 22:59:29EST foreign-friendly.lisp>
+;; Time-stamp: <2008-11-29 11:16:03EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -78,15 +78,13 @@
 
 ;;; To be called by a defmfun expander
 #+sbcl
-(defun native-pointer (array-symbols body)
+(defun native-pointer-protect (array-symbols body)
   "Wrap the body with a form that obtains the native pointer
    and protects it during execution of the body."
-  (if array-symbols
-      ;; http://www.sbcl.org/manual/Calling-Lisp-From-C.html
-      `(sb-sys:with-pinned-objects
-	   ,(mapcar (lambda (s) `(original-array ,s)) array-symbols)
-	 ,body)
-      body))
+  ;; http://www.sbcl.org/manual/Calling-Lisp-From-C.html
+  `(sb-sys:with-pinned-objects
+       ,(mapcar (lambda (s) `(original-array ,s)) array-symbols)
+     ,body))
 
 #+sbcl
 (defun c-pointer (gsl-data)

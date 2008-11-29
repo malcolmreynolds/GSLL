@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-10-25 19:05:36EDT combination.lisp>
+;; Time-stamp: <2008-11-29 15:09:07EST combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,15 +39,14 @@
      'combination
      :cl-array (make-array* k *sizet-type*)
      :mpointer nil	   ; this will be set by :before method below.
-     :c-pointer nil			; this will be set by defmfun
+     #-native :c-pointer #-native nil	; this will be set by defmfun
      :dimensions (copy-list nk)
+     ;; The total-size of a combination is k, because that is the length
+     ;; of the vector that represents it.
      :total-size k)))
 
-(defmethod mpointer :before ((object combination))
-  "Make a GSL struct if there isn't one already."
+(defmethod alloc-gsl-struct ((object combination))
   (unless (slot-value object 'mpointer)
-    ;; Cribbed from alloc-gsl-struct
-    (unless (c-pointer object) (error "No C array.")) ; safety while developing
     (let ((blockptr (cffi:foreign-alloc 'gsl-combination-c)))
       (setf (block-pointer object)
 	    blockptr
@@ -58,11 +57,10 @@
 	    (cffi:foreign-slot-value blockptr 'gsl-combination-c 'k)
 	    (elt (dimensions object) 1)
 	    (mpointer object)
-	    (block-pointer object)))
-    nil))
-
-;;; The total-size of a combination is k, because that is the length
-;;; of the vector that represents it.
+	    (block-pointer object))
+      (tg:finalize
+       object
+       (lambda () (cffi:foreign-free blockptr))))))
 
 ;;;;****************************************************************************
 ;;;; Setting values

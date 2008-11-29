@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
-;; Time-stamp: <2008-11-15 13:35:01EST vector.lisp>
+;; Time-stamp: <2008-11-29 14:19:54EST vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,7 +53,7 @@
 
 (defmfun vector-reverse ((vec vector))
   ("gsl_" :category :type "_reverse")
-  (((mpointer vec) gsl-vector-c))
+  (((mpointer vec) :pointer))
   :definition :generic
   :inputs (vec)
   :outputs (vec)

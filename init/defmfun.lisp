@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-11-23 14:09:12EST defmfun.lisp>
+;; Time-stamp: <2008-11-29 14:20:17EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -145,7 +145,7 @@
  'gsl-zerop
  '((v vector))
  '("gsl_vector" :type "_isnull")
- '(((pointer v) gsl-vector-c))
+ '(((pointer v) :pointer))
  '(:c-return :boolean
    :definition :generic
    :documentation			; FDL
@@ -181,7 +181,7 @@
  'gsl-zerop
  '((v vector))
  '("gsl_vector" :type "_isnull")
- '(((pointer v) gsl-vector-c))
+ '(((pointer v) :pointer))
  '(:c-return :boolean
    :definition :methods
    :documentation			; FDL
@@ -506,6 +506,14 @@
    (mapcan (lambda (carg)
 	     (stupid-code-walk-find-variables (st-symbol carg)))
 	   c-arguments)))
+
+(defun native-pointer (array-symbols body)
+  "Wrap the body with a form that obtains the native pointer
+   and protects it during execution of the body."
+  (if array-symbols
+      ;; http://www.sbcl.org/manual/Calling-Lisp-From-C.html
+      (native-pointer-protect array-symbols body)
+      body))
 
 (defun complete-definition
     (definition name arglist gsl-name c-arguments key-args
