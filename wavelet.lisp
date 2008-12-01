@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-11-16 13:46:02EST wavelet.lisp>
+;; Time-stamp: <2008-11-30 23:47:59EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -312,7 +312,7 @@
 
 ;;; See GSL manual Section 30.4.
 (defparameter *wavelet-sample*
- (a 0.0462458471760794d0 0.0462458471760794d0 0.0512458471760794d0 0.0712458471760795d0
+ #m(0.0462458471760794d0 0.0462458471760794d0 0.0512458471760794d0 0.0712458471760795d0
  0.0712458471760795d0 0.0662458471760795d0 0.0962458471760795d0 0.101245847176079d0
  0.116245847176079d0 0.121245847176079d0 0.116245847176079d0 0.106245847176079d0
  0.0912458471760794d0 0.101245847176079d0 0.0962458471760795d0 0.0962458471760795d0
@@ -387,11 +387,11 @@
    256) using the 20 largest components of the wavelet transform, while
    setting the others to zero.  See GSL manual Section 30.4."
   (letm ((n (length cl-data))
-	 (vector (vector-double-float cl-data))
+	 (vector cl-data)
 	 (wavelet (wavelet *daubechies-wavelet* 4))
 	 (workspace (wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
-    (letm ((absvector (vector-double-float n))
+    (letm ((absvector (make-array* 'double-float :dimensions n))
 	   (permutation (permutation n)))
       (dotimes (i n)
 	(setf (maref absvector i) (abs (maref vector i))))
@@ -407,7 +407,7 @@
 (defun wavelet-forward-example (&optional (cl-data *wavelet-sample*))
   "Simpler example, with only a Daubechies wavelet forward transformation."
   (letm ((n (length cl-data))
-	 (vector (vector-double-float cl-data))
+	 (vector cl-data)
 	 (wavelet (wavelet *daubechies-wavelet* 4))
 	 (workspace (wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)

@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-08-23 11:30:37EDT series-acceleration.lisp>
+;; Time-stamp: <2008-11-30 23:45:16EST series-acceleration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -110,7 +110,7 @@
 	(sum 0.0d0)
 	(zeta2 (/ (expt pi 2) 6)))
     (letm ((levin (levin maxterms))
-	   (array (vector-double-float maxterms)))
+	   (array (make-array* 'double-float :dimensions maxterms)))
       (dotimes (n maxterms)
 	(setf (maref array n) (coerce (/ (expt (1+ n) 2)) 'double-float))
 	(incf sum (maref array n)))

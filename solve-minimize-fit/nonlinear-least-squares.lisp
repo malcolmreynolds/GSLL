@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-11-16 14:49:15EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-11-30 23:31:40EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -387,13 +387,15 @@
 
 (defun norm-f (fit)
   "Find the norm of the fit function f."
-  (letm ((arr (vector-double-float (cl-array (fdffit-slot fit 'f)))))
-    (euclidean-norm arr)))
+  ;; Fix this
+  (euclidean-norm (fdffit-slot fit 'f)))
 
 (defun solve-nonlinear-least-squares-example ()
-  (letm ((init (vector-double-float (a 1.0d0 0.0d0 0.0d0)))
+  (letm ((init #m(1.0d0 0.0d0 0.0d0))
 	 (covariance
-	  (matrix-double-float (list *number-of-parameters* *number-of-parameters*)))
+	  (make-array* 'double-float
+		       :dimensions
+		       (list *number-of-parameters* *number-of-parameters*)))
 	 (fit (nonlinear-fdffit
 	       *levenberg-marquardt*
 	       *number-of-observations*

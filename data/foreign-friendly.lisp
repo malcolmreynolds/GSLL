@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2008-11-29 11:16:03EST foreign-friendly.lisp>
+;; Time-stamp: <2008-11-30 18:44:50EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -14,32 +14,58 @@
 ;;;; Make arrays for possible foreign use 
 ;;;;****************************************************************************
 
-(export '(make-array*))
-
-(defun make-array*
-    (dimensions element-type
-     &key (initial-element nil initial-element-p)
-     (initial-contents nil initial-contents-p))
+(defun make-ffa
+    (element-type
+     &key dimensions (initial-element nil initial-element-p)
+     (initial-contents nil initial-contents-p)
+     &allow-other-keys)
   "Make an array of one or two dimensions for possible use in foreign code.
    Syntax is similar to make-array, but note that element-type
    is mandatory and limited to certain types."
   (assert (member element-type *array-element-types* :test 'equal)
 	  (element-type)
 	  "Specified element-type must be one of *array-element-types*.")
-  (if initial-contents-p
-      (if (and (subtypep element-type 'complex)
-	       (= (length initial-contents)
-		  (* 2 (if (listp dimensions) (apply #'* dimensions) dimensions))))
-	  (make-ffa dimensions element-type
-			:initial-contents
-			(loop for (re im) on initial-contents by #'cddr
-			   collect (complex re im)))
-	  (make-ffa dimensions element-type :initial-contents initial-contents))
-      (if initial-element-p
-	  (make-ffa dimensions element-type :initial-element initial-element)
-	  (make-ffa dimensions element-type))))
+  (let* ((initial-matrix (listp (first initial-contents)))
+	 (complex-initial-real
+	  (and initial-contents-p
+	       (subtypep element-type 'complex)
+	       (typep
+		(if initial-matrix
+		    (caar initial-contents)
+		    (first initial-contents))
+		'real))))
+    (unless dimensions
+      (if initial-contents-p
+	  (setf dimensions
+		(if initial-matrix
+		    ;; matrix
+		    (list (length initial-contents)
+			  (ceiling (length (first initial-contents))
+				   (if complex-initial-real 2 1)))
+		    ;; vector
+		    (ceiling (length initial-contents)
+			     (if complex-initial-real 2 1))))
+	  (error "dimensions must be specified if contents are not")))
+    (when (and initial-matrix initial-contents-p)
+      ;; flatten matrix spec
+      (setf initial-contents (mapcar #'append initial-contents)))
+    (when complex-initial-real
+      (setf initial-contents (list-complex-from-real initial-contents)))
+    (apply 'make-ffa-1d
+	   dimensions element-type
+	   (append
+	    (when initial-contents-p
+		     (list :initial-contents initial-contents))
+	    (when initial-element-p
+		     (list :initial-element initial-element))))))
 
-(defun make-ffa (dimensions element-type &key
+(defun list-complex-from-real (list)
+  "Collect a list of complex numbers from real components."
+  (assert (evenp (length list)) (list) 
+	  "Cannot collect reals into complex from an odd number of reals.")
+  (loop for (re im) on list by #'cddr collect (complex re im)))
+
+(defun make-ffa-1d (dimensions element-type &key
 		 (initial-element 0 initial-element-p)
 		 (initial-contents nil initial-contents-p))
   "Make an array that is either one-dimensional or displaced to a
@@ -60,6 +86,9 @@
 							element-type)))
 		  ;; contents given, copy or coerce
 		  (initial-contents-p
+		   (when (listp (first initial-contents))
+		     ;; flatten list for matrices
+		     (setf initial-contents (apply 'append initial-contents)))
 		   (assert (= (length initial-contents) length))
 		   (if (typep initial-contents (list 'vector element-type))
 		       (copy-seq initial-contents)

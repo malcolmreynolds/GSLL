@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-11-29 11:18:52EST gsll.asd>
+;; Time-stamp: <2008-11-30 23:17:52EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -94,7 +94,7 @@
    ;; Skip fft for now, I'm not sure how it works in C
    (:file "numerical-integration" :depends-on (init))
    (:module random
-	    :depends-on (init)
+	    :depends-on (init data)
 	    :components
 	    ((:file "rng-types")
 	     (:file "generators" :depends-on (rng-types))

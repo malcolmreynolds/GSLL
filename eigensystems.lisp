@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-10-25 11:34:13EDT eigensystems.lisp>
+;; Time-stamp: <2008-11-30 23:37:31EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -158,13 +158,12 @@
 ;;;;****************************************************************************
  
 (defun eigenvalue-eigenvectors-example ()
-  (letm ((evecs (matrix-double-float '(3 3)))
-	 (evals (vector-double-float 3))
+  (letm ((evecs (make-array* 'double-float :dimensions '(3 3)))
+	 (evals (make-array* 'double-float :dimensions 3))
 	 (ws (eigen-symmv 3))
-	 (mat (matrix-double-float 
-	       (a (20.0d0 -10.0d0 0.0d0)
-		  (-10.0d0 30.0d0 0.0d0)
-		  (0.0d0 0.0d0 40.0d0)))))
+	 (mat #m((20.0d0 -10.0d0 0.0d0)
+		 (-10.0d0 30.0d0 0.0d0)
+		 (0.0d0 0.0d0 40.0d0))))
     (eigenvalues-eigenvectors mat evals evecs ws)
     (values (cl-array evals) (cl-array evecs))))
 

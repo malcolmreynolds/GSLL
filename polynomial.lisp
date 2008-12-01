@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-10-25 11:47:01EDT polynomial.lisp>
+;; Time-stamp: <2008-11-30 23:38:39EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -146,11 +146,11 @@
   w of the appropriate size.  The n-1 roots are returned in
   the packed complex array z of length 2(n-1), alternating
   real and imaginary parts."
-  (let ((len (length coefficients)))
-    (letm ((coef (vector-double-float coefficients))
-	   (answer (vector-double-float (* 2 (1- len))))
+  (let ((len (total-size coefficients)))
+    ;; Should this be making a complex array?
+    (letm ((answer (make-array* 'double-float :dimensions (* 2 (1- len))))
 	   (ws (complex-workspace len)))
-      (values-list (polynomial-solve-ws coef ws answer)))))
+      (values-list (polynomial-solve-ws coefficients ws answer)))))
 
 (defmfun polynomial-solve-ws (coefficients workspace answer-pd)
   "gsl_poly_complex_solve"
@@ -172,16 +172,16 @@
 ;;;;****************************************************************************
 
 (save-test polynomial
- (letm ((xa (vector-double-float (a 0.0d0 1.0d0 2.0d0 3.0d0)))
-	(ya (vector-double-float (a 2.5d0 7.2d0 32.7d0 91.0d0)))
-	(dd (vector-double-float 4)))
+ (letm ((xa #m(0.0d0 1.0d0 2.0d0 3.0d0))
+	(ya (#m(2.5d0 7.2d0 32.7d0 91.0d0) ))
+	(dd (make-array* 'double-float :dimensions 4)))
    (divided-difference dd xa ya)
    (list
     (polynomial-eval-divided-difference dd xa 0.0d0)
     (polynomial-eval-divided-difference dd xa 1.0d0)
     (polynomial-eval-divided-difference dd xa 2.0d0)
     (polynomial-eval-divided-difference dd xa 3.0d0)))
- (letm ((vec (vector-double-float (a 1.0d0 2.0d0 3.0d0))))
+ (letm ((vec #m(1.0d0 2.0d0 3.0d0)))
    (polynomial-eval vec -1.0d0))
  (solve-quadratic 1.0d0 0.0d0 1.0d0)
  (solve-quadratic 1.0d0 -2.0d0 1.0d0)
@@ -189,5 +189,5 @@
  (solve-cubic -6.0d0 -13.0d0 42.0d0)
  (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)
  ;; Example from GSL manual
- (polynomial-solve (a double-float -1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
+ (polynomial-solve #m(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
 

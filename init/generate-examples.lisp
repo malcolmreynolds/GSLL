@@ -1,6 +1,6 @@
 ;; Define examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-11-16 12:13:10EST generate-examples.lisp>
+;; Time-stamp: <2008-11-30 23:02:06EST generate-examples.lisp>
 ;; $Id: $
 
 ;;; Define examples that can be displayed by users with the function
@@ -102,27 +102,28 @@
 ;;;; Generate forms for all array types
 ;;;;****************************************************************************
 
-(defun array-default (spec &optional no-init sync-on-exit)
+(defun array-default (spec &optional no-init)
   "Make an array of the current type and intialize from the pool."
   (declare (special default-element-type starting-element))
   (let ((matrixp (listp spec)))
-    `(,(data-class-name (if matrixp 'matrix 'vector) default-element-type)
-       ,(if no-init
-	    `',spec		   ; no initial values, just dimension
-	    (cons		   ; macro to make initial-contents
-	     'a
-	     (if matrixp
-		 (loop repeat (first spec)
-		    collect
+    (if no-init
+	;; No initial values, just dimension
+	`(make-array* ',default-element-type :dimensions ',spec)
+	;; Initial contents
+	`(make-array*
+	  ',default-element-type
+	  :initial-contents
+	  ',(if matrixp
+		(loop repeat (first spec)
+		   collect
+		   (make-list-from-pool
+		    default-element-type (second spec) starting-element)
+		   do
+		   (incf starting-element (second spec)))
+		(prog1 
 		    (make-list-from-pool
-		     default-element-type (second spec) starting-element)
-		    do
-		    (incf starting-element (second spec)))
-		 (prog1 
-		     (make-list-from-pool
-		      default-element-type spec starting-element)
-		   (incf starting-element spec)))))
-       ,sync-on-exit)))
+		     default-element-type spec starting-element)
+		  (incf starting-element spec)))))))
 
 (defun scalar-default (&optional float-type)
   "Make a scalar of the current type from the pool.  For complex
@@ -162,7 +163,7 @@
        (setf starting-element 0)
        (stupid-code-walk-eval-some
 	test
-	'(array-default vector-default scalar-default)))))
+	'(array-default scalar-default)))))
 
 (defmacro generate-all-array-tests (name element-types test)
   `(save-test ,name ,@(generate-all-array-tests-body element-types test)))

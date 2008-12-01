@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-10-25 11:44:35EDT monte-carlo.lisp>
+;; Time-stamp: <2008-11-30 23:04:24EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -294,22 +294,22 @@
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-plain 3))
-	 (lower (vector-double-float (a 0.0d0 0.0d0 0.0d0)))
-	 (upper (vector-double-float (a* pi pi pi)))
+	 (lower #m(0.0d0 0.0d0 0.0d0))
+	 (upper (make-array* 'double-float :initial-contents (list pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-plain monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-miser 3))
-	 (lower (vector-double-float (a 0.0d0 0.0d0 0.0d0)))
-	 (upper (vector-double-float (a* pi pi pi)))
+	 (lower #m(0.0d0 0.0d0 0.0d0))
+	 (upper (make-array* 'double-float :initial-contents (list pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-miser monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (letm ((ws (monte-carlo-vegas 3))
-	 (lower (vector-double-float (a 0.0d0 0.0d0 0.0d0)))
-	 (upper (vector-double-float (a* pi pi pi)))
+	 (lower #m(0.0d0 0.0d0 0.0d0))
+	 (upper (make-array* 'double-float :initial-contents (list pi pi pi)))
 	 (rng (random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-vegas monte-carlo-g lower upper nsamples rng ws)))
 

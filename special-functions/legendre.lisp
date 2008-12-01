@@ -1,6 +1,6 @@
 ;; Legendre functions
 ;; Liam Healy, Sat Apr 29 2006 - 19:16
-;; Time-stamp: <2008-11-16 14:39:40EST legendre.lisp>
+;; Time-stamp: <2008-11-30 23:42:24EST legendre.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -258,26 +258,26 @@
   (legendre-Pl -4 0.3d0)
   (legendre-Pl 4 3.0d0)
   (legendre-Pl 4 0.3d0)
-  (letm ((arr (vector-double-float 4)))
+  (letm ((arr (make-array* 'double-float :dimensions 4)))
       (legendre-Pl-array 0.5d0 arr)
       (cl-array arr))
   (legendre-Q0 3.3d0)
   (legendre-Q1 3.3d0)
   (legendre-Ql 2 3.3d0)
   (legendre-Plm 4 3 0.5d0)
-  (letm ((arr (vector-double-float 4)))
+  (letm ((arr (make-array* 'double-float :dimensions 4)))
       (legendre-Plm-array 2 0.5d0 arr)
       (cl-array arr))
-  (letm ((val (vector-double-float 4))
-	   (deriv (vector-double-float 4)))
+  (letm ((val (make-array* 'double-float :dimensions 4))
+	   (deriv (make-array* 'double-float :dimensions 4)))
       (legendre-Plm-deriv-array 2 0.5d0 val deriv)
       (cl-array deriv))
   (legendre-sphplm 1200 1100 0.3d0)
-  (letm ((arr (vector-double-float 4)))
+  (letm ((arr (make-array* 'double-float :dimensions 4)))
       (legendre-sphPlm-array 4 0.5d0 arr)
       (cl-array arr))
-  (letm ((val (vector-double-float 4))
-	   (deriv (vector-double-float 4)))
+  (letm ((val (make-array* 'double-float :dimensions 4))
+	   (deriv (make-array* 'double-float :dimensions 4)))
 	(legendre-sphPlm-deriv-array 4 0.5d0 val deriv)
 	(cl-array deriv))
   (legendre-conicalp-half 3.5d0 10.0d0)
@@ -289,7 +289,7 @@
   (legendre-h3d-0 1.0d0 0.5d0)
   (legendre-h3d-1 1.0d0 0.5d0)
   (legendre-h3d 4 1.0d0 0.5d0)
-  (letm ((arr (vector-double-float 4)))
+  (letm ((arr (make-array* 'double-float :dimensions 4)))
       (legendre-h3d-array 1.0d0 0.5d0 arr)
       (cl-array arr)))
 

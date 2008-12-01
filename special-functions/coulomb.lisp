@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-11-16 14:39:08EST coulomb.lisp>
+;; Time-stamp: <2008-11-30 23:44:05EST coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -128,15 +128,16 @@
   (hydrogenicr-1 1.0d0 2.5d0)
   (hydrogenicr 3 1 1.0d0 2.5d0)
   (coulomb-wave-FG 0.0d0 1.0d0 2.0d0 0)
-  (letm ((arr (vector-double-float 3)))
+  (letm ((arr (make-array* 'double-float :dimensions 3)))
     (coulomb-wave-F-array 0.0d0 1.0d0 2.0d0 arr)
     (cl-array arr))
   (coulomb-wave-fg 1.0d0 2.0d0 2.5d0 1)
-  (letm ((Farr (vector-double-float 3)) (Garr (vector-double-float 3)))
+  (letm ((Farr (make-array* 'double-float :dimensions 3))
+	 (Garr (make-array* 'double-float :dimensions 3)))
     (coulomb-wave-FG-array 1.5d0 1.0d0 1.0d0 Farr Garr)
     (append (coerce (cl-array Farr) 'list) (coerce (cl-array Garr) 'list)))
-  (letm ((arr (vector-double-float 3)))
+  (letm ((arr (make-array* 'double-float :dimensions 3)))
     (coulomb-wave-sphF-array  0.0d0 1.0d0 2.0d0 arr) (cl-array arr))
   (coulomb-cl 1.0d0 2.5d0)
-  (letm ((cl (vector-double-float 3)))
+  (letm ((cl (make-array* 'double-float :dimensions 3)))
     (coulomb-CL-array 0.0d0 1.0d0 cl) (cl-array cl)))

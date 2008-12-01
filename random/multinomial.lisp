@@ -1,6 +1,6 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-10-25 18:04:19EDT multinomial.lisp>
+;; Time-stamp: <2008-11-30 23:19:48EST multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -50,13 +50,13 @@
 ;;; Examples and unit test
 (save-test multinomial
  (letm ((rng (random-number-generator *mt19937* 0))
-	(p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
-	(n (vector-signed-byte-32 4)))
+	(p #m(0.1d0 0.2d0 0.3d0 0.4d0))
+	(n (make-array* '(signed-byte 32) :dimensions 4)))
    (multinomial rng 8 p n)
    (cl-array n))
- (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
-	(n (vector-signed-byte-32 (a 5 0 1 2))))
+ (letm ((p #m(0.1d0 0.2d0 0.3d0 0.4d0))
+	(n #31m(5 0 1 2)))
    (multinomial-pdf p N))
- (letm ((p (vector-double-float (a 0.1d0 0.2d0 0.3d0 0.4d0)))
-	(n (vector-signed-byte-32 (a 5 0 1 2))))
+ (letm ((p #m(0.1d0 0.2d0 0.3d0 0.4d0))
+	(n #31m(5 0 1 2)))
    (multinomial-log-pdf p n)))

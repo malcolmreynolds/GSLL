@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-11-29 15:08:23EST data.lisp>
+;; Time-stamp: <2008-11-30 19:27:55EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -80,7 +80,6 @@
 ;;;;****************************************************************************
 
 (defparameter *class-element-type* nil
-  ;;; This is needed for make-data-from-dimensions
   "The mapping between the class name and the CL element type.")
 
 (defun data-class-name (category element-type)
@@ -104,6 +103,7 @@
 		 ((element-type :initform ',element-type-cl
 				:allocation :class)))
 	       ;; Define the letm-expansion method
+	       ;;#+(or)			; REMOVE
 	       (defmethod letm-expansion
 		   (symbol (type (eql ',class-name)) args body)
 		 (expand-data symbol type (first args) (second args) body))
@@ -111,6 +111,7 @@
 	       (pushnew ',(cons class-name element-type-cl)
 		*class-element-type* :test #'equal)
 	       ;; Set up dummy function to provide arglist and documentation
+	       ;;#+(or)			; REMOVE
 	       (arglist-only
 		,class-name
 		,(format nil "A ~(~a~) of element type ~(~a~)."
@@ -123,29 +124,47 @@
 ;;;; Make data from either the dimensions provided or from the initial values
 ;;;;****************************************************************************
 
-(defun make-data-from-array (class array)
-  "Make the data object from the CL array make with make-array*."
-  (make-instance class
-		 :cl-array array
-		 :mpointer nil ; this will be set by :before method below.
-		 #-native :c-pointer #-native nil ; this will be set by defmfun
-		 :dimensions (array-dimensions array)
-		 :total-size (array-total-size array)))
+(export 'make-array*)
+(defun make-array* (element-type &rest keys)
+  "Make a GSLL array with the given element type,
+   :dimensions, :initial-contents and/or :initial-element."
+  (let ((ffa (apply #'make-ffa element-type keys)))
+    (make-instance
+     (data-class-name
+      (if (eql (array-rank ffa) 2) 'matrix 'vector)
+      element-type)
+     :cl-array ffa
+     :mpointer nil
+     #-native :c-pointer #-native nil	; this will be set by defmfun
+     :dimensions (array-dimensions ffa)
+     :total-size (array-total-size ffa))))
 
-(defun make-data-from-dimensions (type dimensions)
-  (make-data-from-array
-   type
-   (make-array* dimensions (lookup-type type *class-element-type*))))
+(defun hashm-numeric-code (n)
+  "Get the appropriate element type for the numeric code n"
+  (case n
+    ((nil 1) 'double-float)
+    (2 '(complex double-float))
+    (3 'single-float)
+    (4 '(complex single-float))
+    (7 '(signed-byte 8))
+    (8 '(unsigned-byte 8))
+    (15 '(signed-byte 16))
+    (16 '(unsigned-byte 16))
+    (31 '(signed-byte 32))
+    (32 '(unsigned-byte 32))
+    (63 '(signed-byte 64))
+    (64 '(unsigned-byte 64))))
 
-(defun make-data (type array-or-dimensions)
-  (if (eq type 'combination)
-      (make-data-combination array-or-dimensions)
-      (if (typep array-or-dimensions 'array)
-	  (make-data-from-array type array-or-dimensions)
-	  (make-data-from-dimensions type array-or-dimensions))))
+(set-dispatch-macro-character
+ #\# #\m
+ (lambda (stream subchar arg)
+   (declare (ignore subchar))
+   (read-char stream)
+   (let ((list (read-delimited-list #\) stream)))
+     `(make-array* ',(hashm-numeric-code arg) :initial-contents ',list))))
 
 ;;;;****************************************************************************
-;;;; Expand letm bindings
+;;;; Expand letm bindings  TO BE OBSOLETE
 ;;;;****************************************************************************
 
 (defun component-type (eltype)
@@ -199,6 +218,7 @@
   "Create an array (vector or matrix) from the literal contents."
   `(abody ,@(mapcar (lambda (e) `(quote ,e)) type-contents)))
 
+;;#+(or)			; REMOVE
 (defun expand-data (symbol type init-or-spec sync-exit body)
   "Expand the form for a gsl-data object.  The symbol is bound
    within the body to the object.  The argument

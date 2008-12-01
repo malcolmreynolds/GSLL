@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-11-29 15:09:07EST combination.lisp>
+;; Time-stamp: <2008-11-30 19:17:47EST combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -29,11 +29,9 @@
 
 (arglist-only combination "A combination." n k sync-array-on-exit)
 
-(defun make-data-combination (nk)
+(export 'make-combination)
+(defun make-combination (nk)
   "Make the combination object with the data array."
-  ;; The replaces the function of make-data-from-array and
-  ;; make-data-from-dimensions because the class needs different
-  ;; initialization than other kinds of data.
   (let ((k (second nk)))
     (make-instance
      'combination

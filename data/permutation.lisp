@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-10-25 18:52:27EDT permutation.lisp>
+;; Time-stamp: <2008-11-30 23:32:48EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -287,7 +287,7 @@
    (swap-elements perm-1 1 3)
    (cl-array perm-1))
  (letm ((perm-1 (permutation 4 t))	;permute-vector
-	(intvec (vector-signed-byte-32 (a 11 22 33 44))))
+	(intvec #31m(11 22 33 44)))
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (swap-elements perm-1 0 2)
