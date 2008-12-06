@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-11-30 23:32:48EST permutation.lisp>
+;; Time-stamp: <2008-12-06 14:10:53EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,17 +14,6 @@
      #+sizet-32 vector-unsigned-byte-32)
   ()
   (:documentation "GSL permutations."))
-
-;;; The following three forms take the place of a data-defclass call
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-(defmethod letm-expansion
-    (symbol (type (eql 'permutation)) args body)
-  (expand-data symbol type (first args) (second args) body)))
-
-(arglist-only permutation
-	      "A permutation."
-	      dimensions-or-init sync-array-on-exit)
 
 (pushnew (cons 'permutation *sizet-type*)
 	 *class-element-type* :test #'equal)

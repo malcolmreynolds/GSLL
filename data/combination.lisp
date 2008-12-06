@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-11-30 19:17:47EST combination.lisp>
+;; Time-stamp: <2008-12-06 14:10:53EST combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,14 +20,6 @@
      #+sizet-32 vector-unsigned-byte-32)
   ()
   (:documentation "GSL permutations."))
-
-;;; The following three forms take the place of a data-defclass call
-
-(defmethod letm-expansion
-    (symbol (type (eql 'combination)) args body)
-  (expand-data symbol type (first args) (second args) body))
-
-(arglist-only combination "A combination." n k sync-array-on-exit)
 
 (export 'make-combination)
 (defun make-combination (nk)

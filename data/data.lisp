@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-11-30 19:27:55EST data.lisp>
+;; Time-stamp: <2008-12-06 15:57:20EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -102,22 +102,9 @@
 		   (,superclass)
 		 ((element-type :initform ',element-type-cl
 				:allocation :class)))
-	       ;; Define the letm-expansion method
-	       ;;#+(or)			; REMOVE
-	       (defmethod letm-expansion
-		   (symbol (type (eql ',class-name)) args body)
-		 (expand-data symbol type (first args) (second args) body))
 	       ;; Push mapping onto *class-element-type*
 	       (pushnew ',(cons class-name element-type-cl)
-		*class-element-type* :test #'equal)
-	       ;; Set up dummy function to provide arglist and documentation
-	       ;;#+(or)			; REMOVE
-	       (arglist-only
-		,class-name
-		,(format nil "A ~(~a~) of element type ~(~a~)."
-			 category element-type-cl)
-		dimensions-or-init
-		sync-array-on-exit))))
+			*class-element-type* :test #'equal))))
 	 *array-element-types*)))
 
 ;;;;****************************************************************************
@@ -163,10 +150,6 @@
    (let ((list (read-delimited-list #\) stream)))
      `(make-array* ',(hashm-numeric-code arg) :initial-contents ',list))))
 
-;;;;****************************************************************************
-;;;; Expand letm bindings  TO BE OBSOLETE
-;;;;****************************************************************************
-
 (defun component-type (eltype)
   (cl-cffi (component-float-type eltype)))
 
@@ -175,73 +158,6 @@
       ;; complex: make array twice as long
       (* 2 (total-size object))
       (total-size object)))
-
-(defun numtypespec (sexp)
-  "The sexp is a type specification for a numerical type."
-  (ignore-errors (subtypep sexp 'number)))
-
-(defun abody (&rest type-contents)
-  "Make an array of a specific element type from the literal contents supplied.
-   If no type is given, it is assumed to be 'double-float."
-  (let* ((firsttype (numtypespec (first type-contents)))
-	 (element-type
-	  (if firsttype
-	      (first type-contents)
-	      'double-float))
-	 (cont
-	  (if firsttype
-	      (rest type-contents)
-	      type-contents))
-	 (matrixp (listp (first cont)))
-	 (complex-with-real-init
-	  (and (subtypep element-type 'complex)
-	       (typep (if matrixp (caar cont) (first cont)) 'real))))
-    (when complex-with-real-init
-      (assert
-       (evenp (length (if matrixp (first cont) cont)))
-       (cont)
-       "Complex arrays require initial contents of even length."))
-    (make-array*
-     (if matrixp
-	 (list (length cont)
-	       (* (if complex-with-real-init 1/2 1) (length (first cont))))
-	 ;; make a vector
-	 (list (* (if complex-with-real-init 1/2 1) (length cont))))
-     element-type
-     :initial-contents
-     (if matrixp
-	 (apply #'append cont)		; flatten lists
-	 cont))))
-
-(export 'a)
-(defmacro a (&rest type-contents)
-  "Create an array (vector or matrix) from the literal contents."
-  `(abody ,@(mapcar (lambda (e) `(quote ,e)) type-contents)))
-
-;;#+(or)			; REMOVE
-(defun expand-data (symbol type init-or-spec sync-exit body)
-  "Expand the form for a gsl-data object.  The symbol is bound
-   within the body to the object.  The argument
-   init-or-spec is either the
-   array dimensions or something made by make-array*."
-  (with-unique-names (eltype)
-    `(macrolet
-	 ;; #'els is a convenience macro to define the make-array*
-	 ((a (&rest contents)
-	    `(abody ',',(lookup-type type *class-element-type*)
-		    ,@(mapcar (lambda (e) `(quote ,e)) contents)))
-	  (a* (&rest contents)
-	    `(abody ',',(lookup-type type *class-element-type*)
-		    ,@contents)))
-       (let* ((,symbol (make-data ',type ,init-or-spec))
-	      ;;(,eltype (element-type ,symbol))
-	      )
-	 (unwind-protect
-	      (multiple-value-prog1
-		  (progn
-		    #-native (setf (c-pointer ,symbol) ,cptr)
-		    ,@body)
-		,@(when sync-exit `((copy-c-to-cl ,symbol)))))))))
 
 ;;;;****************************************************************************
 ;;;; Syncronize C and CL
