@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-06 14:10:53EST combination.lisp>
+;; Time-stamp: <2008-12-06 18:57:42EST combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,35 +18,40 @@
 (defclass combination
     (#+sizet-64 vector-unsigned-byte-64
      #+sizet-32 vector-unsigned-byte-32)
-  ()
+  ((choice-of :initarg :choice-of :reader choice-of :type integer
+	      :documentation "Maximum possible value; n in the (n k) notation."))
   (:documentation "GSL permutations."))
 
 (export 'make-combination)
-(defun make-combination (nk)
-  "Make the combination object with the data array."
-  (let ((k (second nk)))
-    (make-instance
-     'combination
-     :cl-array (make-array* k *sizet-type*)
-     :mpointer nil	   ; this will be set by :before method below.
-     #-native :c-pointer #-native nil	; this will be set by defmfun
-     :dimensions (copy-list nk)
-     ;; The total-size of a combination is k, because that is the length
-     ;; of the vector that represents it.
-     :total-size k)))
+
+(defun make-combination (n &optional k (initialize t))
+  "Make the object representing a combination of k things from a set of n.
+   If initialize is T, initialize as the first k values (init-first).
+   If n is a combination, make a new combination with the same
+   specification.  If initialize is also T, copy it."
+  (let ((comb
+	 (if (typep n 'combination)
+	     (make-instance
+	      'combination :choice-of (choice-of n) :dimensions (dimensions k))
+	     (make-instance 'combination :choice-of n :dimensions k))))
+    (when initialize
+      (if (typep n 'combination)
+	  (copy comb n)
+	  (init-first comb)))
+    comb))
 
 (defmethod alloc-gsl-struct ((object combination))
-  (unless (slot-value object 'mpointer)
+  (unless (and (slot-boundp object 'mpointer) (slot-value object 'mpointer))
     (let ((blockptr (cffi:foreign-alloc 'gsl-combination-c)))
       (setf (block-pointer object)
 	    blockptr
 	    (cffi:foreign-slot-value blockptr 'gsl-combination-c 'data)
 	    (c-pointer object)
 	    (cffi:foreign-slot-value blockptr 'gsl-combination-c 'n)
-	    (elt (dimensions object) 0)
+	    (choice-of object)
 	    (cffi:foreign-slot-value blockptr 'gsl-combination-c 'k)
-	    (elt (dimensions object) 1)
-	    (mpointer object)
+	    (first (dimensions object))
+	    (slot-value object 'mpointer)
 	    (block-pointer object))
       (tg:finalize
        object
@@ -161,21 +166,21 @@
 ;;;;****************************************************************************
 
 (save-test combination
- (letm ((comb (combination '(4 2) t)))	; combination-range
+ (let ((comb (make-combination 4 2)))	; combination-range
    (combination-range comb))
- (letm ((comb (combination '(4 2) t)))	; combination-size
+ (let ((comb (make-combination 4 2)))	; combination-size
    (combination-size comb))
- (letm ((comb (combination '(4 2) t)))	; init-first, combination-next
+ (let ((comb (make-combination 4 2)))	; init-first, combination-next
    (init-first comb)
    (loop collect (copy-seq (cl-array comb))
 	 while (combination-next comb)))
- (letm ((comb (combination '(4 2) t)))  ; init-last, combination-previous
+ (let ((comb (make-combination 4 2)))  ; init-last, combination-previous
    (init-last comb)
    (loop collect (copy-seq (cl-array comb))
 	 while (combination-previous comb)))
  (loop for i from 0 to 4		; combination-next
        append
-       (letm ((comb (combination (list 4 i) t)))
+       (let ((comb (make-combination 4 i)))
 	 (init-first comb)
 	 (loop collect (copy-seq (cl-array comb))
 	       while (combination-next comb)))))

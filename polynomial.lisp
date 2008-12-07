@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-11-30 23:38:39EST polynomial.lisp>
+;; Time-stamp: <2008-12-06 16:08:23EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -172,8 +172,8 @@
 ;;;;****************************************************************************
 
 (save-test polynomial
- (letm ((xa #m(0.0d0 1.0d0 2.0d0 3.0d0))
-	(ya (#m(2.5d0 7.2d0 32.7d0 91.0d0) ))
+ (let ((xa #m(0.0d0 1.0d0 2.0d0 3.0d0))
+	(ya #m(2.5d0 7.2d0 32.7d0 91.0d0))
 	(dd (make-array* 'double-float :dimensions 4)))
    (divided-difference dd xa ya)
    (list
@@ -181,7 +181,7 @@
     (polynomial-eval-divided-difference dd xa 1.0d0)
     (polynomial-eval-divided-difference dd xa 2.0d0)
     (polynomial-eval-divided-difference dd xa 3.0d0)))
- (letm ((vec #m(1.0d0 2.0d0 3.0d0)))
+ (let ((vec #m(1.0d0 2.0d0 3.0d0)))
    (polynomial-eval vec -1.0d0))
  (solve-quadratic 1.0d0 0.0d0 1.0d0)
  (solve-quadratic 1.0d0 -2.0d0 1.0d0)

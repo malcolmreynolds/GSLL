@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-11-15 22:51:52EST sorting.lisp>
+;; Time-stamp: <2008-12-06 17:46:20EST sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -256,7 +256,7 @@
    (cl-array (msort m1))))
 
 (generate-all-array-tests sort-vector-index :no-complex
- (letm ((perm (permutation 8))
+ (letm ((perm (make-permutation 8))
 	(v1 (array-default 8)))
    (sort-vector-index perm v1)
    (cl-array perm)))
@@ -272,7 +272,7 @@
    (cl-array (sort-smallest m2 m1))))
 
 (generate-all-array-tests sort-vector-smallest-index :no-complex
- (letm ((comb (combination '(8 3)))
+ (letm ((comb (make-combination '(8 3)))
 	(v1 (array-default 8)))
    (cl-array (sort-vector-smallest-index comb v1))))
 
@@ -287,6 +287,6 @@
    (cl-array (sort-largest m2 m1))))
 
 (generate-all-array-tests sort-vector-largest-index :no-complex
- (letm ((comb (combination '(8 3)))
+ (letm ((comb (make-combination '(8 3)))
 	(v1 (array-default 8)))
    (cl-array (sort-vector-largest-index comb v1))))

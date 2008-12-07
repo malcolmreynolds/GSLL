@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-06 14:10:53EST permutation.lisp>
+;; Time-stamp: <2008-12-06 19:03:50EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,6 +17,22 @@
 
 (pushnew (cons 'permutation *sizet-type*)
 	 *class-element-type* :test #'equal)
+
+(export 'make-permutation)
+(defun make-permutation (n &optional (initialize t))
+  "Make the object representing a permutation of n objects.
+   If n is a permutation, make a new permutation of the same size.  If
+   initialize is T (default), set to the identity permutation if n is
+   an integer, or copy the permutation if it's a permutation."
+  (let ((perm
+	 (make-instance
+	  'permutation
+	  :dimensions (if (typep n 'permutation) (dimensions n) n))))
+    (when initialize
+      (if (typep n 'permutation)
+	  (copy perm n)
+	  (set-identity perm)))
+    perm))
 
 (defmethod alloc-from-block ((perm permutation))
   ;; GSL permutations are not based on blocks, but a gsl_permutation
@@ -35,6 +51,8 @@
   :definition :method
   :c-return :void
   :inputs (permutation)
+  :outputs (permutation)
+  :return (permutation)
   :documentation			; FDL
   "Initialize the permutation p to the identity, i.e.
    (0,1,2,...,n-1).")
@@ -239,14 +257,14 @@
 
 (defun generate-all-permutations (n)
   "Generate all the permutations of n objects."
-  (letm ((perm (permutation n)))
+  (let ((perm (make-permutation n)))
     (set-identity perm)
     (loop collect (copy-seq (cl-array perm))
 	  while (permutation-next perm))))
 
 (defun generate-all-permutations-backwards (n)
   "Generate all the permutations of n objects."
-  (letm ((perm (permutation n)))
+  (let ((perm (make-permutation n)))
     (set-identity perm)
     (permutation-reverse perm)
     (loop collect (copy-seq (cl-array perm))
@@ -254,43 +272,41 @@
 
 (save-test
  permutation
- (letm ((perm-1 (permutation 4 t)))	;maref
-   (set-identity perm-1)
+ (let ((perm-1 (make-permutation 4 t)))	;maref
    (maref perm-1 2))
- (letm ((perm-1 (permutation 4 t)))	;cl-array
-   (set-identity perm-1)
+ (let ((perm-1 (make-permutation 4 t)))	;cl-array
    (cl-array perm-1))
- (letm ((perm-1 (permutation 4 t)))	;permutation-reverse
+ (let ((perm-1 (make-permutation 4 t)))	;permutation-reverse
    (set-identity perm-1)
    (cl-array (permutation-reverse perm-1)))
- (letm				;permutation-next, permutation-inverse
-     ((perm-1 (permutation 4 t)) (perm-2 (permutation 4 t)))
+ (let				;permutation-next, permutation-inverse
+     ((perm-1 (make-permutation 4 t)) (perm-2 (make-permutation 4 t)))
    (set-identity perm-1)
    (permutation-next perm-1)
    (permutation-next perm-1)
    (permutation-next perm-1)
    (permutation-inverse perm-2 perm-1)
    (cl-array perm-2))
- (letm ((perm-1 (permutation 4 t)))	;swap-elements
+ (let ((perm-1 (make-permutation 4 t)))	;swap-elements
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (cl-array perm-1))
- (letm ((perm-1 (permutation 4 t))	;permute-vector
-	(intvec #31m(11 22 33 44)))
+ (let ((perm-1 (make-permutation 4 t))	;permute-vector
+       (intvec #31m(11 22 33 44)))
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (swap-elements perm-1 0 2)
    (permute-vector perm-1 intvec)
    (cl-array intvec))
- (letm ((perm-1 (permutation 4 t)))	;inversions
+ (let ((perm-1 (make-permutation 4 t)))	;inversions
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (inversions perm-1))
- (letm ((perm-1 (permutation 4 t)))	;linear-cycles
+ (let ((perm-1 (make-permutation 4 t)))	;linear-cycles
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (linear-cycles perm-1))
- (letm ((perm-1 (permutation 4 t)))	;canonical-cycles
+ (let ((perm-1 (make-permutation 4 t)))	;canonical-cycles
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (swap-elements perm-1 0 2)

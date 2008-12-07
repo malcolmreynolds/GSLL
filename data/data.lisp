@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-06 15:57:20EST data.lisp>
+;; Time-stamp: <2008-12-06 18:50:57EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,19 +11,18 @@
 ;;;;****************************************************************************
 
 (defclass gsl-data ()
-  ((cl-array :initarg :cl-array :documentation "The Lisp array.")
-   (mpointer :initarg :mpointer :accessor mpointer
+  ((cl-array :documentation "The Lisp array.")
+   (mpointer :accessor mpointer
 	     :documentation "A pointer to the GSL representation of the data.")
    (block-pointer :initform nil :accessor block-pointer
 		  :documentation "A pointer to the gsl-block-c.")
    #-native
-   (c-pointer :initarg :c-pointer :accessor c-pointer
-	      :documentation "A pointer to the C array.")
-   (dimensions :initarg :dimensions :reader dimensions)
-   (total-size :initarg :total-size :reader total-size)
-   (element-type :initarg :element-type :reader element-type)
-   (original-array :initarg :original-array :reader original-array)
-   (offset :initarg :offset :reader offset)
+   (c-pointer :accessor c-pointer :documentation "A pointer to the C array.")
+   (dimensions :reader dimensions)
+   (total-size :reader total-size)
+   (element-type :reader element-type)
+   (original-array :reader original-array)
+   (offset :reader offset)
    #-native
    (cl-invalid
     :initform t :accessor cl-invalid
@@ -47,11 +46,16 @@
 
 (export '(dimensions total-size element-type))
 
-(defmethod initialize-instance :after ((object gsl-data) &rest initargs)
-  (declare (ignore initargs))
-  (multiple-value-bind  (oa index-offset)
-      (find-original-array (cl-array object))
-    (with-slots (original-array offset) object
+;;; Allowable keys: :dimensions, :initial-contents, :initial-element.
+(defmethod initialize-instance :after
+    ((object gsl-data) &rest initargs &key &allow-other-keys)
+  (with-slots (cl-array dimensions original-array offset total-size) object
+    (let ((ffa (apply #'make-ffa (element-type object) initargs)))
+      (setf cl-array ffa
+	    dimensions (array-dimensions ffa)
+	    total-size (array-total-size ffa)))
+    (multiple-value-bind  (oa index-offset)
+	(find-original-array (cl-array object))
       (setf original-array oa
 	    offset
 	    (* index-offset
@@ -112,19 +116,19 @@
 ;;;;****************************************************************************
 
 (export 'make-array*)
-(defun make-array* (element-type &rest keys)
+(defun make-array*
+    (element-type &rest keys &key dimensions initial-contents &allow-other-keys)
   "Make a GSLL array with the given element type,
    :dimensions, :initial-contents and/or :initial-element."
-  (let ((ffa (apply #'make-ffa element-type keys)))
-    (make-instance
-     (data-class-name
-      (if (eql (array-rank ffa) 2) 'matrix 'vector)
-      element-type)
-     :cl-array ffa
-     :mpointer nil
-     #-native :c-pointer #-native nil	; this will be set by defmfun
-     :dimensions (array-dimensions ffa)
-     :total-size (array-total-size ffa))))
+  (apply #'make-instance
+	 (data-class-name
+	  (if
+	   (or
+	    (and dimensions (listp dimensions) (eql (length dimensions) 2))
+	    (and initial-contents (listp (first initial-contents))))
+	   'matrix 'vector)
+	  element-type)
+	 keys))
 
 (defun hashm-numeric-code (n)
   "Get the appropriate element type for the numeric code n"
