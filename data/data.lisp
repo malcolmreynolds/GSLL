@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-06 18:50:57EST data.lisp>
+;; Time-stamp: <2008-12-07 17:07:11EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -54,6 +54,7 @@
       (setf cl-array ffa
 	    dimensions (array-dimensions ffa)
 	    total-size (array-total-size ffa)))
+    #-native (setf (cl-invalid object) nil)
     (multiple-value-bind  (oa index-offset)
 	(find-original-array (cl-array object))
       (setf original-array oa
@@ -64,7 +65,7 @@
 
 (defmethod print-object ((object gsl-data) stream)
   (print-unreadable-object (object stream :type t) 
-    (copy-c-to-cl object)
+    #-native (copy-c-to-cl object)
     (princ (cl-array object) stream)))
 
 (defun dim0 (object)
@@ -173,10 +174,9 @@
 ;;; these don't do anything because they will always match.
 
 ;;; Called in defmfun expansion right before GSL function is entered.
+#-native
 (defun copy-cl-to-c (object)
   "Copy the CL array to the C array."
-  (declare (ignorable object))
-  #-native
   (when (c-invalid object)
     (copy-array-to-pointer
      (cl-array object)
@@ -188,10 +188,9 @@
     (setf (c-invalid object) nil)))
 
 ;;; Called right before maref
+#-native
 (defun copy-c-to-cl (object)
   "Copy the C array to the CL array."
-  (declare (ignorable object))
-  #-native
   (when (cl-invalid object)
     (copy-array-from-pointer
      (cl-array object)

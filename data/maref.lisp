@@ -1,6 +1,6 @@
 ;; Get/set array or elements: cl-array, maref
 ;; Liam Healy 2008-08-27 22:43:10EDT maref.lisp
-;; Time-stamp: <2008-11-11 21:37:44EST maref.lisp>
+;; Time-stamp: <2008-12-07 17:08:25EST maref.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -34,7 +34,7 @@
     are used only for pointers.")
   (:method ((object gsl-data) &optional array-rank element-type)
     (declare (ignore array-rank element-type))
-    (copy-c-to-cl object)
+    #-native (copy-c-to-cl object)
     (slot-value object 'cl-array))
   (:method ((object array) &optional array-rank element-type)
     ;; For compatibility, work on CL arrays as well.
@@ -77,7 +77,7 @@
     a GSL vector or matrix, or an ordinary CL array of one or two dimensions.")
   (:method ((object gsl-data) index &optional index2 type)
     (declare (ignore type))
-    (copy-c-to-cl object)
+    #-native (copy-c-to-cl object)
     (if index2
 	(aref (cl-array object) index index2)
 	(aref (cl-array object) index)))
@@ -101,8 +101,7 @@
     (if index2
 	(setf (aref (slot-value object 'cl-array) index index2) value)
 	(setf (aref (slot-value object 'cl-array) index) value))
-    #-native
-    (setf c-invalid t))
+    #-native (setf c-invalid t))
   (:method (value (object array) index &optional index2 type)
     ;; For compatibility, work on CL arrays as well.
     (declare (ignore type))
