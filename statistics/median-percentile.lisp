@@ -1,6 +1,6 @@
 ;; Median and percentile
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-11-30 23:33:15EST median-percentile.lisp>
+;; Time-stamp: <2008-12-07 18:48:02EST median-percentile.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,6 +14,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (sorted-data)
   :documentation			; FDL
   "The median value of sorted-data.  The elements of the array
    must be in ascending numerical order.  There are no checks to see
@@ -33,6 +34,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (sorted-data)
   :documentation			; FDL
   "A quantile value of sorted-data.  The
    elements of the array must be in ascending numerical order.  The

@@ -1,6 +1,6 @@
 ;; QR with column pivoting
 ;; Liam Healy, Fri Apr 28 2006 - 16:53
-;; Time-stamp: <2008-08-11 22:21:22EDT qrpt.lisp>
+;; Time-stamp: <2008-12-07 18:33:01EST qrpt.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -55,7 +55,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (QR tau p b)
   :outputs (x)
-  :return (x)
   :documentation 			; FDL
   "Solve the square system A x = b using the QRP^T
    decomposition of A into (QR, tau, p) given by #'QRPT-decomposition.")
@@ -66,7 +65,6 @@
    ((mpointer p) :pointer) ((mpointer x) :pointer))
   :inputs (QR tau p x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the square system A x = b in-place using the
    QRP^T decomposition of A into (QR, tau, p). On input x should contain the
@@ -78,7 +76,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (QR p b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the square system R P^T x = Q^T b for
    x. It can be used when the QR decomposition of a matrix is
@@ -105,7 +102,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (QR p b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the triangular system R P^T x = b for the
    N-by-N matrix R contained in QR.")
@@ -116,7 +112,6 @@
    ((mpointer x) :pointer))
   :inputs (QR p x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the triangular system R P^T x = b in-place
   for the N-by-N matrix R contained in QR. On

@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-11-30 23:27:04EST roots-multi.lisp>
+;;; Time-stamp: <2008-12-07 19:09:04EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -74,6 +74,7 @@
 (defmfun set-mfsolver (solver function initial)
   "gsl_multiroot_fsolver_set"
   ((solver :pointer) (function :pointer) ((mpointer initial) :pointer))
+  :inputs (initial)
   :export nil
   :index (letm mfsolver)
   :documentation			; FDL
@@ -84,6 +85,7 @@
   "gsl_multiroot_fdfsolver_set"
   ((solver :pointer) (function-derivative :pointer)
    ((mpointer initial) :pointer))
+  :inputs (initial)
   :export nil
   :index (letm mfdfsolver)
   :documentation			; FDL

@@ -1,6 +1,6 @@
 ;; Cholesky Decomposition
 ;; Liam Healy, Wed May  3 2006 - 16:38
-;; Time-stamp: <2008-11-29 15:33:14EST cholesky.lisp>
+;; Time-stamp: <2008-12-07 18:27:20EST cholesky.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -21,7 +21,6 @@
   "gsl_linalg_cholesky_decomp" (((mpointer A) :pointer))
   :inputs (A)
   :outputs (A)
-  :return (A)
   :documentation			; FDL
   "Factorize the positive-definite square matrix A
   into the Cholesky decomposition A = L L^T. On output the diagonal
@@ -37,7 +36,6 @@
    ((mpointer x) :pointer))
   :inputs (A b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the system A x = b using the Cholesky
   decomposition of A into the matrix cholesky given by
@@ -48,7 +46,6 @@
   (((mpointer A) :pointer) ((mpointer x) :pointer))
   :inputs (A x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the system A x = b in-place using the
   Cholesky decomposition of A into the matrix cholesky given

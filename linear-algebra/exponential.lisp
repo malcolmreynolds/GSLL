@@ -1,6 +1,6 @@
 ;; Exponential of a matrix
 ;; Liam Healy 2008-08-10 17:25:35EDT exponential.lisp
-;; Time-stamp: <2008-11-30 23:35:44EST exponential.lisp>
+;; Time-stamp: <2008-12-07 18:31:37EST exponential.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -12,7 +12,6 @@
    (mode sf-mode))
   :inputs (matrix)
   :outputs (exponential)
-  :return (exponential)
   :documentation
   "Calculate the matrix exponential by the scaling and
    squaring method described in Moler + Van Loan,

@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-06 19:03:50EST permutation.lisp>
+;; Time-stamp: <2008-12-07 18:17:57EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -50,7 +50,6 @@
   (((mpointer permutation) :pointer))
   :definition :method
   :c-return :void
-  :inputs (permutation)
   :outputs (permutation)
   :return (permutation)
   :documentation			; FDL
@@ -64,6 +63,7 @@
   :definition :method
   :inputs (source)
   :outputs (destination)
+  :return (destination)
   :documentation			; FDL
   "Copy the elements of the permutation source into the
    permutation destination.  The two permutations must have the same size.")
@@ -74,6 +74,7 @@
   :definition :method
   :inputs (p)
   :outputs (p)
+  :return (p)
   :documentation			; FDL
   "Exchanges the ith and jth elements of the permutation p.")
 
@@ -85,6 +86,7 @@
   "gsl_permutation_size"
   (((mpointer p) :pointer))
   :c-return sizet
+  :inputs (p)
   :documentation			; FDL
   "The size of the permutation p.")
 
@@ -92,6 +94,7 @@
   "gsl_permutation_data"
   (((mpointer p) :pointer))
   :c-return :pointer
+  :inputs (p)
   :documentation			; FDL
   "A pointer to the array of elements in the
    permutation p.")
@@ -105,6 +108,7 @@
   (((mpointer permutation) :pointer))
   :definition :method
   :c-return :boolean
+  :inputs (permutation)
   :documentation			; FDL
   "Check that the permutation p is valid.  The n
   elements should contain each of the numbers 0 to n-1 once and only
@@ -117,15 +121,19 @@
 (defmfun permutation-reverse (p)
   "gsl_permutation_reverse"
   (((mpointer p) :pointer))
-  :outputs (p)
   :c-return :void
+  :inputs (p)
+  :outputs (p)
+  :return (p)
   :documentation			; FDL
   "Reverse the order of the elements of the permutation p.")
 
 (defmfun permutation-inverse (inv p)
   "gsl_permutation_inverse"
   (((mpointer inv) :pointer) ((mpointer p) :pointer))
+  :inputs (p)
   :outputs (inv)
+  :return (inv)
   :documentation			; FDL
   "Find the inverse of the permutation p.")
 
@@ -133,7 +141,9 @@
   "gsl_permutation_next"
   (((mpointer p) :pointer))
   :c-return :success-failure
+  :inputs (p)
   :outputs (p)
+  :return (p :c-return)
   :documentation			; FDL
   "Advance the permutation p to the next permutation
    in lexicographic order and return p and T.  If no further
@@ -146,7 +156,9 @@
   "gsl_permutation_prev"
   (((mpointer p) :pointer))
   :c-return :success-failure
+  :inputs (p)
   :outputs (p)
+  :return (p :c-return)
   :documentation			; FDL
   "Step backwards from the permutation p to the
    previous permutation in lexicographic order, returning p and T.
@@ -160,6 +172,9 @@
 (defmfun permute (p data stride n)
   "gsl_permute"
   (((mpointer p) :pointer) (data :pointer) (stride sizet) (n sizet))
+  :inputs (p data)
+  :outputs (data)
+  :return (data)
   :documentation			; FDL
   "Apply the permutation p to the array data of
    size n with stride stride.")
@@ -167,6 +182,9 @@
 (defmfun permute-inverse (p data stride n)
     "gsl_permute_inverse"
   (((mpointer p) :pointer) (data :pointer) (stride sizet) (n sizet))
+  :inputs (p data)
+  :outputs (data)
+  :return (data)
   :documentation			; FDL
   "Apply the inverse of the permutation p to the array data of
    size n with stride.")
@@ -175,7 +193,9 @@
   ("gsl_permute_vector" :type)
   (((mpointer p) :pointer) ((mpointer v) :pointer))
   :definition :generic
+  :inputs (p v)
   :outputs (v)
+  :return (v)
   :documentation			; FDL
   "Apply the permutation p to the elements of the
    vector v considered as a row-vector acted on by a permutation
@@ -188,7 +208,9 @@
   ("gsl_permute_vector" :type "_inverse")
   (((mpointer p) :pointer) ((mpointer v) :pointer))
   :definition :generic
+  :inputs (p v)
   :outputs (v)
+  :return (v)
   :documentation			; FDL
   "Apply the permutation p to the elements of the
    vector v considered as a row-vector acted on by a permutation
@@ -202,7 +224,9 @@
   (((mpointer p) :pointer)
    ((mpointer pa) :pointer)
    ((mpointer pb) :pointer))
+  :inputs (pa pb)
   :outputs (p)
+  :return (p)
   :documentation			; FDL
   "Combine the two permutations pa and pb into a
   single permutation p where p = pa . pb. The permutation
@@ -215,6 +239,7 @@
 (defmfun linear-to-canonical (q p)
   "gsl_permutation_linear_to_canonical"
   (((mpointer q) :pointer) ((mpointer p) :pointer))
+  :inputs (p)
   :outputs (q)
   :documentation			; FDL
   "Compute the canonical form of the permutation p and
@@ -223,6 +248,7 @@
 (defmfun canonical-to-linear (p q)
   "gsl_permutation_canonical_to_linear"
   (((mpointer p) :pointer) ((mpointer q) :pointer))
+  :inputs (q)
   :outputs (p)
   :documentation			; FDL
   "Convert a permutation q in canonical form back into
@@ -231,6 +257,7 @@
 (defmfun inversions (p)
   "gsl_permutation_inversions" (((mpointer p) :pointer))
   :c-return sizet
+  :inputs (p)
   :documentation			; FDL
   "Count the number of inversions in the permutation
   p.  An inversion is any pair of elements that are not in order.
@@ -241,6 +268,7 @@
 (defmfun linear-cycles (p)
   "gsl_permutation_linear_cycles" (((mpointer p) :pointer))
   :c-return sizet
+  :inputs (p)
   :documentation			; FDL
   "Count the number of cycles in the permutation p, given in linear form.")
 
@@ -248,6 +276,7 @@
   "gsl_permutation_canonical_cycles"
   (((mpointer p) :pointer))
   :c-return sizet
+  :inputs (p)
   :documentation			; FDL
   "Count the number of cycles in the permutation q, given in canonical form.")
 

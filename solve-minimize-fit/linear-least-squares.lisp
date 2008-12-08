@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-11-30 23:28:48EST linear-least-squares.lisp>
+;; Time-stamp: <2008-12-07 19:04:02EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,6 +22,7 @@
    ((dim0 x) sizet) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
    (sumsq :double))
+  :inputs (x y)
   :documentation			; FDL
   "Determine the best-fit linear regression coefficients
    and returns as the first two values c0,c1
@@ -44,6 +45,7 @@
    ((dim0 x) sizet) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
    (chisq :double))
+  :inputs (x weight y)
   :documentation			; FDL
   "Compute the best-fit linear regression coefficients
    c0, c1 of the model Y = c_0 + c_1 X for the weighted
@@ -81,6 +83,7 @@
    ((c-pointer y) :pointer) (y-stride sizet)
    ((dim0 x) sizet) (c1 :double) (cov11 :double)
    (sumsq :double))
+  :inputs (x y)
   :documentation			; FDL
   "The best-fit linear regression coefficient c1 of the model Y = c_1
    X for the datasets (x, y) two vectors of equal length with strides x-stride
@@ -98,6 +101,7 @@
    ((c-pointer y) :pointer) (y-stride sizet)
    ((dim0 x) sizet) (c1 :double) (cov11 :double)
    (chisq :double))
+  :inputs (x weight y)
   :documentation			; FDL
   "Compute the best-fit linear regression coefficient
    c1 of the model Y = c_1 X for the weighted datasets
@@ -151,6 +155,8 @@
    (tolerance :double)
    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
+  :inputs (model observations)
+  :outputs (parameters covariance)
   :documentation			; FDL
   "Compute the best-fit parameters c of the model
    y = X c for the observations y and the matrix of predictor
@@ -173,14 +179,16 @@
    (rank sizet)
    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
+  :inputs (model observations)
+  :outputs (parameters covariance)
   :return ((dcref chisq) (scref rank))
   :documentation			; FDL
   "Compute the best-fit parameters c of the model
    y = X c for the observations y and the matrix of predictor
    variables X.  The variance-covariance matrix of the model
    parameters cov is estimated from the scatter of the observations
-   about the best-fit.  The sum of squares of the residuals from the
-   best-fit, chi^2, is returned.
+   about the best-fit.  The sum of squares of the residuals
+   from the best-fit chi^2, and rank are returned.
 
    The best-fit is found by singular value decomposition of the matrix
    X using the preallocated workspace provided. The
@@ -201,6 +209,8 @@
    ((mpointer parameters) :pointer)
    ((mpointer covariance) :pointer) (chisq :double)
    (workspace :pointer))
+  :inputs (model observations)
+  :outputs (parameters covariance)
   :documentation			; FDL
   "Compute the best-fit parameters c of the weighted
    model y = X c for the observations y and weights
@@ -224,13 +234,15 @@
    (rank sizet)
    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
    (workspace :pointer))
+  :inputs (model weight observations)
+  :outputs (parameters covariance)
   :return ((dcref chisq) (scref rank))
   :documentation			; FDL
   "Compute the best-fit parameters c of the weighted
    model y = X c for the observations y and weights
    and the model matrix X.  The covariance matrix of
-   the model parameters is computed with the given weights.  The
-   weighted sum of squares of the residuals from the best-fit,
+   the model parameters is computed with the given weights.  
+   The weighted sum of squares of the residuals from the best-fit,
    chi^2, is returned as the first value.
 
    The best-fit is found by singular value decomposition of the matrix
@@ -245,6 +257,7 @@
   "gsl_multifit_linear_est"
   (((mpointer x) :pointer) ((mpointer coefficients) :pointer)
    ((mpointer covariance) :pointer) (y :double) (y-error :double))
+  :inputs (x coefficients covariance)
   :documentation			; FDL
   "Use the best-fit multilinear regression coefficients
    and their covariance matrix to compute the fitted function value

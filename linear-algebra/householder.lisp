@@ -1,6 +1,6 @@
 ;; Householder Transformations
 ;; Liam Healy, Wed May 10 2006 - 10:03
-;; Time-stamp: <2008-08-11 22:31:45EDT householder.lisp>
+;; Time-stamp: <2008-12-07 18:31:26EST householder.lisp>
 ;; $Id$
 
 ;;; For householder-transform, it would be nice to be able to pick the
@@ -25,6 +25,7 @@
 (defmfun householder-transform (v)
   "gsl_linalg_householder_transform"
   (((mpointer v) :pointer))
+  :inputs (v)
   :outputs (v)
   :c-return (ret :double)
   :return (v ret)
@@ -37,6 +38,7 @@
 (defmfun householder-HM (tau v A)
   "gsl_linalg_householder_hm"
   ((tau :double) ((mpointer v) :pointer) ((mpointer A) :pointer))
+  :inputs (v A)
   :outputs (A)
   :documentation			; FDL
   "Apply the Householder matrix P defined by the
@@ -46,6 +48,7 @@
 (defmfun householder-MH (tau v A)
   "gsl_linalg_householder_mh"
   ((tau :double) ((mpointer v) :pointer) ((mpointer A) :pointer))
+  :inputs (v A)
   :outputs (A)
   :documentation			; FDL
   "Apply the Householder matrix P defined by the
@@ -55,11 +58,12 @@
 (defmfun householder-Hv (tau v w)
   "gsl_linalg_householder_hv"
   ((tau :double) ((mpointer v) :pointer) ((mpointer w) :pointer))
+  :inputs (v w)
+  :outputs (w)
   :documentation			; FDL
   "Apply the Householder transformation P defined by
   the scalar tau and the vector v to the vector w.  On
-  output the result P w is stored in w."
-  :outputs (w))
+  output the result P w is stored in w.")
 
 ;;;;****************************************************************************
 ;;;; Householder solver for linear systems
@@ -69,6 +73,7 @@
   "gsl_linalg_HH_solve"
   (((mpointer A) :pointer) ((mpointer b) :pointer)
    ((mpointer x) :pointer))
+  :inputs (A b x)
   :outputs (x A)
   :return (x)
   :documentation			; FDL
@@ -80,6 +85,7 @@
 (defmfun householder-svx (A x)
   "gsl_linalg_HH_svx"
   (((mpointer A) :pointer) ((mpointer x) :pointer))
+  :inputs (A x)
   :outputs (x A)
   :return (x)
   :documentation			; FDL

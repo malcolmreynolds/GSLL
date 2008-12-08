@@ -1,6 +1,6 @@
 ;; Covariance
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-11-30 23:34:37EST covariance.lisp>
+;; Time-stamp: <2008-12-07 18:45:21EST covariance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,6 +20,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (data1 data2)
   :documentation			; FDL
   "The covariance of the datasets data1 and data2 which must
    be of the same length,

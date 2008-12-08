@@ -1,6 +1,6 @@
 ;; Singular Value Decomposition
 ;; Liam Healy, Tue May  2 2006 - 12:15
-;; Time-stamp: <2008-08-11 22:46:49EDT svd.lisp>
+;; Time-stamp: <2008-12-07 18:33:23EST svd.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -31,7 +31,6 @@
    ((mpointer S) :pointer) ((mpointer work) :pointer))
   :inputs (A)
   :outputs (A S V)
-  :return (A S V)
   :documentation			; FDL
   "Factorize the M-by-N matrix A into
   the singular value decomposition A = U S V^T for M >= N.
@@ -51,7 +50,6 @@
    ((mpointer S) :pointer) ((mpointer work) :pointer))
   :inputs (A)
   :outputs (A S V)
-  :return (A S V)
   :documentation			; FDL
   "The SVD using the modified Golub-Reinsch algorithm, which is
    faster for M >> N.  It requires the vector work of length N and the
@@ -63,7 +61,6 @@
    ((mpointer S) :pointer))
   :inputs (A)
   :outputs (A S V)
-  :return (A S V)
   :documentation			; FDL
   "The SVD of the M-by-N matrix A using one-sided Jacobi
    orthogonalization for M >= N.  The Jacobi method can compute singular
@@ -77,7 +74,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (U S V b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the system A x = b using the singular value
    decomposition (U, S, V) of A given by #'SV-decomp.

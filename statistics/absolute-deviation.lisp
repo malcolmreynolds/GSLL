@@ -1,6 +1,6 @@
 ;; Absolute deviation
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-11-30 23:35:46EST absolute-deviation.lisp>
+;; Time-stamp: <2008-12-07 18:44:47EST absolute-deviation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,6 +17,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (data)
   :documentation			; FDL
   "The absolute deviation from the mean of data.  The absolute
   deviation from the mean is defined as absdev = (1/N) \sum |x_i -
@@ -41,6 +42,7 @@
   :definition :generic
   :element-types :float
   :c-return :double
+  :inputs (data weights)
   :documentation			; FDL
   "The weighted absolute deviation from the weighted
    mean, defined as

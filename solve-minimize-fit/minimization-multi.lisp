@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-11-30 23:29:45EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-07 19:09:05EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -78,6 +78,7 @@
   "gsl_multimin_fminimizer_set"
   ((minimizer :pointer) (function :pointer)
    ((mpointer initial) :pointer) ((mpointer step-size) :pointer))
+  :inputs (initial step-size)
   :export nil
   :index (letm mfminimizer)
   :documentation			; FDL
@@ -93,6 +94,7 @@
   ((minimizer :pointer) (function-derivative :pointer)
    ((mpointer initial) :pointer) (step-size :double)
    (tolerance :double))
+  :inputs (initial)
   :export nil
   :index (letm mfdfminimizer)
   :documentation			; FDL

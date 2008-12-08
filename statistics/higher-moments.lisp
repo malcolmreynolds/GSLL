@@ -1,6 +1,6 @@
 ;; Skewness and kurtosis.
 ;; Liam Healy, Sun Dec 31 2006 - 14:20
-;; Time-stamp: <2008-11-30 23:32:16EST higher-moments.lisp>
+;; Time-stamp: <2008-12-07 18:46:13EST higher-moments.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,6 +16,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (data)
   :documentation			; FDL
   "The skewness of data, defined as skew = (1/N) \sum ((x_i -
   \Hat\mu)/\Hat\sigma)^3 where x_i are the elements of the dataset
@@ -35,6 +36,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (data)
   :documentation			; FDL
   "The kurtosis of data defined as
    kurtosis = ((1/N) \sum ((x_i - \Hat\mu)/\Hat\sigma)^4)  - 3
@@ -56,6 +58,7 @@
   :definition :generic
   :element-types :float
   :c-return :double
+  :inputs (data weights)
   :documentation			; FDL
   "The weighted skewness of the dataset.
    skew = (\sum w_i ((x_i - xbar)/\sigma)^3) / (\sum w_i).")
@@ -74,6 +77,7 @@
   :definition :generic
   :element-types :float
   :c-return :double
+  :inputs (data weights)
   :documentation			; FDL
   "The weighted kurtosis of the dataset.
    kurtosis = ((\sum w_i ((x_i - xbar)/sigma)^4) / (\sum w_i)) - 3.")

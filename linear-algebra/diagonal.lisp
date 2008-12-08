@@ -1,6 +1,6 @@
 ;; Tridiagonal and Bidiagonal matrices
 ;; Liam Healy, Thu May  4 2006 - 15:43
-;; Time-stamp: <2008-08-12 22:02:14EDT diagonal.lisp>
+;; Time-stamp: <2008-12-07 18:31:38EST diagonal.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,7 +28,6 @@
   :element-types :doubles
   :inputs (A)
   :outputs (A tau)
-  :return (A tau)
   :documentation			; FDL
   "Factorizes the symmetric square matrix or hermitian matrix A into the
    symmetric tridiagonal decomposition Q T Q^T.  On output the
@@ -49,7 +48,6 @@
   :element-types :doubles
   :inputs (A tau)
   :outputs (Q diag subdiag)
-  :return (Q diag subdiag)
   :documentation			; FDL
   "Unpacks the encoded symmetric tridiagonal decomposition
   (A, tau) obtained from #'tridiagonal-decomposition into the
@@ -65,7 +63,6 @@
   :element-types :doubles
   :inputs (A)
   :outputs (diag subdiag)
-  :return (diag subdiag)
   :documentation			; FDL
   "Unpack the diagonal and subdiagonal of the encoded symmetric
    tridiagonal decomposition (A, tau) obtained from
@@ -90,7 +87,6 @@
    ((mpointer tau-V) :pointer))
   :inputs (A)
   :outputs (A tau-U tau-V)
-  :return (A tau-U tau-V)
   :documentation			; FDL
   "Factorize the M-by-N matrix A into
    bidiagonal form U B V^T.  The diagonal and superdiagonal of the
@@ -110,7 +106,6 @@
    ((mpointer diag) :pointer) ((mpointer superdiag) :pointer))
   :inputs (A tau-U tau-V)
   :outputs (U V diag superdiag)
-  :return (U V diag superdiag)
   :documentation			; FDL
   "Unpack the bidiagonal decomposition of A given by
    #'bidiagonal-decomposition (A, tau-U, tau-V)
@@ -126,7 +121,6 @@
    ((mpointer tau-V) :pointer) ((mpointer V) :pointer))
   :inputs (A tau-U tau-V)
   :outputs (A V)
-  :return (A V)
   :documentation			; FDL
   "Unpack the bidiagonal decomposition of A given by
    #'bidiagonal-decomposition (A, tau-U, tau-V)
@@ -140,7 +134,6 @@
    ((mpointer superdiag) :pointer))
   :inputs (A)
   :outputs (diag superdiag)
-  :return (diag superdiag)
   :documentation			; FDL
   "Unpack the diagonal and superdiagonal of the bidiagonal
   decomposition of A given by #'bidiagonal-decomposition, into the
@@ -157,7 +150,6 @@
    ((mpointer x) :pointer))
   :inputs (diag superdiag subdiag b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the general N-by-N system A x = b where A is tridiagonal
    (N >= 2). The super-diagonal and
@@ -175,7 +167,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (diag off-diagonal b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the general N-by-N system A x = b where A is
    symmetric tridiagonal (N >= 2).  The off-diagonal vector
@@ -193,7 +184,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (diag super-diag sub-diag)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the general N-by-N system A x = b where A is cyclic
    tridiagonal (N >= 3).  The cyclic super-diagonal and
@@ -211,7 +201,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (diag off-diagonal b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the general N-by-N system A x = b where A is symmetric
    cyclic tridiagonal (N >= 3).  The cyclic

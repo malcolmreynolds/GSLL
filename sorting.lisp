@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-12-06 17:46:20EST sorting.lisp>
+;; Time-stamp: <2008-12-07 18:43:39EST sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -64,6 +64,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
+  :inputs (v)
   :outputs (v)
   :documentation			; FDL
   "Sort the n elements of the array data with stride stride into
@@ -75,6 +76,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
+  :inputs (v)
   :outputs (v)
   :documentation			; FDL
   "Sort the elements of the vector v into ascending numerical order.")
@@ -126,6 +128,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
+  :inputs (v)
   :outputs (dest)
   :documentation			; FDL
   "Find the smallest elements of the vector v and put them into dest,
@@ -140,6 +143,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
+  :inputs (v)
   :outputs (dest)
   :documentation			; FDL
   "Find the smallest elements of the vector v and put them into dest,
@@ -154,7 +158,8 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
-  :return (combination)
+  :inputs (v)
+  :outputs (combination)
   :documentation
   "The indices of the smallest elements of the vector stored,
     returned as a CL vector of element type fixnum.  If
@@ -162,8 +167,7 @@
     allocated and returned.  If it is a CL vector,
     it will be filled with the indices.")
 
-(defmfun sort-smallest-index
-    (combination (v vector))
+(defmfun sort-smallest-index (combination (v vector))
   ("gsl_sort" :type "_smallest_index")
   (((c-pointer combination) :pointer) ((total-size combination) sizet)
    ((c-pointer v) :pointer)
@@ -172,7 +176,8 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
-  :return (combination)
+  :inputs (v)
+  :outputs (combination)
   :documentation
   "The indices of the smallest elements of the vector stored,
     returned as a CL vector of element type fixnum.  If
@@ -187,6 +192,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
+  :inputs (v)
   :outputs (dest)
   :documentation			; FDL
   "Find the largest elements of the vector v and put them into dest,
@@ -201,13 +207,13 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
+  :inputs (v)
   :outputs (dest)
   :documentation			; FDL
   "Find the largest elements of the vector v and put them into dest,
    which must be shorter than v.")
 
-(defmfun sort-vector-largest-index
-    (combination (v vector))
+(defmfun sort-vector-largest-index (combination (v vector))
   ("gsl_sort_vector" :type "_largest_index")
   (((c-pointer combination) :pointer) ((total-size combination) sizet)
    ((mpointer v) :pointer)
@@ -216,7 +222,8 @@
   :definition :generic
   :element-types :no-complex
   :c-return :void
-  :return (combination)
+  :inputs (v)
+  :outputs (combination)
   :documentation
   "The indices of the largest elements of the vector stored,
     returned as a CL vector of element type fixnum.  If
@@ -224,8 +231,7 @@
     allocated and returned.  If it is a CL vector,
     it will be filled with the indices.")
 
-(defmfun sort-largest-index
-    (combination (v vector))
+(defmfun sort-largest-index (combination (v vector))
   ("gsl_sort" :type "_largest_index")
   (((c-pointer combination) :pointer) ((total-size combination) sizet)
    ((c-pointer v) :pointer)
@@ -234,7 +240,8 @@
   :element-types :no-complex
   :definition :generic
   :c-return :void
-  :return (combination)
+  :inputs (v)
+  :outputs (combination)
   :documentation
   "The indices of the largest elements of the vector stored,
     returned as a CL vector of element type fixnum.  If

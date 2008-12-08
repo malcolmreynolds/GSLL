@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-11-09 18:15:43EST blas2.lisp>
+;; Time-stamp: <2008-12-07 18:25:57EST blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,7 +36,6 @@
   :element-types :float-complex
   :inputs (A x y)
   :outputs (y)
-  :return (y)
   :documentation			; FDL
   "If the second and third arguments are vectors, compute
    the matrix-vector product and sum
@@ -59,7 +58,6 @@
   :element-types :float-complex
   :inputs (A x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "If the second argument is a vector, compute
    the matrix-vector product x =alpha op(A) x
@@ -92,7 +90,6 @@
   :element-types :float-complex
   :inputs (A x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
    "If the second argument is a vector, compute
    inv(op(A)) x for x, where op(A) = A, A^T, A^H for
@@ -123,7 +120,6 @@
   :element-types :float
   :inputs (A x y)
   :outputs (y)
-  :return (y)
   :documentation			; FDL
   "If the second and third arguments are vectors, compute
   the matrix-vector product and sum y = alpha A
@@ -152,7 +148,6 @@
   :element-types :complex
   :inputs (A x y)
   :outputs (y)
-  :return (y)
   :documentation			; FDL
   "If the second and third arguments are vectors, compute the
   matrix-vector product and sum y = alpha A x + beta y for the
@@ -178,7 +173,6 @@
   :element-types :float-complex
   :inputs (x y A)
   :outputs (A)
-  :return (A)
   :documentation			; FDL
    "The rank-1 update A = alpha x y^T + A of the matrix A.")
 
@@ -190,7 +184,6 @@
   :element-types :complex
   :inputs (x y A)
   :outputs (A)
-  :return (A)
   :documentation			; FDL
   "The conjugate rank-1 update A = alpha x y^H + A of the matrix A.")
 
@@ -204,7 +197,6 @@
   :element-types :float
   :inputs (x A)
   :outputs (A)
-  :return (A)
   :documentation			; FDL
   "If the first argument is a vector,
   the symmetric rank-1 update A = \alpha x x^T + A of the symmetric
@@ -230,7 +222,6 @@
   :element-types :complex
   :inputs (x A)
   :outputs (A)
-  :return (A)
   :documentation			; FDL
   "If the first argument is a vector,
   compute the hermitian rank-1 update A = alpha x x^H + A of the
@@ -259,7 +250,6 @@
   :element-types :float
   :inputs (x y A)
   :outputs (A)
-  :return (A)
   :documentation			; FDL
   "If the first two arguments are vectors, compute
   the symmetric rank-2 update A = alpha x y^T + alpha y x^T + A of the
@@ -285,7 +275,6 @@
   :element-types :complex
   :inputs (x A)
   :outputs (A)
-  :return (A)
   :documentation			; FDL
   "If the first two arguments are vectors, compute the
   hermitian rank-2 update A = alpha x y^H + alpha^* y x^H A of

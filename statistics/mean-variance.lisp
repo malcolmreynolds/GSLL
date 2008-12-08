@@ -1,6 +1,6 @@
 ;; Mean, standard deviation, and variance    
 ;; Liam Healy, Sat Dec  2 2006 - 22:15
-;; Time-stamp: <2008-11-09 11:50:03EST mean-variance.lisp>
+;; Time-stamp: <2008-12-07 19:13:40EST mean-variance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,6 +18,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (array)
   :documentation			; FDL
    "The arithmetic mean of the array.
    The arithmetic mean, or sample mean, is denoted by
@@ -31,6 +32,7 @@
   :definition :generic
   :element-types :float
   :c-return :element-c-type
+  :inputs (array weights)
   :documentation			; FDL
   "The weighted mean of the dataset, using the set of weights
     The weighted mean is defined as
@@ -49,6 +51,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (array)
   :documentation			; FDL
   "The estimated, or sample, variance of data.  The
    estimated variance is denoted by \Hat\sigma^2 and is defined by
@@ -73,6 +76,7 @@
   :definition :generic
   :element-types :float
   :c-return :double
+  :inputs (array weights)
   :documentation			; FDL
   "The estimated variance of a weighted dataset is defined as
    \Hat\sigma^2 = ((\sum w_i)/((\sum w_i)^2 - \sum (w_i^2))) 
@@ -95,6 +99,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (array)
   :documentation			; FDL
   "The standard deviation, square root of the variance.
    If the mean value is known, it may be supplied which will use more
@@ -112,6 +117,7 @@
   :definition :generic
   :element-types :float
   :c-return :double
+  :inputs (array weights)
   :documentation			; FDL
   "The weighted standard deviation, square root of the variance.
    If the mean value is known, it may be supplied which will use more
@@ -128,6 +134,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (array)
   :documentation			; FDL
   "An unbiased estimate of the variance of
     data when the population mean of the underlying
@@ -143,6 +150,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (array)
   :documentation			; FDL
    "The standard deviation of data for a fixed population
     mean.  The result is the square root of the
@@ -161,6 +169,7 @@
   :definition :generic
   :element-types :float
   :c-return :double
+  :inputs (array weights)
   :documentation			; FDL
   "An unbiased estimate of the variance of weighted
     dataset when the population mean of the underlying
@@ -178,6 +187,7 @@
   :definition :generic
   :element-types :float
   :c-return :double
+  :inputs (array weights)
   :documentation			; FDL
   "The square root of the corresponding variance
    function #'weighted-variance-with-fixed-mean.")

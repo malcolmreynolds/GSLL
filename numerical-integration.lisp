@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-10-25 11:35:53EDT numerical-integration.lisp>
+;; Time-stamp: <2008-12-07 18:51:13EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -129,10 +129,11 @@
    ((mpointer points) :pointer) ((dim0 points) sizet)
    (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
    (result :double) (abserr :double))
+  :inputs (points)
   :documentation			; FDL
   "Apply the adaptive integration algorithm QAGS taking
    account of the user-supplied locations of singular points.  The array
-   pts of length npts should contain the endpoints of the
+   points should contain the endpoints of the
    integration ranges defined by the integration region and locations of
    the singularities.  For example, to integrate over the region
    (a,b) with break-points at x_1, x_2, x_3 (where 

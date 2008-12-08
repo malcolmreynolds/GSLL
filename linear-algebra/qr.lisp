@@ -1,6 +1,6 @@
 ;; QR decomposition
 ;; Liam Healy 2008-02-17 11:05:20EST qr.lisp
-;; Time-stamp: <2008-08-11 22:22:09EDT qr.lisp>
+;; Time-stamp: <2008-12-07 18:32:41EST qr.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,7 +23,6 @@
   (((mpointer A) :pointer) ((mpointer tau) :pointer))
   :inputs (A)
   :outputs (A tau)
-  :return (A tau)
   :documentation 			; FDL
   "Factorize the M-by-N matrix A into the QR decomposition A = Q R.
    On output the diagonal and
@@ -46,7 +45,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (QR tau b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the square system A x = b using the QR
    decomposition of A into (QR, tau) given by
@@ -59,7 +57,6 @@
    ((mpointer x) :pointer))
   :inputs (QR tau x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solves the square system A x = b in-place using the
   QR decomposition of A into (QR, tau) given by
@@ -73,7 +70,6 @@
    ((mpointer residual) :pointer))
   :inputs (QR tau b)
   :outputs (x residual)
-  :return (x residual)
   :documentation			; FDL
   "The least squares solution to the overdetermined system A x = b
    where the matrix A has more rows than columns.  The least squares
@@ -88,7 +84,6 @@
    ((mpointer v) :pointer))
   :inputs (QR tau)
   :outputs (v)
-  :return (v)
   :documentation			; FDL
   "Apply the matrix Q^T encoded in the decomposition
    (QR, tau) to the vector v, storing the result Q^T v in v.
@@ -102,7 +97,6 @@
    ((mpointer v) :pointer))
   :inputs (QR tau)
   :outputs (v)
-  :return (v)
   :documentation			; FDL
   "Apply the matrix Q encoded in the decomposition
    (QR, tau) to the vector v, storing the result Q v in v.
@@ -116,7 +110,6 @@
    ((mpointer x) :pointer))
   :inputs (QR b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the triangular system R x = b for x.  It may be useful if the
    product b' = Q^T b has already been computed using QR-QTvec}.")
@@ -126,7 +119,6 @@
   (((mpointer QR) :pointer) ((mpointer x) :pointer))
   :inputs (QR x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the triangular system R x = b for x in-place. On input x
   should contain the right-hand side b and is replaced by the solution
@@ -139,7 +131,6 @@
    ((mpointer Q) :pointer) ((mpointer R) :pointer))
   :inputs (QR tau)
   :outputs (Q R)
-  :return (Q R)
   :documentation			; FDL
   "Unpack the encoded QR decomposition
   (QR, tau) into the matrices Q and R where
@@ -151,7 +142,6 @@
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (Q R b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solves the system R x = Q^T b for x.  It can
   be used when the QR decomposition of a matrix is available in
@@ -177,7 +167,6 @@
    ((mpointer x) :pointer))
   :inputs (R b)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solves the triangular system R x = b for the N-by-N matrix R.")
 
@@ -186,7 +175,6 @@
   (((mpointer R) :pointer) ((mpointer x) :pointer))
   :inputs (R x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Solve the triangular system R x = b in-place. On
   input x should contain the right-hand side b, which is

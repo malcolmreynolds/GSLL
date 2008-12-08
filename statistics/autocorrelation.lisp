@@ -1,6 +1,6 @@
 ;; Autocorrelation
 ;; Liam Healy, Sun Dec 31 2006 - 13:19
-;; Time-stamp: <2008-11-30 23:34:37EST autocorrelation.lisp>
+;; Time-stamp: <2008-12-07 18:45:02EST autocorrelation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,6 +17,7 @@
   :definition :generic
   :element-types :no-complex
   :c-return :double
+  :inputs (data)
   :documentation			; FDL
   "The lag-1 autocorrelation of the dataset data.
   a_1 = {\sum_{i = 1}^{n} (x_{i} - \Hat\mu) (x_{i-1} - \Hat\mu)

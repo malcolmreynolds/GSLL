@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-11-29 15:30:45EST defmfun.lisp>
+;; Time-stamp: <2008-12-07 18:18:03EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -638,6 +638,7 @@
     (t (unless
 	   (or
 	    (and (eq c-return :error-code)
+		 (not outputs)
 		 (not allocated)
 		 (not return-supplied-p))
 	    (and (null return) return-supplied-p))

@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-11-30 23:47:59EST wavelet.lisp>
+;; Time-stamp: <2008-12-07 17:52:23EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -392,7 +392,7 @@
 	 (workspace (wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
     (letm ((absvector (make-array* 'double-float :dimensions n))
-	   (permutation (permutation n)))
+	   (permutation (make-permutation n)))
       (dotimes (i n)
 	(setf (maref absvector i) (abs (maref vector i))))
       ;; Sort and set to 0 all but the largest 20.

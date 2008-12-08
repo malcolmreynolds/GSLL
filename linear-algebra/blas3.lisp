@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-11-09 18:12:05EST blas3.lisp>
+;; Time-stamp: <2008-12-07 18:27:01EST blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -27,8 +27,7 @@
   :definition :methods
   :element-types :float-complex
   :inputs (A B C)
-  :outputs (C)
-  :return (C))
+  :outputs (C))
 
 (defmfun matrix-product-symmetric
     ((A matrix) (B matrix) (C matrix)
@@ -40,8 +39,7 @@
   :definition :methods
   :element-types :float-complex
   :inputs (A B C)
-  :outputs (C)
-  :return (C))
+  :outputs (C))
 
 (defmfun matrix-product-hermitian
     ((A matrix) (B matrix) (C matrix)
@@ -55,8 +53,7 @@
   :definition :methods
   :element-types :complex
   :inputs (A B C)
-  :outputs (C)
-  :return (C))
+  :outputs (C))
 
 (defmfun matrix-product-triangular
     ((A matrix) (B matrix)
@@ -69,8 +66,7 @@
   :definition :methods
   :element-types :float-complex
   :inputs (A B)
-  :outputs (B)
-  :return (B))
+  :outputs (B))
 
 (defmfun inverse-matrix-product
     ((A matrix) (B matrix)
@@ -85,8 +81,7 @@
   :definition :methods
   :element-types :float-complex
   :inputs (A B)
-  :outputs (B)
-  :return (B))
+  :outputs (B))
 
 (defmfun symmetric-rank-1-update
     ((A matrix) (C matrix)
@@ -98,8 +93,7 @@
   :definition :methods
   :element-types :float-complex
   :inputs (A C)
-  :outputs (C)
-  :return (C))
+  :outputs (C))
 
 (defmfun hermitian-rank-1-update
     ((A matrix) (C matrix)
@@ -111,8 +105,7 @@
   :definition :methods
   :element-types :complex
   :inputs (A C)
-  :outputs (C)
-  :return (C))
+  :outputs (C))
 
 (defmfun symmetric-rank-2-update
     ((A matrix) (B matrix) (C matrix)
@@ -125,8 +118,7 @@
   :definition :methods
   :element-types :float
   :inputs (A B C)
-  :outputs (C)
-  :return (C))
+  :outputs (C))
 
 (defmfun hermitian-rank-2-update
     ((A matrix) (B matrix) (C matrix)
@@ -139,8 +131,7 @@
   :definition :methods
   :element-types :complex
   :inputs (A B C)
-  :outputs (C)
-  :return (C))
+  :outputs (C))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-11-30 23:44:35EST lu.lisp>
+;; Time-stamp: <2008-12-07 18:32:04EST lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,7 +39,6 @@
   :definition :generic
   :inputs (LU p b)
   :outputs (x)
-  :return (x)
   :element-types :doubles
   :documentation			; FDL
   "Solve the square system A x = b using the LU
@@ -52,7 +51,6 @@
   :definition :generic
   :inputs (LU p)
   :outputs (x)
-  :return (x)
   :element-types :doubles
   :documentation			; FLD
   "Solve the square system A x = b in-place
@@ -83,7 +81,6 @@
   :definition :generic
   :inputs (LU p)
   :outputs (inverse)
-  :return (inverse)
   :element-types :doubles
   :documentation			; FDL
   "Compute the inverse of a matrix A from its LU
@@ -138,7 +135,7 @@
   "Invert the matrix."
   (letm ((mmat mat)
 	 (dim (array-dimension mat 0))
-	 (per (permutation dim))
+	 (per (make-permutation dim))
 	 (inv (make-array* 'double-float :dimensions (list dim dim))))
     (LU-decomposition mmat per)
     (lu-invert mmat per inv)

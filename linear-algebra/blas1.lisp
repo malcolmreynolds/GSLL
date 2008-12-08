@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-11-09 17:11:25EST blas1.lisp>
+;; Time-stamp: <2008-12-07 18:24:40EST blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,6 +11,7 @@
    (result :element-c-type))
   :definition :generic
   :element-types :float-complex
+  :inputs (vec1 vec2)
   :documentation			; FDL
   "Dot, or inner, product between vectors.")
 
@@ -19,6 +20,7 @@
   "gsl_blas_sdsdot"
   ((alpha :float) ((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
    (result :pointer))
+  :inputs (vec1 vec2)
   :outputs (result)
   :documentation			; FDL
   "Sum of a scalar and a dot product for single-floats.")
@@ -87,7 +89,6 @@
   :element-types :float-complex
   :inputs (x)
   :outputs (y)
-  :return (y)
   :documentation			; FDL
   "Copy the elements of the vector x into the vector y.")
 
@@ -100,7 +101,6 @@
   :element-types :float-complex
   :inputs (x y)
   :outputs (y)
-  :return (y)
   :documentation			; FDL
   "Compute the sum y = \alpha x + y for the vectors x and y.")
 
@@ -114,7 +114,6 @@
   :c-return :void
   :inputs (x)
   :outputs (x)
-  :return (x)
   :documentation			; FDL
   "Rescale the vector x by the multiplicative factor alpha.")
 
@@ -126,8 +125,7 @@
   :element-types :complex
   :c-return :void
   :inputs (x)
-  :outputs (x)
-  :return (x))
+  :outputs (x))
 
 ;;; The Givens rotations come in two forms, those that work on bare C
 ;;; arrays, and those that work on GSL vectors.  Ports of both are
@@ -141,7 +139,6 @@
   :element-types :float
   :inputs (x y c s)
   :outputs (x y)
-  :return (x y)
   :documentation			; FDL
   "These functions compute a Givens rotation (c,s) to the vector (x,y),
           [  c  s ] [ x ] = [ r ]
