@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-12-07 18:18:03EST defmfun.lisp>
+;; Time-stamp: <2008-12-14 17:59:28EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,6 +39,7 @@
 ;;;            or its derivatives.
 ;;;            Default are allocated quantities in c-arguments, or :c-return if none.
 ;;; definition :function, :generic, :method, :methods
+;;; qualifier  A method qualifier such as :after or :before.
 ;;; element-types
 ;;;            Permissible types for elements of arrays.  May be
 ;;;            NIL meaning all of *array-element-types*, :no-complex
@@ -52,9 +53,9 @@
 ;;; null-pointer-info
 ;;;            Return value if C function returns a null pointer.
 ;;; documentation
-;;; inputs     Arrays whose values are used by the GSL function
-;;; outputs    Arrays that are written to in the GSL function
-;;; after        After method.
+;;; inputs     Arrays whose values are used by the GSL function.
+;;; outputs    Arrays that are written to in the GSL function.
+;;; after      Forms to be evaluated after the foreign call.
 ;;; enumeration  The name of the enumeration return.
 
 (defmacro defmfun (name arglist gsl-name c-arguments &rest key-args)
@@ -71,15 +72,17 @@
      (index t)
      (definition :function)
      (export (not (member definition (list :method :methods))))
-     null-pointer-info documentation inputs outputs after enumeration)
+     null-pointer-info documentation inputs outputs after enumeration
+     qualifier)
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export
-      null-pointer-info documentation inputs outputs after enumeration)
+      null-pointer-info documentation inputs outputs after enumeration
+      qualifier)
      (special indexed-functions))
     ,@body))
 
-(defparameter *defmfun-llk* '(&optional))
+(defparameter *defmfun-llk* '(&optional &key))
 
 (defun llkp (arglist)
   "There is a lambda-list keyword present."
@@ -497,7 +500,7 @@
 		   (list sexp))
 		 (unless (member (first sexp) '(quote))
 		   (mapcan #'scwfv (rest sexp))))))
-    (remove-duplicates (scwfv sexp))))
+    (remove nil (remove-duplicates (scwfv sexp)))))
 
 (defun variables-used-in-c-arguments (c-arguments)
   "Find the arguments passed to the C function.  This is a poor
@@ -522,18 +525,22 @@
      (mapdown (eq body-maker 'body-optional-arg)))
   "A complete definition form, starting with defun, :method, or defmethod."
   (destructuring-bind
-	(&key documentation inputs outputs &allow-other-keys) key-args
+	(&key documentation inputs outputs after qualifier &allow-other-keys) key-args
     `(,definition
 	 ,@(when (and name (not (defgeneric-method-p name)))
 		 (list name))
+	 ,@(when qualifier (list qualifier))
 	 ,arglist
        ,(declaration-form
 	 (cl-argument-types arglist c-arguments)
 	 (set-difference (arglist-plain-and-categories arglist nil)
-			 (if mapdown
-			     (apply 'union
-				    (mapcar 'variables-used-in-c-arguments c-arguments))
-			     (variables-used-in-c-arguments c-arguments))))
+			 (union
+			  (if mapdown
+			      (apply 'union
+				     (mapcar 'variables-used-in-c-arguments c-arguments))
+			      (variables-used-in-c-arguments c-arguments))
+			  ;; Forms in :after are checked for used variables
+			  (stupid-code-walk-find-variables (cons 'values after)))))
        ,@(when documentation (list documentation))
        #-native
        ,(funcall body-maker name arglist gsl-name c-arguments key-args)
