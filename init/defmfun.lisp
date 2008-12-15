@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-12-14 17:59:28EST defmfun.lisp>
+;; Time-stamp: <2008-12-14 19:36:08EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -50,8 +50,6 @@
 ;;; index      Name under which this function should be cross-referenced; t
 ;;;            to use name, nil to not index.
 ;;; export     Whether to export the symbol.
-;;; null-pointer-info
-;;;            Return value if C function returns a null pointer.
 ;;; documentation
 ;;; inputs     Arrays whose values are used by the GSL function.
 ;;; outputs    Arrays that are written to in the GSL function.
@@ -72,13 +70,11 @@
      (index t)
      (definition :function)
      (export (not (member definition (list :method :methods))))
-     null-pointer-info documentation inputs outputs after enumeration
-     qualifier)
+     documentation inputs outputs after enumeration qualifier)
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export
-      null-pointer-info documentation inputs outputs after enumeration
-      qualifier)
+      documentation inputs outputs after enumeration qualifier)
      (special indexed-functions))
     ,@body))
 
@@ -605,11 +601,10 @@
 					 ',(or (defgeneric-method-p name) name)))))
 	    #-native
 	    ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
-	    ,@(when (or null-pointer-info (eq c-return :pointer))
+	    ,@(when (eq cret-type :pointer)
 		    `((check-null-pointer
 		       ,cret-name
-		       ,@(or null-pointer-info
-			     '('memory-allocation-failure "No memory allocated")))))
+		       ,@'('memory-allocation-failure "No memory allocated."))))
 	    ,@after
 	    (values
 	     ,@(defmfun-return
