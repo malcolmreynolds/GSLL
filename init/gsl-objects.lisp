@@ -1,9 +1,77 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-08-31 11:35:19EDT gsl-objects.lisp>
+;; Time-stamp: <2008-12-14 23:15:01EST gsl-objects.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+#|
+(defclass gsl-object ()
+  ((mpointer :accessor mpointer
+	     :documentation "A pointer to the GSL representation of the object.")))
+
+(defmacro defmobject
+    (class prefix allocation-args description
+     &optional initialize-suffix initialize-args)
+  (let ((mptr (make-symbol "MPOINTER"))
+	(maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
+	(cl-alloc-args
+	 (variables-used-in-c-arguments allocation-args))
+	(cl-initialize-args
+	 (variables-used-in-c-arguments initialize-args)))
+    `(progn
+       (defclass ,class (gsl-object)
+	 ()
+	 (:documentation
+	  ,(format nil "The GSL representation of the ~a." description)))
+
+       (defmfun initialize-instance ((object ,class) &key ,@cl-alloc-args)
+	 ,(format nil "~a_alloc" prefix)
+	 ,allocation-args
+	 :definition :method
+	 :qualifier :after
+	 :c-return (,mptr :pointer)
+	 :after ((setf (slot-value object 'mpointer) ,mptr)
+		 (tg:finalize
+		  object
+		  (lambda ()
+		    (foreign-funcall ,(format nil "~a_free" prefix) :pointer ,mptr :void))))
+	 :return (object)
+	 :export nil
+	 :index ,maker)
+
+       (defmfun reinitialize-instance ((object ,class) &key ,@cl-initialize-args)
+	 ,(format nil "~a_~a" prefix initialize-suffix)
+	 (((mpointer object) :pointer) ,@initialize-args)
+	 :definition :method
+	 :qualifier :after
+	 :return (object)
+	 :export nil
+	 :index (reinitialize-instance ,class))
+
+       (defun ,maker
+	   (,@cl-alloc-args
+	    &optional
+	    ,@(cons (list (first cl-initialize-args) nil 'settingp)
+		    (rest cl-initialize-args)))
+	 (let ((object (make-instance 'hankel size)))
+	   (when settingp
+	     (reinitialize-instance
+	      object
+	      ,@(mapcan
+		 (lambda (sym)
+		   (list (intern (symbol-name sym) :keyword) sym))
+		 cl-initialize-args)))
+	   object)))))
+
+;;; To make-load-form
+;;; (make-basis-spline (bspline-order bspline) (number-of-breakpoints bspline))
+;;; Then initialize by making a vector from (breakpoint i bspline)
+;;; and calling knots.
+|#
+
+;;;;;;;;;;;;;;;;;;;;;;;; OLD ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;; There are numerous "GSL objects" which need to by manually
 ;;; memory-managed.  The macro letm takes care of this.
@@ -22,6 +90,7 @@
 ;;; is a binding to a letm.  This function shouldn't be called;
 ;;; it is defined and exported for the benefit of arglist
 ;;; displayers like slime.
+
 
 (export 'letm)
 (defmacro letm (bindings &body body)

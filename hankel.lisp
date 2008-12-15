@@ -1,9 +1,21 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-08-23 11:48:13EDT hankel.lisp>
+;; Time-stamp: <2008-12-14 23:16:48EST hankel.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+#|
+;;; Create the Hankel transform object and essential methods/functions.
+(defmobject hankel "gsl_dht"
+  ((size sizet))
+  "discrete Hankel Transform"
+  "new"
+  ((nu :double) (xmax :double)))
+|#
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;;; Everything compiles, but not tested -- need example.
 
