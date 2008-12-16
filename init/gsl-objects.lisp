@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-14 23:15:01EST gsl-objects.lisp>
+;; Time-stamp: <2008-12-15 18:21:19EST gsl-objects.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,7 +18,8 @@
 	(cl-alloc-args
 	 (variables-used-in-c-arguments allocation-args))
 	(cl-initialize-args
-	 (variables-used-in-c-arguments initialize-args)))
+	 (variables-used-in-c-arguments initialize-args))
+	(settingp (make-symbol "SETTINGP")))
     `(progn
        (defclass ,class (gsl-object)
 	 ()
@@ -49,20 +50,27 @@
 	 :export nil
 	 :index (reinitialize-instance ,class))
 
+       (export ',maker)
        (defun ,maker
 	   (,@cl-alloc-args
 	    &optional
-	    ,@(cons (list (first cl-initialize-args) nil 'settingp)
+	    ,@(cons (list (first cl-initialize-args) nil settingp)
 		    (rest cl-initialize-args)))
-	 (let ((object (make-instance 'hankel size)))
-	   (when settingp
+	 ,(format nil "Create the GSL object representing a ~a (class ~a)."
+		  description class)
+	 (let ((object
+		(make-instance ',class ,@(symbol-keyword-symbol cl-alloc-args))))
+	   (when ,settingp
 	     (reinitialize-instance
 	      object
-	      ,@(mapcan
-		 (lambda (sym)
-		   (list (intern (symbol-name sym) :keyword) sym))
-		 cl-initialize-args)))
+	      ,@(symbol-keyword-symbol cl-initialize-args)))
 	   object)))))
+
+(defun symbol-keyword-symbol (symbol)
+  (if (listp symbol)
+      (mapcan #'symbol-keyword-symbol symbol)
+      (list (intern (symbol-name symbol) :keyword)
+	    symbol)))
 
 ;;; To make-load-form
 ;;; (make-basis-spline (bspline-order bspline) (number-of-breakpoints bspline))
