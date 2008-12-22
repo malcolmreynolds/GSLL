@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-11-30 23:38:59EST quasi.lisp>
+;; Time-stamp: <2008-12-22 18:55:05EST quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -49,7 +49,7 @@
   :documentation			; FDL
   "Free all the memory associated with the generator.")
 
-(defmfun init (generator)
+(defmfun initialize (generator)
   "gsl_qrng_init" (((generator generator) :pointer))
   :c-return :void
   :documentation			; FDL
