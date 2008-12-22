@@ -1,17 +1,17 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-15 18:21:19EST gsl-objects.lisp>
+;; Time-stamp: <2008-12-21 21:35:42EST gsl-objects.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 #|
-(defclass gsl-object ()
+(defclass mobject ()
   ((mpointer :accessor mpointer
 	     :documentation "A pointer to the GSL representation of the object.")))
 
 (defmacro defmobject
-    (class prefix allocation-args description
+    (class prefix allocation-args description docstring
      &optional initialize-suffix initialize-args)
   (let ((mptr (make-symbol "MPOINTER"))
 	(maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
@@ -21,7 +21,7 @@
 	 (variables-used-in-c-arguments initialize-args))
 	(settingp (make-symbol "SETTINGP")))
     `(progn
-       (defclass ,class (gsl-object)
+       (defclass ,class (mobject)
 	 ()
 	 (:documentation
 	  ,(format nil "The GSL representation of the ~a." description)))
@@ -41,29 +41,33 @@
 	 :export nil
 	 :index ,maker)
 
-       (defmfun reinitialize-instance ((object ,class) &key ,@cl-initialize-args)
-	 ,(format nil "~a_~a" prefix initialize-suffix)
-	 (((mpointer object) :pointer) ,@initialize-args)
-	 :definition :method
-	 :qualifier :after
-	 :return (object)
-	 :export nil
-	 :index (reinitialize-instance ,class))
+       ,@(when initialize-suffix
+	       `((defmfun reinitialize-instance ((object ,class) &key ,@cl-initialize-args)
+		   ,(format nil "~a_~a" prefix initialize-suffix)
+		   (((mpointer object) :pointer) ,@initialize-args)
+		   :definition :method
+		   :qualifier :after
+		   :return (object)
+		   :export nil
+		   :index (reinitialize-instance ,class))))
 
        (export ',maker)
        (defun ,maker
 	   (,@cl-alloc-args
-	    &optional
-	    ,@(cons (list (first cl-initialize-args) nil settingp)
-		    (rest cl-initialize-args)))
-	 ,(format nil "Create the GSL object representing a ~a (class ~a)."
-		  description class)
+	    ,@(when initialize-suffix
+		    (append
+		     (list '&optional
+			   (list (first cl-initialize-args) nil settingp))
+		     (rest cl-initialize-args))))
+	 ,(format nil "Create the GSL object representing a ~a (class ~a).~&~a"
+		  description class docstring)
 	 (let ((object
 		(make-instance ',class ,@(symbol-keyword-symbol cl-alloc-args))))
-	   (when ,settingp
-	     (reinitialize-instance
-	      object
-	      ,@(symbol-keyword-symbol cl-initialize-args)))
+	   ,@(when initialize-suffix
+		   `((when ,settingp
+		       (reinitialize-instance
+			object
+			,@(symbol-keyword-symbol cl-initialize-args)))))
 	   object)))))
 
 (defun symbol-keyword-symbol (symbol)

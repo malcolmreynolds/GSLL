@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-07 17:07:11EST data.lisp>
+;; Time-stamp: <2008-12-21 17:58:34EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,10 +10,8 @@
 ;;;; The class gsl-data and element types that make subclasses
 ;;;;****************************************************************************
 
-(defclass gsl-data ()
+(defclass gsl-data (mobject)
   ((cl-array :documentation "The Lisp array.")
-   (mpointer :accessor mpointer
-	     :documentation "A pointer to the GSL representation of the data.")
    (block-pointer :initform nil :accessor block-pointer
 		  :documentation "A pointer to the gsl-block-c.")
    #-native

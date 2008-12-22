@@ -1,14 +1,25 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-11-30 23:43:58EST basis-splines.lisp>
+;; Time-stamp: <2008-12-21 21:46:10EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;;; Initializing the B-splines solver
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Should be subclass of interpolation?
 
-(defgo-s (basis-spline order number-of-breakpoints)
-    allocate-basis-spline free-basis-spline nil 2)
+#|
+(defmobject basis-spline "gsl_bspline"
+  ((order sizet) (number-of-breakpoints sizet))
+  "basis spline"			; FDL
+  "Allocate a workspace for computing B-splines. The number of
+   breakpoints is given by number-of-breakpoints.  This leads to n =
+   nbreak + k - 2 basis functions where k = order. Cubic B-splines are
+   specified by k = 4. The size of the workspace is O(5k + nbreak).")
+|#
+
+;;; Initializing the B-splines solver
+(defgo-s (basis-spline order number-of-breakpoints) allocate-basis-spline free-basis-spline nil 2)
 
 (defmfun allocate-basis-spline (order number-of-breakpoints)
   "gsl_bspline_alloc"
@@ -32,17 +43,17 @@
   "Free the memory associated with the workspace of the bspline.")
 
 ;;; Constructing the knots vector
-
 (defmfun knots (breakpoints workspace)
   "gsl_bspline_knots"
-  ((breakpoints :pointer) (workspace :pointer))
+  (((mpointer breakpoints) :pointer) ((mpointer workspace) :pointer))
   :documentation			; FDL
   "Compute the knots associated with the given breakpoints and store
    them in the workspace.")
 
 (defmfun uniform-knots (a b workspace)
   "gsl_bspline_knots_uniform"
-  ((a :double) (b :double) (workspace :pointer))
+  ((a :double) (b :double) ((mpointer workspace) :pointer))
+  :return (workspace)
   :documentation			; FDL
   "Compute knots uniformly on the interval [a, b] and store
    them in the workspace.")
@@ -51,7 +62,7 @@
 
 (defmfun evaluate-bspline (x B workspace)
   "gsl_bspline_eval"
-  ((x :double) ((mpointer B) :pointer) (workspace :pointer))
+  ((x :double) ((mpointer B) :pointer) ((mpointer workspace) :pointer))
   :outputs (B)
   :documentation			; FDL
   "Evaluate all B-spline basis functions at the position x and store
@@ -61,6 +72,32 @@
    efficient to compute all of the basis functions at once than to
    compute them individually, due to the nature of the defining
    recurrence relation.")
+
+;;; Query settings of the B-spline
+;;; These are not documented but are in
+;;; /usr/include/gsl/gsl_bspline.h; are they officially supported?
+
+(defmfun bspline-ncoeffs (B)
+  "gsl_bspline_ncoeffs"
+  (((mpointer B) :pointer))
+  :c-return sizet)
+
+(defmfun bspline-order (B)
+  "gsl_bspline_order"
+  (((mpointer B) :pointer))
+  :c-return sizet)
+
+(defmfun number-of-breakpoints (B)
+  "gsl_bspline_nbreak"
+  (((mpointer B) :pointer))
+  :c-return sizet
+  :documentation "The number of breakpoints of the basis spline B.")
+
+(defmfun breakpoint (i B)
+  "gsl_bspline_breakpoint"
+  ((i sizet) ((mpointer B) :pointer))
+  :c-return :double
+  :documentation "The ith breakpoint of the basis spline B.")
 
 ;;; Examples and unit test
 
@@ -72,7 +109,7 @@
   (letm ((order 4)			; cubic
 	 (ndata 200)
 	 (nbreak (+ ncoeffs 2 (- order)))
-	 (bw (basis-spline order nbreak))
+	 (bw (make-basis-spline order nbreak))
 	 (mw (fit-workspace ndata ncoeffs))
 	 (rng (random-number-generator *mt19937* 0))
 	 (B (make-array* 'double-float :dimensions ncoeffs))
