@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-21 21:35:42EST gsl-objects.lisp>
+;; Time-stamp: <2008-12-23 19:30:28EST gsl-objects.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,14 +12,16 @@
 
 (defmacro defmobject
     (class prefix allocation-args description docstring
-     &optional initialize-suffix initialize-args)
-  (let ((mptr (make-symbol "MPOINTER"))
-	(maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
-	(cl-alloc-args
-	 (variables-used-in-c-arguments allocation-args))
-	(cl-initialize-args
-	 (variables-used-in-c-arguments initialize-args))
-	(settingp (make-symbol "SETTINGP")))
+     &optional initialize-suffix initialize-args arglists-function)
+  (let* ((settingp (make-symbol "SETTINGP"))
+	 (arglists
+	  (when arglists-function
+	    (funcall (coerce arglists-function 'function) settingp)))
+	 (mptr (make-symbol "MPOINTER"))
+	 (maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
+	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
+	 (cl-initialize-args
+	  (variables-used-in-c-arguments initialize-args)))
     `(progn
        (defclass ,class (mobject)
 	 ()
@@ -53,21 +55,29 @@
 
        (export ',maker)
        (defun ,maker
-	   (,@cl-alloc-args
-	    ,@(when initialize-suffix
-		    (append
-		     (list '&optional
-			   (list (first cl-initialize-args) nil settingp))
-		     (rest cl-initialize-args))))
+	   ,(if arglists
+		(first arglists)
+		`(,@cl-alloc-args
+		  ,@(when initialize-suffix
+			  (append
+			   (list '&optional
+				 (list (first cl-initialize-args) nil settingp))
+			   (rest cl-initialize-args)))))
 	 ,(format nil "Create the GSL object representing a ~a (class ~a).~&~a"
 		  description class docstring)
 	 (let ((object
-		(make-instance ',class ,@(symbol-keyword-symbol cl-alloc-args))))
+		(make-instance
+		 ',class
+		 ,@(if arglists
+		       (second arglists)
+		       (symbol-keyword-symbol cl-alloc-args)))))
 	   ,@(when initialize-suffix
 		   `((when ,settingp
 		       (reinitialize-instance
 			object
-			,@(symbol-keyword-symbol cl-initialize-args)))))
+			,@(if arglists
+			      (third arglists)
+			      (symbol-keyword-symbol cl-initialize-args))))))
 	   object)))))
 
 (defun symbol-keyword-symbol (symbol)

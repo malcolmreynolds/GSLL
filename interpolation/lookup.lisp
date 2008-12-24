@@ -1,11 +1,21 @@
 ;; Index lookup and acceleration
 ;; Liam Healy, Sun Nov  4 2007 - 18:09
-;; Time-stamp: <2008-08-23 11:03:01EDT lookup.lisp>
+;; Time-stamp: <2008-12-21 22:20:36EST lookup.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defgo-s (acceleration) allocate-acceleration free-acceleration nil 0)
+
+#|
+(defmobject acceleration "gsl_interp_accel"
+  ()
+  "acceleration for interpolation"			; FDL
+  "Allocate an accelerator object, which is a
+   kind of iterator for interpolation lookups.  It tracks the state of
+   lookups, thus allowing for application of various acceleration
+   strategies.")
+|#
 
 (defmfun interpolation-search (x-array x low-index high-index)
   "gsl_interp_bsearch"

@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-12-14 19:36:08EST defmfun.lisp>
+;; Time-stamp: <2008-12-21 22:50:20EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -504,7 +504,8 @@
   (remove-duplicates
    (mapcan (lambda (carg)
 	     (stupid-code-walk-find-variables (st-symbol carg)))
-	   c-arguments)))
+	   c-arguments)
+   :from-end t))
 
 (defun native-pointer (array-symbols body)
   "Wrap the body with a form that obtains the native pointer
