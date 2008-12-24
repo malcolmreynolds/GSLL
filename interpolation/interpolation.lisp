@@ -1,6 +1,6 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2008-12-23 21:18:01EST interpolation.lisp>
+;; Time-stamp: <2008-12-23 21:42:31EST interpolation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -65,6 +65,19 @@
   :index (letm interpolation)
   :documentation			; FDL
   "Frees the interpolation object interp.")
+
+#|
+(defmobject spline "gsl_spline"
+  ((type :pointer) (size sizet))
+  "spline"			; FDL
+  "Make an interpolation object of type for size data-points."
+  "init"
+  (((c-pointer xa) :pointer) ((c-pointer ya) :pointer) ((dim0 xa) sizet))
+  (lambda (set)
+  `((type &optional xa-or-size (ya nil ,set))
+    (:type type :size (if ,set (dim0 ya) xa-or-size))
+    (:xa xa-or-size :ya ya))))
+|#
 
 (defgo spline (type xa-or-size &optional ya)
   (list

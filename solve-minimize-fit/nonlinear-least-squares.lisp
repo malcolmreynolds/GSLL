@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-11-30 23:31:40EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-12-23 22:32:19EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,6 +11,15 @@
 
 ;;; Note that there are currently no derivative-free solvers provided,
 ;;; so this is a bit pointless.
+
+#|
+(defmobject nonlinear-ffit "gsl_multifit_fsolver"
+  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
+  "nonlinear least squares fit with function only"			; FDL
+  "The number of observations must be greater than or equal to parameters."
+  "set"
+  ((function :pointer) ((mpointer initial-guess) :pointer)))
+|#
 
 (defgo-s (nonlinear-ffit solver-type number-of-observations number-of-parameters
 			 function initial-guess)
@@ -52,6 +61,16 @@
 ;;;;****************************************************************************
 ;;;; Function and derivative solver object
 ;;;;****************************************************************************
+
+#|
+(defmobject nonlinear-fdffit "gsl_multifit_fsolver"
+  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
+  "nonlinear least squares fit with function and derivative"			; FDL
+  "The number of observations must be greater than or
+   equal to parameters."
+  "set"
+  ((function :pointer) ((mpointer initial-guess) :pointer)))
+|#
 
 (defgo-s (nonlinear-fdffit solver-type number-of-observations number-of-parameters
 			   functions initial-guess)
