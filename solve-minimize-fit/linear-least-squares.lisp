@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-12-07 19:04:02EST linear-least-squares.lisp>
+;; Time-stamp: <2008-12-25 10:35:32EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -128,6 +128,14 @@
 ;;;;****************************************************************************
 ;;;; Multiparameter fitting
 ;;;;****************************************************************************
+
+#|
+(defmobject fit-workspace
+    "gsl_multifit_linear"
+  ((number-of-observations sizet) (number-of-parameters sizet))
+  "multi-dimensional root solver with function only"
+  "Make a workspace for a multidimensional linear least-squares fit.")
+|#
 
 (defgo-s (fit-workspace number-of-observations number-of-parameters)
 	 allocate-fit-workspace free-fit-workspace nil 2)

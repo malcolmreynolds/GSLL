@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-11-30 23:37:31EST eigensystems.lisp>
+;; Time-stamp: <2008-12-25 11:28:44EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,6 +8,15 @@
 ;;;;****************************************************************************
 ;;;; Workspace 
 ;;;;****************************************************************************
+
+#|
+(defmobject eigen-symm
+    "gsl_eigen_symm" ((n sizet))
+    "symmetric eigenvalue workspace"	; FDL
+    "Make a workspace for computing eigenvalues of
+  n-by-n real symmetric matrices.  The size of the workspace
+  is O(2n).")
+|#
 
 (defgo-s (eigen-symm n) eigen-symm-alloc eigen-symm-free)
 
@@ -29,6 +38,15 @@
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
 
+#|
+(defmobject eigen-symmv
+    "gsl_eigen_symmv" ((n sizet))
+    "symmetric eigensystem workspace"	; FDL
+    "Make a workspace for computing eigenvalues and
+  eigenvectors of n-by-n real symmetric matrices.  The size of
+  the workspace is O(4n).")
+|#
+
 (defgo-s (eigen-symmv n) eigen-symmv-alloc eigen-symmv-free)
 
 (defmfun eigen-symmv-alloc (n)
@@ -48,6 +66,15 @@
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
 
+#|
+(defmobject eigen-herm
+    "gsl_eigen_herm" ((n sizet))
+    "Hermitian eigenvalue workspace"	; FDL
+    "Make a workspace for computing eigenvalues of
+  n-by-n complex Hermitian matrices.  The size of the workspace
+  is O(3n).")
+|#
+
 (defgo-s (eigen-herm n) eigen-herm-alloc eigen-herm-free)
 
 (defmfun eigen-herm-alloc (n)
@@ -63,6 +90,15 @@
   :c-return :void
   :documentation			; FDL
   "Free the memory associated with the workspace w.")
+
+#|
+(defmobject eigen-hermv
+    "gsl_eigen_hermv" ((n sizet))
+    "Hermitian eigensystem workspace"	; FDL
+    "Make a workspace for computing eigenvalues and
+  eigenvectors of n-by-n complex hermitian matrices.  The size of
+  the workspace is O(5n).")
+|#
 
 (defgo-s (eigen-hermv n) eigen-hermv-alloc eigen-hermv-free)
 

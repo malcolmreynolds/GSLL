@@ -1,61 +1,19 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-12-22 18:55:05EST quasi.lisp>
+;; Time-stamp: <2008-12-25 14:28:57EST quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defclass quasi-random-number-generator (gsl-random)
-  ((dimension :initarg :dimension :accessor qr-dimension))
-  (:documentation "A generator of quasi-random numbers."))
-
-(defparameter *default-quasi-random-number-generator* nil)
-
-(defgo-s (quasi-random-number-generator dimension type)
-	 make-quasi-random-number-generator free nil 2)
-
-(defun make-quasi-random-number-generator 
-    (dimension
-     &optional (type *default-quasi-random-number-generator*)
-     (generator t))
-  "Make a random number generator; by default it is allocated on creation."
-  (let ((instance
-	 (make-instance
-	  'quasi-random-number-generator
-	  :type type
-	  :dimension dimension
-	  :generator generator)))
-    (if (eq generator t) (alloc instance) instance)))
-
-(defmfun alloc ((generator quasi-random-number-generator))
-  "gsl_qrng_alloc"
-  (((rng-type generator) :pointer) ((qr-dimension generator) :uint))
-  :definition :method
-  :c-return (ptr :pointer)
-  :return ((progn (setf (generator generator) ptr) generator))
-  :documentation			; FDL 
-  "Instatiate a random number generator of specified type.
-   For example, create an instance of the Tausworthe
-   generator: (rng-alloc *taus*).
-   The generator is automatically initialized with the default seed,
-   *default-seed*.  This is zero by default but can be changed
-   either directly or by using the environment variable GSL_RNG_SEED.")
-
-(defmfun free ((generator quasi-random-number-generator))
-  "gsl_qrng_free" (((generator generator) :pointer))
-  :definition :method
-  :c-return :void
-  :after ((setf (generator generator) nil))
-  :documentation			; FDL
-  "Free all the memory associated with the generator.")
-
-(defmfun initialize (generator)
-  "gsl_qrng_init" (((generator generator) :pointer))
-  :c-return :void
-  :documentation			; FDL
-  "Reinitializes the generator q to its starting point.
+(defmobject quasi-random-number-generator
+    "gsl_qrng"
+  ((rng-type :pointer) (dimension :uint))
+  "quasi random number generator"		; FDL
+  "Make and optionally initialize the generator q to its starting point.
    Note that quasi-random sequences do not use a seed and always produce
-   the same set of values.")
+   the same set of values."
+  "init"
+  nil)
 
 (defmfun qrng-get (generator return-vector)
   "gsl_qrng_get"
@@ -64,7 +22,7 @@
   :return (return-vector)
   :documentation			; FDL
   "Store the next point from the sequence generator q
-   in the array.  The space available fopr it must match the
+   in the array.  The space available for it must match the
    dimension of the generator.  The point will lie in the range
    0 < x_i < 1 for each x_i.")
 
@@ -98,10 +56,11 @@
    pre-existing generator dest, making dest into an exact copy
    of src.  The two generators must be of the same type.")
 
-(defmfun clone-generator ((instance quasi-random-number-generator))
+;;; This returns a bare C pointer, which isn't too useful.
+(defmfun clone ((instance quasi-random-number-generator))
   "gsl_qrng_clone" (((generator instance) :pointer))
-  :c-return :pointer
   :definition :method
+  :c-return :pointer
   :documentation			; FDL
   "Create a new generator which is an exact copy of the original.
    Don't use; use #'make-random-number-generator, #'copy instead.")
@@ -112,10 +71,6 @@
      ACM Trans. Model. Comp. Sim. 2, 195 (1992). It is
      valid up to 12 dimensions."
   "gsl_qrng_niederreiter_2")
-
-(eval-when (:load-toplevel :execute)
- (setf *default-quasi-random-number-generator*
-       (make-quasi-random-number-generator 2 *niederreiter2*)))
 
 (def-rng-type *sobol*
     ;; FDL

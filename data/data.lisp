@@ -1,7 +1,7 @@
 ;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
 ;; combinations, or histograms.
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-21 17:58:34EST data.lisp>
+;; Time-stamp: <2008-12-25 09:40:55EST data.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -65,6 +65,17 @@
   (print-unreadable-object (object stream :type t) 
     #-native (copy-c-to-cl object)
     (princ (cl-array object) stream)))
+
+(defmethod make-load-form ((object gsl-data) &optional env)
+  (declare (ignore env))
+  `(make-array*
+    ',(element-type object)
+    :initial-contents
+    ',(loop for elt across
+	   (subseq (original-array object)
+		   (offset object)
+		   (+ (offset object) (total-size object)))
+	   collect elt)))
 
 (defun dim0 (object)
   "The first dimension of the object."

@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2008-11-16 18:57:24EST interface.lisp>
+;; Time-stamp: <2008-12-25 14:11:57EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -126,10 +126,11 @@
 ;;;; Variables in library
 ;;;;****************************************************************************
 
-(defmacro defmpar (cl-symbol gsl-symbol documentation)
+(defmacro defmpar
+    (cl-symbol gsl-symbol documentation &optional (c-type :pointer) (read-only t))
   "Define a library variable pointer."
   `(progn
-    (cffi:defcvar (,gsl-symbol ,cl-symbol :read-only t) :pointer
+    (cffi:defcvar (,gsl-symbol ,cl-symbol :read-only ,read-only) ,c-type
       ,documentation)
     (map-name ',cl-symbol ,gsl-symbol)
     (export ',cl-symbol)))

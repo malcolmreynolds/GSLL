@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-06 16:08:23EST polynomial.lisp>
+;; Time-stamp: <2008-12-25 10:01:23EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -119,6 +119,13 @@
 ;;;;****************************************************************************
 ;;;; General Polynomial Equations
 ;;;;****************************************************************************
+
+#|
+(defmobject polynomial-complex-workspace "gsl_poly_complex_workspace"
+  ((n sizet))
+  "complex workspace for polynomials")
+|#
+
 
 (defgo-s (complex-workspace n)
 	 allocate-complex-workspace free-complex-workspace)

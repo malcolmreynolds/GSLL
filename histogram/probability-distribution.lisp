@@ -1,113 +1,54 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
-;; Time-stamp: <2008-11-16 13:26:02EST probability-distribution.lisp>
+;; Time-stamp: <2008-12-25 13:06:55EST probability-distribution.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defclass histogram-pdf ()
-  ((pointer
-    :initarg :pointer :accessor mpointer
-    :documentation
-    "A C pointer to the GSL representation of the histogram.")
-   (number-of-bins :initarg :number-of-bins :accessor number-of-bins))
-  (:documentation
-   "A histogram, including bin boundaries and bin contents."))
+;; /usr/include/gsl/gsl_histogram.h
+;; /usr/include/gsl/gsl_histogram2d.h
 
-(defmfun alloc-1 (object)
-  "gsl_histogram_pdf_alloc"
-  (((number-of-bins object) sizet))
-  :export nil
-  :index alloc
-  :c-return (cr :pointer)
-  :return ((assign-pointer object cr)))
-
-(defmfun alloc-2 (object)
-  "gsl_histogram2d_pdf_alloc"
-  (((number-of-bins object) sizet))
-  :export nil
-  :index alloc
-  :c-return (cr :pointer)
-  :return ((assign-pointer object cr)))
-
-(defmethod alloc ((object histogram-pdf))
-  (histo-1d2d object alloc))
-
-(defmfun free-1 (object)
-  "gsl_histogram_pdf_free"
-  (((mpointer object) :pointer))
-  :export nil
-  :index free
-  :c-return :void)
-
-(defmfun free-2 (object)
-  "gsl_histogram2d_pdf_free"
-  (((mpointer object) :pointer))
-  :export nil
-  :index free
-  :c-return :void)
-
-(defmethod free ((object histogram-pdf))
-  (histo-1d2d object free))
-
-(defmfun pdf-init-1 (pdf histogram)
-  "gsl_histogram_pdf_init"
-  (((mpointer pdf) :pointer) ((mpointer histogram) :pointer))
-  :return ()
-  :export nil
-  :index pdf-init
-  :documentation			; FDL
-  "Initialize the probability distribution pdf with the contents
-   of the histogram.  If any of the bins are negative then an
-   input-domain error is signalled because a probability distribution
-   cannot contain negative values.")
-
-(defmfun pdf-init-2 (pdf histogram)
-  "gsl_histogram2d_pdf_init"
-  (((mpointer pdf) :pointer) ((mpointer histogram) :pointer))
-  :return ()
-  :export nil
-  :index pdf-init
-  :documentation			; FDL
-  "Initialize the probability distribution pdf with the contents
-   of the histogram.  If any of the bins are negative then an
-   input-domain error is signalled because a probability distribution
-   cannot contain negative values.")
-
-(export 'pdf-init)
-(defun pdf-init (pdf histogram)		; FDL
-  "Initialize the probability distribution pdf with the contents
+(defmobject histogram-pdf
+    "gsl_histogram_pdf"
+  ((number-of-bins sizet))
+  "one-dimensional histogram PDF"
+  "Optionally initialize the probability distribution pdf with the contents
    of the histogram.  If any of the bins are negative then an
    input-domain error is signalled because a probability distribution
    cannot contain negative values."
-  (histo-1d2d pdf pdf-init (histogram)))
+  "init"
+  (((mpointer histogram) :pointer)))
 
-(defmfun sample-1 (pdf value)
-  "gsl_histogram_pdf_sample"
-  (((mpointer pdf) :pointer) (value :double))
-  :c-return :double
-  :export nil
-  :index sample
-  :documentation			; FDL
-  "Given a uniform random number between zero and one,
+(defmobject histogram2d-pdf
+    "gsl_histogram2d_pdf"
+  ((number-of-bins-x sizet) (number-of-bins-y sizet))
+  "two-dimensional histogram PDF"
+  "Optionally initialize the probability distribution pdf with the contents
+   of the histogram.  If any of the bins are negative then an
+   input-domain error is signalled because a probability distribution
+   cannot contain negative values."
+  "init"
+  (((mpointer histogram) :pointer)))
+
+(export 'sample)
+(defgeneric sample (pdf value)
+  (:documentation ;; FDL
+   "Given a uniform random number between zero and one,
    compute a single random sample from the probability distribution
    'pdf.  The algorithm used to compute the sample s is given by
    s = range[i] + delta * (range[i+1] - range[i])
    where i is the index which satisfies 
    sum[i] <=  r < sum[i+1] and delta is 
-   (r - sum[i])/(sum[i+1] - sum[i]).")
+   (r - sum[i])/(sum[i+1] - sum[i])."))
+
+(defmfun sample ((pdf histogram-pdf) value)
+  "gsl_histogram_pdf_sample"
+  (((mpointer pdf) :pointer) (value :double))
+  :definition :method
+  :c-return :double)
 
 (defmfun sample-2 (pdf value)
   "gsl_histogram2d_pdf_sample"
   (((mpointer pdf) :pointer) (value :double))
-  :c-return :double
-  :export nil
-  :index sample
-  :documentation			; FDL
-  "Given a uniform random number between zero and one,
-   compute a single random sample from the probability distribution
-   'pdf.  The algorithm used to compute the sample s is given by
-   s = range[i] + delta * (range[i+1] - range[i])
-   where i is the index which satisfies
-   sum[i] <=  r < sum[i+1] and delta is 
-   (r - sum[i])/(sum[i+1] - sum[i]).")
+  :definition :method
+  :c-return :double)

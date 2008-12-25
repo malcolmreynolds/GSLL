@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-23 19:30:28EST gsl-objects.lisp>
+;; Time-stamp: <2008-12-25 12:03:18EST gsl-objects.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,8 +11,14 @@
 	     :documentation "A pointer to the GSL representation of the object.")))
 
 (defmacro defmobject
-    (class prefix allocation-args description docstring
-     &optional initialize-suffix initialize-args arglists-function)
+    (class prefix allocation-args description 
+     &optional docstring initialize-suffix initialize-args arglists-function
+     inputs)
+  "Define the class, initialize-instance and reinitialize-instance methods,
+   and the make-* function for the GSL object."
+  ;; If prefix is a list, the first is the actual prefix, and the
+  ;; second is the name of the allocateor.  I'm looking at you,
+  ;; discrete-random.  Grrr.
   (let* ((settingp (make-symbol "SETTINGP"))
 	 (arglists
 	  (when arglists-function
@@ -21,7 +27,8 @@
 	 (maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
 	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
 	 (cl-initialize-args
-	  (variables-used-in-c-arguments initialize-args)))
+	  (variables-used-in-c-arguments initialize-args))
+	 (realprefix (if (listp prefix) (first prefix) prefix)))
     `(progn
        (defclass ,class (mobject)
 	 ()
@@ -29,7 +36,7 @@
 	  ,(format nil "The GSL representation of the ~a." description)))
 
        (defmfun initialize-instance ((object ,class) &key ,@cl-alloc-args)
-	 ,(format nil "~a_alloc" prefix)
+	 ,(if (listp prefix) (second prefix) (format nil "~a_alloc" prefix))
 	 ,allocation-args
 	 :definition :method
 	 :qualifier :after
@@ -38,18 +45,23 @@
 		 (tg:finalize
 		  object
 		  (lambda ()
-		    (foreign-funcall ,(format nil "~a_free" prefix) :pointer ,mptr :void))))
+		    (foreign-funcall ,(format nil "~a_free" realprefix)
+		     :pointer ,mptr :void))))
 	 :return (object)
 	 :export nil
 	 :index ,maker)
 
        ,@(when initialize-suffix
-	       `((defmfun reinitialize-instance ((object ,class) &key ,@cl-initialize-args)
-		   ,(format nil "~a_~a" prefix initialize-suffix)
+	       `((defmfun reinitialize-instance
+		     ,(if initialize-args
+			  `((object ,class) &key ,@cl-initialize-args)
+			  `((object ,class)))
+		   ,(format nil "~a_~a" realprefix initialize-suffix)
 		   (((mpointer object) :pointer) ,@initialize-args)
 		   :definition :method
 		   :qualifier :after
 		   :return (object)
+		   ,@(when inputs `(:inputs ,inputs))
 		   :export nil
 		   :index (reinitialize-instance ,class))))
 
@@ -58,12 +70,12 @@
 	   ,(if arglists
 		(first arglists)
 		`(,@cl-alloc-args
-		  ,@(when initialize-suffix
+		  ,@(when initialize-args
 			  (append
 			   (list '&optional
 				 (list (first cl-initialize-args) nil settingp))
 			   (rest cl-initialize-args)))))
-	 ,(format nil "Create the GSL object representing a ~a (class ~a).~&~a"
+	 ,(format nil "Create the GSL object representing a ~a (class ~a).~@[~&~a~]"
 		  description class docstring)
 	 (let ((object
 		(make-instance
@@ -71,13 +83,16 @@
 		 ,@(if arglists
 		       (second arglists)
 		       (symbol-keyword-symbol cl-alloc-args)))))
+	   ;; There is an initialization step
 	   ,@(when initialize-suffix
-		   `((when ,settingp
-		       (reinitialize-instance
-			object
-			,@(if arglists
-			      (third arglists)
-			      (symbol-keyword-symbol cl-initialize-args))))))
+		   (if initialize-args	; with arguments
+		       `((when ,settingp
+			   (reinitialize-instance
+			    object
+			    ,@(if arglists
+				  (third arglists)
+				  (symbol-keyword-symbol cl-initialize-args)))))
+		       '((reinitialize-instance object)))) ; without arguments
 	   object)))))
 
 (defun symbol-keyword-symbol (symbol)

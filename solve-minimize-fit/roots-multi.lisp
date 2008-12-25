@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-12-07 19:09:04EST roots-multi.lisp>
+;;; Time-stamp: <2008-12-25 12:04:09EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -36,6 +36,42 @@
 ;;;;****************************************************************************
 ;;;; Initialization
 ;;;;****************************************************************************
+
+#|
+(defmobject multi-dimensional-root-solver-f "gsl_multiroot_fsolver"
+  ((type :pointer) (dimension sizet))
+  "multi-dimensional root solver with function only"			; FDL
+  "Make an instance of a solver of the type specified for a system of
+   the specified number of dimensions.  Optionally
+   set or reset an existing solver to use the function and the
+   initial guess gsl-vector."
+  "set"
+  ((function :pointer) ((mpointer initial) :pointer))
+  (lambda (set)
+  `((type &optional function-or-dimension (initial ,set))
+    (:type type
+     :dimension
+     (if ,set (dim0 initial) function-or-dimension))
+    (:function function-or-dimension :initial initial)))
+  (initial))
+
+(defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
+  ((type :pointer) (dimension sizet))
+  "multi-dimensional root solver with function and derivative"			; FDL
+  "Make an instance of a derivative solver of the type specified for
+   a system of the specified number of dimensions.  Optionally
+   set or reset an existing solver to use the function and derivative
+   (fdf) and the initial guess."
+  "set"
+  ((function-derivative :pointer) ((mpointer initial) :pointer))
+  (lambda (set)
+  `((type &optional function-or-dimension (initial ,set))
+    (:type type
+     :dimension
+     (if ,set (dim0 initial) function-or-dimension))
+    (:function function-or-dimension :initial initial)))
+  (initial))
+|#
 
 (defgo mfsolver (type function-derivative initial)
   (list

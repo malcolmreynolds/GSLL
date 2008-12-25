@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-11-30 23:04:24EST monte-carlo.lisp>
+;; Time-stamp: <2008-12-25 11:42:39EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,6 +12,16 @@
 (cffi:defcstruct plain-state
   (dim sizet)
   (x :pointer))
+
+#|
+(defmobject monte-carlo-plain
+    "gsl_monte_plain"
+  ((dim sizet))
+  "plain Monte Carlo integration"				; FDL
+  "Make and initialize a workspace for Monte Carlo integration in dim dimensions."
+  "init"
+  nil)
+|#
 
 (defgo-s (monte-carlo-plain dim) monte-carlo-plain-alloc monte-carlo-plain-free)
 
@@ -96,6 +106,18 @@
   (fsum2-r :pointer)
   (hits-l :pointer)
   (hits-r :pointer))
+
+#|
+(defmobject monte-carlo-miser
+    "gsl_monte_miser"
+  ((dim sizet))
+  "miser Monte Carlo integration"				; FDL
+  "Make and initialize a workspace for Monte Carlo integration in
+   dim dimensions.  The workspace is used to maintain
+   the state of the integration."
+  "init"
+  nil)
+|#
 
 (defgo-s (monte-carlo-miser dim) monte-carlo-miser-alloc monte-carlo-miser-free)
 
@@ -200,6 +222,18 @@
   (samples :uint)
   (calls-per-box :uint)
   (ostream :pointer))
+
+#|
+(defmobject monte-carlo-vegas
+    "gsl_monte_vegas"
+  ((dim sizet))
+  "vegas Monte Carlo integration"				; FDL
+  "Make and initialize a workspace for Monte Carlo integration in
+   dim dimensions.  The workspace is used to maintain
+   the state of the integration.  Returns a pointer to vegas-state."
+  "init"
+  nil)
+|#
 
 (defgo-s (monte-carlo-vegas dim) monte-carlo-vegas-alloc monte-carlo-vegas-free)
 

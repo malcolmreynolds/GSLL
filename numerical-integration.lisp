@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-12-07 18:51:13EST numerical-integration.lisp>
+;; Time-stamp: <2008-12-25 11:22:57EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -35,6 +35,14 @@
 ;;;;****************************************************************************
 ;;;; QAG adaptive Gauss-Kronrod integration
 ;;;;****************************************************************************
+
+#|
+(defmobject integration-workspace
+    "gsl_integration_workspace" ((size sizet))
+    "integration workspace"		; FDL
+    "Make a workspace sufficient to hold n double
+  precision intervals, their integration results and error estimates.")
+|#
 
 (defgo-s (integration-workspace size)
 	 integration-workspace-alloc integration-workspace-free)

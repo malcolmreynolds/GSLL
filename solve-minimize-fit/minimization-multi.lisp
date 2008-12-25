@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-07 19:09:05EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-25 10:32:16EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -47,6 +47,39 @@
 ;;;;****************************************************************************
 ;;;; Initialization
 ;;;;****************************************************************************
+
+#|
+(defmobject multi-dimensional-minimizer-f
+    "gsl_multimin_fminimizer"
+  ((type :pointer) (dimension sizet))
+  "multi-dimensional minimizer with function only" ; FDL
+  "Make an instance of a minimizer of the given for an function of the
+   given dimensions.  Optionally initialize the minimizer to minimize
+   the function starting from the initial point.  The size of the
+   initial trial steps is given in vector step-size. The precise
+   meaning of this parameter depends on the method used."
+  "set"
+  ((function :pointer) ((mpointer initial) :pointer)
+   ((mpointer step-size) :pointer)))
+
+(defmobject multi-dimensional-minimizer-fdf
+    "gsl_multimin_fdfminimizer"
+  ((type :pointer) (dimension sizet))
+  "multi-dimensional minimizer with function and derivative" ; FDL
+  "Make an instance of a derivative-based minimizer of the given for
+   an function of the given dimensions.  Optionally initialize the
+   minimizer to minimize the function starting from the initial point.
+   The size of the first trial step is given by step-size.  The
+   accuracy of the line minimization is specified by tolernace.  The
+   precise meaning of this parameter depends on the method used.
+   Typically the line minimization is considered successful if the
+   gradient of the function g is orthogonal to the current search
+   direction p to a relative accuracy of tolerance, where dot(p,g) <
+   tol |p| |g|."
+  "set"
+  ((function-derivative :pointer) ((mpointer initial) :pointer)
+   (step-size :double) (tolerance :double)))
+|#
 
 ;;; Could have one fewer argument: dimension=(dim0 initial)
 (defgo-s (mfminimizer type dimension function intial step-size)

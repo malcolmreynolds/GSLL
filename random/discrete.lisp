@@ -1,9 +1,22 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-11-30 23:13:24EST discrete.lisp>
+;; Time-stamp: <2008-12-25 11:55:10EST discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+#|
+(defmobject discrete-random
+    ("gsl_ran_discrete" "gsl_ran_discrete_preproc")
+  (((dim0 probabilities) sizet) ((c-pointer probabilities) :pointer))
+  "lookup table for the discrete random number generator" ; FDL
+  "Make a structure that contains the lookup
+  table for the discrete random number generator.  The array probabilities contains
+  the probabilities of the discrete events; these array elements must all be 
+  positive, but they needn't add up to one (so you can think of them more
+  generally as ``weights'')---the preprocessor will normalize appropriately.
+  This return value is used as an argument to #'discrete.")
+|#
 
 (defgo-s (discrete-random probabilities) discrete-preprocess discrete-free)
 

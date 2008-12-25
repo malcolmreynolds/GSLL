@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-11-16 14:25:08EST minimization-one.lisp>
+;; Time-stamp: <2008-12-25 10:22:13EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,6 +8,19 @@
 ;;;;****************************************************************************
 ;;;; Initialization
 ;;;;****************************************************************************
+
+#|
+;; The one-dimensional minimizer uses a function (no derivative) only.
+(defmobject one-dimensional-minimizer
+    "gsl_min_fminimizer"
+  ((type :pointer))
+  "one-dimensional minimizer" ; FDL
+  "Make an instance of a minimizer of the given type.  Optionally
+   set to use the function and the initial search interval [lower,
+   upper], with a guess for the location of the minimum."
+  "set"
+  ((function :pointer) (minimum :double) (lower :double) (upper :double)))
+|#
 
 (defgo-s (fminimizer type function minimum lower upper)
 	 allocate-fminimizer free-fminimizer set-fminimizer)
