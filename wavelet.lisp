@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-12-07 17:52:23EST wavelet.lisp>
+;; Time-stamp: <2008-12-25 11:13:58EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,6 +19,16 @@
 ;;;;****************************************************************************
 ;;;; Allocation of wavelets
 ;;;;****************************************************************************
+
+#|
+(defmobject wavelet "gsl_wavelet"
+  ((type :pointer) (member sizet))
+  "wavelet"				; FDL
+  "Make and initialize a wavelet object of type 'type.  The
+   parameter 'member selects the specific member of the wavelet
+   family.  A memory-allocation-failure error indicates either
+   lack of memory or an unsupported member requested.")
+|#
 
 (defgo-s (wavelet type member) allocate-wavelet free-wavelet nil 2)
 
@@ -83,6 +93,19 @@
   :c-return :string
   :documentation			; FDL
   "The name of the wavelet family.")
+
+#|
+(defmobject wavelet-workspace
+  "gsl_wavelet_workspace"
+  ((size sizet))
+  "wavelet workspace"				; FDL
+  "Make a workspace for the discrete wavelet transform.
+   To perform a one-dimensional transform on size elements, a workspace
+   of size size must be provided.  For two-dimensional transforms of
+   size-by-size matrices it is sufficient to allocate a workspace of
+   size, since the transform operates on individual rows and
+   columns.")
+|#
 
 (defgo-s (wavelet-workspace size) allocate-wavelet-workspace free-wavelet-workspace)
 
