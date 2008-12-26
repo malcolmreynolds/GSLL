@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-26 12:57:02EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-26 17:21:08EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -81,16 +81,18 @@
   ((function-derivative :pointer) ((mpointer initial) :pointer)
    (step-size :double) (tolerance :double)))
 
-(defmfun mfminimizer-name (minimizer)
+(defmfun name ((minimizer multi-dimensional-minimizer-f))
   "gsl_multimin_fminimizer_name"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the minimizer.")
 
-(defmfun mfdfminimizer-name (minimizer)
+(defmfun name ((minimizer multi-dimensional-minimizer-fdf))
   "gsl_multimin_fdfminimizer_name"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the minimizer.")
@@ -101,7 +103,7 @@
 
 (defmfun iterate-mfminimizer (minimizer)
   "gsl_multimin_fminimizer_iterate"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  If the iteration
    encounters an unexpected problem then an error code will be
@@ -109,7 +111,7 @@
 
 (defmfun iterate-mfdfminimizer (minimizer)
   "gsl_multimin_fdfminimizer_iterate"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  If the iteration
    encounters an unexpected problem then an error code will be
@@ -117,7 +119,7 @@
 
 (defmfun mfminimizer-x (minimizer)
   "gsl_multimin_fminimizer_x"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -125,7 +127,7 @@
 
 (defmfun mfdfminimizer-x (minimizer)
   "gsl_multimin_fdfminimizer_x"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -133,28 +135,28 @@
 
 (defmfun mfminimizer-minimum (minimizer)
   "gsl_multimin_fminimizer_minimum"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
 (defmfun mfdfminimizer-minimum (minimizer)
   "gsl_multimin_fdfminimizer_minimum"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
 (defmfun mfminimizer-size (minimizer)
   "gsl_multimin_fminimizer_size"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "A minimizer-specific characteristic size for the minimizer.")
 
 (defmfun mfdfminimizer-gradient (minimizer)
   "gsl_multimin_fdfminimizer_gradient"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -162,7 +164,7 @@
 
 (defmfun mfdfminimizer-restart (minimizer)
   "gsl_multimin_fdfminimizer_restart"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :documentation			; FDL
   "Reset the minimizer to use the current point as a
    new starting point.")

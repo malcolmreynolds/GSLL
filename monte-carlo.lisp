@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-12-26 11:34:16EST monte-carlo.lisp>
+;; Time-stamp: <2008-12-26 17:05:48EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,6 +20,27 @@
 (cffi:defcstruct plain-state
   (dim sizet)
   (x :pointer))
+
+(defmfun monte-carlo-integrate-plain
+    (function lower-limits upper-limits calls generator state)
+  "gsl_monte_plain_integrate"
+  ((function :pointer)
+   ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
+   ((dim0 lower-limits) sizet) (calls sizet)
+   ((mpointer generator) :pointer)
+   ((mpointer state) :pointer)
+   (result :double) (abserr :double))
+  :inputs (lower-limits upper-limits)
+  :documentation			; FDL
+  "Uses the plain Monte Carlo algorithm to integrate the
+   function f over the hypercubic region defined by the
+   lower and upper limits in the arrays 'lower-limits and
+   'upper-limits, each a gsl-vector of length dim.
+   The integration uses a fixed number
+   of function calls calls, and obtains random sampling points using
+   the random number generator 'generator. A previously allocated workspace
+   'state must be supplied.  The result of the integration is returned
+   with an estimated absolute error.")
 
 ;;;;****************************************************************************
 ;;;; MISER
@@ -81,7 +102,7 @@
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
    ((dim0 lower-limits) sizet) (calls sizet)
    ((generator generator) :pointer)
-   (state :pointer)
+   ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :documentation			; FDL
@@ -165,7 +186,7 @@
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
    ((dim0 lower-limits) sizet) (calls sizet)
    ((generator generator) :pointer)
-   (state :pointer)
+   ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :documentation			; FDL
@@ -212,9 +233,9 @@
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-plain 3))
-	 (lower #m(0.0d0 0.0d0 0.0d0))
-	 (upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	 (rng (make-random-number-generator *mt19937* 0)))
+	(lower #m(0.0d0 0.0d0 0.0d0))
+	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
+	(rng (make-random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-plain monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
@@ -226,9 +247,9 @@
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-vegas 3))
-	 (lower #m(0.0d0 0.0d0 0.0d0))
-	 (upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	 (rng (make-random-number-generator *mt19937* 0)))
+	(lower #m(0.0d0 0.0d0 0.0d0))
+	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
+	(rng (make-random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-vegas monte-carlo-g lower upper nsamples rng ws)))
 
 (save-test monte-carlo

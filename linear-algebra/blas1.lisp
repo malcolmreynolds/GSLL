@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-12-26 12:22:51EST blas1.lisp>
+;; Time-stamp: <2008-12-26 16:30:16EST blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -162,7 +162,7 @@
 (defmfun modified-givens-rotation
     ((d1 vector) (d2 vector) (b1 vector) b2 (P vector))
   ("gsl_blas_" :type "rotmg")
-  (((c-pointer d1) :pointer) ((c-pointer d1) :pointer)
+  (((c-pointer d1) :pointer) ((c-pointer d2) :pointer)
    ((c-pointer b1) :pointer) (b2 :element-c-type)
    ((c-pointer P) :pointer))
   :definition :generic

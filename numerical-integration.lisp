@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-12-26 11:35:14EST numerical-integration.lisp>
+;; Time-stamp: <2008-12-26 17:02:30EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -56,7 +56,7 @@
   ((function :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
-   (limit sizet) (method integrate-method) (workspace :pointer)
+   (limit sizet) (method integrate-method) ((mpointer workspace) :pointer)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Apply an integration rule adaptively until an estimate
@@ -87,8 +87,8 @@
   "gsl_integration_qags"
   ((function :pointer)
    (a :double) (b :double)
-   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
-   (result :double) (abserr :double))
+   (absolute-error :double) (relative-error :double) (limit sizet)
+   ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
   "Apply the Gauss-Kronrod 21-point integration rule
    adaptively until an estimate of the integral of f over
@@ -112,8 +112,8 @@
   "gsl_integration_qagp"
   ((function :pointer)
    ((mpointer points) :pointer) ((dim0 points) sizet)
-   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
-   (result :double) (abserr :double))
+   (absolute-error :double) (relative-error :double) (limit sizet)
+   ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :inputs (points)
   :documentation			; FDL
   "Apply the adaptive integration algorithm QAGS taking
@@ -135,8 +135,8 @@
     (function limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagi"
   ((function :pointer)
-   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
-   (result :double) (abserr :double))
+   (absolute-error :double) (relative-error :double) (limit sizet)
+   ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the integral of the function f over the
    infinite interval (-\infty,+\infty).  The integral is mapped onto the
@@ -152,8 +152,8 @@
     (function a limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagiu"
   ((function :pointer) (a :double)
-   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
-   (result :double) (abserr :double))
+   (absolute-error :double) (relative-error :double) (limit sizet)
+   ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the integral of the function f over the
    semi-infinite interval (a,+\infty).  The integral is mapped onto the
@@ -165,8 +165,8 @@
     (function b limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
   "gsl_integration_qagil"
   ((function :pointer) (b :double)
-   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
-   (result :double) (abserr :double))
+   (absolute-error :double) (relative-error :double) (limit sizet)
+   ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the integral of the function f over the
    semi-infinite interval (-\infty,b).  The integral is mapped onto the
@@ -184,8 +184,8 @@
   "gsl_integration_qawc"
   ((function :pointer)
    (a :double) (b :double) (c :double)
-   (absolute-error :double) (relative-error :double) (limit sizet) (workspace :pointer)
-   (result :double) (abserr :double))
+   (absolute-error :double) (relative-error :double) (limit sizet)
+   ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the Cauchy principal value of the integral of
    f over (a,b), with a singularity at c,

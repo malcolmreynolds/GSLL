@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-12-26 12:56:25EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 17:17:06EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,9 +19,10 @@
   "set"
   ((function :pointer) ((mpointer initial-guess) :pointer)))
 
-(defmfun name-ffit (solver)
+(defmfun name ((solver nonlinear-ffit))
   "gsl_multifit_fsolver_name"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the solver type.")
@@ -38,9 +39,10 @@
   "set"
   ((function :pointer) ((mpointer initial-guess) :pointer)))
 
-(defmfun name-fdffit (solver)
+(defmfun name ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_name"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the solver type.")
@@ -110,21 +112,21 @@
 
 (defmfun iterate-ffit (solver)
   "gsl_multifit_fsolver_iterate"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The solver maintains a
    current estimate of the best-fit parameters at all times. ")
 
 (defmfun iterate-fdffit (solver)
   "gsl_multifit_fdfsolver_iterate"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The solver maintains a
    current estimate of the best-fit parameters at all times. ")
 
 (defmfun current-parameters-ffit (solver)
   "gsl_multifit_fsolver_position"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -132,7 +134,7 @@
 
 (defmfun current-parameters-fdffit (solver)
   "gsl_multifit_fdfsolver_position"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL

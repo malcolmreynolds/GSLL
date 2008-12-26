@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-12-26 11:21:25EST chebyshev.lisp>
+;; Time-stamp: <2008-12-26 16:43:37EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,8 +26,8 @@
 
 (defmfun evaluate-chebyshev (chebyshev x &optional order)
   ("gsl_cheb_eval" "gsl_cheb_eval_n")
-  (((chebyshev :pointer) (x :double))
-  ((chebyshev :pointer) (order sizet) (x :double)))
+  ((((mpointer chebyshev) :pointer) (x :double))
+   (((mpointer chebyshev) :pointer) (order sizet) (x :double)))
   :c-return :double
   :documentation			; FDL
   "Evaluate the Chebyshev series at a point x.  If order is supplied,
@@ -35,8 +35,10 @@
 
 (defmfun evaluate-chebyshev-error (chebyshev x &optional order)
   ("gsl_cheb_eval_err" "gsl_cheb_eval_n_err")
-  (((chebyshev :pointer) (x :double) (result :double) (abserr :double))
-   ((chebyshev :pointer) (order sizet) (x :double) (result :double) (abserr :double)))
+  ((((mpointer chebyshev) :pointer) (x :double) (result :double)
+    (abserr :double))
+   (((mpointer chebyshev) :pointer) (order sizet) (x :double)
+    (result :double) (abserr :double)))
   :documentation			; FDL
   "Evaluate the Chebyshev series at a point x, returning result and
    an estimate of its absolute error.  If order is supplied,
@@ -48,7 +50,7 @@
 
 (defmfun derivative-chebyshev (derivative chebyshev)
   "gsl_cheb_calc_deriv"
-  ((derivative :pointer) (chebyshev :pointer))
+  ((derivative :pointer) ((mpointer chebyshev) :pointer))
   :documentation			; FDL
   "Compute the derivative of the Chebyshev series, storing
    the derivative coefficients in the previously allocated series.
@@ -56,7 +58,7 @@
 
 (defmfun integral-chebyshev (integral chebyshev)
   "gsl_cheb_calc_integ"
-  ((integral :pointer) (chebyshev :pointer))
+  ((integral :pointer) ((mpointer chebyshev) :pointer))
   :documentation			; FDL
   "Compute the integral of the Chebyshev series, storing
    the integral coefficients in the previously allocated series.

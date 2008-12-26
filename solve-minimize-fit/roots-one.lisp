@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-12-26 12:11:19EST roots-one.lisp>
+;; Time-stamp: <2008-12-26 17:13:52EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,16 +58,18 @@
   "set"
   ((function-derivative :pointer) (root-guess :double)))
 
-(defmfun fsolver-name (solver)
+(defmfun name ((solver one-dimensional-root-solver-f))
   "gsl_root_fsolver_name"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the solver.")
 
-(defmfun fdfsolver-name (solver)
+(defmfun name ((solver one-dimensional-root-solver-fdf))
   "gsl_root_fdfsolver_name"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the solver.")
@@ -79,7 +81,7 @@
 ;; It appears that this is always returning :SUCCESS (0).
 (defmfun iterate-fsolver (solver)
   "gsl_root_fsolver_iterate"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -90,7 +92,7 @@
 
 (defmfun iterate-fdfsolver (solver)
   "gsl_root_fdfsolver_iterate"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -101,28 +103,28 @@
 
 (defmfun fsolver-root (solver)
   "gsl_root_fsolver_root"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :double
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
 (defmfun fdfsolver-root (solver)
   "gsl_root_fdfsolver_root"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :double
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
 (defmfun fsolver-lower (solver)
   "gsl_root_fsolver_x_lower"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :double
   :documentation			; FDL
   "The lower end of the current bracketing interval for the solver.")
 
 (defmfun fsolver-upper (solver)
   "gsl_root_fsolver_x_upper"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :double
   :documentation 			; FDL
   "The upper end of the current bracketing interval for the solver.")
@@ -315,20 +317,22 @@
 (defun roots-one-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50)
-	 (solver (fsolver *brent-fsolver* quadratic 0.0d0 5.0d0)))
+	(solver
+	 (make-one-dimensional-root-solver-f
+	  *brent-fsolver* quadratic 0.0d0 5.0d0)))
     (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
     (loop for iter from 0
-	  for root = (fsolver-root solver)
-	  for lower = (fsolver-lower solver)
-	  for upper = (fsolver-upper solver)
-	  do (iterate-fsolver solver)
-	  while  (and (< iter max-iter)
-		      (not (root-test-interval lower upper 0.0d0 0.001d0)))
-	  do
-	  (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
-		  iter lower upper
-		  root (- root (sqrt 5.0d0))
-		  (- upper lower)))))
+       for root = (fsolver-root solver)
+       for lower = (fsolver-lower solver)
+       for upper = (fsolver-upper solver)
+       do (iterate-fsolver solver)
+       while  (and (< iter max-iter)
+		   (not (root-test-interval lower upper 0.0d0 0.001d0)))
+       do
+       (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
+	       iter lower upper
+	       root (- root (sqrt 5.0d0))
+	       (- upper lower)))))
 
 ;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,

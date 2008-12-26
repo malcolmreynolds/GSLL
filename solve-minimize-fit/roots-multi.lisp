@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-12-26 13:28:05EST roots-multi.lisp>
+;;; Time-stamp: <2008-12-26 17:18:53EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -71,16 +71,18 @@
     (:function function-or-dimension :initial initial)))
   (initial))
 
-(defmfun mfsolver-name (solver)
+(defmfun name ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_name"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the solver.")
 
-(defmfun mfdfsolver-name (solver)
+(defmfun name ((solver multi-dimensional-root-solver-fdf))
   "gsl_multiroot_fdfsolver_name"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the solver.")
@@ -91,7 +93,7 @@
 
 (defmfun iterate-mfsolver (solver)
   "gsl_multiroot_fsolver_iterate"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -102,7 +104,7 @@
 
 (defmfun iterate-mfdfsolver (solver)
   "gsl_multiroot_fdfsolver_iterate"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -113,7 +115,7 @@
 
 (defmfun mfsolver-root (solver)
   "gsl_multiroot_fsolver_root"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -121,7 +123,7 @@
 
 (defmfun mfdfsolver-root (solver)
   "gsl_multiroot_fdfsolver_root"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation
@@ -129,7 +131,7 @@
 
 (defmfun mfsolver-f (solver)
   "gsl_multiroot_fsolver_f"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -137,7 +139,7 @@
 
 (defmfun mfdfsolver-f (solver)
   "gsl_multiroot_fdfsolver_f"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -145,7 +147,7 @@
 
 (defmfun mfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL
@@ -153,7 +155,7 @@
 
 (defmfun mfdfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
-  ((solver :pointer))
+  (((mpointer solver) :pointer))
   :c-return :pointer
   :return (:c-return)
   :documentation			; FDL

@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-12-26 11:14:06EST eigensystems.lisp>
+;; Time-stamp: <2008-12-26 17:03:39EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -45,7 +45,7 @@
   (double-float "gsl_eigen_symm"
    complex-double-float "gsl_eigen_herm")
   (((mpointer A) :pointer)
-   ((mpointer eigenvalues) :pointer) (ws :pointer))
+   ((mpointer eigenvalues) :pointer) ((mpointer ws) :pointer))
   :definition :generic
   :element-types :doubles
   :inputs (A)
@@ -65,7 +65,7 @@
   (double-float "gsl_eigen_symmv"
    complex-double-float "gsl_eigen_hermv")  
   (((mpointer A) :pointer) ((mpointer eigenvalues) :pointer)
-   ((mpointer eigenvectors) :pointer) (ws :pointer))
+   ((mpointer eigenvectors) :pointer) ((mpointer ws) :pointer))
   :definition :generic
   :element-types :doubles
   :inputs (A)

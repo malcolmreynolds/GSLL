@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-26 13:21:44EST mobject.lisp>
+;; Time-stamp: <2008-12-26 17:07:25EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -122,6 +122,10 @@
   (:documentation "Create a duplicate object.")
   (:method :around ((object mobject))
 	   (make-instance (class-of object) :mpointer (call-next-method))))
+
+(export 'name)
+(defgeneric name (object)
+  (:documentation "The name given to the GSL object."))
 
 ;;; Pointer type
 (defconstant +foreign-pointer-class+ (class-name (class-of (cffi:null-pointer)))

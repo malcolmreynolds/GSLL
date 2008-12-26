@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-26 11:10:14EST polynomial.lisp>
+;; Time-stamp: <2008-12-26 17:01:15EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -144,7 +144,7 @@
 (defmfun polynomial-solve-ws (coefficients workspace answer-pd)
   "gsl_poly_complex_solve"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
-   (workspace :pointer) ((c-pointer answer-pd) :pointer))
+   ((mpointer workspace) :pointer) ((c-pointer answer-pd) :pointer))
   :return
   ((loop for i from 0 below (dim0 answer-pd) by 2
 	 collect (complex (maref answer-pd i)

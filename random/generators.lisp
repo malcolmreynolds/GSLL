@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-12-26 11:36:03EST generators.lisp>
+;; Time-stamp: <2008-12-26 17:08:09EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -40,7 +40,7 @@
 ;;;;****************************************************************************
 
 (defmfun get-random-number (generator)
-  "gsl_rng_get" (((generator generator) :pointer))
+  "gsl_rng_get" (((mpointer generator) :pointer))
   :c-return :ulong
   :documentation			; FDL
   "Generate a random integer.  The
@@ -50,7 +50,7 @@
    functions #'rng-max and #'rng-min.")
 
 (defmfun uniform (generator)
-  "gsl_rng_uniform" (((generator generator) :pointer))
+  "gsl_rng_uniform" (((mpointer generator) :pointer))
   :c-return :double
   :documentation			; FDL
   "A double precision floating point number uniformly
@@ -63,7 +63,7 @@
    :ulong.")
 
 (defmfun uniform>0 (generator)
-  "gsl_rng_uniform_pos" (((generator generator) :pointer))
+  "gsl_rng_uniform_pos" (((mpointer generator) :pointer))
   :c-return :double
   :documentation			; FDL
   "Return a positive double precision floating point number
@@ -73,7 +73,8 @@
    this function if you need to avoid a singularity at 0.0.")
 
 (defmfun uniform-fixnum (generator upperbound)
-  "gsl_rng_uniform_int" (((generator generator) :pointer) (upperbound :ulong))
+  "gsl_rng_uniform_int"
+  (((mpointer generator) :pointer) (upperbound :ulong))
   :c-return :ulong
   :documentation			; FDL
   "Generate a random integer from 0 to upperbound-1 inclusive.
@@ -87,24 +88,19 @@
 ;;;; Information functions about instances
 ;;;;****************************************************************************
 
-(export 'rng-name)
-(defgeneric rng-name (rng-instance)
-  (:documentation			; FDL
-   "The name of the random number generator."))
-
-(defmfun rng-name ((rng-instance random-number-generator))
-  "gsl_rng_name" (((generator rng-instance) :pointer))
+(defmfun name ((rng-instance random-number-generator))
+  "gsl_rng_name" (((mpointer rng-instance) :pointer))
   :definition :method
   :c-return :string)
 
 (defmfun rng-max (rng-instance)
-  "gsl_rng_max" (((generator rng-instance) :pointer))
+  "gsl_rng_max" (((mpointer rng-instance) :pointer))
   :c-return :unsigned-long
   :documentation "The largest value that #'get-random-number
    can return.")
 
 (defmfun rng-min (rng-instance)
-  "gsl_rng_min" (((generator rng-instance) :pointer))
+  "gsl_rng_min" (((mpointer rng-instance) :pointer))
   :c-return :unsigned-long
   :documentation			; FDL
   "The smallest value that #'get-random-number
@@ -118,7 +114,7 @@
    "A pointer to the state of generator."))
 
 (defmfun rng-state ((rng-instance random-number-generator))
-  "gsl_rng_state" (((generator rng-instance) :pointer))
+  "gsl_rng_state" (((mpointer rng-instance) :pointer))
   :c-return :pointer
   :definition :method
   :index gsl-random-state)
@@ -129,7 +125,7 @@
    "The size of the generator."))
 
 (defmfun rng-size ((rng-instance random-number-generator))
-  "gsl_rng_size" (((generator rng-instance) :pointer))
+  "gsl_rng_size" (((mpointer rng-instance) :pointer))
   :c-return sizet
   :definition :method
   :index gsl-random-state)
@@ -155,7 +151,7 @@
 (defmfun copy
     ((destination random-number-generator) (source random-number-generator))
   "gsl_rng_memcpy"
-  (((generator destination) :pointer) ((generator source) :pointer))
+  (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :method
   :documentation			; FDL
   "Copy the random number generator source into the
@@ -164,7 +160,7 @@
    of source.  The two generators must be of the same type.")
 
 (defmfun clone ((instance random-number-generator))
-  "gsl_rng_clone" (((generator instance) :pointer))
+  "gsl_rng_clone" (((mpointer instance) :pointer))
   :definition :method
   :c-return (mptr :pointer)
   :return ((make-instance 'random-number-generator :mpointer mptr)))

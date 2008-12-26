@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-12-26 11:36:28EST quasi.lisp>
+;; Time-stamp: <2008-12-26 17:09:22EST quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,7 +17,7 @@
 
 (defmfun qrng-get (generator return-vector)
   "gsl_qrng_get"
-  (((generator generator) :pointer) ((c-pointer return-vector) :pointer))
+  (((mpointer generator) :pointer) ((c-pointer return-vector) :pointer))
   :outputs (return-vector)
   :return (return-vector)
   :documentation			; FDL
@@ -26,20 +26,20 @@
    dimension of the generator.  The point will lie in the range
    0 < x_i < 1 for each x_i.")
 
-(defmfun rng-name ((instance quasi-random-number-generator))
-  "gsl_qrng_name" (((generator instance) :pointer))
+(defmfun name ((instance quasi-random-number-generator))
+  "gsl_qrng_name" (((mpointer instance) :pointer))
   :definition :method
   :c-return :string)
 
 (defmfun rng-state ((instance quasi-random-number-generator))
-  "gsl_qrng_state" (((generator instance) :pointer))
+  "gsl_qrng_state" (((mpointer instance) :pointer))
   :c-return :pointer
   :definition :method
   :export nil
   :index gsl-random-state)
 
 (defmfun rng-size ((instance quasi-random-number-generator))
-  "gsl_qrng_size" (((generator instance) :pointer))
+  "gsl_qrng_size" (((mpointer instance) :pointer))
   :c-return sizet
   :definition :method
   :export nil
@@ -49,7 +49,7 @@
     ((destination quasi-random-number-generator)
      (source quasi-random-number-generator))
   "gsl_qrng_memcpy"
-  (((generator destination) :pointer) ((generator source) :pointer))
+  (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :method
   :documentation			; FDL
   "Copy the quasi-random sequence generator src into the
@@ -57,7 +57,7 @@
    of src.  The two generators must be of the same type.")
 
 (defmfun clone ((instance quasi-random-number-generator))
-  "gsl_qrng_clone" (((generator instance) :pointer))
+  "gsl_qrng_clone" (((mpointer instance) :pointer))
   :definition :method
   :c-return (mptr :pointer)
   :return ((make-instance 'quasi-random-number-generator :mpointer mptr))

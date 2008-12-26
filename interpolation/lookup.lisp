@@ -1,6 +1,6 @@
 ;; Index lookup and acceleration
 ;; Liam Healy, Sun Nov  4 2007 - 18:09
-;; Time-stamp: <2008-12-26 11:18:49EST lookup.lisp>
+;; Time-stamp: <2008-12-26 16:41:21EST lookup.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,7 +24,7 @@
 
 (defmfun accelerated-interpolation-search (x-array x acceleration)
   "gsl_interp_accel_find"
-  ((acceleration :pointer) (x-array :pointer) (x :double))
+  (((mpointer acceleration) :pointer) (x-array :pointer) (x :double))
   :c-return sizet
   :documentation			; FDL
   "Search the data array x-array of size, using the given acceleration.

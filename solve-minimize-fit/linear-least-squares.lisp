@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-12-26 13:26:43EST linear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 16:51:06EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -141,7 +141,7 @@
   (((mpointer model) :pointer) ((mpointer observations) :pointer)
    (tolerance :double)
    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
-   (workspace :pointer))
+   ((mpointer workspace) :pointer))
   :inputs (model observations)
   :outputs (parameters covariance)
   :documentation			; FDL
@@ -165,7 +165,7 @@
    (tolerance :double)
    (rank sizet)
    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
-   (workspace :pointer))
+   ((mpointer workspace) :pointer))
   :inputs (model observations)
   :outputs (parameters covariance)
   :return ((dcref chisq) (scref rank))
@@ -195,7 +195,7 @@
    ((mpointer observations) :pointer)
    ((mpointer parameters) :pointer)
    ((mpointer covariance) :pointer) (chisq :double)
-   (workspace :pointer))
+   ((mpointer workspace) :pointer))
   :inputs (model observations)
   :outputs (parameters covariance)
   :documentation			; FDL
@@ -220,7 +220,7 @@
    (tolerance :double)
    (rank sizet)
    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
-   (workspace :pointer))
+   ((mpointer workspace) :pointer))
   :inputs (model weight observations)
   :outputs (parameters covariance)
   :return ((dcref chisq) (scref rank))

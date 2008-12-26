@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-12-26 13:26:06EST minimization-one.lisp>
+;; Time-stamp: <2008-12-26 17:21:37EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,7 +24,7 @@
     (minimizer function x-minimum x-lower x-upper
 	       f-minimum f-lower f-upper)
   "gsl_min_fminimizer_set_with_values"
-  ((minimizer :pointer) (function :pointer)
+  (((mpointer minimizer) :pointer) (function :pointer)
    (x-minimum :double) (x-lower :double) (x-upper :double)
    (f-minimum :double) (f-lower :double) (f-upper :double))
   :documentation			; FDL
@@ -33,9 +33,10 @@
    upper], with a guess for the location of the minimum, using
    supplied rather than computed values of the function.")
 
-(defmfun fminimizer-name (minimizer)
+(defmfun name ((minimizer one-dimensional-minimizer))
   "gsl_min_fminimizer_name"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the minimizer.")
@@ -46,7 +47,7 @@
 
 (defmfun iterate-fminimizer (minimizer)
   "gsl_min_fminimizer_iterate"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :success-continue
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  The following
@@ -58,28 +59,28 @@
 
 (defmfun fminimizer-x-minimum (minimizer)
   "gsl_min_fminimizer_x_minimum"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The current estimate of the position of the minimum for the minimizer.")
 
 (defmfun fminimizer-x-lower (minimizer)
   "gsl_min_fminimizer_x_lower"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The current lower bound of the interval for the minimizer.")
 
 (defmfun fminimizer-x-upper (minimizer)
   "gsl_min_fminimizer_x_upper"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The current upper bound of the interval for the minimizer.")
 
 (defmfun fminimizer-f-minimum (minimizer)
   "gsl_min_fminimizer_f_minimum"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The value of the function at the current estimate of the minimum for the
@@ -87,7 +88,7 @@
 
 (defmfun fminimizer-f-lower (minimizer)
   "gsl_min_fminimizer_f_lower"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The value of the function at the current estimate of the lower bound
@@ -95,7 +96,7 @@
 
 (defmfun fminimizer-f-upper (minimizer)
   "gsl_min_fminimizer_f_upper"
-  ((minimizer :pointer))
+  (((mpointer minimizer) :pointer))
   :c-return :double
   :documentation			; FDL
   "The value of the function at the current estimate of the upper bound
@@ -105,8 +106,7 @@
 ;;;; Stopping parameters
 ;;;;****************************************************************************
 
-(defmfun
- min-test-interval (lower upper absolute-error relative-error)
+(defmfun min-test-interval (lower upper absolute-error relative-error)
   "gsl_min_test_interval"
   ((lower :double) (upper :double)
    (absolute-error :double) (relative-error :double))

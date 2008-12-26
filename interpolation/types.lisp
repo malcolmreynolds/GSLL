@@ -1,6 +1,6 @@
 ;; Interpolation types
 ;; Liam Healy, Sun Nov  4 2007 - 17:41
-;; Time-stamp: <2008-02-17 17:47:53EST types.lisp>
+;; Time-stamp: <2008-12-26 17:23:12EST types.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -45,9 +45,10 @@
   "Non-rounded Akima spline with periodic boundary conditions.  This method
    uses the non-rounded corner algorithm of Wodicka.")
 
-(defmfun interpolation-name (interpolation)
+(defmfun name ((interpolation interpolation))
   "gsl_interp_name"
   ((interpolation :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the interpolation type.")
@@ -61,9 +62,10 @@
    interpolation.  For example, Akima spline interpolation
    requires a minimum of 5 points.")
 
-(defmfun spline-name (interpolation)
+(defmfun name ((interpolation spline))
   "gsl_spline_name"
   ((interpolation :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the interpolation type.")

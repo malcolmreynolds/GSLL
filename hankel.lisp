@@ -1,6 +1,6 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-12-26 11:56:49EST hankel.lisp>
+;; Time-stamp: <2008-12-26 16:55:21EST hankel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,7 +19,7 @@
 
 (defmfun apply-hankel (hankel array-in array-out)
   "gsl_dht_apply"
-  ((hankel :pointer) ((c-pointer array-in) :pointer)
+  (((mpointer hankel) :pointer) ((c-pointer array-in) :pointer)
    ((c-pointer array-out) :pointer))
   :documentation			; FDL
   "Apply the transform to the array array-in
@@ -28,14 +28,14 @@
 
 (defmfun sample-x-hankel (hankel n)
   "gsl_dht_x_sample"
-  ((hankel :pointer) (n :int))
+  (((mpointer hankel) :pointer) (n :int))
   :c-return :double
   :documentation			; FDL
   "The points where the function f(t) is assumed to be sampled.")
 
 (defmfun sample-k-hankel (hankel n)
   "gsl_dht_k_sample"
-  ((hankel :pointer) (n :int))
+  (((mpointer hankel) :pointer) (n :int))
   :c-return :double
   :documentation			; FDL
   "The value of the n-th sample point in k-space, j_{\nu,n+1}/X}.")
