@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-12-07 18:25:57EST blas2.lisp>
+;; Time-stamp: <2008-12-26 12:23:21EST blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -298,7 +298,7 @@
 ;;;;****************************************************************************
 
 (generate-all-array-tests matrix-product :float-complex
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(v1 (array-default 3))
 	(answer (array-default 3 t))
 	(s1 (scalar-default))
@@ -306,19 +306,19 @@
    (cl-array (matrix-product m1 v1 answer s1 s2))))
 
 (generate-all-array-tests matrix-product-triangular :float-complex
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(v1 (array-default 3))
 	(s1 (scalar-default)))
    (cl-array (matrix-product-triangular m1 v1 s1))))
 
 (generate-all-array-tests inverse-matrix-product :float-complex
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(v1 (array-default 3))
 	(s1 (scalar-default)))
    (cl-array (inverse-matrix-product m1 v1 s1))))
 
 (generate-all-array-tests matrix-product-symmetric :float
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(v1 (array-default 3))
 	(answer (array-default 3 t))
 	(s1 (scalar-default))
@@ -326,7 +326,7 @@
    (cl-array (matrix-product-symmetric m1 v1 answer s1 s2))))
 
 (generate-all-array-tests matrix-product-hermitian :complex
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(v1 (array-default 3))
 	(answer (array-default 3 t))
 	(s1 (scalar-default))
@@ -339,7 +339,7 @@
 ;;;   [Condition of type EBADLEN]
 
 (generate-all-array-tests rank-1-update :float-complex
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(v1 (array-default 3))
 	(v2 (array-default 3))
 	(s1 (scalar-default)))

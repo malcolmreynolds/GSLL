@@ -1,6 +1,6 @@
 ;; Cauchy distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-10-25 12:13:41EDT cauchy.lisp>
+;; Time-stamp: <2008-12-26 11:41:51EST cauchy.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -55,7 +55,7 @@
 
 ;;; Examples and unit test
 (save-test cauchy
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (cauchy rng 10.0d0)))

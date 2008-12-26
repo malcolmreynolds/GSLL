@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-12-07 18:43:39EST sorting.lisp>
+;; Time-stamp: <2008-12-26 12:25:09EST sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -254,46 +254,46 @@
 ;;;;****************************************************************************
 
 (generate-all-array-tests sort-vector :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    ;; or you can use msort
    (cl-array (sort-vector v1))))
 
 (generate-all-array-tests sort-matrix :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (cl-array (msort m1))))
 
 (generate-all-array-tests sort-vector-index :no-complex
- (letm ((perm (make-permutation 8))
+ (let ((perm (make-permutation 8))
 	(v1 (array-default 8)))
    (sort-vector-index perm v1)
    (cl-array perm)))
 
 (generate-all-array-tests sort-vector-smallest :no-complex
- (letm ((v1 (array-default 8))
+ (let ((v1 (array-default 8))
 	(v2 (array-default 3)))
    (cl-array (sort-vector-smallest v2 v1))))
 
 (generate-all-array-tests sort-matrix-smallest :no-complex
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(m2 (array-default '(2 3) t)))
    (cl-array (sort-smallest m2 m1))))
 
 (generate-all-array-tests sort-vector-smallest-index :no-complex
- (letm ((comb (make-combination '(8 3)))
+ (let ((comb (make-combination '(8 3)))
 	(v1 (array-default 8)))
    (cl-array (sort-vector-smallest-index comb v1))))
 
 (generate-all-array-tests sort-vector-largest :no-complex
- (letm ((v1 (array-default 8))
+ (let ((v1 (array-default 8))
 	(v2 (array-default 3)))
    (cl-array (sort-vector-largest v2 v1))))
 
 (generate-all-array-tests sort-matrix-largest :no-complex
- (letm ((m1 (array-default '(3 3)))
+ (let ((m1 (array-default '(3 3)))
 	(m2 (array-default '(2 3) t)))
    (cl-array (sort-largest m2 m1))))
 
 (generate-all-array-tests sort-vector-largest-index :no-complex
- (letm ((comb (make-combination '(8 3)))
+ (let ((comb (make-combination '(8 3)))
 	(v1 (array-default 8)))
    (cl-array (sort-vector-largest-index comb v1))))

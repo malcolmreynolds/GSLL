@@ -1,6 +1,6 @@
 ;; Example spline
 ;; Liam Healy, Sat Nov 10 2007 - 21:18
-;; Time-stamp: <2008-12-26 10:29:01EST spline-example.lisp>
+;; Time-stamp: <2008-12-26 12:53:23EST spline-example.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,9 +19,9 @@
   "The first example in Sec. 26.7 of the GSL manual."
   (multiple-value-bind (xarr yarr)
       (spline-example-arrays)
-    (letm ((acc (acceleration))
+    (let* ((acc (make-acceleration))
 	   (cxarr (make-marray 'double-float :dimensions xarr))
 	   (cyarr (make-marray 'double-float :dimensions yarr))
-	   (spline (spline *cubic-spline-interpolation* cxarr cyarr)))
+	   (spline (make-spline *cubic-spline-interpolation* cxarr cyarr)))
       (loop for xi from (aref xarr 0) below (aref xarr 9) by 0.01d0
-	    collect (list xi (evaluate-spline spline xi acc))))))
+	 collect (list xi (evaluate-spline spline xi acc))))))

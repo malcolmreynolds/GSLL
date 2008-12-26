@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-26 10:29:01EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-26 12:57:02EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,7 +48,6 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-#|
 (defmobject multi-dimensional-minimizer-f
     "gsl_multimin_fminimizer"
   ((type :pointer) (dimension sizet))
@@ -59,6 +58,7 @@
    initial trial steps is given in vector step-size. The precise
    meaning of this parameter depends on the method used."
   "set"
+  ;; Could have one fewer argument: dimension=(dim0 initial)
   ((function :pointer) ((mpointer initial) :pointer)
    ((mpointer step-size) :pointer)))
 
@@ -77,86 +77,9 @@
    direction p to a relative accuracy of tolerance, where dot(p,g) <
    tol |p| |g|."
   "set"
+  ;; Could have one fewer argument: dimension=(dim0 initial)
   ((function-derivative :pointer) ((mpointer initial) :pointer)
    (step-size :double) (tolerance :double)))
-|#
-
-;;; Could have one fewer argument: dimension=(dim0 initial)
-(defgo-s (mfminimizer type dimension function intial step-size)
-	 allocate-mfminimizer free-mfminimizer set-mfminimizer 2)
-(defgo-s (mfdfminimizer type dimension function-derivative intitial step-size tolerance)
-	 allocate-mfdfminimizer free-mfdfminimizer set-mfdfminimizer 2)
-
-(defmfun allocate-mfminimizer (type dimension)
-  "gsl_multimin_fminimizer_alloc"
-  ((type :pointer) (dimension sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm mfminimizer)
-  :documentation			; FDL
-  "Allocate an instance of a minimizer of the given for an
-   function of the given dimensions.")
-
-(defmfun allocate-mfdfminimizer (type dimension)
-  "gsl_multimin_fdfminimizer_alloc"
-  ((type :pointer) (dimension sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm mfdfminimizer)
-  :documentation			; FDL
-  "Allocate an instance of a derivative-based minimizer of the given for an
-   function of the given dimensions.")
-
-(defmfun set-mfminimizer (minimizer function initial step-size)
-  "gsl_multimin_fminimizer_set"
-  ((minimizer :pointer) (function :pointer)
-   ((mpointer initial) :pointer) ((mpointer step-size) :pointer))
-  :inputs (initial step-size)
-  :export nil
-  :index (letm mfminimizer)
-  :documentation			; FDL
-  "Initialize the minimizer to minimize the function
-   starting from the initial point.
-   The size of the initial trial steps is given in vector
-   step-size. The precise meaning of this parameter depends on the
-   method used.")
-
-(defmfun set-mfdfminimizer
-    (minimizer function-derivative initial step-size tolerance)
-  "gsl_multimin_fdfminimizer_set"
-  ((minimizer :pointer) (function-derivative :pointer)
-   ((mpointer initial) :pointer) (step-size :double)
-   (tolerance :double))
-  :inputs (initial)
-  :export nil
-  :index (letm mfdfminimizer)
-  :documentation			; FDL
-  "Initialize the minimizer to minimize the function
-   starting from the initial point.  The size of the
-   first trial step is given by step-size.  The accuracy of the line
-   minimization is specified by tolernace.  The precise meaning of this
-   parameter depends on the method used.  Typically the line minimization
-   is considered successful if the gradient of the function g is
-   orthogonal to the current search direction p to a relative
-   accuracy of tolerance, where dot(p,g) < tol |p| |g|.")
-
-(defmfun free-mfminimizer (minimizer)
-  "gsl_multimin_fminimizer_free"
-  ((minimizer :pointer))
-  :c-return :void
-  :export nil
-  :index (letm mfminimizer)
-  :documentation			; FDL
-  "Free all the memory associated with the minimizer.")
-
-(defmfun free-mfdfminimizer (minimizer)
-  "gsl_multimin_fdfminimizer_free"
-  ((minimizer :pointer))
-  :c-return :void
-  :export nil
-  :index (letm mfdfminimizer)
-  :documentation			; FDL
-  "Free all the memory associated with the minimizer.")
 
 (defmfun mfminimizer-name (minimizer)
   "gsl_multimin_fminimizer_name"
@@ -380,26 +303,27 @@
     parabaloid 2 parabaloid-derivative parabaloid-and-derivative)
 
 (defun multimin-example-fletcher-reeves ()
-  (letm ((initial #m(5.0d0 7.0d0))
+  (let* ((initial #m(5.0d0 7.0d0))
 	 (minimizer
-	  (mfdfminimizer *conjugate-fletcher-reeves* 2 parabaloid
-			 initial 0.01d0 1.0d-4)))
+	  (make-multi-dimensional-minimizer-fdf
+	   *conjugate-fletcher-reeves* 2 parabaloid
+	   initial 0.01d0 1.0d-4)))
     (loop with status = T
-	  for iter from 0 below 100
-	  while status
-	  do
-	  (iterate-mfdfminimizer minimizer)
-	  (setf status
-		(not (min-test-gradient
-		      (mfdfminimizer-gradient minimizer)
-		      1.0d-3)))
-	  (let ((x (mfdfminimizer-x minimizer)))
-	    (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f"
-		    iter (maref x 0) (maref x 1)
-		    (mfdfminimizer-minimum minimizer)))
-	  finally (return
-		    (let ((x (mfdfminimizer-x minimizer)))
-		      (values (maref x 0) (maref x 1)))))))
+       for iter from 0 below 100
+       while status
+       do
+       (iterate-mfdfminimizer minimizer)
+       (setf status
+	     (not (min-test-gradient
+		   (mfdfminimizer-gradient minimizer)
+		   1.0d-3)))
+       (let ((x (mfdfminimizer-x minimizer)))
+	 (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f"
+		 iter (maref x 0) (maref x 1)
+		 (mfdfminimizer-minimum minimizer)))
+       finally (return
+		 (let ((x (mfdfminimizer-x minimizer)))
+		   (values (maref x 0) (maref x 1)))))))
 
 ;;; Because def-minimization-functions bind a symbol
 ;;; of the same name as the first function, and we want both to run,
@@ -410,24 +334,25 @@
 (def-minimization-functions parabaloid-f 2)
 
 (defun multimin-example-nelder-mead ()
-  (letm ((initial #m(5.0d0 7.0d0))
-	 (step-size (make-marray 'double-float :dimensions 2)))
+  (let ((initial #m(5.0d0 7.0d0))
+	(step-size (make-marray 'double-float :dimensions 2)))
     (set-all step-size 1.0d0)
-    (letm ((minimizer
-	    (mfminimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size)))
+    (let ((minimizer
+	   (make-multi-dimensional-minimizer-f
+	    *simplex-nelder-mead* 2 parabaloid-f initial step-size)))
       (loop with status = T and size
-	    for iter from 0 below 100
-	    while status
-	    do (iterate-mfminimizer minimizer)
-	    (setf size
-		  (mfminimizer-size minimizer)
-		  status
-		  (not (min-test-size size 1.0d-2)))
-	    (let ((x (mfminimizer-x minimizer)))
-	      (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f"
-		      iter (maref x 0) (maref x 1)
-		      (mfminimizer-minimum minimizer)
-		      size))
-	    finally (return
-		      (let ((x (mfminimizer-x minimizer)))
-			(values (maref x 0) (maref x 1))))))))
+	 for iter from 0 below 100
+	 while status
+	 do (iterate-mfminimizer minimizer)
+	 (setf size
+	       (mfminimizer-size minimizer)
+	       status
+	       (not (min-test-size size 1.0d-2)))
+	 (let ((x (mfminimizer-x minimizer)))
+	   (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f"
+		   iter (maref x 0) (maref x 1)
+		   (mfminimizer-minimum minimizer)
+		   size))
+	 finally (return
+		   (let ((x (mfminimizer-x minimizer)))
+		     (values (maref x 0) (maref x 1))))))))

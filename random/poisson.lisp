@@ -1,6 +1,6 @@
 ;; Poisson distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-10-25 18:08:19EDT poisson.lisp>
+;; Time-stamp: <2008-12-26 11:46:06EST poisson.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,7 +39,7 @@
 
 ;;; Examples and unit test
 (save-test poisson
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
 	   (poisson rng 10.0d0)))

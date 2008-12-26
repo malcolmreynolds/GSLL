@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-12-07 18:24:40EST blas1.lisp>
+;; Time-stamp: <2008-12-26 12:22:51EST blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -188,61 +188,61 @@
 ;;;;****************************************************************************
 
 (generate-all-array-tests dot :float-complex
- (letm ((v1 (array-default 8))
+ (let ((v1 (array-default 8))
 	(v2 (array-default 8)))
    (dot v1 v2)))
 
 (generate-all-array-tests cdot :complex
- (letm ((v1 (array-default 8))
+ (let ((v1 (array-default 8))
 	(v2 (array-default 8)))
    (cdot v1 v2)))
 
 (generate-all-array-tests euclidean-norm :float-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (euclidean-norm v1)))
 
 (generate-all-array-tests absolute-sum :float-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (absolute-sum v1)))
 
 (generate-all-array-tests index-max :float-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (index-max v1)))
 
 (generate-all-array-tests blas-swap :float-complex
- (letm ((v1 (array-default 3))
+ (let ((v1 (array-default 3))
 	(v2 (array-default 3)))
    (blas-swap v2 v1)
    (list (cl-array v1) (cl-array v2))))
 
 (generate-all-array-tests blas-copy :float-complex
- (letm ((v1 (array-default 3))
+ (let ((v1 (array-default 3))
 	(v2 (array-default 3 t)))
    (blas-copy v1 v2)
    (cl-array v2)))
 
 (generate-all-array-tests axpy :float-complex
- (letm ((v1 (array-default 8))
+ (let ((v1 (array-default 8))
 	(v2 (array-default 8))
 	(scalar (scalar-default)))
    (cl-array (axpy scalar v1 v2))))
 
 (generate-all-array-tests scale :float-complex
- (letm ((v1 (array-default 8))
+ (let ((v1 (array-default 8))
 	(scalar (scalar-default)))
    (cl-array (scale scalar v1))))
 
 (generate-all-array-tests scale :complex
- (letm ((v1 (array-default 8))
-	(scalar (scalar-default t)))
+ (let ((v1 (array-default 8))
+       (scalar (scalar-default t)))
    (cl-array (scale scalar v1))))
 
 (generate-all-array-tests givens :float
- (letm ((v1 (array-default 8))
-	(v2 (array-default 8))
-	(angles (array-default 8))
-	(sines (array-default 8 t))
-	(cosines (array-default 8 t)))
+ (let ((v1 (array-default 8))
+       (v2 (array-default 8))
+       (angles (array-default 8))
+       (sines (array-default 8 t))
+       (cosines (array-default 8 t)))
    (loop for i below 8 do
 	(setf (maref sines i) (sin (maref angles i)))
 	(setf (maref cosines i) (cos (maref angles i))))

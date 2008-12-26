@@ -1,6 +1,6 @@
 ;; Mean, standard deviation, and variance    
 ;; Liam Healy, Sat Dec  2 2006 - 22:15
-;; Time-stamp: <2008-12-07 19:13:40EST mean-variance.lisp>
+;; Time-stamp: <2008-12-26 12:21:30EST mean-variance.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -197,66 +197,66 @@
 ;;;;****************************************************************************
 
 (generate-all-array-tests vector-mean :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (mean v1)))
 
 (generate-all-array-tests matrix-mean :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (mean m1)))
 
 (generate-all-array-tests vector-variance :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (variance v1)))
 
 (generate-all-array-tests matrix-variance :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (variance m1)))
 
 (generate-all-array-tests vector-variance-with-mean :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (variance v1 (mean v1))))
 
 (generate-all-array-tests matrix-variance-with-mean :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (variance m1 (mean m1))))
 
 (generate-all-array-tests vector-standard-deviation :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (standard-deviation v1)))
 
 (generate-all-array-tests matrix-standard-deviation :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (standard-deviation m1)))
 
 (generate-all-array-tests vector-standard-deviation-with-mean :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (standard-deviation v1 (mean v1))))
 
 (generate-all-array-tests matrix-standard-deviation-with-mean :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (standard-deviation m1 (mean m1))))
 
 (generate-all-array-tests vector-variance-with-fixed-mean :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (variance-with-fixed-mean v1 (mean v1))))
 
 (generate-all-array-tests matrix-variance-with-fixed-mean :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (variance-with-fixed-mean m1 (mean m1))))
 
 (generate-all-array-tests vector-standard-deviation-with-fixed-mean :no-complex
- (letm ((v1 (array-default 8)))
+ (let ((v1 (array-default 8)))
    (standard-deviation-with-fixed-mean v1 (mean v1))))
 
 (generate-all-array-tests matrix-standard-deviation-with-fixed-mean :no-complex
- (letm ((m1 (array-default '(3 3))))
+ (let ((m1 (array-default '(3 3))))
    (standard-deviation-with-fixed-mean m1 (mean m1))))
 
 #|
 ;;; Weighted mean seems to be in error in GSL
 ;;; Hold off on all weghted tests until this is resolved.
 (generate-all-array-tests weighted-mean :float
- (letm ((v1 (array-default 8))
+ (let ((v1 (array-default 8))
 	(v2 (array-default 8)))
    (loop for i below (first (dimensions v2))
       do (setf (maref v2 i) (abs (maref v2 i))))

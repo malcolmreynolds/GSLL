@@ -1,6 +1,6 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-11-16 13:26:01EST updating-accessing.lisp>
+;; Time-stamp: <2008-12-26 11:58:11EST updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -93,7 +93,7 @@
    signalled.")
 
 #|
- (letm ((histo (histogram 10)))		; should be a gsl-warning here, how to check?
+ (let ((histo (make-histogram 10)))		; should be a gsl-warning here, how to check?
      (set-ranges-uniform histo 0.0d0 10.0d0)
      (increment histo -2.0d0))
 |#
@@ -102,40 +102,40 @@
 (save-test histogram
    ;; The first one gives a warning while compiling in SBCL,
    ;; should only give a warning while runnin.
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
      (set-ranges-uniform histo 0.0d0 10.0d0)
      (increment histo -2.0d0))
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
    (maref histo 1))
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
    (maref histo 2))
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
    (maref histo 6))
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
    (maref histo 16))
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
    (values (min-range histo) (max-range histo)))
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)
    (bins histo))
- (letm ((histo (histogram 10)))
+ (let ((histo (make-histogram 10)))
    (set-ranges-uniform histo 0.0d0 10.0d0)
    (increment histo 2.7d0)
    (increment histo 6.9d0 2.0d0)

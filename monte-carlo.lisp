@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-12-26 10:28:19EST monte-carlo.lisp>
+;; Time-stamp: <2008-12-26 11:34:16EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,11 +9,6 @@
 ;;;; PLAIN Monte Carlo
 ;;;;****************************************************************************
 
-(cffi:defcstruct plain-state
-  (dim sizet)
-  (x :pointer))
-
-#|
 (defmobject monte-carlo-plain
     "gsl_monte_plain"
   ((dim sizet))
@@ -21,57 +16,10 @@
   "Make and initialize a workspace for Monte Carlo integration in dim dimensions."
   "init"
   nil)
-|#
 
-(defgo-s (monte-carlo-plain dim) monte-carlo-plain-alloc monte-carlo-plain-free)
-
-(defmfun monte-carlo-plain-alloc (dim)
-  "gsl_monte_plain_alloc"
-  ((dim sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm monte-carlo-plain)
-  :documentation			; FDL
-  "Allocate and initialize a workspace for Monte Carlo
-   integration in dim dimensions.")
-
-(defmfun monte-carlo-plain-init (integrator-state)
-  "gsl_monte_plain_init"
-  ((integrator-state :pointer))
-  :documentation			; FDL
-  "Initialize a previously allocated integration state.
-   This allows an existing workspace to be reused for different
-   integrations.")
-
-(defmfun monte-carlo-plain-free (integrator-state)
-  "gsl_monte_plain_free"
-  ((integrator-state :pointer))
-  :c-return :void
-  :export nil
-  :index (letm monte-carlo-plain)
-  :documentation			; FDL
-  "Frees the memory associated with the integrator.")
-
-(defmfun monte-carlo-integrate-plain
-    (function lower-limits upper-limits calls generator state)
-  "gsl_monte_plain_integrate"
-  ((function :pointer)
-   ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
-   ((dim0 lower-limits) sizet) (calls sizet)
-   ((generator generator) :pointer)
-   (state :pointer)
-   (result :double) (abserr :double))
-  :inputs (lower-limits upper-limits)
-  :documentation			; FDL
-  "Uses the plain Monte Carlo algorithm to integrate the
-   function f over the hypercubic region defined by the
-   lower and upper limits in the arrays 'lower-limits and
-   'upper-limits, each a gsl-vector of length dim.
-   The integration uses a fixed number
-   of function calls calls, and obtains random sampling points using
-   the random number generator 'generator. A previously allocated workspace
-   'state must be supplied.  The result of the integration is returned
-   with an estimated absolute error.")
+(cffi:defcstruct plain-state
+  (dim sizet)
+  (x :pointer))
 
 ;;;;****************************************************************************
 ;;;; MISER
@@ -81,6 +29,16 @@
 ;;; stratified sampling.  This technique aims to reduce the overall
 ;;; integration error by concentrating integration points in the
 ;;; regions of highest variance.
+
+(defmobject monte-carlo-miser
+    "gsl_monte_miser"
+  ((dim sizet))
+  "miser Monte Carlo integration"				; FDL
+  "Make and initialize a workspace for Monte Carlo integration in
+   dim dimensions.  The workspace is used to maintain
+   the state of the integration."
+  "init"
+  nil)
 
 (cffi:defcstruct miser-state
   (min-calls sizet)
@@ -106,48 +64,6 @@
   (fsum2-r :pointer)
   (hits-l :pointer)
   (hits-r :pointer))
-
-#|
-(defmobject monte-carlo-miser
-    "gsl_monte_miser"
-  ((dim sizet))
-  "miser Monte Carlo integration"				; FDL
-  "Make and initialize a workspace for Monte Carlo integration in
-   dim dimensions.  The workspace is used to maintain
-   the state of the integration."
-  "init"
-  nil)
-|#
-
-(defgo-s (monte-carlo-miser dim) monte-carlo-miser-alloc monte-carlo-miser-free)
-
-(defmfun monte-carlo-miser-alloc (dim)
-  "gsl_monte_miser_alloc"
-  ((dim sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm monte-carlo-miser)
-  :documentation			; FDL
-  "Allocate and initialize a workspace for Monte Carlo integration in
-   dim dimensions.  The workspace is used to maintain
-   the state of the integration.  Returns a pointer to miser-state.")
-
-(defmfun monte-carlo-miser-init (integrator-state)
-  "gsl_monte_miser_init"
-  ((integrator-state :pointer))
-  :documentation			; FDL
-  "Initialize a previously allocated integration state.
-   This allows an existing workspace to be reused for different
-   integrations.")
-
-(defmfun monte-carlo-miser-free (integrator-state)
-  "gsl_monte_miser_free"
-  ((integrator-state :pointer))
-  :c-return :void
-  :export nil
-  :index (letm monte-carlo-miser)
-  :documentation			; FDL
-  "Frees the memory associated with the integrator.")
 
 (export 'miser-parameter)
 (defmacro miser-parameter (workspace parameter)
@@ -188,6 +104,16 @@
 ;;; function |f|, so that the points are concentrated in the regions
 ;;; that make the largest contribution to the integral.
 
+(defmobject monte-carlo-vegas
+    "gsl_monte_vegas"
+  ((dim sizet))
+  "vegas Monte Carlo integration"				; FDL
+  "Make and initialize a workspace for Monte Carlo integration in
+   dim dimensions.  The workspace is used to maintain
+   the state of the integration.  Returns a pointer to vegas-state."
+  "init"
+  nil)
+
 (cffi:defcstruct vegas-state
   ;; grid 
   (dim sizet)
@@ -222,48 +148,6 @@
   (samples :uint)
   (calls-per-box :uint)
   (ostream :pointer))
-
-#|
-(defmobject monte-carlo-vegas
-    "gsl_monte_vegas"
-  ((dim sizet))
-  "vegas Monte Carlo integration"				; FDL
-  "Make and initialize a workspace for Monte Carlo integration in
-   dim dimensions.  The workspace is used to maintain
-   the state of the integration.  Returns a pointer to vegas-state."
-  "init"
-  nil)
-|#
-
-(defgo-s (monte-carlo-vegas dim) monte-carlo-vegas-alloc monte-carlo-vegas-free)
-
-(defmfun monte-carlo-vegas-alloc (dim)
-  "gsl_monte_vegas_alloc"
-  ((dim sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm monte-carlo-vegas)
-  :documentation			; FDL
-  "Allocate and initialize a workspace for Monte Carlo integration in
-   dim dimensions.  The workspace is used to maintain
-   the state of the integration.  Returns a pointer to vegas-state.")
-
-(defmfun monte-carlo-vegas-init (integrator-state)
-  "gsl_monte_vegas_init"
-  ((integrator-state :pointer))
-  :documentation			; FDL
-  "Initialize a previously allocated integration state.
-   This allows an existing workspace to be reused for different
-   integrations.")
-
-(defmfun monte-carlo-vegas-free (integrator-state)
-  "gsl_monte_vegas_free"
-  ((integrator-state :pointer))
-  :c-return :void
-  :export nil
-  :index (letm monte-carlo-vegas)
-  :documentation			; FDL
-  "Frees the memory associated with the integrator.")
 
 (export 'vegas-parameter)
 (defmacro vegas-parameter (workspace parameter)
@@ -327,29 +211,27 @@
 (def-mc-function monte-carlo-g 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
-  (letm ((ws (monte-carlo-plain 3))
+  (let ((ws (make-monte-carlo-plain 3))
 	 (lower #m(0.0d0 0.0d0 0.0d0))
 	 (upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	 (rng (random-number-generator *mt19937* 0)))
+	 (rng (make-random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-plain monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
-  (letm ((ws (monte-carlo-miser 3))
-	 (lower #m(0.0d0 0.0d0 0.0d0))
-	 (upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	 (rng (random-number-generator *mt19937* 0)))
+  (let ((ws (make-monte-carlo-miser 3))
+	(lower #m(0.0d0 0.0d0 0.0d0))
+	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
+	(rng (make-random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-miser monte-carlo-g lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
-  (letm ((ws (monte-carlo-vegas 3))
+  (let ((ws (make-monte-carlo-vegas 3))
 	 (lower #m(0.0d0 0.0d0 0.0d0))
 	 (upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	 (rng (random-number-generator *mt19937* 0)))
+	 (rng (make-random-number-generator *mt19937* 0)))
     (monte-carlo-integrate-vegas monte-carlo-g lower upper nsamples rng ws)))
 
 (save-test monte-carlo
   (random-walk-plain-example)
   (random-walk-miser-example)
   (random-walk-vegas-example))
-
-

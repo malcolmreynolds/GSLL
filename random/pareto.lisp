@@ -1,6 +1,6 @@
 ;; Pareto distribution
 ;; Liam Healy, Sat Oct  8 2006 - 21:23
-;; Time-stamp: <2008-10-25 18:07:27EDT pareto.lisp>
+;; Time-stamp: <2008-12-26 11:45:07EST pareto.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,7 +53,7 @@
 
 ;;; Examples and unit test
 (save-test pareto
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (pareto rng 1.0d0 2.0d0)))

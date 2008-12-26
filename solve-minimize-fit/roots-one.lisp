@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-12-25 10:14:02EST roots-one.lisp>
+;; Time-stamp: <2008-12-26 12:11:19EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -44,7 +44,6 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-#|
 (defmobject one-dimensional-root-solver-f "gsl_root_fsolver"
   ((type :pointer))
   "one-dimensional root solver with function only"			; FDL
@@ -58,66 +57,6 @@
   ""
   "set"
   ((function-derivative :pointer) (root-guess :double)))
-|#
-
-(defgo-s (fsolver type function lower upper) allocate-fsolver free-fsolver set-fsolver)
-(defgo-s (fdfsolver type function-derivative root-guess)
-	 allocate-fdfsolver free-fdfsolver set-fdfsolver)
-
-(defmfun allocate-fsolver (type)
-  "gsl_root_fsolver_alloc"
-  ((type :pointer))
-  :c-return :pointer
-  :export nil
-  :index (letm fsolver)
-  :documentation			; FDL
-  "Allocate an instance of a solver of the given type.")
-
-(defmfun allocate-fdfsolver (type)
-  "gsl_root_fdfsolver_alloc"
-  ((type :pointer))
-  :c-return :pointer
-  :export nil
-  :index (letm fdfsolver)
-  :documentation			; FDL
-  "Allocate an instance of a derivative-based solver of the given type.")
-
-(defmfun set-fsolver (solver function lower upper)
-  "gsl_root_fsolver_set"
-  ((solver :pointer) (function :pointer)
-   (lower :double) (upper :double))
-  :export nil
-  :index (letm fsolver)
-  :documentation			; FDL
-  "Initialize or reinitialize an existing solver
-   to use the function and the initial search interval
-   [lower, upper].")
-
-(defmfun set-fdfsolver (solver function-derivative root-guess)
-  "gsl_root_fdfsolver_set"
-  ((solver :pointer) (function-derivative :pointer) (root-guess :double))
-  :export nil
-  :index (letm fdfsolver)
-  :documentation			; FDL
-  "Initialize or reinitialize an existing solver.")
-
-(defmfun free-fsolver (solver)
-  "gsl_root_fsolver_free"
-  ((solver :pointer))
-  :c-return :void
-  :export nil
-  :index (letm fsolver)
-  :documentation			; FDL
-  "Free all the memory associated with the solver.")
-
-(defmfun free-fdfsolver (solver)
-  "gsl_root_fdfsolver_free"
-  ((solver :pointer))
-  :c-return :void
-  :export nil
-  :index (letm fdfsolver)
-  :documentation			; FDL
-  "Free all the memory associated with the solver.")
 
 (defmfun fsolver-name (solver)
   "gsl_root_fsolver_name"
@@ -375,7 +314,7 @@
 
 (defun roots-one-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
-  (letm ((max-iter 50)
+  (let ((max-iter 50)
 	 (solver (fsolver *brent-fsolver* quadratic 0.0d0 5.0d0)))
     (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
     (loop for iter from 0
@@ -402,17 +341,18 @@
 
 (defun roots-one-fdf-example ()
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
-  (let ((max-iter 100)
-	(initial 5.0d0))
-    (letm ((solver (fdfsolver *newton-fdfsolver* quadratic-df initial)))
-      (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
-      (loop for iter from 0
-	    for itres = (iterate-fdfsolver solver)
-	    for oldroot = initial then root
-	    for root = (fdfsolver-root solver)
-	    while (and (< iter max-iter)
-		       (not (root-test-delta root oldroot 0.0d0 1.0d-5)))
-	    do
-	    (format t "~&~d~6t~10,8g ~18t~10,6g~34t~10,6g"
-		    iter root (- root (sqrt 5.0d0)) (- root oldroot))))))
+  (let* ((max-iter 100)
+	 (initial 5.0d0)
+	 (solver (make-one-dimensional-root-solver-fdf
+		  *newton-fdfsolver* quadratic-df initial)))
+    (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
+    (loop for iter from 0
+       for itres = (iterate-fdfsolver solver)
+       for oldroot = initial then root
+       for root = (fdfsolver-root solver)
+       while (and (< iter max-iter)
+		  (not (root-test-delta root oldroot 0.0d0 1.0d-5)))
+       do
+       (format t "~&~d~6t~10,8g ~18t~10,6g~34t~10,6g"
+	       iter root (- root (sqrt 5.0d0)) (- root oldroot)))))
 

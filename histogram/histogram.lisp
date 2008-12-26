@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-12-25 22:49:25EST histogram.lisp>
+;; Time-stamp: <2008-12-26 12:31:18EST histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -32,7 +32,7 @@
 
 (export 'set-ranges-uniform)
 (defgeneric set-ranges-uniform
-    (histogram minimum maximum &optional minimum2 maximum2 )
+    (histogram minimum maximum &optional minimum2 maximum2)
   (:documentation ;; FDL
    "Set the ranges of the existing histogram h to cover
    the range xmin to xmax uniformly.  The values of the
@@ -46,7 +46,8 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function for set-ranges-uniform means; assumed to be error code.
-(defmfun set-ranges-uniform ((histogram histogram) minimum maximum)
+(defmfun set-ranges-uniform
+    ((histogram histogram) minimum maximum &optional minimum2 maximum2)
   "gsl_histogram_set_ranges_uniform"
   (((mpointer histogram) :pointer) (minimum :double) (maximum :double))
   :definition :method
@@ -55,7 +56,8 @@
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
 (defmfun set-ranges-uniform
-    ((histogram histogram2d) x-minimum x-maximum &optional y-minimum y-maximum)
+    ((histogram histogram2d) x-minimum x-maximum
+     &optional (y-minimum 0.0d0) (y-maximum 100.0d0))
   "gsl_histogram2d_set_ranges_uniform"
   (((mpointer histogram) :pointer)
    (x-minimum :double) (x-maximum :double)

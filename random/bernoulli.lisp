@@ -1,6 +1,6 @@
 ;; Bernoulli distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:59
-;; Time-stamp: <2008-10-25 12:08:06EDT bernoulli.lisp>
+;; Time-stamp: <2008-12-26 11:38:55EST bernoulli.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,10 +26,8 @@
 
 ;;; Examples and unit test
 (save-test bernoulli
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
 	   (bernoulli rng 0.5d0)))
   (bernoulli-pdf 0 0.5d0))
-b
-

@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-12-25 12:04:09EST roots-multi.lisp>
+;;; Time-stamp: <2008-12-26 13:28:05EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -37,7 +37,6 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-#|
 (defmobject multi-dimensional-root-solver-f "gsl_multiroot_fsolver"
   ((type :pointer) (dimension sizet))
   "multi-dimensional root solver with function only"			; FDL
@@ -48,7 +47,7 @@
   "set"
   ((function :pointer) ((mpointer initial) :pointer))
   (lambda (set)
-  `((type &optional function-or-dimension (initial ,set))
+  `((type &optional function-or-dimension (initial nil ,set))
     (:type type
      :dimension
      (if ,set (dim0 initial) function-or-dimension))
@@ -65,86 +64,12 @@
   "set"
   ((function-derivative :pointer) ((mpointer initial) :pointer))
   (lambda (set)
-  `((type &optional function-or-dimension (initial ,set))
+  `((type &optional function-or-dimension (initial nil ,set))
     (:type type
      :dimension
      (if ,set (dim0 initial) function-or-dimension))
     (:function function-or-dimension :initial initial)))
   (initial))
-|#
-
-(defgo mfsolver (type function-derivative initial)
-  (list
-   `(allocate-mfsolver ,type (dim0 ,initial))
-   'free-mfsolver
-   (lambda (symb)
-     `(set-mfsolver ,symb ,function-derivative ,initial))))
-
-(defgo mfdfsolver (type function-derivative initial)
-  (list
-   `(allocate-mfdfsolver ,type (dim0 ,initial))
-   'free-mfdfsolver
-   (lambda (symb)
-     `(set-mfdfsolver ,symb ,function-derivative ,initial))))
-
-(defmfun allocate-mfsolver (type dimension)
-  "gsl_multiroot_fsolver_alloc"
-  ((type :pointer) (dimension sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm mfsolver)
-  :documentation			; FDL
-  "Allocate an instance of a solver of the type specified for a system of
-   the specified number of dimensions.")
-
-(defmfun allocate-mfdfsolver (type dimension)
-  "gsl_multiroot_fdfsolver_alloc"
-  ((type :pointer) (dimension sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm mfdfsolver)
-  :documentation			; FDL
-  "Allocate an instance of a derivative solver of the type specified for
-   a system of the specified number of dimensions.")
-
-(defmfun set-mfsolver (solver function initial)
-  "gsl_multiroot_fsolver_set"
-  ((solver :pointer) (function :pointer) ((mpointer initial) :pointer))
-  :inputs (initial)
-  :export nil
-  :index (letm mfsolver)
-  :documentation			; FDL
-  "Set or reset an existing solver to use the function and the
-   initial guess gsl-vector.")
-
-(defmfun set-mfdfsolver (solver function-derivative initial)
-  "gsl_multiroot_fdfsolver_set"
-  ((solver :pointer) (function-derivative :pointer)
-   ((mpointer initial) :pointer))
-  :inputs (initial)
-  :export nil
-  :index (letm mfdfsolver)
-  :documentation			; FDL
-  "Set or reset an existing solver to use the function and derivative
-   (fdf) and the initial guess.")
-
-(defmfun free-mfsolver (solver)
-  "gsl_multiroot_fsolver_free"
-  ((solver :pointer))
-  :c-return :void
-  :export nil
-  :index (letm mfsolver)
-  :documentation			; FDL
-  "Free all the memory associated with the solver.")
-
-(defmfun free-mfdfsolver (solver)
-  "gsl_multiroot_fdfsolver_free"
-  ((solver :pointer))
-  :c-return :void
-  :export nil
-  :index (letm mfdfsolver)
-  :documentation			; FDL
-  "Free all the memory associated with the solver.")
 
 (defmfun mfsolver-name (solver)
   "gsl_multiroot_fsolver_name"
@@ -461,8 +386,9 @@
 (defun roots-multi-example ()
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000))
-    (letm ((vect #m(a -10.0d0 -5.0d0))
-	   (solver (mfsolver *hybrid-scaled* rosenbrock vect)))
+    (let* ((vect #m(a -10.0d0 -5.0d0))
+	   (solver (make-multi-dimensional-root-solver-f
+		    *hybrid-scaled* rosenbrock vect)))
       (loop for iter from 0
 	 with fnval and argval
 	 while (and (< iter max-iter)
@@ -514,22 +440,22 @@
 		   (maref fnval 0)
 		   (maref fnval 1))))
     (let ((max-iter 1000))
-      (letm ((vect #m(a -10.0d0 -5.0d0)))
-	(letm
-	    ((solver (mfdfsolver *gnewton-mfdfsolver* rosenbrock-f vect)))
-	  (loop for iter from 0
-	     with fnval = (mfdfsolver-f solver)
-	     and argval = (mfdfsolver-root solver)
-	     while (and (< iter max-iter)
-			(not (multiroot-test-residual solver 1.0d-7)))
-	     initially (print-state iter argval fnval)
-	     do
-	     (iterate-mfdfsolver solver)
-	     (setf fnval (mfdfsolver-f solver)
-		   argval (mfdfsolver-root solver))
-	     (print-state iter argval fnval)
-	     finally (return
-		       (values (maref argval 0)
-			       (maref argval 1)
-			       (maref fnval 0)
-			       (maref fnval 1)))))))))
+      (let* ((vect #m(a -10.0d0 -5.0d0))
+	     (solver (make-multi-dimensional-root-solver-fdf
+		      *gnewton-mfdfsolver* rosenbrock-f vect)))
+	(loop for iter from 0
+	   with fnval = (mfdfsolver-f solver)
+	   and argval = (mfdfsolver-root solver)
+	   while (and (< iter max-iter)
+		      (not (multiroot-test-residual solver 1.0d-7)))
+	   initially (print-state iter argval fnval)
+	   do
+	   (iterate-mfdfsolver solver)
+	   (setf fnval (mfdfsolver-f solver)
+		 argval (mfdfsolver-root solver))
+	   (print-state iter argval fnval)
+	   finally (return
+		     (values (maref argval 0)
+			     (maref argval 1)
+			     (maref fnval 0)
+			     (maref fnval 1))))))))

@@ -1,6 +1,6 @@
 ;; Hypergeometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-10-25 13:39:43EDT hypergeometric.lisp>
+;; Time-stamp: <2008-12-26 11:45:11EST hypergeometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -47,7 +47,7 @@
 
 ;;; Examples and unit test
 (save-test hypergeometric-randist
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
 	   (hypergeometric rng 3 6 3)))

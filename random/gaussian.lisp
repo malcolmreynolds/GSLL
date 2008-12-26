@@ -1,6 +1,6 @@
 ;; Gaussian distribution
 ;; Liam Healy, Sun Jul 16 2006 - 22:09
-;; Time-stamp: <2008-10-25 13:30:56EDT gaussian.lisp>
+;; Time-stamp: <2008-12-26 11:45:12EST gaussian.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -128,12 +128,12 @@
 ;;; Examples and unit test
 (save-test
  gaussian
- (letm ((rng (random-number-generator *mt19937* 0)))
+ (let ((rng (make-random-number-generator *mt19937* 0)))
    (loop for i from 0 to 10
 	 collect
 	 (gaussian rng 10.0d0)))
  (gaussian-pdf 0.0d0 10.0d0)
- (letm ((rng (random-number-generator *mt19937* 0)))
+ (let ((rng (make-random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
 	   (gaussian-ziggurat rng 10.0d0)))

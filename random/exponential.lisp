@@ -1,6 +1,6 @@
 ;; Exponential distribution
 ;; Liam Healy, Sat Sep  2 2006 - 19:04
-;; Time-stamp: <2008-10-25 13:21:30EDT exponential.lisp>
+;; Time-stamp: <2008-12-26 11:45:08EST exponential.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,7 +53,7 @@
 
 ;;; Examples and unit test
 (save-test exponential
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (exponential rng 10.0d0)))

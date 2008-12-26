@@ -1,6 +1,6 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-12-26 10:28:21EST dirichlet.lisp>
+;; Time-stamp: <2008-12-26 11:46:05EST dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,17 +56,17 @@
 
 ;;; Examples and unit test
 (save-test dirichlet
-  (letm ((rng (random-number-generator *mt19937* 0))
-	   (alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
-	   (theta (make-marray 'double-float :dimensions 4)))
-      (dirichlet rng alpha theta)
-      (cl-array theta))
-  (letm ((alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
-	  (theta #m(1.0d0 2.0d0 3.0d0 4.0d0)))
-     (dirichlet-pdf alpha theta))
-  (letm ((alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
-	  (theta #m(1.0d0 2.0d0 3.0d0 4.0d0)))
-     (dirichlet-log-pdf alpha theta)))
+ (let ((rng (make-random-number-generator *mt19937* 0))
+       (alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
+       (theta (make-marray 'double-float :dimensions 4)))
+   (dirichlet rng alpha theta)
+   (cl-array theta))
+ (let ((alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
+       (theta #m(1.0d0 2.0d0 3.0d0 4.0d0)))
+   (dirichlet-pdf alpha theta))
+ (let ((alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
+       (theta #m(1.0d0 2.0d0 3.0d0 4.0d0)))
+   (dirichlet-log-pdf alpha theta)))
 
 
 

@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-26 10:25:50EST marray.lisp>
+;; Time-stamp: <2008-12-26 12:49:10EST marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -283,6 +283,6 @@
 	     (unless (eq blockptr array-struct)
 	       (cffi:foreign-free blockptr))
 	     (cffi:foreign-free array-struct)))
-	  (setf (mpointer object) array-struct))))))
+	  (setf (slot-value object 'mpointer) array-struct))))))
 
 ;;; For #-native, do the whole thing using _alloc, _free functions.

@@ -1,6 +1,6 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
-;; Time-stamp: <2008-12-25 13:06:55EST probability-distribution.lisp>
+;; Time-stamp: <2008-12-26 14:47:01EST probability-distribution.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -47,7 +47,7 @@
   :definition :method
   :c-return :double)
 
-(defmfun sample-2 (pdf value)
+(defmfun sample ((pdf histogram2d-pdf) value)
   "gsl_histogram2d_pdf_sample"
   (((mpointer pdf) :pointer) (value :double))
   :definition :method

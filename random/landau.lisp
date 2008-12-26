@@ -1,6 +1,6 @@
 ;; Landau distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-10-25 13:41:16EDT landau.lisp>
+;; Time-stamp: <2008-12-26 11:38:58EST landau.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,7 +28,7 @@
 
 ;;; Examples and unit test
 (save-test landau
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect (landau rng)))
   (landau-pdf 0.25d0))

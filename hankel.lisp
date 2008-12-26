@@ -1,11 +1,12 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-12-21 21:38:24EST hankel.lisp>
+;; Time-stamp: <2008-12-26 11:56:49EST hankel.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-#|
+;;; Everything compiles, but not tested -- need example.
+
 ;;; Create the Hankel transform object and essential methods/functions.
 (defmobject hankel "gsl_dht"
   ((size sizet))
@@ -14,52 +15,7 @@
    optionally initialize the transform for the given values of nu and x."
   "new"
   ((nu :double) (xmax :double)))
-|#
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-;;; Everything compiles, but not tested -- need example.
-
-(defgo-s (hankel size nu xmax) allocate-hankel free-hankel init-hankel)
-
-(defmfun allocate-hankel (size)
-  "gsl_dht_alloc"
-  ((size sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm hankel)
-  :documentation			; FDL
-  "Allocate a Discrete Hankel transform object of given size.")
-
-(defmfun init-hankel (hankel nu xmax)
-  "gsl_dht_new"
-  ((hankel :pointer) (nu :double) (xmax :double))
-  :export nil
-  :index (letm hankel)
-  :documentation			; FDL
-  "Initialize the transform for the given values of nu and x.")
-
-;; This seems redundant; does it effectively combine allocate-hankel
-;; and init-hankel?  In this case we don't really need, and shouldn't
-;; export it.
-(defmfun new-hankel (size nu xmax)
-  "gsl_dht_new"
-  ((size sizet) (nu :double) (xmax :double))
-  :c-return :pointer
-  :documentation			; FDL
-  "Allocate a Discrete Hankel transform object of size
-   size and initializes it for the given values of nu and
-   xmax.")
-
-(defmfun free-hankel (hankel)
-  "gsl_dht_free"
-  ((hankel :pointer))
-  :c-return :void
-  :export nil
-  :index (letm hankel)
-  :documentation			; FDL
-  "Free the Hankel object.")
+;;; We don't use gsl_dht_init because we use gsl_dht_new?
 
 (defmfun apply-hankel (hankel array-in array-out)
   "gsl_dht_apply"

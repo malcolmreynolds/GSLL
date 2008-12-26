@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-12-26 10:28:19EST eigensystems.lisp>
+;; Time-stamp: <2008-12-26 11:14:06EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,112 +9,33 @@
 ;;;; Workspace 
 ;;;;****************************************************************************
 
-#|
 (defmobject eigen-symm
     "gsl_eigen_symm" ((n sizet))
     "symmetric eigenvalue workspace"	; FDL
     "Make a workspace for computing eigenvalues of
   n-by-n real symmetric matrices.  The size of the workspace
   is O(2n).")
-|#
 
-(defgo-s (eigen-symm n) eigen-symm-alloc eigen-symm-free)
-
-(defmfun eigen-symm-alloc (n)
-  "gsl_eigen_symm_alloc" ((n sizet))
-  :c-return :pointer
-  :export nil
-  :index '(letm eigen-symm)
-  :documentation			; FDL
-  "Allocate a workspace for computing eigenvalues of
-  n-by-n real symmetric matrices.  The size of the workspace
-  is O(2n).")
-
-(defmfun eigen-symm-free (w)
-  "gsl_eigen_symm_free" ((w :pointer))
-  :c-return :void
-  :export nil
-  :index '(letm eigen-symm)
-  :documentation			; FDL
-  "Free the memory associated with the workspace w.")
-
-#|
 (defmobject eigen-symmv
     "gsl_eigen_symmv" ((n sizet))
     "symmetric eigensystem workspace"	; FDL
     "Make a workspace for computing eigenvalues and
   eigenvectors of n-by-n real symmetric matrices.  The size of
   the workspace is O(4n).")
-|#
 
-(defgo-s (eigen-symmv n) eigen-symmv-alloc eigen-symmv-free)
-
-(defmfun eigen-symmv-alloc (n)
-  "gsl_eigen_symmv_alloc" ((n sizet))
-  :c-return :pointer
-  :export nil
-  :index '(letm eigen-symmv)
-  :documentation			; FDL
-  "Allocate a workspace for computing eigenvalues and
-  eigenvectors of n-by-n real symmetric matrices.  The size of
-  the workspace is O(4n).")
-
-(defmfun eigen-symmv-free (w)
-  "gsl_eigen_symmv_free" ((w :pointer))
-  :index '(letm eigen-symmv)
-  :c-return :void
-  :documentation			; FDL
-  "Free the memory associated with the workspace w.")
-
-#|
 (defmobject eigen-herm
     "gsl_eigen_herm" ((n sizet))
     "Hermitian eigenvalue workspace"	; FDL
     "Make a workspace for computing eigenvalues of
   n-by-n complex Hermitian matrices.  The size of the workspace
   is O(3n).")
-|#
 
-(defgo-s (eigen-herm n) eigen-herm-alloc eigen-herm-free)
-
-(defmfun eigen-herm-alloc (n)
-  "gsl_eigen_herm_alloc" ((n sizet))
-  :documentation			; FDL
-  "Allocate a workspace for computing eigenvalues of
-  n-by-n complex hermitian matrices.  The size of the workspace
-  is O(3n)."
-  :c-return :pointer)
-
-(defmfun eigen-herm-free (w)
-  "gsl_eigen_herm_free" ((w :pointer))
-  :c-return :void
-  :documentation			; FDL
-  "Free the memory associated with the workspace w.")
-
-#|
 (defmobject eigen-hermv
     "gsl_eigen_hermv" ((n sizet))
     "Hermitian eigensystem workspace"	; FDL
     "Make a workspace for computing eigenvalues and
   eigenvectors of n-by-n complex hermitian matrices.  The size of
   the workspace is O(5n).")
-|#
-
-(defgo-s (eigen-hermv n) eigen-hermv-alloc eigen-hermv-free)
-
-(defmfun eigen-hermv-alloc (n)
-  "gsl_eigen_hermv_alloc" ((n sizet))
-  :documentation			; FDL
-  "Allocate a workspace for computing eigenvalues and
-  eigenvectors of n-by-n complex hermitian matrices.  The size of
-  the workspace is O(5n)."
-  :c-return :pointer)
-
-(defmfun eigen-hermv-free (w)
-  "gsl_eigen_hermv_free" ((w :pointer))
-  :c-return :void
-  :documentation			; FDL
-  "Free the memory associated with the workspace w.")
 
 ;;;;****************************************************************************
 ;;;; Eigenvalues and eigenvectors
@@ -194,9 +115,9 @@
 ;;;;****************************************************************************
  
 (defun eigenvalue-eigenvectors-example ()
-  (letm ((evecs (make-marray 'double-float :dimensions '(3 3)))
+  (let ((evecs (make-marray 'double-float :dimensions '(3 3)))
 	 (evals (make-marray 'double-float :dimensions 3))
-	 (ws (eigen-symmv 3))
+	 (ws (make-eigen-symmv 3))
 	 (mat #m((20.0d0 -10.0d0 0.0d0)
 		 (-10.0d0 30.0d0 0.0d0)
 		 (0.0d0 0.0d0 40.0d0))))

@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-12-25 10:22:13EST minimization-one.lisp>
+;; Time-stamp: <2008-12-26 13:26:06EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,7 +9,6 @@
 ;;;; Initialization
 ;;;;****************************************************************************
 
-#|
 ;; The one-dimensional minimizer uses a function (no derivative) only.
 (defmobject one-dimensional-minimizer
     "gsl_min_fminimizer"
@@ -18,34 +17,9 @@
   "Make an instance of a minimizer of the given type.  Optionally
    set to use the function and the initial search interval [lower,
    upper], with a guess for the location of the minimum."
-  "set"
+  "set"					; should use set_with_values?
   ((function :pointer) (minimum :double) (lower :double) (upper :double)))
-|#
 
-(defgo-s (fminimizer type function minimum lower upper)
-	 allocate-fminimizer free-fminimizer set-fminimizer)
-
-(defmfun allocate-fminimizer (type)
-  "gsl_min_fminimizer_alloc"
-  ((type :pointer))
-  :c-return :pointer
-  :export nil
-  :index (letm fminimizer)
-  :documentation			; FDL
-  "Allocate an instance of a minimizer of the given type.")
-
-(defmfun set-fminimizer (minimizer function minimum lower upper)
-  "gsl_min_fminimizer_set"
-  ((minimizer :pointer) (function :pointer)
-   (minimum :double) (lower :double) (upper :double))
-  :export nil
-  :index (letm fminimizer)
-  :documentation			; FDL
-  "Set, or reset, an existing minimizer to use the
-   function and the initial search interval [lower,
-   upper], with a guess for the location of the minimum.")
-
-;;; Use this in letm macro in any way?
 (defmfun set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
 	       f-minimum f-lower f-upper)
@@ -58,15 +32,6 @@
    function and the initial search interval [lower,
    upper], with a guess for the location of the minimum, using
    supplied rather than computed values of the function.")
-
-(defmfun free-fminimizer (minimizer)
-  "gsl_min_fminimizer_free"
-  ((minimizer :pointer))
-  :c-return :void
-  :export nil
-  :index (letm fminimizer)
-  :documentation			; FDL
-  "Free all the memory associated with the minimizer.")
 
 (defmfun fminimizer-name (minimizer)
   "gsl_min_fminimizer_name"
@@ -210,21 +175,22 @@
 
 (defun minimization-one-example ()
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
-  (letm ((max-iter 100)
-	 (minimizer
-	  (fminimizer *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0)))
+  (let ((max-iter 100)
+	(minimizer
+	 (make-one-dimensional-minimizer
+	  *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0)))
     (format t "~&iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower")
     (loop for iter from 0
-	  for min = (fminimizer-x-minimum minimizer)
-	  for lower = (fminimizer-x-lower minimizer)
-	  for upper = (fminimizer-x-upper minimizer)
-	  do (iterate-fminimizer minimizer)
-	  while  (and (< iter max-iter)
-		      ;; abs and rel error swapped in example?
-		      (not (min-test-interval lower upper 0.001d0 0.0d0)))
-	  do
-	  (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
-		  iter lower upper
-		  min (- min pi)
-		  (- upper lower)))))
+       for min = (fminimizer-x-minimum minimizer)
+       for lower = (fminimizer-x-lower minimizer)
+       for upper = (fminimizer-x-upper minimizer)
+       do (iterate-fminimizer minimizer)
+       while  (and (< iter max-iter)
+		   ;; abs and rel error swapped in example?
+		   (not (min-test-interval lower upper 0.001d0 0.0d0)))
+       do
+       (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
+	       iter lower upper
+	       min (- min pi)
+	       (- upper lower)))))
 

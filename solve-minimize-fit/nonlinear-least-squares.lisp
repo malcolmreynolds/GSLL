@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-12-26 10:25:45EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 12:56:25EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,44 +12,12 @@
 ;;; Note that there are currently no derivative-free solvers provided,
 ;;; so this is a bit pointless.
 
-#|
 (defmobject nonlinear-ffit "gsl_multifit_fsolver"
   ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
   "nonlinear least squares fit with function only"			; FDL
   "The number of observations must be greater than or equal to parameters."
   "set"
   ((function :pointer) ((mpointer initial-guess) :pointer)))
-|#
-
-(defgo-s (nonlinear-ffit solver-type number-of-observations number-of-parameters
-			 function initial-guess)
-    allocate-ffit free-ffit set-ffit 3)
-
-(defmfun allocate-ffit (solver-type number-of-observations number-of-parameters)
-  "gsl_multifit_fsolver_alloc"
-  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm nonlinear-ffit)
-  :documentation			; FDL
-  "Allocate an instance of a solver.  The number of observations
-   must be greater than or equal to parameters.")
-
-(defmfun set-ffit (solver function initial-guess)
-  "gsl_multifit_fsolver_set"
-  ((solver :pointer) (function :pointer) (initial-guess :pointer))
-  :documentation			; FDL
-  "Initialize or reinitialize an existing solver
-   to use the function and the initial guess.")
-
-(defmfun free-ffit (solver)
-  "gsl_multifit_fsolver_free"
-  ((solver :pointer))
-  :c-return :void
-  :export nil
-  :index (letm nonlinear-ffit)
-  :documentation			; FDL
-  "Free all the memory associated with the solver.")
 
 (defmfun name-ffit (solver)
   "gsl_multifit_fsolver_name"
@@ -62,7 +30,6 @@
 ;;;; Function and derivative solver object
 ;;;;****************************************************************************
 
-#|
 (defmobject nonlinear-fdffit "gsl_multifit_fsolver"
   ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
   "nonlinear least squares fit with function and derivative"			; FDL
@@ -70,37 +37,6 @@
    equal to parameters."
   "set"
   ((function :pointer) ((mpointer initial-guess) :pointer)))
-|#
-
-(defgo-s (nonlinear-fdffit solver-type number-of-observations number-of-parameters
-			   functions initial-guess)
-    allocate-fdffit free-fdffit set-fdffit 3)
-
-(defmfun allocate-fdffit (solver-type number-of-observations number-of-parameters)
-  "gsl_multifit_fdfsolver_alloc"
-  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm nonlinear-fdffit)
-  :documentation			; FDL
-  "Allocate an instance of a solver.  The number of observations
-   must be greater than or equal to parameters.")
-
-(defmfun set-fdffit (solver function initial-guess)
-  "gsl_multifit_fdfsolver_set"
-  ((solver :pointer) (function :pointer) ((mpointer initial-guess) :pointer))
-  :documentation			; FDL
-  "Initialize or reinitialize an existing solver
-   to use the function and the initial guess.")
-
-(defmfun free-fdffit (solver)
-  "gsl_multifit_fdfsolver_free"
-  ((solver :pointer))
-  :c-return :void
-  :export nil
-  :index (letm nonlinear-fdffit)
-  :documentation			; FDL
-  "Free all the memory associated with the solver.")
 
 (defmfun name-fdffit (solver)
   "gsl_multifit_fdfsolver_name"
@@ -356,7 +292,7 @@
     :n *number-of-observations*
     :y
     (let ((arr (make-marray *number-of-observations* 'double-float)))
-      (letm ((rng (random-number-generator *mt19937* 0)))
+      (let ((rng (make-random-number-generator *mt19937* 0)))
 	(dotimes (i *number-of-observations* arr)
 	  (setf (aref arr i)
 		(+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0))))))
@@ -410,12 +346,12 @@
   (euclidean-norm (fdffit-slot fit 'f)))
 
 (defun solve-nonlinear-least-squares-example ()
-  (letm ((init #m(1.0d0 0.0d0 0.0d0))
+  (let* ((init #m(1.0d0 0.0d0 0.0d0))
 	 (covariance
 	  (make-marray 'double-float
 		       :dimensions
 		       (list *number-of-parameters* *number-of-parameters*)))
-	 (fit (nonlinear-fdffit
+	 (fit (make-nonlinear-fdffit
 	       *levenberg-marquardt*
 	       *number-of-observations*
 	       *number-of-parameters*

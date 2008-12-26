@@ -1,6 +1,6 @@
 ;; Beta distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-10-25 12:08:05EDT beta.lisp>
+;; Time-stamp: <2008-12-26 11:46:07EST beta.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,7 +53,7 @@
 
 ;;; Examples and unit test
 (save-test beta
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (beta-rd rng 1.0d0 2.0d0)))

@@ -1,56 +1,20 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-12-23 21:46:27EST chebyshev.lisp>
+;; Time-stamp: <2008-12-26 11:21:25EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-#|
+;;;;****************************************************************************
+;;;; Creation and calculation of Chebyshev series
+;;;;****************************************************************************
+
 (defmobject chebyshev "gsl_cheb"
   ((order sizet))
   "Chebyshev series"			; FDL
   "Make a Chebyshev series of specified order."
   "init"
   ((function :pointer) (lower-limit :double) (upper-limit :double)))
-|#
-
-;;;;****************************************************************************
-;;;; Creation and calculation of Chebyshev series
-;;;;****************************************************************************
-
-(defgo-s (chebyshev order function lower-limit upper-limit)
-	 allocate-chebyshev free-chebyshev initialize-chebyshev)
-
-(defmfun allocate-chebyshev (order)
-  "gsl_cheb_alloc"
-  ((order sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm chebyshev)
-  :documentation			; FDL
-  "Allocate a Chebyshev series of specified order
-   and return a pointer to it.")
-
-(defmfun free-chebyshev (chebyshev)
-  "gsl_cheb_free"
-  ((chebyshev :pointer))
-  :c-return :void
-  :export nil
-  :index (letm chebyshev)
-  :documentation			; FDL
-  "Free a previously allocated Chebyshev series.")
-
-(defmfun initialize-chebyshev (chebyshev function lower-limit upper-limit)
-  "gsl_cheb_init"
-  ((chebyshev :pointer) (function :pointer)
-   (lower-limit :double) (upper-limit :double))
-  :export nil
-  :index (letm chebyshev)
-  :documentation			; FDL
-  "Compute the Chebyshev approximation for the function over the range
-   (lower-limit, upper-limit) to the previously specified order.  The
-   computation of the Chebyshev approximation is an O(n^2)
-   process, and requires n function evaluations.")
 
 ;;;;****************************************************************************
 ;;;; Chebyshev series evaluation
@@ -111,7 +75,7 @@
 
 (defun chebyshev-table-example ()
   (let ((steps 100))
-    (letm ((cheb (chebyshev 40 chebyshev-step 0.0d0 1.0d0)))
+    (let ((cheb (make-chebyshev 40 chebyshev-step 0.0d0 1.0d0)))
       (dotimes (i steps)
 	(let ((x (coerce (/ i steps) 'double-float)))
 	  (format t "~&~a ~a ~a ~a"
@@ -122,9 +86,9 @@
 
 (defun chebyshev-point-example (x)
   (check-type x double-float)
-  (letm ((cheb (chebyshev 40 chebyshev-step 0.0d0 1.0d0))
-	 (deriv (chebyshev 40))
-	 (integ (chebyshev 40)))
+  (let ((cheb (make-chebyshev 40 chebyshev-step 0.0d0 1.0d0))
+	 (deriv (make-chebyshev 40))
+	 (integ (make-chebyshev 40)))
     (derivative-chebyshev deriv cheb)
     (integral-chebyshev integ cheb)
     (list

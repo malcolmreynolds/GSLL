@@ -1,6 +1,6 @@
 ;; Logarithmic distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-10-25 17:53:40EDT logarithmic.lisp>
+;; Time-stamp: <2008-12-26 11:41:53EST logarithmic.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,7 +25,7 @@
 
 ;;; Examples and unit test
 (save-test logarithmic
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
      (loop for i from 0 to 10
 	   collect
 	   (logarithmic rng 0.9d0)))

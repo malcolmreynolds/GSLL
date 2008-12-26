@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-12-26 10:28:25EST linear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 13:26:43EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -129,32 +129,11 @@
 ;;;; Multiparameter fitting
 ;;;;****************************************************************************
 
-#|
 (defmobject fit-workspace
     "gsl_multifit_linear"
   ((number-of-observations sizet) (number-of-parameters sizet))
   "multi-dimensional root solver with function only"
   "Make a workspace for a multidimensional linear least-squares fit.")
-|#
-
-(defgo-s (fit-workspace number-of-observations number-of-parameters)
-	 allocate-fit-workspace free-fit-workspace nil 2)
-
-(defmfun allocate-fit-workspace (number-of-observations number-of-parameters)
-  "gsl_multifit_linear_alloc"
-  ((number-of-observations sizet) (number-of-parameters sizet))
-  :c-return :pointer
-  :index (letm fit-workspace)
-  :documentation			; FDL
-  "Allocate a workspace for fitting a linear model.")
-
-(defmfun free-fit-workspace (pointer)
-  "gsl_multifit_linear_free"
-  ((pointer :pointer))
-  :c-return :void
-  :index (letm fit-workspace)
-  :documentation			; FDL
-  "Free the memory associate with the workspace.")
 
 (defmfun linear-mfit
     (model observations parameters covariance tolerance workspace)
@@ -279,7 +258,7 @@
 (defun univariate-linear-least-squares-example ()
   "First example in Section 36.5 of the GSL manual."
   ;; Results not given in manual so not verified yet.
-  (letm ((x #m(1970.0d0 1980.0d0 1990.0d0 2000.0d0))
+  (let ((x #m(1970.0d0 1980.0d0 1990.0d0 2000.0d0))
 	 (y #m(12.0d0 11.0d0 14.0d0 13.0d0))
 	 (w #m(0.1d0 0.2d0 0.3d0 0.4d0)))
 	(multiple-value-bind (c0 c1 cov00 cov01 cov11 chisq)
@@ -311,7 +290,7 @@
 (defun mv-linear-least-squares-data ()
   "Generate data for second example in Section 36.5 of the GSL
    manual."
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
     (loop for x from 1/10 below 2 by 1/10
 	  for xd = (coerce x 'double-float)
 	  for y0 = (exp xd)
@@ -321,7 +300,7 @@
 
 (defun mv-linear-least-squares-example (data)
   "Second example in Section 36.5 of the GSL manual."
-  (letm ((n (length data)) chisq
+  (let* ((n (length data)) chisq
 	 (x (make-marray 'double-float :dimensions (list n 3)))
 	 (cov (make-marray 'double-float :dimensions '(3 3)))
 	 (y (make-marray 'double-float :dimensions n))
@@ -334,7 +313,7 @@
 	     (maref X i 2) (expt (first row) 2)
 	     (maref y i) (second row)
 	     (maref w i) (/ (expt (third row) 2))))
-    (letm ((ws (fit-workspace n 3)))
+    (let ((ws (make-fit-workspace n 3)))
       (setf chisq
 	    (weighted-linear-mfit X w y c cov ws)))
     (format t "~&Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2"

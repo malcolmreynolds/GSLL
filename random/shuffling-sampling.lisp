@@ -1,6 +1,6 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
-;; Time-stamp: <2008-12-26 10:28:21EST shuffling-sampling.lisp>
+;; Time-stamp: <2008-12-26 12:43:16EST shuffling-sampling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -42,7 +42,7 @@
    same relative order as those in src.  You will need to call
    #'shuffle if you want to randomize the order.")
 
-(defmfun sample  (generator dest src)
+(defmfun random-sample (generator dest src)
   "gsl_ran_sample"
   (((generator generator) :pointer)
    ((c-pointer dest) :pointer) ((dim0 dest) sizet)
@@ -57,17 +57,17 @@
 
 ;;; Examples and unit test
 (save-test shuffling-sampling
- (letm ((rng (random-number-generator *mt19937* 0))
+ (let ((rng (make-random-number-generator *mt19937* 0))
 	(v1 #31m(1 2 3 4 5 6 7 8)))
    (shuffle rng v1)
    (cl-array v1))
- (letm ((rng (random-number-generator *mt19937* 0))
+ (let ((rng (make-random-number-generator *mt19937* 0))
 	(v1 #31m(1 2 3 4 5 6 7 8))
 	(v2 (make-marray '(signed-byte 32) :dimensions 4)))
    (choose-random rng v2 v1)
    (cl-array v2))
- (letm ((rng (random-number-generator *mt19937* 0))
+ (let ((rng (make-random-number-generator *mt19937* 0))
 	(v1 #31m(1 2 3 4 5 6 7 8))
 	(v2 (make-marray '(signed-byte 32) :dimensions 10)))
-   (sample rng v2 v1)
+   (random-sample rng v2 v1)
    (cl-array v2)))

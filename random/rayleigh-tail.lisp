@@ -1,6 +1,6 @@
 ;; Rayleigh tail distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-10-25 18:16:47EDT rayleigh-tail.lisp>
+;; Time-stamp: <2008-12-26 11:48:47EST rayleigh-tail.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,7 +26,7 @@
 
 ;;; Examples and unit test
 (save-test rayleigh-tail
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect (rayleigh-tail rng 1.0d0 10.0d0)))
   (rayleigh-tail-pdf 0.25d0 -2.0d0 2.0d0))

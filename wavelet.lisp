@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-12-26 10:28:22EST wavelet.lisp>
+;; Time-stamp: <2008-12-26 13:16:29EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,7 +20,6 @@
 ;;;; Allocation of wavelets
 ;;;;****************************************************************************
 
-#|
 (defmobject wavelet "gsl_wavelet"
   ((type :pointer) (member sizet))
   "wavelet"				; FDL
@@ -28,30 +27,6 @@
    parameter 'member selects the specific member of the wavelet
    family.  A memory-allocation-failure error indicates either
    lack of memory or an unsupported member requested.")
-|#
-
-(defgo-s (wavelet type member) allocate-wavelet free-wavelet nil 2)
-
-(defmfun allocate-wavelet (type member)
-  "gsl_wavelet_alloc"
-  ((type :pointer) (member sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm wavelet)
-  :documentation			; FDL
-  "Allocate and initialize a wavelet object of type 'type.  The
-   parameter 'member selects the specific member of the wavelet
-   family.  A memory-allocation-failure error indicates either
-   lack of memory or an unsupported member requested.")
-
-(defmfun free-wavelet (wavelet)
-  "gsl_wavelet_free"
-  ((wavelet :pointer))
-  :c-return :void
-  :export nil
-  :index (letm wavelet)
-  :documentation			; FDL
-  "Free the wavelet object.")
 
 (defmpar *daubechies-wavelet* "gsl_wavelet_daubechies"
   ;; FDL
@@ -94,7 +69,6 @@
   :documentation			; FDL
   "The name of the wavelet family.")
 
-#|
 (defmobject wavelet-workspace
   "gsl_wavelet_workspace"
   ((size sizet))
@@ -105,32 +79,6 @@
    size-by-size matrices it is sufficient to allocate a workspace of
    size, since the transform operates on individual rows and
    columns.")
-|#
-
-(defgo-s (wavelet-workspace size) allocate-wavelet-workspace free-wavelet-workspace)
-
-(defmfun allocate-wavelet-workspace (size)
-  "gsl_wavelet_workspace_alloc"
-  ((size sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm wavelet-workspace)
-  :documentation			; FDL
-  "Allocate a workspace for the discrete wavelet transform.
-   To perform a one-dimensional transform on size elements, a workspace
-   of size size must be provided.  For two-dimensional transforms of
-   size-by-size matrices it is sufficient to allocate a workspace of
-   size, since the transform operates on individual rows and
-   columns.")
-
-(defmfun free-wavelet-workspace (workspace)
-  "gsl_wavelet_workspace_free"
-  ((workspace :pointer))
-  :c-return :void
-  :export nil
-  :index (letm wavelet-workspace)
-  :documentation			; FDL
-  "Free the allocated workspace.")
 
 ;;;;****************************************************************************
 ;;;; Wavelet transforms 1D
@@ -409,13 +357,13 @@
    functions. It computes an approximation to an input signal (of length
    256) using the 20 largest components of the wavelet transform, while
    setting the others to zero.  See GSL manual Section 30.4."
-  (letm ((n (length cl-data))
+  (let* ((n (length cl-data))
 	 (vector cl-data)
-	 (wavelet (wavelet *daubechies-wavelet* 4))
-	 (workspace (wavelet-workspace n)))
+	 (wavelet (make-wavelet *daubechies-wavelet* 4))
+	 (workspace (make-wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
-    (letm ((absvector (make-marray 'double-float :dimensions n))
-	   (permutation (make-permutation n)))
+    (let ((absvector (make-marray 'double-float :dimensions n))
+	  (permutation (make-permutation n)))
       (dotimes (i n)
 	(setf (maref absvector i) (abs (maref vector i))))
       ;; Sort and set to 0 all but the largest 20.
@@ -429,9 +377,9 @@
 
 (defun wavelet-forward-example (&optional (cl-data *wavelet-sample*))
   "Simpler example, with only a Daubechies wavelet forward transformation."
-  (letm ((n (length cl-data))
+  (let* ((n (length cl-data))
 	 (vector cl-data)
-	 (wavelet (wavelet *daubechies-wavelet* 4))
-	 (workspace (wavelet-workspace n)))
+	 (wavelet (make-wavelet *daubechies-wavelet* 4))
+	 (workspace (make-wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
     (cl-array vector)))

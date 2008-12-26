@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-12-26 10:28:23EST coulomb.lisp>
+;; Time-stamp: <2008-12-26 12:18:56EST coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -125,19 +125,19 @@
 ;;;;****************************************************************************
 
 (save-test coulomb
-  (hydrogenicr-1 1.0d0 2.5d0)
-  (hydrogenicr 3 1 1.0d0 2.5d0)
-  (coulomb-wave-FG 0.0d0 1.0d0 2.0d0 0)
-  (letm ((arr (make-marray 'double-float :dimensions 3)))
-    (coulomb-wave-F-array 0.0d0 1.0d0 2.0d0 arr)
-    (cl-array arr))
-  (coulomb-wave-fg 1.0d0 2.0d0 2.5d0 1)
-  (letm ((Farr (make-marray 'double-float :dimensions 3))
-	 (Garr (make-marray 'double-float :dimensions 3)))
-    (coulomb-wave-FG-array 1.5d0 1.0d0 1.0d0 Farr Garr)
-    (append (coerce (cl-array Farr) 'list) (coerce (cl-array Garr) 'list)))
-  (letm ((arr (make-marray 'double-float :dimensions 3)))
-    (coulomb-wave-sphF-array  0.0d0 1.0d0 2.0d0 arr) (cl-array arr))
-  (coulomb-cl 1.0d0 2.5d0)
-  (letm ((cl (make-marray 'double-float :dimensions 3)))
-    (coulomb-CL-array 0.0d0 1.0d0 cl) (cl-array cl)))
+ (hydrogenicr-1 1.0d0 2.5d0)
+ (hydrogenicr 3 1 1.0d0 2.5d0)
+ (coulomb-wave-FG 0.0d0 1.0d0 2.0d0 0)
+ (let ((arr (make-marray 'double-float :dimensions 3)))
+   (coulomb-wave-F-array 0.0d0 1.0d0 2.0d0 arr)
+   (cl-array arr))
+ (coulomb-wave-fg 1.0d0 2.0d0 2.5d0 1)
+ (let ((Farr (make-marray 'double-float :dimensions 3))
+       (Garr (make-marray 'double-float :dimensions 3)))
+   (coulomb-wave-FG-array 1.5d0 1.0d0 1.0d0 Farr Garr)
+   (append (coerce (cl-array Farr) 'list) (coerce (cl-array Garr) 'list)))
+ (let ((arr (make-marray 'double-float :dimensions 3)))
+   (coulomb-wave-sphF-array  0.0d0 1.0d0 2.0d0 arr) (cl-array arr))
+ (coulomb-cl 1.0d0 2.5d0)
+ (let ((cl (make-marray 'double-float :dimensions 3)))
+   (coulomb-CL-array 0.0d0 1.0d0 cl) (cl-array cl)))

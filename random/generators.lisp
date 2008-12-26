@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-12-25 22:49:25EST generators.lisp>
+;; Time-stamp: <2008-12-26 11:36:03EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -174,10 +174,9 @@
 ;;;;****************************************************************************
 
 (save-test random-number-generators
- (letm ((rng (random-number-generator *mt19937* 0)))
+ (let ((rng (make-random-number-generator *mt19937* 0)))
    (loop for i from 0 to 10
 	 collect
 	 (uniform-fixnum rng 1000)))
- (letm ((rng (random-number-generator *cmrg* 0)))
+ (let ((rng (make-random-number-generator *cmrg* 0)))
    (loop for i from 0 to 10 collect (uniform rng))))
-

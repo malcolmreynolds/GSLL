@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-12-26 10:25:46EST basis-splines.lisp>
+;; Time-stamp: <2008-12-26 12:51:25EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,7 +8,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Should be subclass of interpolation?
 
-#|
 (defmobject basis-spline "gsl_bspline"
   ((order sizet) (number-of-breakpoints sizet))
   "basis spline"			; FDL
@@ -16,31 +15,6 @@
    breakpoints is given by number-of-breakpoints.  This leads to n =
    nbreak + k - 2 basis functions where k = order. Cubic B-splines are
    specified by k = 4. The size of the workspace is O(5k + nbreak).")
-|#
-
-;;; Initializing the B-splines solver
-(defgo-s (basis-spline order number-of-breakpoints) allocate-basis-spline free-basis-spline nil 2)
-
-(defmfun allocate-basis-spline (order number-of-breakpoints)
-  "gsl_bspline_alloc"
-  ((order sizet) (number-of-breakpoints sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm basis-spline)
-  :documentation			; FDL
-  "Allocate a workspace for computing B-splines. The number of
-   breakpoints is given by number-of-breakpoints.  This leads to n =
-   nbreak + k - 2 basis functions where k = order. Cubic B-splines are
-   specified by k = 4. The size of the workspace is O(5k + nbreak)."  )
-
-(defmfun free-basis-spline (bspline)
-  "gsl_bspline_free"
-  ((bspline :pointer))
-  :c-return :void
-  :export nil
-  :index (letm basis-spline)
-  :documentation			; FDL
-  "Free the memory associated with the workspace of the bspline.")
 
 ;;; Constructing the knots vector
 (defmfun knots (breakpoints workspace)
@@ -101,17 +75,13 @@
 
 ;;; Examples and unit test
 
-#|
-
-|#
-
 (defun bspline-example (&optional (ncoeffs 8))
-  (letm ((order 4)			; cubic
+  (let* ((order 4)			; cubic
 	 (ndata 200)
 	 (nbreak (+ ncoeffs 2 (- order)))
 	 (bw (make-basis-spline order nbreak))
-	 (mw (fit-workspace ndata ncoeffs))
-	 (rng (random-number-generator *mt19937* 0))
+	 (mw (make-fit-workspace ndata ncoeffs))
+	 (rng (make-random-number-generator *mt19937* 0))
 	 (B (make-marray 'double-float :dimensions ncoeffs))
 	 (c (make-marray 'double-float :dimensions ncoeffs))
 	 (cov (make-marray 'double-float :dimensions (list ncoeffs ncoeffs)))
@@ -141,11 +111,11 @@
     (weighted-linear-mfit Xmatrix w y c cov mw)
     ;; Return the smoothed curve
     (loop for xi from 0.0d0 to 15.0d0 by 0.1d0
-	  with yval and yerr
-	  do
-	  (evaluate-bspline xi B bw)
-	  (multiple-value-setq (yval yerr)
-	      (multi-linear-estimate B c cov))
-	  collect yval into yvals 
-	  collect yerr into yerrs
-	  finally (return (values yvals yerrs)))))
+       with yval and yerr
+       do
+       (evaluate-bspline xi B bw)
+       (multiple-value-setq (yval yerr)
+	 (multi-linear-estimate B c cov))
+       collect yval into yvals 
+       collect yerr into yerrs
+       finally (return (values yvals yerrs)))))

@@ -1,6 +1,6 @@
 ;; Logistic distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2008-10-25 17:54:29EDT logistic.lisp>
+;; Time-stamp: <2008-12-26 11:45:08EST logistic.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -52,7 +52,7 @@
 
 ;;; Examples and unit test
 (save-test logistic
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (logistic rng 10.0d0)))

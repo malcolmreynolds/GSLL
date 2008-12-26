@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-26 10:28:20EST polynomial.lisp>
+;; Time-stamp: <2008-12-26 11:10:14EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -120,27 +120,9 @@
 ;;;; General Polynomial Equations
 ;;;;****************************************************************************
 
-#|
 (defmobject polynomial-complex-workspace "gsl_poly_complex_workspace"
   ((n sizet))
   "complex workspace for polynomials")
-|#
-
-
-(defgo-s (complex-workspace n)
-	 allocate-complex-workspace free-complex-workspace)
-
-(defmfun allocate-complex-workspace (n)
-  "gsl_poly_complex_workspace_alloc" ((n sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm complex-workspace))
-
-(defmfun free-complex-workspace (ws)
-  "gsl_poly_complex_workspace_free" ((ws :pointer))
-  :c-return :void
-  :export nil
-  :index (letm complex-workspace))
 
 (export 'polynomial-solve)
 (defun polynomial-solve (coefficients)
@@ -155,8 +137,8 @@
   real and imaginary parts."
   (let ((len (total-size coefficients)))
     ;; Should this be making a complex array?
-    (letm ((answer (make-marray 'double-float :dimensions (* 2 (1- len))))
-	   (ws (complex-workspace len)))
+    (let ((answer (make-marray 'double-float :dimensions (* 2 (1- len))))
+	   (ws (make-polynomial-complex-workspace len)))
       (values-list (polynomial-solve-ws coefficients ws answer)))))
 
 (defmfun polynomial-solve-ws (coefficients workspace answer-pd)

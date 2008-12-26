@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-12-25 11:22:57EST numerical-integration.lisp>
+;; Time-stamp: <2008-12-26 11:35:14EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -36,34 +36,11 @@
 ;;;; QAG adaptive Gauss-Kronrod integration
 ;;;;****************************************************************************
 
-#|
 (defmobject integration-workspace
     "gsl_integration_workspace" ((size sizet))
     "integration workspace"		; FDL
     "Make a workspace sufficient to hold n double
   precision intervals, their integration results and error estimates.")
-|#
-
-(defgo-s (integration-workspace size)
-	 integration-workspace-alloc integration-workspace-free)
-
-(defmfun integration-workspace-alloc (size)
-  "gsl_integration_workspace_alloc" ((size sizet))
-  :c-return :pointer
-  :export nil
-  :index (letm integration-workspace)
-  :documentation			; FDL
-  "Allocate a workspace sufficient to hold n double
-  precision intervals, their integration results and error estimates.")
-
-(defmfun integration-workspace-free (pointer)
-  "gsl_integration_workspace_free"
-  ((pointer :pointer))
-  :c-return :void
-  :export nil
-  :index (letm integration-workspace)
-  :documentation			; FDL
-  "Free the memory associated with the workspace.")
 
 (cffi:defcenum integrate-method
   :gauss15 :gauss21 :gauss31
@@ -237,8 +214,8 @@
 
 (save-test numerical-integration
   (integration-qng one-sine 0.0d0 pi)
-  (letm ((ws (integration-workspace 20)))
+  (let ((ws (make-integration-workspace 20)))
      (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws))
-  (letm ((ws (integration-workspace 20)))
+  (let ((ws (make-integration-workspace 20)))
      (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws)))
 

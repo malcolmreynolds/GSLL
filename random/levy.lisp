@@ -1,6 +1,6 @@
 ;; Levy distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-10-25 17:52:43EDT levy.lisp>
+;; Time-stamp: <2008-12-26 11:45:09EST levy.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -44,11 +44,11 @@
 
 ;;; Examples and unit test
 (save-test levy
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (levy rng 1.0d0 2.0d0)))
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (levy-skew rng 1.0d0 2.0d0 1.0d0))))

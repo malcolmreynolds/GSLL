@@ -1,6 +1,6 @@
 ;; Flat distribution
 ;; Liam Healy, Oct  7 2006
-;; Time-stamp: <2008-10-25 13:26:12EDT flat.lisp>
+;; Time-stamp: <2008-12-26 11:38:55EST flat.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,7 +53,7 @@
 
 ;;; Examples and unit test
 (save-test flat
-  (letm ((rng (random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator *mt19937* 0)))
       (loop for i from 0 to 10
 	    collect
 	    (flat rng 1.0d0 2.0d0)))
