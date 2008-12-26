@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-12-25 10:35:32EST linear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 10:28:25EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -322,11 +322,11 @@
 (defun mv-linear-least-squares-example (data)
   "Second example in Section 36.5 of the GSL manual."
   (letm ((n (length data)) chisq
-	 (x (make-array* 'double-float :dimensions (list n 3)))
-	 (cov (make-array* 'double-float :dimensions '(3 3)))
-	 (y (make-array* 'double-float :dimensions n))
-	 (w (make-array* 'double-float :dimensions n))
-	 (c (make-array* 'double-float :dimensions 3)))
+	 (x (make-marray 'double-float :dimensions (list n 3)))
+	 (cov (make-marray 'double-float :dimensions '(3 3)))
+	 (y (make-marray 'double-float :dimensions n))
+	 (w (make-marray 'double-float :dimensions n))
+	 (c (make-marray 'double-float :dimensions 3)))
     (loop for i from 0
        for row in data do
        (setf (maref X i 0) 1.0d0

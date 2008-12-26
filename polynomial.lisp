@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-25 10:01:23EST polynomial.lisp>
+;; Time-stamp: <2008-12-26 10:28:20EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -155,7 +155,7 @@
   real and imaginary parts."
   (let ((len (total-size coefficients)))
     ;; Should this be making a complex array?
-    (letm ((answer (make-array* 'double-float :dimensions (* 2 (1- len))))
+    (letm ((answer (make-marray 'double-float :dimensions (* 2 (1- len))))
 	   (ws (complex-workspace len)))
       (values-list (polynomial-solve-ws coefficients ws answer)))))
 
@@ -181,7 +181,7 @@
 (save-test polynomial
  (let ((xa #m(0.0d0 1.0d0 2.0d0 3.0d0))
 	(ya #m(2.5d0 7.2d0 32.7d0 91.0d0))
-	(dd (make-array* 'double-float :dimensions 4)))
+	(dd (make-marray 'double-float :dimensions 4)))
    (divided-difference dd xa ya)
    (list
     (polynomial-eval-divided-difference dd xa 0.0d0)

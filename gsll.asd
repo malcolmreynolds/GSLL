@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-11-30 23:17:52EST gsll.asd>
+;; Time-stamp: <2008-12-26 10:54:32EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -15,7 +15,7 @@
 	    :components
 	    ((:file "init")
 	     (:file "conditions" :depends-on (init))
-	     (:file "gsl-objects" :depends-on (init))
+	     (:file "mobject" :depends-on (init))
 	     (:file "element-types" :depends-on (init))
 	     (:file "number-conversion" :depends-on (init))
 	     (:file "interface"
@@ -33,15 +33,15 @@
 	    :depends-on (init)
 	    :components
 	    ((:file "foreign-friendly")
-	     (:file "data" :depends-on (foreign-friendly))
-	     (:file "vector" :depends-on (data))
-	     (:file "matrix" :depends-on (data vector))
-	     (:file "maref" :depends-on (data vector matrix))
-	     (:file "both" :depends-on (data vector matrix))
+	     (:file "marray" :depends-on (foreign-friendly))
+	     (:file "vector" :depends-on (marray))
+	     (:file "matrix" :depends-on (marray vector))
+	     (:file "maref" :depends-on (marray vector matrix))
+	     (:file "both" :depends-on (marray vector matrix))
 	     (:file "array-tests" :depends-on (both))
-	     (:file "permutation" :depends-on (data))
+	     (:file "permutation" :depends-on (marray))
 	     (:file "combination"	; preload defgeneric
-		    :depends-on (data matrix both permutation))))
+		    :depends-on (marray matrix both permutation))))
    (:file "polynomial" :depends-on (init data))
    (:module special-functions
 	    :depends-on (init)

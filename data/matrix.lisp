@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2008-11-15 13:35:20EST matrix.lisp>
+;; Time-stamp: <2008-12-26 10:10:38EST matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,7 +18,7 @@
   (block :pointer)
   (owner :int))
 
-(defclass matrix (gsl-data)
+(defclass matrix (marray)
   ()
   (:documentation "GSL matrices."))
 

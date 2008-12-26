@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2008-11-30 18:44:50EST foreign-friendly.lisp>
+;; Time-stamp: <2008-12-26 10:10:40EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -116,10 +116,10 @@
      ,body))
 
 #+sbcl
-(defun c-pointer (gsl-data)
+(defun c-pointer (marray)
   "The pointer to the C array."
   (cffi:inc-pointer
-   (sb-sys:vector-sap (original-array gsl-data)) (offset gsl-data)))
+   (sb-sys:vector-sap (original-array marray)) (offset marray)))
 
 ;;;;****************************************************************************
 ;;;; Pointer management

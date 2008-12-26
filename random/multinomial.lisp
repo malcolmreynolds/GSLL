@@ -1,6 +1,6 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-11-30 23:19:48EST multinomial.lisp>
+;; Time-stamp: <2008-12-26 10:28:20EST multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -51,7 +51,7 @@
 (save-test multinomial
  (letm ((rng (random-number-generator *mt19937* 0))
 	(p #m(0.1d0 0.2d0 0.3d0 0.4d0))
-	(n (make-array* '(signed-byte 32) :dimensions 4)))
+	(n (make-marray '(signed-byte 32) :dimensions 4)))
    (multinomial rng 8 p n)
    (cl-array n))
  (letm ((p #m(0.1d0 0.2d0 0.3d0 0.4d0))

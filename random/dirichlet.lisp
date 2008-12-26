@@ -1,6 +1,6 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-11-30 23:17:06EST dirichlet.lisp>
+;; Time-stamp: <2008-12-26 10:28:21EST dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,7 +58,7 @@
 (save-test dirichlet
   (letm ((rng (random-number-generator *mt19937* 0))
 	   (alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
-	   (theta (make-array* 'double-float :dimensions 4)))
+	   (theta (make-marray 'double-float :dimensions 4)))
       (dirichlet rng alpha theta)
       (cl-array theta))
   (letm ((alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))

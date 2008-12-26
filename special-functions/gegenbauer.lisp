@@ -1,6 +1,6 @@
 ;; Gegenbauer polynomials
 ;; Liam Healy, Fri Apr 28 2006 - 20:40
-;; Time-stamp: <2008-11-30 23:44:04EST gegenbauer.lisp>
+;; Time-stamp: <2008-12-26 10:28:24EST gegenbauer.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,5 +48,5 @@
   (gegenbauer-2 1.0d0 3.0d0)
   (gegenbauer-3 1.0d0 3.0d0)
   (gegenbauer 4 1.0d0 3.0d0)
-  (letm ((arr (make-array* 'double-float :dimensions 4)))
+  (letm ((arr (make-marray 'double-float :dimensions 4)))
       (gegenbauer-array 1.0d0 3.0d0 arr) (cl-array arr)))

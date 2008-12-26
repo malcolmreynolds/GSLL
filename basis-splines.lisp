@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-12-21 21:46:10EST basis-splines.lisp>
+;; Time-stamp: <2008-12-26 10:25:46EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -112,13 +112,13 @@
 	 (bw (make-basis-spline order nbreak))
 	 (mw (fit-workspace ndata ncoeffs))
 	 (rng (random-number-generator *mt19937* 0))
-	 (B (make-array* 'double-float :dimensions ncoeffs))
-	 (c (make-array* 'double-float :dimensions ncoeffs))
-	 (cov (make-array* 'double-float :dimensions (list ncoeffs ncoeffs)))
-	 (w (make-array* 'double-float :dimensions ndata))
-	 (x (make-array* 'double-float :dimensions ndata))
-	 (y (make-array* 'double-float :dimensions ndata))
-	 (Xmatrix (make-array* 'double-float :dimensions (list ndata ncoeffs)))
+	 (B (make-marray 'double-float :dimensions ncoeffs))
+	 (c (make-marray 'double-float :dimensions ncoeffs))
+	 (cov (make-marray 'double-float :dimensions (list ncoeffs ncoeffs)))
+	 (w (make-marray 'double-float :dimensions ndata))
+	 (x (make-marray 'double-float :dimensions ndata))
+	 (y (make-marray 'double-float :dimensions ndata))
+	 (Xmatrix (make-marray 'double-float :dimensions (list ndata ncoeffs)))
 	 (sigma 0.1d0))
     ;; The data to be fitted.
     (dotimes (i ndata)

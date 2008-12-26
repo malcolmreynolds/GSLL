@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-25 10:32:16EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-26 10:29:01EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -411,7 +411,7 @@
 
 (defun multimin-example-nelder-mead ()
   (letm ((initial #m(5.0d0 7.0d0))
-	 (step-size (make-array* 'double-float :dimensions 2)))
+	 (step-size (make-marray 'double-float :dimensions 2)))
     (set-all step-size 1.0d0)
     (letm ((minimizer
 	    (mfminimizer *simplex-nelder-mead* 2 parabaloid-f initial step-size)))

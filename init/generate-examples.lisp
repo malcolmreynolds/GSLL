@@ -1,6 +1,6 @@
 ;; Define examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-11-30 23:02:06EST generate-examples.lisp>
+;; Time-stamp: <2008-12-26 10:25:47EST generate-examples.lisp>
 ;; $Id: $
 
 ;;; Define examples that can be displayed by users with the function
@@ -78,7 +78,7 @@
 (defun make-vector-from-pool (type length &optional (starting 0))
   "Make a vector of the specified element type and length using the
    pool data for the type and starting at the specified point in the pool."
-  (make-array*
+  (make-marray
    length type
    :initial-contents
    (make-list-from-pool type length starting)))
@@ -108,9 +108,9 @@
   (let ((matrixp (listp spec)))
     (if no-init
 	;; No initial values, just dimension
-	`(make-array* ',default-element-type :dimensions ',spec)
+	`(make-marray ',default-element-type :dimensions ',spec)
 	;; Initial contents
-	`(make-array*
+	`(make-marray
 	  ',default-element-type
 	  :initial-contents
 	  ',(if matrixp

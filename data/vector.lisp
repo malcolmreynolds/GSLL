@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
-;; Time-stamp: <2008-11-29 14:19:54EST vector.lisp>
+;; Time-stamp: <2008-12-26 10:10:39EST vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,7 +17,7 @@
   (block :pointer)
   (owner :int))
 
-(defclass mvector (gsl-data)
+(defclass mvector (marray)
   ()
   (:documentation "GSL vectors."))
 

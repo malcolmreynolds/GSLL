@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-12-07 18:32:04EST lu.lisp>
+;; Time-stamp: <2008-12-26 10:25:47EST lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -136,11 +136,11 @@
   (letm ((mmat mat)
 	 (dim (array-dimension mat 0))
 	 (per (make-permutation dim))
-	 (inv (make-array* 'double-float :dimensions (list dim dim))))
+	 (inv (make-marray 'double-float :dimensions (list dim dim))))
     (LU-decomposition mmat per)
     (lu-invert mmat per inv)
     (cl-array inv)))
 
 (save-test lu
  (invert-matrix
-  (make-array* '(2 2) 'double-float :initial-contents '(1.0d0 2.0d0 3.0d0 4.0d0))))
+  (make-marray '(2 2) 'double-float :initial-contents '(1.0d0 2.0d0 3.0d0 4.0d0))))

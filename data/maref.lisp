@@ -1,6 +1,6 @@
 ;; Get/set array or elements: cl-array, maref
 ;; Liam Healy 2008-08-27 22:43:10EDT maref.lisp
-;; Time-stamp: <2008-12-07 17:08:25EST maref.lisp>
+;; Time-stamp: <2008-12-26 10:25:50EST maref.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -18,7 +18,7 @@
 
 ;;; Both these functions take one of the following class arguments for
 ;;; the array:
-;;; - a gsl-data
+;;; - a marray
 ;;; - a Common Lisp array
 ;;; - a pointer to a GSL vector or matrix structure
 
@@ -28,11 +28,11 @@
 
 (defgeneric cl-array (object &optional array-rank element-type)
   (:documentation
-   "The array as a CL native array.  The object may be a gsl-data object,
+   "The array as a CL native array.  The object may be a marray object,
     a pointer to a GSL vector or matrix, or an ordinary CL array of one
     or two dimensions.  Optional arguments array-rank and element-type
     are used only for pointers.")
-  (:method ((object gsl-data) &optional array-rank element-type)
+  (:method ((object marray) &optional array-rank element-type)
     (declare (ignore array-rank element-type))
     #-native (copy-c-to-cl object)
     (slot-value object 'cl-array))
@@ -53,7 +53,7 @@
       ;; Matrix
       (let* ((dim1 (cffi:foreign-slot-value pointer 'gsl-matrix-c 'size1))
 	     (dim2 (cffi:foreign-slot-value pointer 'gsl-matrix-c 'size2))
-	     (array (make-array* (list dim1 dim2) element-type)))
+	     (array (make-marray (list dim1 dim2) element-type)))
 	;; Copy over from the C side
 	(loop for i below dim1
 	   do (loop for j below dim2 do
@@ -61,7 +61,7 @@
 	array)
       ;; Vector
       (let* ((size (cffi:foreign-slot-value pointer 'gsl-vector-c 'size))
-	     (array (make-array* size element-type)))
+	     (array (make-marray size element-type)))
 	;; Copy over from the C side
 	(loop for i below size
 	   do (setf (aref array i) (maref pointer i)))
@@ -73,9 +73,9 @@
 
 (defgeneric maref (object index &optional index2 type)
   (:documentation
-   "An element of the data.  The object may be a gsl-data object, a pointer to
+   "An element of the data.  The object may be a marray object, a pointer to
     a GSL vector or matrix, or an ordinary CL array of one or two dimensions.")
-  (:method ((object gsl-data) index &optional index2 type)
+  (:method ((object marray) index &optional index2 type)
     (declare (ignore type))
     #-native (copy-c-to-cl object)
     (if index2
@@ -93,10 +93,10 @@
 
 (defgeneric (setf maref) (value object index &optional index2 type)
   (:documentation
-   "Set an element of the data.  The object may be a gsl-data object,
+   "Set an element of the data.  The object may be a marray object,
     a pointer to a GSL vector or matrix, or an ordinary CL array
     of one or two dimensions.")
-  (:method (value (object gsl-data) index &optional index2 type)
+  (:method (value (object marray) index &optional index2 type)
     (declare (ignore type))
     (if index2
 	(setf (aref (slot-value object 'cl-array) index index2) value)

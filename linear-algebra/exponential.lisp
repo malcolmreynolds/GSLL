@@ -1,6 +1,6 @@
 ;; Exponential of a matrix
 ;; Liam Healy 2008-08-10 17:25:35EDT exponential.lisp
-;; Time-stamp: <2008-12-07 18:31:37EST exponential.lisp>
+;; Time-stamp: <2008-12-26 10:25:48EST exponential.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -25,7 +25,7 @@
 ;;; A matrix of the form [[0, 1], [-1, 0]]
 ;;; when exponentiated gives [[cos x,  sin x], [-sin x,  cos x]]
 (letm ((mat #m((0.0d0 1.0d0) (-1.0d0 0.0d0)))
-       (exp (make-array* 'double-float :dimensions '(2 2))))
+       (exp (make-marray 'double-float :dimensions '(2 2))))
   (cl-array (matrix-exponential mat exp)))
 #2A((0.5403023058681384d0 0.841470984807895d0)
     (-0.841470984807895d0 0.5403023058681384d0))

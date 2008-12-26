@@ -1,19 +1,16 @@
-;; "Data" is bulk arrayed data, like vectors, matrices, permutations,
-;; combinations, or histograms.
+;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-25 09:40:55EST data.lisp>
+;; Time-stamp: <2008-12-26 10:25:50EST marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;;;****************************************************************************
-;;;; The class gsl-data and element types that make subclasses
+;;;; The class marray and element types that make subclasses
 ;;;;****************************************************************************
 
-(defclass gsl-data (mobject)
+(defclass foreign-array ()
   ((cl-array :documentation "The Lisp array.")
-   (block-pointer :initform nil :accessor block-pointer
-		  :documentation "A pointer to the gsl-block-c.")
    #-native
    (c-pointer :accessor c-pointer :documentation "A pointer to the C array.")
    (dimensions :reader dimensions)
@@ -39,14 +36,19 @@
      way.  If a list of index sets, those indices disagree and the remainder
      are correct."))
   (:documentation
-   "A superclass for all data storage structures, such as vector, matrix,
-   etc."))
+   "A superclass for arrays represented in C and CL."))
+
+(defclass marray (mobject foreign-array)
+  ((block-pointer :initform nil :accessor block-pointer
+		  :documentation "A pointer to the gsl-block-c."))
+  (:documentation
+   "A superclass for arrays represented in GSL and CL."))
 
 (export '(dimensions total-size element-type))
 
 ;;; Allowable keys: :dimensions, :initial-contents, :initial-element.
 (defmethod initialize-instance :after
-    ((object gsl-data) &rest initargs &key &allow-other-keys)
+    ((object marray) &rest initargs &key &allow-other-keys)
   (with-slots (cl-array dimensions original-array offset total-size) object
     (let ((ffa (apply #'make-ffa (element-type object) initargs)))
       (setf cl-array ffa
@@ -61,14 +63,14 @@
 	       (cffi:foreign-type-size (cl-cffi (element-type object)))))))
   (alloc-gsl-struct object))
 
-(defmethod print-object ((object gsl-data) stream)
+(defmethod print-object ((object marray) stream)
   (print-unreadable-object (object stream :type t) 
     #-native (copy-c-to-cl object)
     (princ (cl-array object) stream)))
 
-(defmethod make-load-form ((object gsl-data) &optional env)
+(defmethod make-load-form ((object marray) &optional env)
   (declare (ignore env))
-  `(make-array*
+  `(make-marray
     ',(element-type object)
     :initial-contents
     ',(loop for elt across
@@ -125,8 +127,8 @@
 ;;;; Make data from either the dimensions provided or from the initial values
 ;;;;****************************************************************************
 
-(export 'make-array*)
-(defun make-array*
+(export 'make-marray)
+(defun make-marray
     (element-type &rest keys &key dimensions initial-contents &allow-other-keys)
   "Make a GSLL array with the given element type,
    :dimensions, :initial-contents and/or :initial-element."
@@ -162,7 +164,7 @@
    (declare (ignore subchar))
    (read-char stream)
    (let ((list (read-delimited-list #\) stream)))
-     `(make-array* ',(hashm-numeric-code arg) :initial-contents ',list))))
+     `(make-marray ',(hashm-numeric-code arg) :initial-contents ',list))))
 
 (defun component-type (eltype)
   (cl-cffi (component-float-type eltype)))
@@ -264,7 +266,7 @@
 
 (defgeneric alloc-gsl-struct (object)
   (:documentation "Allocate the GSL structure.")
-  (:method ((object gsl-data))
+  (:method ((object marray))
     ;; Need to check that all allocations succeeded.
     (unless (block-pointer object)
       (let ((blockptr (cffi:foreign-alloc 'gsl-block-c)))

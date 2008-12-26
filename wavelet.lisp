@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-12-25 11:13:58EST wavelet.lisp>
+;; Time-stamp: <2008-12-26 10:28:22EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -414,7 +414,7 @@
 	 (wavelet (wavelet *daubechies-wavelet* 4))
 	 (workspace (wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
-    (letm ((absvector (make-array* 'double-float :dimensions n))
+    (letm ((absvector (make-marray 'double-float :dimensions n))
 	   (permutation (make-permutation n)))
       (dotimes (i n)
 	(setf (maref absvector i) (abs (maref vector i))))

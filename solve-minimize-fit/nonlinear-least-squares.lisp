@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-12-23 22:32:19EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 10:25:45EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -355,13 +355,13 @@
    (make-exponent-fit-data
     :n *number-of-observations*
     :y
-    (let ((arr (make-array* *number-of-observations* 'double-float)))
+    (let ((arr (make-marray *number-of-observations* 'double-float)))
       (letm ((rng (random-number-generator *mt19937* 0)))
 	(dotimes (i *number-of-observations* arr)
 	  (setf (aref arr i)
 		(+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0))))))
     :sigma
-    (make-array* *number-of-observations* 'double-float :initial-element 0.1d0))))
+    (make-marray *number-of-observations* 'double-float :initial-element 0.1d0))))
 
 (defun exponential-residual (x f)
   "Compute the negative of the residuals with the exponential model
@@ -412,7 +412,7 @@
 (defun solve-nonlinear-least-squares-example ()
   (letm ((init #m(1.0d0 0.0d0 0.0d0))
 	 (covariance
-	  (make-array* 'double-float
+	  (make-marray 'double-float
 		       :dimensions
 		       (list *number-of-parameters* *number-of-parameters*)))
 	 (fit (nonlinear-fdffit
