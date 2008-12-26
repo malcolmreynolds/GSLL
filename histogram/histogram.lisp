@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-12-25 14:30:48EST histogram.lisp>
+;; Time-stamp: <2008-12-25 22:49:25EST histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -85,17 +85,12 @@
    an exact copy of the former.
    The two histograms must be of the same size.")
 
-;;; Could be part of copy when the second argument is optional?
-(export 'clone)
-(defgeneric clone (object)
-  (:documentation "Create a duplicate object."))
-
-;;; This returns a bare C pointer, which isn't too useful.
 (defmfun clone ((source histogram))
   "gsl_histogram_clone"
   (((mpointer source) :pointer))
-  :c-return :pointer
   :definition :method
+  :c-return (mptr :pointer)
+  :return ((make-instance 'histogram :mpointer mptr))
   :documentation			; FDL
   "Create a new histogram which is an
    exact copy of the histogram source, and return the pointer.")
@@ -104,6 +99,8 @@
   "gsl_histogram2d_clone"
   (((mpointer source) :pointer))
   :definition :method
+  :c-return (mptr :pointer)
+  :return ((make-instance 'histogram2d :mpointer mptr))
   :documentation			; FDL
   "Create a new histogram which is an
    exact copy of the histogram source, and return the pointer.")

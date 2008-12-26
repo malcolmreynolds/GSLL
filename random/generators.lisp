@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-12-25 14:28:48EST generators.lisp>
+;; Time-stamp: <2008-12-25 22:49:25EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -163,11 +163,11 @@
    making destination into an exact copy
    of source.  The two generators must be of the same type.")
 
-;;; This returns a bare C pointer, which isn't too useful.
 (defmfun clone ((instance random-number-generator))
   "gsl_rng_clone" (((generator instance) :pointer))
-  :c-return :pointer
-  :definition :method)
+  :definition :method
+  :c-return (mptr :pointer)
+  :return ((make-instance 'random-number-generator :mpointer mptr)))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

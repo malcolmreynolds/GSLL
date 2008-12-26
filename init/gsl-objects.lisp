@@ -1,14 +1,15 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-25 12:03:18EST gsl-objects.lisp>
+;; Time-stamp: <2008-12-25 23:01:24EST gsl-objects.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 #|
 (defclass mobject ()
-  ((mpointer :accessor mpointer
+  ((mpointer :initarg :mpointer :reader mpointer
 	     :documentation "A pointer to the GSL representation of the object.")))
+
 
 (defmacro defmobject
     (class prefix allocation-args description 
@@ -23,7 +24,6 @@
 	 (arglists
 	  (when arglists-function
 	    (funcall (coerce arglists-function 'function) settingp)))
-	 (mptr (make-symbol "MPOINTER"))
 	 (maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
 	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
 	 (cl-initialize-args
@@ -35,21 +35,24 @@
 	 (:documentation
 	  ,(format nil "The GSL representation of the ~a." description)))
 
-       (defmfun initialize-instance ((object ,class) &key ,@cl-alloc-args)
+       (defmfun allocate ((object ,class) &key ,@cl-alloc-args)
 	 ,(if (listp prefix) (second prefix) (format nil "~a_alloc" prefix))
 	 ,allocation-args
 	 :definition :method
-	 :qualifier :after
-	 :c-return (,mptr :pointer)
-	 :after ((setf (slot-value object 'mpointer) ,mptr)
-		 (tg:finalize
-		  object
-		  (lambda ()
-		    (foreign-funcall ,(format nil "~a_free" realprefix)
-		     :pointer ,mptr :void))))
-	 :return (object)
-	 :export nil
+	 :c-return :pointer
 	 :index ,maker)
+
+       (defmethod initialize-instance :after
+	   ((object ,class) &key mpointer ,@cl-alloc-args)
+	 (unless mpointer
+	   (setf mpointer
+		 (allocate object ,@(symbol-keyword-symbol cl-alloc-args))))
+	 (trivial-garbage:finalize
+	  object
+	  (lambda ()
+	    (cffi:foreign-funcall
+	     ,(format nil "~a_free" realprefix)
+	     :pointer mpointer :void))))
 
        ,@(when initialize-suffix
 	       `((defmfun reinitialize-instance
@@ -106,6 +109,17 @@
 ;;; Then initialize by making a vector from (breakpoint i bspline)
 ;;; and calling knots.
 |#
+
+(defgeneric allocate (object &key &allow-other-keys)
+  (:documentation
+   "Use GSL to allocate memory.  Returns pointer but does not bind mpointer slot."))
+
+;;; Could be part of copy when the second argument is optional?
+(export 'clone)
+(defgeneric clone (object)
+  (:documentation "Create a duplicate object.")
+  (:method :around ((object mobject))
+	   (make-instance (class-of object) :mpointer (call-next-method))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;; OLD ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
