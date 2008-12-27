@@ -1,6 +1,6 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2008-11-25 16:20:30EST init.lisp>
+;; Time-stamp: <2008-12-27 09:33:09EST init.lisp>
 ;; $Id$
 
 (defpackage gsll
@@ -11,7 +11,8 @@
   (:darwin
    (:or "/opt/local/lib/libgslcblas.dylib" "/sw/lib/libgslcblas.dylib"
 	"/usr/local/lib/libgslcblas.dylib"))
-  (:unix (:or "/usr/lib/libgslcblas.so.0" "/usr/lib/libgslcblas.so"))
+  (:unix (:or "/usr/lib/libgslcblas.so.0" "/usr/lib/libgslcblas.so"
+	      "/usr/lib64/libgslcblas.so.0" "/usr/lib64/libgslcblas.so"))
   (t (:default "libgslcblas")))
    
 (cffi:use-foreign-library libgslcblas)
@@ -20,7 +21,8 @@
   (:darwin
    (:or "/opt/local/lib/libgsl.dylib" "/sw/lib/libgsl.dylib"
 	"/usr/local/lib/libgsl.dylib"))
-  (:unix (:or "/usr/lib/libgsl.so.0" "/usr/lib/libgsl.so"))
+  (:unix (:or "/usr/lib/libgsl.so.0" "/usr/lib/libgsl.so"
+	      "/usr/lib64/libgsl.so.0" "/usr/lib64/libgsl.so"))
   (t (:default "libgsl")))
    
 (cffi:use-foreign-library libgsl)

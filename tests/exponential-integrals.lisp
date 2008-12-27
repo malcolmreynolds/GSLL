@@ -3,7 +3,7 @@
 (in-package :gsl)
 
 (LISP-UNIT:DEFINE-TEST EXPONENTIAL-INTEGRALS
-                       (LISP-UNIT:ASSERT-ERROR 'input-domain (EXPINT-E1 0.0d0))
+                       (LISP-UNIT:ASSERT-ERROR 'INPUT-DOMAIN (EXPINT-E1 0.0d0))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.21938393439552029d0 2.6541220085226265d-16)
                         (MULTIPLE-VALUE-LIST (EXPINT-E1 1.0d0)))

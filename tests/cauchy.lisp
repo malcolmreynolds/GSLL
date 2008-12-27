@@ -12,9 +12,9 @@
                                -79.0709314248171d0 -10.652071087998578d0
                                -9.393948243493877d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (CAUCHY RNG 10.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (CAUCHY RNG 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.03183098861837907d0)
                         (MULTIPLE-VALUE-LIST (CAUCHY-PDF 0.0d0 10.0d0)))

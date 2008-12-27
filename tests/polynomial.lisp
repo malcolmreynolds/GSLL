@@ -6,28 +6,31 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST (LIST 2.5d0 7.2d0 32.7d0 91.0d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM
-                          ((XA
-                            (VECTOR-DOUBLE-FLOAT (A 0.0d0 1.0d0 2.0d0 3.0d0)))
-                           (YA
-                            (VECTOR-DOUBLE-FLOAT
-                             (A 2.5d0 7.2d0 32.7d0 91.0d0)))
-                           (DD (VECTOR-DOUBLE-FLOAT 4)))
-                          (DIVIDED-DIFFERENCE DD XA YA)
-                          (LIST
-                           (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 0.0d0)
-                           (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 1.0d0)
-                           (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 2.0d0)
-                           (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 3.0d0)))))
+                         (LET ((XA
+                                (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                                             '(0.0d0 1.0d0 2.0d0 3.0d0)))
+                               (YA
+                                (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                                             '(2.5d0 7.2d0 32.7d0 91.0d0)))
+                               (DD (MAKE-MARRAY 'DOUBLE-FLOAT :DIMENSIONS 4)))
+                           (DIVIDED-DIFFERENCE DD XA YA)
+                           (LIST
+                            (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 0.0d0)
+                            (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 1.0d0)
+                            (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA 2.0d0)
+                            (POLYNOMIAL-EVAL-DIVIDED-DIFFERENCE DD XA
+                                                                3.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2.0d0)
                                                           (MULTIPLE-VALUE-LIST
-                                                           (LETM
-                                                            ((VEC
-                                                              (VECTOR-DOUBLE-FLOAT
-                                                               (A 1.0d0 2.0d0
-                                                                  3.0d0))))
-                                                            (POLYNOMIAL-EVAL
-                                                             VEC -1.0d0))))
+                                                           (LET ((VEC
+                                                                  (MAKE-MARRAY
+                                                                   'DOUBLE-FLOAT
+                                                                   :INITIAL-CONTENTS
+                                                                   '(1.0d0
+                                                                     2.0d0
+                                                                     3.0d0))))
+                                                             (POLYNOMIAL-EVAL
+                                                              VEC -1.0d0))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST (LIST) (LIST))
                                                           (MULTIPLE-VALUE-LIST
                                                            (SOLVE-QUADRATIC
@@ -61,6 +64,7 @@
                               #C(0.9999999999999999d0 0.0d0))
                         (MULTIPLE-VALUE-LIST
                          (POLYNOMIAL-SOLVE
-                          (A DOUBLE-FLOAT -1.0d0 0.0d0 0.0d0 0.0d0 0.0d0
-                             1.0d0)))))
+                          (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                                       '(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0
+                                         1.0d0))))))
 

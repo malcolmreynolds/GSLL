@@ -12,9 +12,9 @@
                                0.7849237503774361d0 0.5487883320132739d0
                                0.5239377808419179d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (WEIBULL RNG 1.0d0 2.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (WEIBULL RNG 1.0d0 2.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.24263174972226745d0)
                         (MULTIPLE-VALUE-LIST (WEIBULL-PDF 1.5d0 1.3d0 1.0d0)))

@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-12-26 18:52:04EST discrete.lisp>
+;; Time-stamp: <2008-12-27 10:33:36EST discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,7 +20,7 @@
 
 (defmfun discrete (generator table)
   "gsl_ran_discrete"
-  (((mpointer generator) :pointer) (table :pointer))
+  (((mpointer generator) :pointer) ((mpointer table) :pointer))
   :c-return sizet
   :documentation			; FDL
   "Generate discrete random numbers after running #'discrete-preprocess;

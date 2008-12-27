@@ -12,9 +12,9 @@
                                0.7363931539298727d0 0.9843618987581162d0
                                0.06871686155296197d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (GAMMA-RD RNG 1.0d0 2.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (GAMMA-RD RNG 1.0d0 2.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          (LIST 3.012983063768798d0 2.216796987787054d0
@@ -24,9 +24,9 @@
                                0.7363931539298727d0 0.9843618987581162d0
                                0.06871686155296197d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (GAMMA-MT RNG 1.0d0 2.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (GAMMA-MT RNG 1.0d0 2.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.475614712250357d0)
                         (MULTIPLE-VALUE-LIST (GAMMA-PDF 0.1d0 1.0d0 2.0d0)))

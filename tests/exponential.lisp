@@ -12,9 +12,9 @@
                                6.161052939065796d0 3.011686333539114d0
                                2.7451079819355364d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (EXPONENTIAL RNG 10.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (EXPONENTIAL RNG 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 0.1d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (EXPONENTIAL-PDF

@@ -9,6 +9,7 @@
                              (1.4999999999999998d0 -0.49999999999999994d0)))
                         (MULTIPLE-VALUE-LIST
                          (INVERT-MATRIX
-                          (MAKE-ARRAY* '(2 2) 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                          (MAKE-MARRAY 'DOUBLE-FLOAT :DIMENSIONS '(2 2)
+                                       :INITIAL-CONTENTS
                                        '(1.0d0 2.0d0 3.0d0 4.0d0))))))
 

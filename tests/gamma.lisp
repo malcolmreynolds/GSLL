@@ -2,11 +2,13 @@
 
 (in-package :gsl)
 
-(LISP-UNIT:DEFINE-TEST GAMMA (LISP-UNIT:ASSERT-ERROR 'input-domain (GAMMA -1.0d0))
+(LISP-UNIT:DEFINE-TEST GAMMA
+                       (LISP-UNIT:ASSERT-ERROR 'INPUT-DOMAIN (GAMMA -1.0d0))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 120.0d0 2.6645352591003757d-14)
                         (MULTIPLE-VALUE-LIST (GAMMA 6.0d0)))
-                       (LISP-UNIT:ASSERT-ERROR 'input-domain (LOG-GAMMA -100.0d0))
+                       (LISP-UNIT:ASSERT-ERROR 'INPUT-DOMAIN
+                                               (LOG-GAMMA -100.0d0))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 359.13420536957534d0 2.4544868717695813d-13)
                         (MULTIPLE-VALUE-LIST (LOG-GAMMA 100.0d0)))
@@ -43,7 +45,7 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 56.0d0 7.460698725481052d-14)
                         (MULTIPLE-VALUE-LIST (CHOOSE 8 3)))
-                       (LISP-UNIT:ASSERT-ERROR 'input-domain (CHOOSE 3 8))
+                       (LISP-UNIT:ASSERT-ERROR 'INPUT-DOMAIN (CHOOSE 3 8))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 29.422274169864693d0 1.9338924605168215d-13)
                         (MULTIPLE-VALUE-LIST (LOG-CHOOSE 67 12)))

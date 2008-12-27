@@ -12,9 +12,9 @@
                                7.559275305609187d0 8.35181083950897d0
                                4.140798004825149d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (CHI-SQUARED RNG 10.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (CHI-SQUARED RNG 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.43939128946772227d0)
                         (MULTIPLE-VALUE-LIST (CHI-SQUARED-PDF 0.5d0 1.0d0)))

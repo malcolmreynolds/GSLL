@@ -12,9 +12,9 @@
                                -0.3909131843358723d0 8.935555455208181d0
                                -0.17647794589783283d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (GAUSSIAN RNG 10.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (GAUSSIAN RNG 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.039894228040143274d0)
                         (MULTIPLE-VALUE-LIST (GAUSSIAN-PDF 0.0d0 10.0d0)))
@@ -27,9 +27,9 @@
                                2.519120940798607d0 -9.024585521868676d0
                                -9.463283369593537d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (GAUSSIAN-ZIGGURAT RNG 10.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (GAUSSIAN-ZIGGURAT RNG 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.9772498680518208d0)
                         (MULTIPLE-VALUE-LIST (UGAUSSIAN-P 2.0d0)))

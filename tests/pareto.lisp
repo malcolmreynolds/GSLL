@@ -12,9 +12,9 @@
                                3.703404287965457d0 2.7028744394290123d0
                                2.631773566385122d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (PARETO RNG 1.0d0 2.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (PARETO RNG 1.0d0 2.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.5116034405707658d0)
                         (MULTIPLE-VALUE-LIST (PARETO-PDF 1.5d0 1.3d0 1.0d0)))

@@ -12,10 +12,10 @@
                                -0.11029516610819164d0 0.17931840412143885d0
                                2.1025104980291696d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (BIVARIATE-GAUSSIAN RNG 1.0d0 0.75d0
-                                                         0.25d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (BIVARIATE-GAUSSIAN RNG 1.0d0 0.75d0
+                                                     0.25d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.5548265557970462d0)
                         (MULTIPLE-VALUE-LIST

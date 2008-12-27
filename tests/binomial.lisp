@@ -6,9 +6,9 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST (LIST 11 3 4 8 4 5 8 6 5 6 6))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (BINOMIAL RNG 0.4d0 12)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (BINOMIAL RNG 0.4d0 12)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.22703033548799986d0)
                         (MULTIPLE-VALUE-LIST (BINOMIAL-PDF 5 0.4d0 12)))

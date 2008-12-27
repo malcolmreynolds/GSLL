@@ -12,9 +12,9 @@
                                11.100498132125239d0 7.76103902005281d0
                                7.409599155063027d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (RAYLEIGH RNG 10.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (RAYLEIGH RNG 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.4412484512922977d0)
                         (MULTIPLE-VALUE-LIST (RAYLEIGH-PDF 0.5d0 1.0d0)))

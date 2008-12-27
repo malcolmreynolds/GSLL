@@ -8,11 +8,11 @@
                          (LIST 0.2765118983985497d0 0.2765118983985497d0
                                -2.333333333333333d0 -2.333333333333333d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM
-                          ((VEC
-                            (VECTOR-DOUBLE-FLOAT (A -3.21d0 1.0d0 12.8d0))))
-                          (LET* ((MEAN (MEAN VEC))
-                                 (SD (STANDARD-DEVIATION VEC MEAN)))
-                            (LIST (SKEWNESS VEC) (SKEWNESS VEC MEAN SD)
-                                  (KURTOSIS VEC) (KURTOSIS VEC MEAN SD)))))))
+                         (LET ((VEC
+                                (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                                             '(-3.21d0 1.0d0 12.8d0))))
+                           (LET* ((MEAN (MEAN VEC))
+                                  (SD (STANDARD-DEVIATION VEC MEAN)))
+                             (LIST (SKEWNESS VEC) (SKEWNESS VEC MEAN SD)
+                                   (KURTOSIS VEC) (KURTOSIS VEC MEAN SD)))))))
 

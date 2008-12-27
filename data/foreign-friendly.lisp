@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2008-12-26 10:10:40EST foreign-friendly.lisp>
+;; Time-stamp: <2008-12-27 10:23:27EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -48,7 +48,7 @@
 	  (error "dimensions must be specified if contents are not")))
     (when (and initial-matrix initial-contents-p)
       ;; flatten matrix spec
-      (setf initial-contents (mapcar #'append initial-contents)))
+      (setf initial-contents (apply #'append initial-contents)))
     (when complex-initial-real
       (setf initial-contents (list-complex-from-real initial-contents)))
     (apply 'make-ffa-1d

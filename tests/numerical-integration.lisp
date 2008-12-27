@@ -10,14 +10,15 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 2.0d0 2.220446049250313d-14)
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((WS (INTEGRATION-WORKSPACE 20)))
-                               (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 20
-                                                WS))))
-                       (LISP-UNIT:ASSERT-ERROR 'invalid-argument
-                                               (LETM
-                                                ((WS
-                                                  (INTEGRATION-WORKSPACE 20)))
-                                                (INTEGRATION-QAG ONE-SINE 0.0d0
-                                                                 PI :GAUSS15 50
-                                                                 WS))))
+                         (LET ((WS (MAKE-INTEGRATION-WORKSPACE 20)))
+                           (INTEGRATION-QAG ONE-SINE 0.0d0 PI :GAUSS15 20
+                                            WS))))
+                       (LISP-UNIT:ASSERT-ERROR 'INVALID-ARGUMENT
+                                               (LET ((WS
+                                                      (MAKE-INTEGRATION-WORKSPACE
+                                                       20)))
+                                                 (INTEGRATION-QAG ONE-SINE
+                                                                  0.0d0 PI
+                                                                  :GAUSS15 50
+                                                                  WS))))
 

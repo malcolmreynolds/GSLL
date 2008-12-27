@@ -12,9 +12,9 @@
                                1.540043658344075d0 1.7399529814720154d0
                                1.7599437981843948d0))
                         (MULTIPLE-VALUE-LIST
-                         (LETM ((RNG (RANDOM-NUMBER-GENERATOR *MT19937* 0)))
-                               (LOOP FOR I FROM 0 TO 10 COLLECT
-                                     (FLAT RNG 1.0d0 2.0d0)))))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                           (LOOP FOR I FROM 0 TO 10 COLLECT
+                                 (FLAT RNG 1.0d0 2.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 1.0d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (FLAT-PDF 1.2d0
