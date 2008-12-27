@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-26 18:13:24EST mobject.lisp>
+;; Time-stamp: <2008-12-26 19:16:05EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -13,7 +13,7 @@
 (in-package :gsl)
 
 (defclass mobject ()
-  ((mpointper :initarg :mpointer :reader mpointer
+  ((mpointer :initarg :mpointer :reader mpointer
 	     :documentation "A pointer to the GSL representation of the object.")))
 
 (defmacro defmobject

@@ -1,13 +1,15 @@
 ;; Tdist distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2008-12-26 11:38:57EST tdist.lisp>
+;; Time-stamp: <2008-12-26 19:34:40EST tdist.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun tdist (generator nu)
   "gsl_ran_tdist"
-  (((generator generator) :pointer) (nu :double))
+  (((mpointer generator) :pointer) (nu :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Student t-distribution.  The
@@ -55,7 +57,6 @@
 ;;; Examples and unit test
 (save-test tdist
   (let ((rng (make-random-number-generator *mt19937* 0)))
-      (rng-set rng 0)
       (loop for i from 0 to 10
 	    collect
 	    (tdist rng 10.0d0)))

@@ -1,13 +1,15 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 11:45:06EST multinomial.lisp>
+;; Time-stamp: <2008-12-26 19:50:51EST multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun multinomial (generator sum p n)
   "gsl_ran_multinomial"
-  (((generator generator) :pointer) 
+  (((mpointer generator) :pointer) 
    ((dim0 p) sizet)
    (sum sizet)
    ((c-pointer p) :pointer)

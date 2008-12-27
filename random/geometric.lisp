@@ -1,13 +1,15 @@
 ;; Geometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 11:41:51EST geometric.lisp>
+;; Time-stamp: <2008-12-26 19:37:47EST geometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun geometric (generator p)
   "gsl_ran_geometric"
-  (((generator generator) :pointer) (p :double))
+  (((mpointer generator) :pointer) (p :double))
   :c-return :uint
   :documentation			; FDL
   "A random integer from the geometric distribution,

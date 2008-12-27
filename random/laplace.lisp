@@ -1,13 +1,16 @@
 ;; Exponential distribution
 ;; Liam Healy, Sun Sep 17 2006
-;; Time-stamp: <2008-12-26 11:41:52EST laplace.lisp>
+;; Time-stamp: <2008-12-26 19:40:32EST laplace.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun laplace (generator a)
   "gsl_ran_laplace"
-  (((generator generator) :pointer) (a :double))
+  (((mpointer generator) :pointer) (a :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Laplace distribution with width a.

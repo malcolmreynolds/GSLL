@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-12-26 18:59:23EST monte-carlo.lisp>
+;; Time-stamp: <2008-12-26 19:34:42EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -106,7 +106,7 @@
   ((function :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
    ((dim0 lower-limits) sizet) (calls sizet)
-   ((generator generator) :pointer)
+   ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
@@ -190,7 +190,7 @@
   ((function :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
    ((dim0 lower-limits) sizet) (calls sizet)
-   ((generator generator) :pointer)
+   ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)

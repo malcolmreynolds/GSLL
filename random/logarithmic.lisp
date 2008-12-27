@@ -1,13 +1,15 @@
 ;; Logarithmic distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 11:41:53EST logarithmic.lisp>
+;; Time-stamp: <2008-12-26 19:36:20EST logarithmic.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun logarithmic (generator p)
   "gsl_ran_logarithmic"
-  (((generator generator) :pointer) (p :double))
+  (((mpointer generator) :pointer) (p :double))
   :c-return :uint
   :documentation			; FDL
   "A random integer from the logarithmic distribution.

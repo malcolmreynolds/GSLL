@@ -1,13 +1,15 @@
 ;; Rayleigh tail distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:48:47EST rayleigh-tail.lisp>
+;; Time-stamp: <2008-12-26 19:50:49EST rayleigh-tail.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun rayleigh-tail (generator a sigma)
   "gsl_ran_rayleigh_tail"
-  (((generator generator) :pointer) (a :double) (sigma :double))
+  (((mpointer generator) :pointer) (a :double) (sigma :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the tail of the Rayleigh

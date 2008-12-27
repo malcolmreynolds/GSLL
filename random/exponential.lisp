@@ -1,13 +1,16 @@
 ;; Exponential distribution
 ;; Liam Healy, Sat Sep  2 2006 - 19:04
-;; Time-stamp: <2008-12-26 11:45:08EST exponential.lisp>
+;; Time-stamp: <2008-12-26 19:45:35EST exponential.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun exponential (generator mu)
   "gsl_ran_exponential"
-  (((generator generator) :pointer) (mu :double))
+  (((mpointer generator) :pointer) (mu :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the exponential distribution

@@ -1,13 +1,16 @@
 ;; Cauchy distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:41:51EST cauchy.lisp>
+;; Time-stamp: <2008-12-26 19:40:10EST cauchy.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun cauchy (generator a)
   "gsl_ran_cauchy"
-  (((generator generator) :pointer) (a :double))
+  (((mpointer generator) :pointer) (a :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Cauchy distribution with

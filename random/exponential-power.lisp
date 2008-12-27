@@ -1,13 +1,15 @@
 ;; Exponential power distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:41:54EST exponential-power.lisp>
+;; Time-stamp: <2008-12-26 19:36:20EST exponential-power.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun exponential-power (generator a b)
   "gsl_ran_exppow"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the exponential power distribution

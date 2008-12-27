@@ -1,13 +1,15 @@
 ;; Levy distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:45:09EST levy.lisp>
+;; Time-stamp: <2008-12-26 19:45:36EST levy.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun levy (generator c alpha)
   "gsl_ran_levy"
-  (((generator generator) :pointer) (c :double) (alpha :double))
+  (((mpointer generator) :pointer) (c :double) (alpha :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Levy symmetric stable
@@ -23,7 +25,7 @@
 
 (defmfun levy-skew (generator c alpha beta)
   "gsl_ran_levy_skew"
-  (((generator generator) :pointer) (c :double) (alpha :double) (beta :double))
+  (((mpointer generator) :pointer) (c :double) (alpha :double) (beta :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Levy skew stable

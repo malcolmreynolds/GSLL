@@ -1,6 +1,6 @@
 ;; Beta distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:46:07EST beta.lisp>
+;; Time-stamp: <2008-12-26 19:29:42EST beta.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,7 +8,7 @@
 (defmfun beta-rd (generator a b)
   ;; Named #'beta-rd to avoid confusion with the special function #'beta.
   "gsl_ran_beta"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the beta distribution.  The distribution function is

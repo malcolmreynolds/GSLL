@@ -1,13 +1,16 @@
 ;; Hypergeometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 11:45:11EST hypergeometric.lisp>
+;; Time-stamp: <2008-12-26 19:42:50EST hypergeometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun hypergeometric (generator n1 n2 tt)
   "gsl_ran_hypergeometric"
-  (((generator generator) :pointer) (n1 :uint) (n2 :uint)(tt :uint))
+  (((mpointer generator) :pointer) (n1 :uint) (n2 :uint)(tt :uint))
   :c-return :uint
   :documentation			; FDL
   "A random integer from the hypergeometric

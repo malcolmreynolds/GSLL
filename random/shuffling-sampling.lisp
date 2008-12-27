@@ -1,6 +1,6 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
-;; Time-stamp: <2008-12-26 12:43:16EST shuffling-sampling.lisp>
+;; Time-stamp: <2008-12-26 19:51:20EST shuffling-sampling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,7 +9,7 @@
 
 (defmfun shuffle (generator base)
   "gsl_ran_shuffle"
-  (((generator generator) :pointer)
+  (((mpointer generator) :pointer)
    ((c-pointer base) :pointer) ((dim0 base) sizet) ((element-size base) sizet))
   :c-return :void
   :documentation			; FDL
@@ -22,7 +22,7 @@
 
 (defmfun choose-random (generator dest src)
   "gsl_ran_choose"
-  (((generator generator) :pointer)
+  (((mpointer generator) :pointer)
    ((c-pointer dest) :pointer) ((dim0 dest) sizet)
    ((c-pointer src) :pointer) ((dim0 src) sizet) ((element-size src) sizet))
   ;; This is described in the GSL docs as returning int, but it does
@@ -44,7 +44,7 @@
 
 (defmfun random-sample (generator dest src)
   "gsl_ran_sample"
-  (((generator generator) :pointer)
+  (((mpointer generator) :pointer)
    ((c-pointer dest) :pointer) ((dim0 dest) sizet)
    ((c-pointer src) :pointer) ((dim0 src) sizet) ((element-size src) sizet))
   :c-return :void

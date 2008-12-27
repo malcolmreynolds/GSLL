@@ -1,13 +1,15 @@
 ;; Flat distribution
 ;; Liam Healy, Oct  7 2006
-;; Time-stamp: <2008-12-26 11:38:55EST flat.lisp>
+;; Time-stamp: <2008-12-26 19:36:22EST flat.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun flat (generator a b)
   "gsl_ran_flat"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the flat (uniform)

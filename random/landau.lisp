@@ -1,13 +1,15 @@
 ;; Landau distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:38:58EST landau.lisp>
+;; Time-stamp: <2008-12-26 19:34:41EST landau.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun landau (generator)
   "gsl_ran_landau"
-  (((generator generator) :pointer))
+  (((mpointer generator) :pointer))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Landau distribution.  The

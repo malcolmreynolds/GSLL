@@ -1,13 +1,16 @@
 ;; Gaussian distribution
 ;; Liam Healy, Sun Jul 16 2006 - 22:09
-;; Time-stamp: <2008-12-26 11:45:12EST gaussian.lisp>
+;; Time-stamp: <2008-12-26 19:39:56EST gaussian.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun gaussian (generator sigma)
   "gsl_ran_gaussian"
-  (((generator generator) :pointer) (sigma :double))
+  (((mpointer generator) :pointer) (sigma :double))
   :c-return :double
   :documentation			; FDL
   "A Gaussian random variate, with mean zero and
@@ -29,7 +32,7 @@
 
 (defmfun gaussian-ziggurat (generator sigma)
   "gsl_ran_gaussian_ziggurat"
-  (((generator generator) :pointer) (sigma :double))
+  (((mpointer generator) :pointer) (sigma :double))
   :c-return :double
   :documentation			; FDL
   "Compute a Gaussian random variate using the alternative
@@ -38,14 +41,14 @@
 
 (defmfun gaussian-ratio-method (generator sigma)
   "gsl_ran_gaussian_ratio_method"
-  (((generator generator) :pointer) (sigma :double))
+  (((mpointer generator) :pointer) (sigma :double))
   :c-return :double
   :documentation			; FDL
   "Compute a Gaussian random variate using the Kinderman-Monahan-Leva
    ratio method.")
 
 (defmfun ugaussian (generator)
-  "gsl_ran_ugaussian" (((generator generator) :pointer))
+  "gsl_ran_ugaussian" (((mpointer generator) :pointer))
   :c-return :double
   :documentation			; FDL
   "Compute results for the unit Gaussian distribution,
@@ -62,7 +65,7 @@
 
 (defmfun ugaussian-ratio-method (generator)
   "gsl_ran_ugaussian_ratio_method"
-  (((generator generator) :pointer))
+  (((mpointer generator) :pointer))
   :c-return :double
   :documentation			; FDL
   "Compute results for the unit Gaussian distribution,

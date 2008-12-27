@@ -1,15 +1,17 @@
 ;; Spherical Vector distribution
 ;; Liam Healy, Sun Oct  22 2006
-;; Time-stamp: <2008-12-26 11:45:05EST spherical-vector.lisp>
+;; Time-stamp: <2008-12-26 19:50:50EST spherical-vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_randist.h
 
 ;;; No test for #'direction-Nd yet.
 
 (defmfun direction-2d (generator)
   "gsl_ran_dir_2d"
-  (((generator generator) :pointer) (x :double) (y :double))
+  (((mpointer generator) :pointer) (x :double) (y :double))
   :c-return :void
   :documentation			; FDL
   "A random direction vector v = (x,y) in
@@ -18,7 +20,7 @@
 
 (defmfun direction-2d-trig-method (generator)
   "gsl_ran_dir_2d_trig_method"
-  (((generator generator) :pointer) (x :double) (y :double))
+  (((mpointer generator) :pointer) (x :double) (y :double))
   :c-return :void
   :documentation			; FDL
   "A random direction vector v = (x,y) in
@@ -27,7 +29,7 @@
 
 (defmfun direction-3d (generator)
   "gsl_ran_dir_3d"
-  (((generator generator) :pointer) (x :double) (y :double) (z :double))
+  (((mpointer generator) :pointer) (x :double) (y :double) (z :double))
   :c-return :void
   :documentation			; FDL
   "A random direction vector v =
@@ -40,7 +42,7 @@
 
 (defmfun direction-Nd (generator vector)
   "gsl_ran_dir_nd"
-  (((generator generator) :pointer) ((dim0 vector) sizet)
+  (((mpointer generator) :pointer) ((dim0 vector) sizet)
    ((c-pointer vector) :pointer))
   :c-return :void
   :outputs (vector)

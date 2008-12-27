@@ -1,13 +1,15 @@
 ;; Gaussian bivariate distribution
 ;; Liam Healy, Sat Sep  2 2006 - 16:32
-;; Time-stamp: <2008-12-26 11:45:07EST gaussian-bivariate.lisp>
+;; Time-stamp: <2008-12-26 19:47:18EST gaussian-bivariate.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun bivariate-gaussian (generator sigma-x sigma-y rho)
   "gsl_ran_bivariate_gaussian"
-  (((generator generator) :pointer) (sigma-x :double) (sigma-y :double) (rho :double)
+  (((mpointer generator) :pointer) (sigma-x :double) (sigma-y :double) (rho :double)
    (x :double) (y :double))
   :c-return :void
   :documentation			; FDL

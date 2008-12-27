@@ -1,13 +1,16 @@
 ;; Chi-squared distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2008-12-26 11:45:06EST chi-squared.lisp>
+;; Time-stamp: <2008-12-26 19:47:17EST chi-squared.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun chi-squared (generator nu)
   "gsl_ran_chisq"
-  (((generator generator) :pointer) (nu :double))
+  (((mpointer generator) :pointer) (nu :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the chi-squared distribution

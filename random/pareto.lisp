@@ -1,13 +1,16 @@
 ;; Pareto distribution
 ;; Liam Healy, Sat Oct  8 2006 - 21:23
-;; Time-stamp: <2008-12-26 11:45:07EST pareto.lisp>
+;; Time-stamp: <2008-12-26 19:47:19EST pareto.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun pareto (generator a b)
   "gsl_ran_pareto"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Pareto distribution of order a.

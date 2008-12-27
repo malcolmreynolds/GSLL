@@ -1,13 +1,15 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-12-26 11:46:05EST dirichlet.lisp>
+;; Time-stamp: <2008-12-26 19:50:49EST dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun dirichlet (generator alpha theta)
   "gsl_ran_dirichlet"
-  (((generator generator) :pointer)
+  (((mpointer generator) :pointer)
    ((dim0 alpha) sizet)
    ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble

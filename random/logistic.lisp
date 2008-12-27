@@ -1,13 +1,16 @@
 ;; Logistic distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2008-12-26 11:45:08EST logistic.lisp>
+;; Time-stamp: <2008-12-26 19:45:34EST logistic.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun logistic (generator a)
   "gsl_ran_logistic"
-  (((generator generator) :pointer) (a :double))
+  (((mpointer generator) :pointer) (a :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the logistic distribution.  The distribution function is

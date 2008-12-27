@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2008-03-15 23:10:25EDT simulated-annealing.lisp>
+;; Time-stamp: <2008-12-26 19:51:20EST simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,7 +58,7 @@
 		;; copy-function copy-constructor destructor
 	       element-size parameters)
   "gsl_siman_solve"
-  (((generator generator) :pointer) (x0-p :pointer)
+  (((mpointer generator) :pointer) (x0-p :pointer)
    ((cffi:get-callback Ef) :pointer)
    ((cffi:get-callback take-step) :pointer)
    ((cffi:get-callback distance-function) :pointer)
@@ -110,7 +110,7 @@
 
 (defmacro def-step-function (name)
   "Define a step fuction for simulated annealing."
-  (let ((generator (gensym "GEN"))
+  (let ((mpointer (gensym "GEN"))
 	(arguments (gensym "ARGS"))
 	(step-size (gensym "SS")))
     `(cffi:defcallback ,name :void

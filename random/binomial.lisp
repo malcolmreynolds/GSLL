@@ -1,13 +1,15 @@
 ;; Binomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 11:38:56EST binomial.lisp>
+;; Time-stamp: <2008-12-26 19:34:39EST binomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun binomial (generator p n)
   "gsl_ran_binomial"
-  (((generator generator) :pointer) (p :double) (n :uint))
+  (((mpointer generator) :pointer) (p :double) (n :uint))
   :c-return :uint
   :documentation			; FDL
   "A random integer from the binomial distribution,

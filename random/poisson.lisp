@@ -1,13 +1,16 @@
 ;; Poisson distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 11:46:06EST poisson.lisp>
+;; Time-stamp: <2008-12-26 19:50:50EST poisson.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun poisson (generator mu)
   "gsl_ran_poisson"
-  (((generator generator) :pointer) (mu :double))
+  (((mpointer generator) :pointer) (mu :double))
   :c-return :uint
   :documentation			; FDL
   "A random integer from the Poisson distribution with mean mu.

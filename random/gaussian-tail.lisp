@@ -1,13 +1,15 @@
 ;; Gaussian tail distribution
 ;; Liam Healy, Mon Aug 21 2006 - 21:52
-;; Time-stamp: <2008-12-26 11:45:11EST gaussian-tail.lisp>
+;; Time-stamp: <2008-12-26 19:41:56EST gaussian-tail.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun gaussian-tail (generator a sigma)
   "gsl_ran_gaussian_tail"
-  (((generator generator) :pointer) (a :double) (sigma :double))
+  (((mpointer generator) :pointer) (a :double) (sigma :double))
   :c-return :double
   :documentation			; FDL
   "Random variates from the upper tail of a Gaussian
@@ -32,7 +34,7 @@
 
 (defmfun ugaussian-tail (generator a)
   "gsl_ran_ugaussian_tail"
-  (((generator generator) :pointer) (a :double))
+  (((mpointer generator) :pointer) (a :double))
   :c-return :double
   :documentation			; FDL
   "Equivalent to gaussian-tail with sigma=1.")

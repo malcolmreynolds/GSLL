@@ -1,13 +1,15 @@
 ;; Rayleigh distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:38:57EST rayleigh.lisp>
+;; Time-stamp: <2008-12-26 19:34:41EST rayleigh.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+
 (defmfun rayleigh (generator sigma)
   "gsl_ran_rayleigh"
-  (((generator generator) :pointer) (sigma :double))
+  (((mpointer generator) :pointer) (sigma :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Rayleigh distribution with

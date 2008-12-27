@@ -1,9 +1,11 @@
 ;; Negative binomial and Pascal distributions
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 11:38:56EST negative-binomial.lisp>
+;; Time-stamp: <2008-12-26 19:34:40EST negative-binomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_randist.h
 
 ;;;;****************************************************************************
 ;;;; Negative binomial
@@ -11,7 +13,7 @@
 
 (defmfun negative-binomial (generator p n)
   "gsl_ran_negative_binomial"
-  (((generator generator) :pointer) (p :double) (n :double))
+  (((mpointer generator) :pointer) (p :double) (n :double))
   :c-return :uint
   :documentation			; FDL
   "A random integer from the negative binomial
@@ -51,7 +53,7 @@
 
 (defmfun pascal (generator p n)
   "gsl_ran_pascal"
-  (((generator generator) :pointer) (p :double) (n :uint))
+  (((mpointer generator) :pointer) (p :double) (n :uint))
   :c-return :uint
   :documentation			; FDL
   "A random integer from the Pascal distribution.  The

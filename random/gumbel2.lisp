@@ -1,13 +1,16 @@
 ;; The Gumbel type 2 random number distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-12-26 11:45:10EST gumbel2.lisp>
+;; Time-stamp: <2008-12-26 19:43:32EST gumbel2.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun gumbel2 (generator a b)
   "gsl_ran_gumbel2"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Type-2 Gumbel

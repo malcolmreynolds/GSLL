@@ -1,14 +1,17 @@
 ;; Gamma distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 11:45:09EST gamma.lisp>
+;; Time-stamp: <2008-12-26 19:45:35EST gamma.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun gamma-rd (generator a b)
   ;; Named #'gamma-rd to avoid confusion with the special function #'gamma.
   "gsl_ran_gamma"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the gamma distribution.
@@ -20,7 +23,7 @@
 
 (defmfun gamma-mt (generator a b)
   "gsl_ran_gamma_mt"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A gamma variate using the Marsaglia-Tsang fast gamma method.")

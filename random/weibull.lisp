@@ -1,13 +1,16 @@
 ;; Weibull distribution
 ;; Liam Healy, Sun Oct 22 2006
-;; Time-stamp: <2008-12-26 11:41:55EST weibull.lisp>
+;; Time-stamp: <2008-12-26 19:39:33EST weibull.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_randist.h
+;;; /usr/include/gsl/gsl_cdf.h
+
 (defmfun weibull (generator a b)
   "gsl_ran_weibull"
-  (((generator generator) :pointer) (a :double) (b :double))
+  (((mpointer generator) :pointer) (a :double) (b :double))
   :c-return :double
   :documentation			; FDL
   "A random variate from the Weibull distribution.  The distribution function is
