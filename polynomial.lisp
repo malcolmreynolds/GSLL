@@ -1,9 +1,11 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-26 17:01:15EST polynomial.lisp>
+;; Time-stamp: <2008-12-26 18:53:14EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_poly.h
 
 ;;; Provide autotranslation from CL pure arrays?
 ;;; Divided differences not complete/tested.

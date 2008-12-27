@@ -1,9 +1,11 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-12-26 17:03:39EST eigensystems.lisp>
+;; Time-stamp: <2008-12-26 18:57:10EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_eigen.h
 
 ;;;;****************************************************************************
 ;;;; Workspace 

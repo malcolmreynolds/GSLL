@@ -1,13 +1,13 @@
 ;; Bernoulli distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:59
-;; Time-stamp: <2008-12-26 11:38:55EST bernoulli.lisp>
+;; Time-stamp: <2008-12-26 18:05:04EST bernoulli.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmfun bernoulli (generator p)
   "gsl_ran_bernoulli"
-  (((generator generator) :pointer) (p :double))
+  (((mpointer generator) :pointer) (p :double))
   :c-return :uint
   :documentation			; FDL
   "Returns either 0 or 1, the result of a Bernoulli trial

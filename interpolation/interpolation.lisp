@@ -1,9 +1,12 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2008-12-26 11:20:11EST interpolation.lisp>
+;; Time-stamp: <2008-12-26 18:19:19EST interpolation.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_interp.h
+;;; /usr/include/gsl/gsl_spline.h
 
 ;;; A spline is an interpolation that also stores the arrays xa and ya,
 ;;; so they need not be supplied on each call.

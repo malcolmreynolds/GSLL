@@ -1,9 +1,11 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-12-26 16:51:06EST linear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 18:38:44EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_fit.h
 
 ;;;;****************************************************************************
 ;;;; Linear regression

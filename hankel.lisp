@@ -1,11 +1,14 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-12-26 16:55:21EST hankel.lisp>
+;; Time-stamp: <2008-12-26 18:46:20EST hankel.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_dht.h
+
 ;;; Everything compiles, but not tested -- need example.
+;;; We don't use gsl_dht_new = gsl_dht_alloc + gsl_dht_init.
 
 ;;; Create the Hankel transform object and essential methods/functions.
 (defmobject hankel "gsl_dht"
@@ -13,9 +16,8 @@
   "discrete Hankel Transform"
   "Allocate a Discrete Hankel transform object of the given size and
    optionally initialize the transform for the given values of nu and x."
-  "new"
+  "init"
   ((nu :double) (xmax :double)))
-;;; We don't use gsl_dht_init because we use gsl_dht_new?
 
 (defmfun apply-hankel (hankel array-in array-out)
   "gsl_dht_apply"

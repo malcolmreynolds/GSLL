@@ -1,9 +1,11 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-26 17:21:08EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-26 18:33:28EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_multimin.h
 
 ;; In the parabaloid example, I notice that the consruct 
 ;; (min-test-gradient (mfdfminimizer-gradient minimizer) 1.0d-3)

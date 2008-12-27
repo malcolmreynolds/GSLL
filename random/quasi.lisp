@@ -1,9 +1,11 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-12-26 17:09:22EST quasi.lisp>
+;; Time-stamp: <2008-12-26 18:49:30EST quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_qrng.h
 
 (defmobject quasi-random-number-generator
     "gsl_qrng"
@@ -12,7 +14,7 @@
   "Make and optionally initialize the generator q to its starting point.
    Note that quasi-random sequences do not use a seed and always produce
    the same set of values."
-  "init"
+  ("init" :void)
   nil)
 
 (defmfun qrng-get (generator return-vector)

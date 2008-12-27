@@ -1,9 +1,11 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-12-26 17:00:20EST discrete.lisp>
+;; Time-stamp: <2008-12-26 18:52:04EST discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_randist.h
 
 (defmobject discrete-random
     ("gsl_ran_discrete" "gsl_ran_discrete_preproc")

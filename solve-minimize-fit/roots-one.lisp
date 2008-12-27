@@ -1,9 +1,11 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-12-26 17:13:52EST roots-one.lisp>
+;; Time-stamp: <2008-12-26 18:31:13EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_roots.h
 
 ;;;;****************************************************************************
 ;;;; Function definition

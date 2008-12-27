@@ -1,11 +1,13 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-12-26 17:02:30EST numerical-integration.lisp>
+;; Time-stamp: <2008-12-26 18:54:27EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_integration.h
 
 ;;;;****************************************************************************
 ;;;; QNG non-adaptive Gauss-Kronrod integration

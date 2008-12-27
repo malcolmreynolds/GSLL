@@ -1,9 +1,11 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-12-26 17:08:09EST generators.lisp>
+;; Time-stamp: <2008-12-26 18:17:35EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_rng.h
 
 ;;;;****************************************************************************
 ;;;; Object
@@ -23,7 +25,7 @@
    For example, the original Fortran source code for the *ranlux*
    generator used a seed of 314159265, and so choosing s equal to zero
    reproduces this when using *ranlux*."
-  "set"
+  ("set" :void)
   ((value :ulong)))
 
 ;;;;****************************************************************************

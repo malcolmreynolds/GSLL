@@ -1,12 +1,12 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
-;; Time-stamp: <2008-12-26 14:47:01EST probability-distribution.lisp>
+;; Time-stamp: <2008-12-26 18:38:41EST probability-distribution.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;; /usr/include/gsl/gsl_histogram.h
-;; /usr/include/gsl/gsl_histogram2d.h
+;;; /usr/include/gsl/gsl_histogram.h
+;;; /usr/include/gsl/gsl_histogram2d.h
 
 (defmobject histogram-pdf
     "gsl_histogram_pdf"

@@ -1,6 +1,6 @@
 ;; Make tests from examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-11-16 12:10:07EST generate-tests.lisp>
+;; Time-stamp: <2008-12-26 17:54:49EST generate-tests.lisp>
 ;; $Id: $
 
 ;;; Througout the GSLL interface definition files are #'save-test
@@ -65,6 +65,7 @@
 ;;; This is commented out because it shouldn't normally be run.  It
 ;;; will regenerate all tests, so there will be no regression tests to
 ;;; previous versions.  DON'T FORGET THE TRAILING SLASH ON THE PATH
+;;; (write-tests "/home/liam/mathematics/gsl/tests/")
 #+(or)
 (defun write-tests (path)
   "Write all the tests to the appropriate file."

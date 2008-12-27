@@ -1,9 +1,11 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-12-26 16:44:29EST series-acceleration.lisp>
+;; Time-stamp: <2008-12-26 18:22:40EST series-acceleration.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_sum.h
 
 ;;;;****************************************************************************
 ;;;; Creation and calculation of Levin series acceleration

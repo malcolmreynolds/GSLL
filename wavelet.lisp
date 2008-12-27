@@ -1,12 +1,13 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-12-26 17:13:59EST wavelet.lisp>
+;; Time-stamp: <2008-12-26 18:48:14EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;;; Examples do not agree with C results.
+;;; /usr/include/gsl/gsl_wavelet.h
 
+;;; Examples do not agree with C results.
 
 ;;;;****************************************************************************
 ;;;; Allocation of wavelets

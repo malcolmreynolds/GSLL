@@ -1,9 +1,11 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-12-26 17:17:06EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-12-26 18:29:44EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_multifit_nlin.h
 
 ;;;;****************************************************************************
 ;;;; Function-only solver object
@@ -31,7 +33,7 @@
 ;;;; Function and derivative solver object
 ;;;;****************************************************************************
 
-(defmobject nonlinear-fdffit "gsl_multifit_fsolver"
+(defmobject nonlinear-fdffit "gsl_multifit_fdfsolver"
   ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
   "nonlinear least squares fit with function and derivative"			; FDL
   "The number of observations must be greater than or

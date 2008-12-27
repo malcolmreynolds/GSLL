@@ -1,11 +1,12 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-12-26 12:51:25EST basis-splines.lisp>
+;; Time-stamp: <2008-12-26 18:25:41EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; /usr/include/gsl/gsl_bspline.h
+
 ;;; Should be subclass of interpolation?
 
 (defmobject basis-spline "gsl_bspline"

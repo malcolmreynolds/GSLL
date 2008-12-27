@@ -1,9 +1,11 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-12-26 17:21:37EST minimization-one.lisp>
+;; Time-stamp: <2008-12-26 18:35:53EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_min.h
 
 ;;;;****************************************************************************
 ;;;; Initialization

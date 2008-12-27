@@ -1,9 +1,11 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-12-26 16:43:37EST chebyshev.lisp>
+;; Time-stamp: <2008-12-26 18:21:11EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_chebyshev.h
 
 ;;;;****************************************************************************
 ;;;; Creation and calculation of Chebyshev series

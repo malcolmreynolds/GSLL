@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-26 17:07:25EST mobject.lisp>
+;; Time-stamp: <2008-12-26 18:13:24EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -13,7 +13,7 @@
 (in-package :gsl)
 
 (defclass mobject ()
-  ((mpointer :initarg :mpointer :reader mpointer
+  ((mpointper :initarg :mpointer :reader mpointer
 	     :documentation "A pointer to the GSL representation of the object.")))
 
 (defmacro defmobject
@@ -25,6 +25,8 @@
   ;; If prefix is a list, the first is the actual prefix, and the
   ;; second is the name of the allocateor.  I'm looking at you,
   ;; discrete-random.  Grrr.
+  ;; Argument 'initialize-suffix: string appended to prefix for form GSL function name
+  ;;   or a list of such a string and the c-return argument.
   (let* ((settingp (make-symbol "SETTINGP"))
 	 (arglists
 	  (when arglists-function
@@ -51,7 +53,8 @@
 	   ((object ,class) &key mpointer ,@cl-alloc-args)
 	 (unless mpointer
 	   (setf mpointer
-		 (allocate object ,@(symbol-keyword-symbol cl-alloc-args))))
+		 (allocate object ,@(symbol-keyword-symbol cl-alloc-args))
+		 (slot-value object 'mpointer) mpointer))
 	 (trivial-garbage:finalize
 	  object
 	  (lambda ()
@@ -62,10 +65,15 @@
        ,@(when initialize-suffix
 	       `((defmfun reinitialize-instance
 		     ((object ,class) &key ,@cl-initialize-args)
-		   ,(format nil "~a_~a" realprefix initialize-suffix)
+		   ,(format nil "~a_~a" realprefix
+			    (if (listp initialize-suffix)
+				(first initialize-suffix)
+				initialize-suffix))
 		   (((mpointer object) :pointer) ,@initialize-args)
 		   :definition :method
 		   :qualifier :after
+		   ,@(when (listp initialize-suffix)
+			   `(:c-return ,(second initialize-suffix)))
 		   :return (object)
 		   ,@(when inputs `(:inputs ,inputs))
 		   :export nil

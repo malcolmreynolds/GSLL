@@ -1,9 +1,14 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-12-26 17:05:48EST monte-carlo.lisp>
+;; Time-stamp: <2008-12-26 18:59:23EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_monte.h
+;;; /usr/include/gsl/gsl_monte_plain.h
+;;; /usr/include/gsl/gsl_monte_miser.h
+;;; /usr/include/gsl/gsl_monte_vegas.h
 
 ;;;;****************************************************************************
 ;;;; PLAIN Monte Carlo

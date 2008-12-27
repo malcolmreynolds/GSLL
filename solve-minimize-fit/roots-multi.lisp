@@ -1,9 +1,11 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-12-26 17:18:53EST roots-multi.lisp>
+;;; Time-stamp: <2008-12-26 18:37:15EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_multiroots.h
 
 ;;;;****************************************************************************
 ;;;; Function definition
