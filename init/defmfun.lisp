@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-12-21 22:50:20EST defmfun.lisp>
+;; Time-stamp: <2008-12-27 17:02:11EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -86,6 +86,7 @@
 
 (defun expand-defmfun-wrap (name arglist gsl-name c-arguments key-args)
   (let (indexed-functions)
+    (declare (ignorable indexed-functions)) ; workaround for compiler errors that don't see it's used
     (with-defmfun-key-args key-args
       (setf indexed-functions (list))
       (wrap-index-export
@@ -523,11 +524,12 @@
   "A complete definition form, starting with defun, :method, or defmethod."
   (destructuring-bind
 	(&key documentation inputs outputs after qualifier &allow-other-keys) key-args
+    (declare (ignorable inputs outputs)) ; workaround for compiler errors that don't see it's used
     `(,definition
 	 ,@(when (and name (not (defgeneric-method-p name)))
 		 (list name))
 	 ,@(when qualifier (list qualifier))
-	 ,arglist
+       ,arglist
        ,(declaration-form
 	 (cl-argument-types arglist c-arguments)
 	 (set-difference (arglist-plain-and-categories arglist nil)
@@ -601,7 +603,7 @@
 		     `((check-gsl-status ,cret-name
 					 ',(or (defgeneric-method-p name) name)))))
 	    #-native
-	    ,@(when outputs `(,(mapcar (lambda (x) `(setf (cl-invalid ,x) t))) outputs))
+	    ,@(when outputs (mapcar (lambda (x) `(setf (cl-invalid ,x) t)) outputs))
 	    ,@(when (eq cret-type :pointer)
 		    `((check-null-pointer
 		       ,cret-name

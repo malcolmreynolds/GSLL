@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2008-12-27 10:23:27EST foreign-friendly.lisp>
+;; Time-stamp: <2008-12-27 17:54:24EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -124,19 +124,6 @@
 ;;;;****************************************************************************
 ;;;; Pointer management
 ;;;;****************************************************************************
-
-#+native
-(defmacro with-pointer-to-array ((array pointer cffi-type length)
-				 &body body)
-  (assert (symbolp pointer))
-  (once-only (array cffi-type)
-    (with-unique-names (original-array index-offset)
-      `(multiple-value-bind (,original-array ,index-offset)
-	   (find-original-array ,array)
-	 (pin-to-pointer (,original-array ,pointer ,cffi-type
-					  ,length ,index-offset)
-	   ,@body)))))
-
 
 #+native
 (defmacro with-pointer-to-array ((array pointer cffi-type length)

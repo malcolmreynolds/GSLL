@@ -75,10 +75,8 @@ Input domain error |m| > 1.0 in elljac.c at line 46
 
 <h3>Requirements and Platforms</h3>
  <div class="content">
-  <p> GSLL should work in
-      any Common Lisp implementation and platform combination
-      that has <a href="http://common-lisp.net/project/cffi/">CFFI</a>
-       with callbacks and foreign-funcall support.  You will need
+  <p> GSLL should work in any Common Lisp implementation and platform combination
+      for which the following are supported:
       </p>
         <ul>
         <li><a href="http://www.gnu.org/software/gsl/">GSL</a></li>
@@ -86,7 +84,10 @@ Input domain error |m| > 1.0 in elljac.c at line 46
 	  (Version 0.10.0 or newer,
 	  or <a href="http://packages.debian.org/lenny/cl-cffi">the
 	  version in Debian/lenny</a>)
+	  Only platforms and implementations which have callbacks and
+	  foreign-funcall support will work.
 	</li>
+	<li><a href="http://www.cliki.net/trivial-garbage">trivial-garbage</a>
         <li><a href="http://common-lisp.net/project/cl-utilities/">cl-utilities</a>
 	  </li>
         <li><a href="http://www.cliki.net/asdf">ASDF</a></li>
@@ -94,10 +95,12 @@ Input domain error |m| > 1.0 in elljac.c at line 46
       <p>
         In <a href="http://www.debian.org">Debian</a> Lenny (5.0) or newer,
         the following should work:</p>
-      <blockquote><pre>aptitude install <a
-        href="http://packages.debian.org/lenny/libgsl0ldbl">libgsl0ldbl</a> <a href="http://packages.debian.org/lenny/cl-cffi">cl-cffi</a></pre></blockquote>
-      (asdf is automatically installed with your CL implementation).
-      Once your CL implementation is running, do
+<blockquote><pre>
+aptitude install <a href="http://packages.debian.org/lenny/libgsl0ldbl">libgsl0ldbl</a> <a href="http://packages.debian.org/lenny/cl-cffi">cl-cffi</a>
+</pre></blockquote>
+        and you will need to manually download and install
+        trivial-garbage; ASDF is automatically installed with your CL
+        implementation.  Once your CL implementation is running, do
       <code>(asdf:operate 'asdf:compile-op :gsll)</code> 
       or, if using Debian with the
       <a href="http://packages.debian.org/common-lisp-controller">
@@ -105,14 +108,21 @@ Input domain error |m| > 1.0 in elljac.c at line 46
         <code>clc-register-user-package</code> and then within Lisp
       <code>(clc:clc-require :gsll)</code>.
   <p>GSLL has been tested with <a
- href="http://sbcl.sourceforge.net/">SBCL</a> and <a
- href="http://clisp.cons.org/">CLISP</a> on Debian i386 and amd64.</p>
+ href="http://sbcl.sourceforge.net/">SBCL</a> on Debian amd64.</p>
  </div>
 
  <h3>Downloads</h3>
  <div class="content">
- <p>You may browse or download as follows:</p>
+ <p>See <a href="http://repo.or.cz/w/gsll.git">the official
+ repository</a> to browse or download.  To clone:
+<pre>
+git clone git://repo.or.cz/gsll.git
+</pre>
+To retrieve a compressed tarball, click one of the "snapshot" links on
+the repository web page.
+ </p>
  <ul>
+   
  </ul>
  </div>
  
@@ -143,7 +153,7 @@ Input domain error |m| > 1.0 in elljac.c at line 46
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
     <small>
-       Time-stamp: <2008-11-16 15:35:22EST index.html>
+       Time-stamp: <2008-12-27 14:33:37EST index.html>
        </small>
 <!-- hhmts end -->
  </div>

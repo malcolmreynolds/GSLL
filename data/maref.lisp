@@ -1,6 +1,6 @@
 ;; Get/set array or elements: cl-array, maref
 ;; Liam Healy 2008-08-27 22:43:10EDT maref.lisp
-;; Time-stamp: <2008-12-26 10:25:50EST maref.lisp>
+;; Time-stamp: <2008-12-27 17:07:28EST maref.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -101,7 +101,7 @@
     (if index2
 	(setf (aref (slot-value object 'cl-array) index index2) value)
 	(setf (aref (slot-value object 'cl-array) index) value))
-    #-native (setf c-invalid t))
+    #-native (setf (c-invalid object) t))
   (:method (value (object array) index &optional index2 type)
     ;; For compatibility, work on CL arrays as well.
     (declare (ignore type))

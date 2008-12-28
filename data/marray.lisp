@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-26 12:49:10EST marray.lisp>
+;; Time-stamp: <2008-12-27 16:54:11EST marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -193,7 +193,6 @@
      (cl-array object)
      (c-pointer object)
      (component-type (element-type object))
-     (element-type object)
      0
      (component-size object))
     (setf (c-invalid object) nil)))
@@ -207,10 +206,9 @@
      (cl-array object)
      (c-pointer object)
      (component-type (element-type object))
-     (element-type object)
      0
      (component-size object))
-    (setf cl-invalid nil)))
+    (setf (cl-invalid object) nil)))
 
 #-native
 (defun copy-array-to-pointer (array pointer lisp-type index-offset length)

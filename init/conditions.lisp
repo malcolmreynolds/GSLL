@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2008-11-16 14:47:24EST conditions.lisp>
+;; Time-stamp: <2008-12-27 16:42:45EST conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -42,9 +42,9 @@
       ((error-number :initform ,number :reader error-number :allocation :class)
        (error-text :initform ,text :reader error-text :allocation :class))
       (:documentation
-       (format nil
-	       "The condition ~a, ~a, signalled by the GNU Scientific Library."
-	       ',keyword ,text)))
+       ,(format nil
+	       "The condition ~a, `~a,' signalled by the GNU Scientific Library."
+	       keyword text)))
     (setf *errorno-keyword* (acons ,number ',keyword *errorno-keyword*))
     (export ',keyword)))
 
