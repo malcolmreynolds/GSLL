@@ -1,6 +1,6 @@
 ;; Define examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-12-26 10:25:47EST generate-examples.lisp>
+;; Time-stamp: <2008-12-28 15:27:28EST generate-examples.lisp>
 ;; $Id: $
 
 ;;; Define examples that can be displayed by users with the function
@@ -103,7 +103,7 @@
 ;;;;****************************************************************************
 
 (defun array-default (spec &optional no-init)
-  "Make an array of the current type and intialize from the pool."
+  "Make an array of the current type and initialize from the pool."
   (declare (special default-element-type starting-element))
   (let ((matrixp (listp spec)))
     (if no-init

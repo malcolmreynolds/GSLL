@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-07 18:17:57EST permutation.lisp>
+;; Time-stamp: <2008-12-28 16:40:35EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,15 +8,31 @@
 ;;;;****************************************************************************
 ;;;; Permutation structure and CL object
 ;;;;****************************************************************************
-
-(defclass permutation
-    (#+sizet-64 vector-unsigned-byte-64
-     #+sizet-32 vector-unsigned-byte-32)
-  ()
+   
+(defclass permutation (mobject foreign-array)
+  ((element-type
+    :initform
+    #+sizet-64 '(unsigned-byte 64)
+    #+sizet-32 '(unsigned-byte 32)
+    :reader element-type :allocation :class))
   (:documentation "GSL permutations."))
 
-(pushnew (cons 'permutation *sizet-type*)
-	 *class-element-type* :test #'equal)
+;;(pushnew (cons 'permutation *sizet-type*) *class-element-type* :test #'equal)
+
+(cffi:defcstruct gsl-permutation-c	; The GSL struct
+  (size sizet)
+  (data :pointer))
+
+(defmethod initialize-instance :after
+    ((object permutation) &key dimensions &allow-other-keys)
+  (let ((mptr (cffi:foreign-alloc 'gsl-permutation-c)))
+    (setf (slot-value object 'mpointer)
+	  mptr
+	  (cffi:foreign-slot-value mptr 'gsl-permutation-c 'data)
+	  (c-pointer object)
+	  (cffi:foreign-slot-value mptr 'gsl-permutation-c 'size)
+	  dimensions)
+    (tg:finalize object (lambda () (cffi:foreign-free mptr)))))
 
 (export 'make-permutation)
 (defun make-permutation (n &optional (initialize t))
@@ -33,13 +49,6 @@
 	  (copy perm n)
 	  (set-identity perm)))
     perm))
-
-(defmethod alloc-from-block ((perm permutation))
-  ;; GSL permutations are not based on blocks, but a gsl_permutation
-  ;; struct is identical to the gsl_block struct, so return the
-  ;; "block" (permutation) itself, as if a gsl_permutation was just
-  ;; "allocated."
-  (block-pointer perm))
 
 ;;;;****************************************************************************
 ;;;; Setting values

@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2008-11-16 10:23:32EST both.lisp>
+;; Time-stamp: <2008-12-28 16:42:22EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,9 +9,9 @@
 ;;;; Administrative (internal use)
 ;;;;****************************************************************************
 
-(defmfun alloc-from-block ((object vector))
+(defmfun alloc-from-block ((object vector) blockptr)
   ("gsl_" :category :type "_alloc_from_block")
-  (((block-pointer object) :pointer)	
+  ((blockptr :pointer)
    (0 sizet)				; offset
    ((total-size object) sizet)			; number of elements
    (1 sizet))				; stride
@@ -20,9 +20,9 @@
   :export nil
   :documentation "Allocate memory for the GSL struct given a block pointer.")
 
-(defmfun alloc-from-block ((object matrix))
+(defmfun alloc-from-block ((object matrix) blockptr)
   ("gsl_" :category :type "_alloc_from_block")
-  (((block-pointer object) :pointer)
+  ((blockptr :pointer)
    (0 sizet)				; offset
    ((first (dimensions object)) sizet)	; number of rows
    ((second (dimensions object)) sizet)	; number of columns

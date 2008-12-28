@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-12-26 17:26:28EST gsll.asd>
+;; Time-stamp: <2008-12-28 16:46:47EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -33,15 +33,15 @@
 	    :depends-on (init)
 	    :components
 	    ((:file "foreign-friendly")
+	     (:file "foreign-array" :depends-on (foreign-friendly))
 	     (:file "marray" :depends-on (foreign-friendly))
 	     (:file "vector" :depends-on (marray))
 	     (:file "matrix" :depends-on (marray vector))
 	     (:file "maref" :depends-on (marray vector matrix))
 	     (:file "both" :depends-on (marray vector matrix))
 	     (:file "array-tests" :depends-on (both))
-	     (:file "permutation" :depends-on (marray))
-	     (:file "combination"	; preload defgeneric
-		    :depends-on (marray matrix both permutation))))
+	     (:file "permutation" :depends-on (foreign-array))
+	     (:file "combination" :depends-on (foreign-array))))
    (:file "polynomial" :depends-on (init data))
    (:module special-functions
 	    :depends-on (init)
