@@ -1,6 +1,6 @@
 ;; Foreign arrays (usually in C)
 ;; Liam Healy 2008-12-28 10:44:22EST foreign-array.lisp
-;; Time-stamp: <2008-12-28 15:53:06EST foreign-array.lisp>
+;; Time-stamp: <2008-12-28 21:39:02EST foreign-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -49,6 +49,12 @@
       (setf cl-array ffa
 	    dimensions (array-dimensions ffa)
 	    total-size (array-total-size ffa)))
+    #-native
+    (let ((cptr (cffi:foreign-alloc
+	   (cl-cffi (element-type object))
+	   :count (total-size object))))
+      (setf (c-pointer object) cptr)
+      (tg:finalize object (lambda () (cffi:foreign-free cptr))))
     #-native (setf (cl-invalid object) nil)
     (multiple-value-bind  (oa index-offset)
 	(find-original-array (cl-array object))
@@ -91,9 +97,9 @@
     (copy-array-to-pointer
      (cl-array object)
      (c-pointer object)
-     (component-type (element-type object))
+     (element-type object)
      0
-     (component-size object))
+     (total-size object))
     (setf (c-invalid object) nil)))
 
 ;;; Called right before maref
@@ -104,9 +110,9 @@
     (copy-array-from-pointer
      (cl-array object)
      (c-pointer object)
-     (component-type (element-type object))
+     (element-type object)
      0
-     (component-size object))
+     (total-size object))
     (setf (cl-invalid object) nil)))
 
 #-native
@@ -115,11 +121,9 @@
    lisp-type to the memory area that starts at pointer, coercing the
    elements if necessary."
   (let ((cffi-type (component-type lisp-type)))
-    (loop
-       for pointer-index :from 0
-       :below (if (subtypep lisp-type 'complex) (* 2 length) length)
-       :by (if (subtypep lisp-type 'complex) 2 1)
+    (loop :repeat length
        for array-index :from index-offset
+       for pointer-index :from 0 :by (if (subtypep lisp-type 'complex) 2 1)
        do
        (if (subtypep lisp-type 'complex)
 	   (setf (cffi:mem-aref pointer cffi-type pointer-index)
@@ -135,10 +139,8 @@
    lisp-type from the memory area that starts at pointer, coercing the
    elements if necessary."
   (let ((cffi-type (component-type lisp-type)))
-    (loop
-       for pointer-index :from 0
-       :below (if (subtypep lisp-type 'complex) (* 2 length) length)
-       :by (if (subtypep lisp-type 'complex) 2 1)
+    (loop :repeat length
+       for pointer-index :from 0 :by (if (subtypep lisp-type 'complex) 2 1)
        for array-index :from index-offset
        do
        (setf (row-major-aref array array-index)

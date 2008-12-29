@@ -1,6 +1,6 @@
 ;; IEEE 754 Modes and masks
 ;; Liam Healy 2008-01-29 21:35:50EST ieee-modes.lisp
-;; Time-stamp: <2008-02-17 18:36:37EST ieee-modes.lisp>
+;; Time-stamp: <2008-12-28 20:59:16EST ieee-modes.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,3 +30,6 @@
    ((cffi:foreign-enum-value 'ieee-mask exception-mask) :int))
   :documentation
   "Set the IEEE 754 precision, rounding mode, and exception mask.")
+
+#+clisp
+(setf sys::*inhibit-floating-point-underflow* t)

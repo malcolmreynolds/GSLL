@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-28 18:25:33EST mobject.lisp>
+;; Time-stamp: <2008-12-28 20:45:50EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -151,5 +151,7 @@
    "Create a contents list from the GSL object of type struct-type
     referenced by pointer."))
 
+;;; CLISP bug? doesn't know about +foreign-pointer-class+ defined above
+#-clisp
 (defmethod mpointer ((object #.+foreign-pointer-class+))
   object)
