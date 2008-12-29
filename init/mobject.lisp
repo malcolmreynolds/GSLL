@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-28 20:45:50EST mobject.lisp>
+;; Time-stamp: <2008-12-29 17:37:25EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -136,9 +136,11 @@
   (:documentation "The name given to the GSL object."))
 
 ;;; Pointer type
-(defconstant +foreign-pointer-class+ (class-name (class-of (cffi:null-pointer)))
-  "The class in which foreign pointers fall.  This will be assumed to be a 
-   GSL vector or matrix.")
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defconstant +foreign-pointer-class+ (class-name (class-of (cffi:null-pointer)))
+    "The class in which foreign pointers fall.")
+  (defconstant +foreign-pointer-type+ (type-of (cffi:null-pointer))
+    "The type of foreign pointers."))
 
 ;;; Some functions in solve-minimize-fit return a pointer to a GSL
 ;;; vector with double-floats.  This function will return a contents
@@ -151,7 +153,6 @@
    "Create a contents list from the GSL object of type struct-type
     referenced by pointer."))
 
-;;; CLISP bug? doesn't know about +foreign-pointer-class+ defined above
-#-clisp
 (defmethod mpointer ((object #.+foreign-pointer-class+))
+  (check-type object #.+foreign-pointer-type+)
   object)

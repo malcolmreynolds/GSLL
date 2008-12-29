@@ -1,6 +1,6 @@
 ;; Foreign arrays (usually in C)
 ;; Liam Healy 2008-12-28 10:44:22EST foreign-array.lisp
-;; Time-stamp: <2008-12-28 21:39:02EST foreign-array.lisp>
+;; Time-stamp: <2008-12-29 14:34:24EST foreign-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -63,10 +63,16 @@
 	    (* index-offset
 	       (cffi:foreign-type-size (cl-cffi (element-type object))))))))
 
+(defparameter *print-contents* t
+  "Print the contents of the foreign-array.")
+
 (defmethod print-object ((object foreign-array) stream)
   (print-unreadable-object (object stream :type t) 
-    #-native (copy-c-to-cl object)
-    (princ (cl-array object) stream)))
+    (if *print-contents*
+	(progn
+	  #-native (copy-c-to-cl object)
+	  (princ (cl-array object) stream))
+	(format stream "dimensions ~a" (dimensions object)))))
 
 (defun dim0 (object)
   "The first dimension of the object."
@@ -95,7 +101,7 @@
   "Copy the CL array to the C array."
   (when (c-invalid object)
     (copy-array-to-pointer
-     (cl-array object)
+     (slot-value object 'cl-array)
      (c-pointer object)
      (element-type object)
      0
@@ -108,7 +114,7 @@
   "Copy the C array to the CL array."
   (when (cl-invalid object)
     (copy-array-from-pointer
-     (cl-array object)
+     (slot-value object 'cl-array)
      (c-pointer object)
      (element-type object)
      0
@@ -144,7 +150,8 @@
        for array-index :from index-offset
        do
        (setf (row-major-aref array array-index)
-	     (complex 
-	      (cffi:mem-aref pointer cffi-type pointer-index)
-	      (cffi:mem-aref pointer cffi-type (1+ pointer-index)))))))
-
+	     (if (subtypep lisp-type 'complex)
+		 (complex 
+		  (cffi:mem-aref pointer cffi-type pointer-index)
+		  (cffi:mem-aref pointer cffi-type (1+ pointer-index)))
+		 (cffi:mem-aref pointer cffi-type pointer-index))))))
