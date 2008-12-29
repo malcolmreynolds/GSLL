@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2008-12-28 16:55:04EST matrix.lisp>
+;; Time-stamp: <2008-12-28 18:01:25EST matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,6 +24,16 @@
 
 ;;; Define all supported matrix subclasses
 #.(data-defclass 'matrix 'matrix)
+
+(defmethod contents-from-pointer
+    (pointer (struct-type (eql 'gsl-matrix-c))
+     &optional (element-type 'double-float))
+  (let ((dim1 (cffi:foreign-slot-value pointer struct-type 'size1))
+	(dim2 (cffi:foreign-slot-value pointer struct-type 'size2)))
+    ;; Copy over from the C side
+    (loop for i below dim1
+       collect (loop for j below dim2 
+		  collect (maref pointer i j element-type)))))
 
 ;;;;****************************************************************************
 ;;;; Mathematical

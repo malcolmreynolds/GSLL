@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-12-26 18:29:44EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2008-12-28 18:49:26EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -129,16 +129,16 @@
 (defmfun current-parameters-ffit (solver)
   "gsl_multifit_fsolver_position"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best-fit parameters.")
 
 (defmfun current-parameters-fdffit (solver)
   "gsl_multifit_fdfsolver_position"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best-fit parameters.")
 
@@ -295,13 +295,13 @@
    (make-exponent-fit-data
     :n *number-of-observations*
     :y
-    (let ((arr (make-marray *number-of-observations* 'double-float)))
+    (let ((arr (make-marray 'double-float :dimensions *number-of-observations*)))
       (let ((rng (make-random-number-generator *mt19937* 0)))
 	(dotimes (i *number-of-observations* arr)
-	  (setf (aref arr i)
+	  (setf (maref arr i)
 		(+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0))))))
     :sigma
-    (make-marray *number-of-observations* 'double-float :initial-element 0.1d0))))
+    (make-marray 'double-float :dimensions *number-of-observations* :initial-element 0.1d0))))
 
 (defun exponential-residual (x f)
   "Compute the negative of the residuals with the exponential model
@@ -310,13 +310,13 @@
 	(lambda (maref x 1))
 	(b (maref x 2)))
     (symbol-macrolet
-	  ((y (exponent-fit-data-y *nlls-example-data*))
-	   (sigma (exponent-fit-data-sigma *nlls-example-data*)))
-	(dotimes (i *number-of-observations*)
-	  (setf (maref f i)
-		;; the difference model - observation = - residual
-		(/ (- (+ (* A (exp (* (- lambda) i))) b) (aref y i))
-		   (aref sigma i)))))))
+	((y (exponent-fit-data-y *nlls-example-data*))
+	 (sigma (exponent-fit-data-sigma *nlls-example-data*)))
+      (dotimes (i *number-of-observations*)
+	(setf (maref f i)
+	      ;; the difference model - observation = - residual
+	      (/ (- (+ (* A (exp (* (- lambda) i))) b) (maref y i))
+		 (maref sigma i)))))))
 
 (defun exponential-residual-derivative (x jacobian)
   "Compute the partial derivatives of the negative of the
@@ -328,7 +328,7 @@
 	  ((sigma (exponent-fit-data-sigma *nlls-example-data*)))
 	(dotimes (i *number-of-observations*)
 	  (let ((e (exp (* (- lambda) i)))
-		(s (aref sigma i)))
+		(s (maref sigma i)))
 	  (setf (maref jacobian i 0) (/ e s)
 		(maref jacobian i 1) (* -1 i A (/ e s))
 		(maref jacobian i 2) (/ s)))))))
@@ -346,8 +346,7 @@
 
 (defun norm-f (fit)
   "Find the norm of the fit function f."
-  ;; Fix this
-  (euclidean-norm (fdffit-slot fit 'f)))
+  (euclidean-norm (make-marray 'double-float :from-pointer (fdffit-slot fit 'f))))
 
 (defun solve-nonlinear-least-squares-example ()
   (let* ((init #m(1.0d0 0.0d0 0.0d0))
@@ -355,12 +354,12 @@
 	  (make-marray 'double-float
 		       :dimensions
 		       (list *number-of-parameters* *number-of-parameters*)))
-	 (fit (make-nonlinear-fdffit
-	       *levenberg-marquardt*
-	       *number-of-observations*
-	       *number-of-parameters*
-	       exponential-residual
-	       init)))
+	 (fit (mpointer (make-nonlinear-fdffit
+			 *levenberg-marquardt*
+			 *number-of-observations*
+			 *number-of-parameters*
+			 exponential-residual
+			 init))))
     (macrolet ((fitx (i) `(maref (fdffit-slot fit 'x) ,i))
 	       (err (i) `(sqrt (maref covariance ,i ,i))))
       (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
@@ -391,3 +390,4 @@
 ;;; Run example:
 ;;; (nlls-setup)
 ;;; (solve-nonlinear-least-squares-example)
+;;; (5.045357801443204d0 0.10404905892045835d0 1.0192487061031013d0)

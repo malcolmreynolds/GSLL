@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-28 16:43:44EST marray.lisp>
+;; Time-stamp: <2008-12-28 18:54:20EST marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -92,18 +92,34 @@
 
 (export 'make-marray)
 (defun make-marray
-    (element-type &rest keys &key dimensions initial-contents &allow-other-keys)
+    (element-type &rest keys &key dimensions initial-contents from-pointer
+     &allow-other-keys)
   "Make a GSLL array with the given element type,
-   :dimensions, :initial-contents and/or :initial-element."
-  (apply #'make-instance
-	 (data-class-name
-	  (if
-	   (or
-	    (and dimensions (listp dimensions) (eql (length dimensions) 2))
-	    (and initial-contents (listp (first initial-contents))))
-	   'matrix 'vector)
-	  element-type)
-	 keys))
+   :dimensions, :initial-contents and/or :initial-element.
+   If a pointer to a GSL object is given in :from-pointer, create
+   an object with duplicate contents; if a matrix, :dimensions must be set to 2."
+  ;; Some functions in solve-minimize-fit return a pointer to a GSL
+  ;; vector of double-floats.  With the :from-pointer argument, this
+  ;; function turn that into a foreign-friendly array.  There is no
+  ;; choice but to copy over the data even on native implementations;
+  ;; because GSL is doing the mallocing, the data are not
+  ;; CL-accessible.
+  (if from-pointer
+      (make-marray element-type
+		   :initial-contents
+		   (contents-from-pointer
+		    from-pointer
+		    (if (eql dimensions 2) 'gsl-matrix-c 'gsl-vector-c)
+		    element-type))
+      (apply #'make-instance
+	     (data-class-name
+	      (if
+	       (or
+		(and dimensions (listp dimensions) (eql (length dimensions) 2))
+		(and initial-contents (listp (first initial-contents))))
+	       'matrix 'vector)
+	      element-type)
+	     keys)))
 
 (defun hashm-numeric-code (n)
   "Get the appropriate element type for the numeric code n"

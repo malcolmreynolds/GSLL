@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-26 18:33:28EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-28 18:14:04EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -122,16 +122,16 @@
 (defmfun mfminimizer-x (minimizer)
   "gsl_multimin_fminimizer_x"
   (((mpointer minimizer) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
 (defmfun mfdfminimizer-x (minimizer)
   "gsl_multimin_fdfminimizer_x"
   (((mpointer minimizer) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
@@ -159,8 +159,8 @@
 (defmfun mfdfminimizer-gradient (minimizer)
   "gsl_multimin_fdfminimizer_gradient"
   (((mpointer minimizer) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best estimate of the gradient for the minimizer.")
 
@@ -177,7 +177,7 @@
 
 (defmfun min-test-gradient (gradient absolute-error)
   "gsl_multimin_test_gradient"
-  ((gradient :pointer) (absolute-error :double))
+  (((mpointer gradient) :pointer) (absolute-error :double))
   :c-return :success-continue
   :documentation			; FDL
   "Test the norm of the gradient against the

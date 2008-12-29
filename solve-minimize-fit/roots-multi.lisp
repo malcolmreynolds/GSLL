@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-12-26 18:37:15EST roots-multi.lisp>
+;;; Time-stamp: <2008-12-28 18:25:31EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -118,48 +118,48 @@
 (defmfun mfsolver-root (solver)
   "gsl_multiroot_fsolver_root"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
 (defmfun mfdfsolver-root (solver)
   "gsl_multiroot_fdfsolver_root"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation
   "The current estimate of the root for the solver.")
 
 (defmfun mfsolver-f (solver)
   "gsl_multiroot_fsolver_f"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
 (defmfun mfdfsolver-f (solver)
   "gsl_multiroot_fdfsolver_f"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
 (defmfun mfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The last step dx taken by the solver.")
 
 (defmfun mfdfsolver-dx (solver)
   "gsl_multiroot_fsolver_dx"
   (((mpointer solver) :pointer))
-  :c-return :pointer
-  :return (:c-return)
+  :c-return (crtn :pointer)
+  :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The last step dx taken by the solver.")
 

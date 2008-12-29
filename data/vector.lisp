@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
-;; Time-stamp: <2008-12-28 16:55:05EST vector.lisp>
+;; Time-stamp: <2008-12-28 18:01:59EST vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,6 +23,12 @@
 
 ;;; Define all supported mvector subclasses
 #.(data-defclass 'vector 'mvector)
+
+(defmethod contents-from-pointer
+    (pointer (struct-type (eql 'gsl-vector-c))
+     &optional (element-type 'double-float))
+  (loop for i below (cffi:foreign-slot-value pointer struct-type 'size)
+     collect (maref pointer i nil element-type)))
 
 ;;;;****************************************************************************
 ;;;; Function definitions

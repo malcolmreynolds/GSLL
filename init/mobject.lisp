@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-26 19:16:05EST mobject.lisp>
+;; Time-stamp: <2008-12-28 18:25:33EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -139,3 +139,17 @@
 (defconstant +foreign-pointer-class+ (class-name (class-of (cffi:null-pointer)))
   "The class in which foreign pointers fall.  This will be assumed to be a 
    GSL vector or matrix.")
+
+;;; Some functions in solve-minimize-fit return a pointer to a GSL
+;;; vector with double-floats.  This function will return a contents
+;;; form suitable for make-marray.  There is no choice but to copy
+;;; over the data even on native implementations; because GSL is doing
+;;; the mallocing, the data are not CL-accessible.
+
+(defgeneric contents-from-pointer (pointer struct-type &optional element-type)
+  (:documentation
+   "Create a contents list from the GSL object of type struct-type
+    referenced by pointer."))
+
+(defmethod mpointer ((object #.+foreign-pointer-class+))
+  object)

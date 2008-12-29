@@ -1,6 +1,6 @@
 ;; Get/set array or elements: cl-array, maref
 ;; Liam Healy 2008-08-27 22:43:10EDT maref.lisp
-;; Time-stamp: <2008-12-28 16:32:54EST maref.lisp>
+;; Time-stamp: <2008-12-28 18:09:19EST maref.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -40,32 +40,6 @@
     ;; For compatibility, work on CL arrays as well.
     (declare (ignore array-rank element-type))
     object))
-
-;;; Some functions in solve-minimize-fit return a pointer to a GSL
-;;; vector with double-floats.  #'cl-array will turn that into a
-;;; foreign-friendly array.  There is no choice but to copy over the
-;;; data even on native implementations; because GSL is doing the
-;;; mallocing, the data are not CL-accessible.
-
-(defmethod cl-array ((pointer #.+foreign-pointer-class+)
-		     &optional (array-rank 1) (element-type 'double-float))
-  (if (= array-rank 2)
-      ;; Matrix
-      (let* ((dim1 (cffi:foreign-slot-value pointer 'gsl-matrix-c 'size1))
-	     (dim2 (cffi:foreign-slot-value pointer 'gsl-matrix-c 'size2))
-	     (array (make-marray (list dim1 dim2) element-type)))
-	;; Copy over from the C side
-	(loop for i below dim1
-	   do (loop for j below dim2 do
-		   (setf (aref array i j) (maref pointer i j))))
-	array)
-      ;; Vector
-      (let* ((size (cffi:foreign-slot-value pointer 'gsl-vector-c 'size))
-	     (array (make-marray size element-type)))
-	;; Copy over from the C side
-	(loop for i below size
-	   do (setf (aref array i) (maref pointer i)))
-	array)))
 
 ;;;;****************************************************************************
 ;;;; Get or set elements of the array:  maref, (setf maref)
