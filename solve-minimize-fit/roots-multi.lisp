@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-12-28 18:25:31EST roots-multi.lisp>
+;;; Time-stamp: <2008-12-30 09:57:11EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -367,17 +367,6 @@
 (defparameter *rosenbrock-a* 1.0d0)
 (defparameter *rosenbrock-b* 10.0d0)
 
-#|
-;;; One alternative way of writing the function, not recommended.
-(defun rosenbrock (argument return)
-  "Rosenbrock test function."
-  (with-c-doubles (((vector-data argument) x0 x1)
-		   ((vector-data return) f0 f1))
-    (setf f0 (* *rosenbrock-a* (- 1 x0))
-	  f1 (* *rosenbrock-b* (- x1 (expt x0 2))))))
-|#
-
-;;; The recommended alternative
 (defun rosenbrock (argument return)
   "Rosenbrock test function."
   (setf (maref return 0)
@@ -428,8 +417,8 @@
 ;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
 ;;; we'll make an alias function so we can use both.  
-(eval-when (:load-toplevel :execute)
-  (setf (fdefinition 'rosenbrock-f) #'rosenbrock))
+(defun rosenbrock-f (argument return)
+  (rosenbrock argument return))
 
 (def-solver-functions rosenbrock-f rosenbrock-df rosenbrock-fdf 2)
 

@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-28 18:14:04EST minimization-multi.lisp>
+;; Time-stamp: <2008-12-30 10:17:15EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -332,8 +332,8 @@
 ;;; Because def-minimization-functions bind a symbol
 ;;; of the same name as the first function, and we want both to run,
 ;;; we'll make an alias function so we can use both.  
-(eval-when (:load-toplevel :execute)
-  (setf (fdefinition 'parabaloid-f) #'parabaloid))
+(defun parabaloid-f (gsl-vector-pointer)
+  (parabaloid gsl-vector-pointer))
 
 (def-minimization-functions parabaloid-f 2)
 

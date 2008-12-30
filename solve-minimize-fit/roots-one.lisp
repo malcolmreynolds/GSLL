@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-12-29 19:16:52EST roots-one.lisp>
+;; Time-stamp: <2008-12-30 10:17:14EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -339,8 +339,7 @@
 ;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
 ;;; we'll make an alias function so we can use both.  
-(eval-when (:load-toplevel :execute)
-  (setf (fdefinition 'quadratic-df) #'quadratic))
+(defun quadratic-df (x) (quadratic x))
 
 (def-solver-functions
     quadratic-df quadratic-derivative quadratic-and-derivative)
