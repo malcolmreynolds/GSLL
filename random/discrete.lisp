@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2008-12-27 10:33:36EST discrete.lisp>
+;; Time-stamp: <2008-12-29 22:33:10EST discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,7 +8,7 @@
 ;;; /usr/include/gsl/gsl_randist.h
 
 (defmobject discrete-random
-    ("gsl_ran_discrete" "gsl_ran_discrete_preproc")
+    ("gsl_ran_discrete" "gsl_ran_discrete_preproc" (probabilities))
   (((dim0 probabilities) sizet) ((c-pointer probabilities) :pointer))
   "lookup table for the discrete random number generator" ; FDL
   "Make a structure that contains the lookup
@@ -22,9 +22,8 @@
   "gsl_ran_discrete"
   (((mpointer generator) :pointer) ((mpointer table) :pointer))
   :c-return sizet
-  :documentation			; FDL
-  "Generate discrete random numbers after running #'discrete-preprocess;
-   the argument 'table is the value returned by #'discrete-preprocess.")
+  :documentation
+  "Generate discrete random numbers.")
 
 (defmfun discrete-pdf (k table)
   "gsl_ran_discrete_pdf"

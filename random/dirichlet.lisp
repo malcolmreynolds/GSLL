@@ -1,6 +1,6 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-12-26 19:50:49EST dirichlet.lisp>
+;; Time-stamp: <2008-12-29 22:22:57EST dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,7 +14,10 @@
    ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((c-pointer theta) :pointer))
+  :inputs (alpha)
+  :outputs (theta)
   :c-return :void
+  :return (theta)
   :documentation			; FDL
   "An array of K=(length alpha) random variates from a Dirichlet
   distribution of order K-1.  The distribution function is
@@ -37,6 +40,7 @@
    ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((c-pointer theta) :pointer))
+  :inputs (alpha theta)
   :c-return :double
   :documentation			; FDL
   "The probability density p(\theta_1, ... , \theta_K)
@@ -49,6 +53,7 @@
    ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((c-pointer theta) :pointer))
+  :inputs (alpha theta)
   :c-return :double
   :documentation			; FDL
   "The logarithm of the probability density 

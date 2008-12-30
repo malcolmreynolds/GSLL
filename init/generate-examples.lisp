@@ -1,6 +1,6 @@
 ;; Define examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-12-28 15:27:28EST generate-examples.lisp>
+;; Time-stamp: <2008-12-29 19:10:39EST generate-examples.lisp>
 ;; $Id: $
 
 ;;; Define examples that can be displayed by users with the function
@@ -37,8 +37,8 @@
    in that category."
   (if name 
       (getf *all-generated-tests* name)
-      (loop for (key value) on *all-generated-tests* by #'cddr
-	 collect key)))
+      (loop for pr on *all-generated-tests* by #'cddr
+	 collect (first pr))))
 
 ;;;;****************************************************************************
 ;;;; Data pool 
@@ -79,7 +79,8 @@
   "Make a vector of the specified element type and length using the
    pool data for the type and starting at the specified point in the pool."
   (make-marray
-   length type
+   type
+   :dimensions length
    :initial-contents
    (make-list-from-pool type length starting)))
 

@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-12-26 12:18:56EST coulomb.lisp>
+;; Time-stamp: <2008-12-29 20:49:45EST coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -64,6 +64,7 @@
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((c-pointer fc-array) :pointer) ((c-pointer gc-array) :pointer)
    (F-exponent :double) (G-exponent :double))
+  :outputs (fc-array gc-array)
   :return (fc-array gc-array (dcref F-exponent) (dcref G-exponent))
   :documentation			; FDL
   "The functions F_L(\eta,x),
@@ -77,6 +78,7 @@
    ((c-pointer fc-array) :pointer) ((c-pointer fcp-array) :pointer)
    ((c-pointer gc-array) :pointer) ((c-pointer gcp-array) :pointer)
    (F-exponent :double) (G-exponent :double))
+  :outputs (fc-array fcp-array gc-array gcp-array)
   :return
   (fc-array fcp-array gc-array gcp-array
 	    (dcref F-exponent) (dcref G-exponent))

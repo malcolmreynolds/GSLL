@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-12-26 18:31:13EST roots-one.lisp>
+;; Time-stamp: <2008-12-29 19:16:52EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -353,9 +353,8 @@
 		  *newton-fdfsolver* quadratic-df initial)))
     (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
     (loop for iter from 0
-       for itres = (iterate-fdfsolver solver)
        for oldroot = initial then root
-       for root = (fdfsolver-root solver)
+       for root = (progn (iterate-fdfsolver solver) (fdfsolver-root solver))
        while (and (< iter max-iter)
 		  (not (root-test-delta root oldroot 0.0d0 1.0d-5)))
        do

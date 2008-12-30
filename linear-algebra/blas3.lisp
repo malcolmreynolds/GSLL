@@ -1,9 +1,11 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-12-26 12:23:21EST blas3.lisp>
+;; Time-stamp: <2008-12-29 21:57:02EST blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_blas.h
 
 ;;;;****************************************************************************
 ;;;; Options
@@ -139,36 +141,36 @@
 
 (generate-all-array-tests matrix-product :float-complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3)))
-	(answer (array-default '(3 3) t))
-	(s1 (scalar-default))
-	(s2 (scalar-default)))
-   (cl-array (matrix-product m1 m2 answer s1 s2))))
+       (m2 (array-default '(3 3)))
+       (m3 (array-default '(3 3)))
+       (s1 (scalar-default))
+       (s2 (scalar-default)))
+   (cl-array (matrix-product m1 m2 m3 s1 s2))))
 
 (generate-all-array-tests matrix-product-triangular :float-complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3)))
-	(s1 (scalar-default)))
+       (m2 (array-default '(3 3)))
+       (s1 (scalar-default)))
    (cl-array (matrix-product-triangular m1 m2 s1))))
 
 (generate-all-array-tests inverse-matrix-product :float-complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3)))
-	(s1 (scalar-default)))
+       (m2 (array-default '(3 3)))
+       (s1 (scalar-default)))
    (cl-array (inverse-matrix-product m1 m2 s1))))
 
 (generate-all-array-tests matrix-product-symmetric :float
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3)))
-	(answer (array-default '(3 3) t))
-	(s1 (scalar-default))
-	(s2 (scalar-default)))
-   (cl-array (matrix-product-symmetric m1 m2 answer s1 s2))))
+       (m2 (array-default '(3 3)))
+       (m3 (array-default '(3 3)))
+       (s1 (scalar-default))
+       (s2 (scalar-default)))
+   (cl-array (matrix-product-symmetric m1 m2 m3 s1 s2))))
 
 (generate-all-array-tests matrix-product-hermitian :complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3)))
-	(answer (array-default '(3 3) t))
-	(s1 (scalar-default))
-	(s2 (scalar-default)))
-   (cl-array (matrix-product-hermitian m1 m2 answer s1 s2))))
+       (m2 (array-default '(3 3)))
+       (m3 (array-default '(3 3)))
+       (s1 (scalar-default))
+       (s2 (scalar-default)))
+   (cl-array (matrix-product-hermitian m1 m2 m3 s1 s2))))

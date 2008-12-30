@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2008-12-28 18:01:25EST matrix.lisp>
+;; Time-stamp: <2008-12-29 20:33:38EST matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -73,7 +73,8 @@
   (((mpointer matrix) :pointer) (i sizet) ((mpointer vector) :pointer))
   :definition :generic
   :inputs (vector matrix)
-  :return (vector)			;setf should return
+  :outputs (matrix)
+  :return (vector)			;setf should return the quantity set
   :documentation			; FDL
   "Copy the elements of the vector into the jth column of the matrix.
   The length of the vector must be the same as the length of the column.")
@@ -94,8 +95,9 @@
   ("gsl_matrix" :type "_set_col")
   (((mpointer matrix) :pointer) (i sizet) ((mpointer vector) :pointer))
   :definition :generic
+  :inputs (vector matrix)
   :outputs (matrix)
-  :return (vector)			;setf should return
+  :return (vector)			;setf should return the quantity set
   :documentation			; FDL
   "Copy the elements of the vector into the ith column of the matrix.
   The length of the vector must be the same as the length of the column.")

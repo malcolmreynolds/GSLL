@@ -25,16 +25,23 @@
                                                           -49.08 -39.66 -49.46)
                                                          (-49.08 -39.66 -49.46
                                                           19.68 -5.55 -8.82))))
-                                                     (ANSWER
+                                                     (M3
                                                       (MAKE-MARRAY
                                                        '(COMPLEX SINGLE-FLOAT)
-                                                       :DIMENSIONS '(3 3)))
-                                                     (S1 #C(19.68 -5.55))
-                                                     (S2 #C(-5.55 -8.82)))
+                                                       :INITIAL-CONTENTS
+                                                       '((19.68 -5.55 -8.82
+                                                          25.37 -30.58 31.67)
+                                                         (25.37 -30.58 31.67
+                                                          29.36 -33.24 -27.03)
+                                                         (29.36 -33.24 -27.03
+                                                          -41.67 42.0
+                                                          -20.81))))
+                                                     (S1 #C(-41.67 42.0))
+                                                     (S2 #C(42.0 -20.81)))
                                                  (CL-ARRAY
                                                   (MATRIX-PRODUCT-HERMITIAN M1
                                                                             M2
-                                                                            ANSWER
+                                                                            M3
                                                                             S1
                                                                             S2))))
                        (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
@@ -64,16 +71,25 @@
                                                          (-49.08d0 -39.66d0
                                                           -49.46d0 19.68d0
                                                           -5.55d0 -8.82d0))))
-                                                     (ANSWER
+                                                     (M3
                                                       (MAKE-MARRAY
                                                        '(COMPLEX DOUBLE-FLOAT)
-                                                       :DIMENSIONS '(3 3)))
-                                                     (S1 #C(19.68d0 -5.55d0))
-                                                     (S2 #C(-5.55d0 -8.82d0)))
+                                                       :INITIAL-CONTENTS
+                                                       '((19.68d0 -5.55d0
+                                                          -8.82d0 25.37d0
+                                                          -30.58d0 31.67d0)
+                                                         (25.37d0 -30.58d0
+                                                          31.67d0 29.36d0
+                                                          -33.24d0 -27.03d0)
+                                                         (29.36d0 -33.24d0
+                                                          -27.03d0 -41.67d0
+                                                          42.0d0 -20.81d0))))
+                                                     (S1 #C(-41.67d0 42.0d0))
+                                                     (S2 #C(42.0d0 -20.81d0)))
                                                  (CL-ARRAY
                                                   (MATRIX-PRODUCT-HERMITIAN M1
                                                                             M2
-                                                                            ANSWER
+                                                                            M3
                                                                             S1
                                                                             S2))))
                        (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
@@ -94,16 +110,19 @@
                                                        :INITIAL-CONTENTS
                                                        '(42.73 -17.24 43.31
                                                          -16.12 -8.25 21.44)))
-                                                     (ANSWER
+                                                     (V2
                                                       (MAKE-MARRAY
                                                        '(COMPLEX SINGLE-FLOAT)
-                                                       :DIMENSIONS '3))
-                                                     (S1 #C(-16.12 -8.25))
-                                                     (S2 #C(-8.25 21.44)))
+                                                       :INITIAL-CONTENTS
+                                                       '(-16.12 -8.25 21.44
+                                                         -49.08 -39.66
+                                                         -49.46)))
+                                                     (S1 #C(-49.08 -39.66))
+                                                     (S2 #C(-39.66 -49.46)))
                                                  (CL-ARRAY
                                                   (MATRIX-PRODUCT-HERMITIAN M1
                                                                             V1
-                                                                            ANSWER
+                                                                            V2
                                                                             S1
                                                                             S2))))
                        (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
@@ -127,16 +146,19 @@
                                                        '(42.73d0 -17.24d0
                                                          43.31d0 -16.12d0
                                                          -8.25d0 21.44d0)))
-                                                     (ANSWER
+                                                     (V2
                                                       (MAKE-MARRAY
                                                        '(COMPLEX DOUBLE-FLOAT)
-                                                       :DIMENSIONS '3))
-                                                     (S1 #C(-16.12d0 -8.25d0))
-                                                     (S2 #C(-8.25d0 21.44d0)))
+                                                       :INITIAL-CONTENTS
+                                                       '(-16.12d0 -8.25d0
+                                                         21.44d0 -49.08d0
+                                                         -39.66d0 -49.46d0)))
+                                                     (S1 #C(-49.08d0 -39.66d0))
+                                                     (S2 #C(-39.66d0 -49.46d0)))
                                                  (CL-ARRAY
                                                   (MATRIX-PRODUCT-HERMITIAN M1
                                                                             V1
-                                                                            ANSWER
+                                                                            V2
                                                                             S1
                                                                             S2)))))
 

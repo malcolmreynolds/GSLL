@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-29 17:37:25EST mobject.lisp>
+;; Time-stamp: <2008-12-29 22:33:11EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -23,7 +23,7 @@
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   ;; If prefix is a list, the first is the actual prefix, and the
-  ;; second is the name of the allocateor.  I'm looking at you,
+  ;; second is the name of the allocator.  I'm looking at you,
   ;; discrete-random.  Grrr.
   ;; Argument 'initialize-suffix: string appended to prefix for form GSL function name
   ;;   or a list of such a string and the c-return argument.
@@ -45,6 +45,8 @@
        (defmfun allocate ((object ,class) &key ,@cl-alloc-args)
 	 ,(if (listp prefix) (second prefix) (format nil "~a_alloc" prefix))
 	 ,allocation-args
+	 ,@(if (and (listp prefix) (third prefix))
+	       `(:inputs ,(third prefix)))
 	 :definition :method
 	 :c-return :pointer
 	 :index ,maker)

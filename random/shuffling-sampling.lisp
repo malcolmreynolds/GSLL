@@ -1,6 +1,6 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
-;; Time-stamp: <2008-12-26 19:51:20EST shuffling-sampling.lisp>
+;; Time-stamp: <2008-12-29 19:36:17EST shuffling-sampling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,6 +11,8 @@
   "gsl_ran_shuffle"
   (((mpointer generator) :pointer)
    ((c-pointer base) :pointer) ((dim0 base) sizet) ((element-size base) sizet))
+  :inputs (base)
+  :outputs (base)
   :c-return :void
   :documentation			; FDL
   "Randomly shuffle the order of n objects, each of
@@ -25,9 +27,8 @@
   (((mpointer generator) :pointer)
    ((c-pointer dest) :pointer) ((dim0 dest) sizet)
    ((c-pointer src) :pointer) ((dim0 src) sizet) ((element-size src) sizet))
-  ;; This is described in the GSL docs as returning int, but it does
-  ;; not say what the return value means.  Therefore, we ignore it.
-  :c-return :void
+  :inputs (dest src)
+  :outputs (dest)
   :documentation			; FDL
   "Fill the array dest[k] with k objects taken
    randomly from the n elements of the array
@@ -47,6 +48,8 @@
   (((mpointer generator) :pointer)
    ((c-pointer dest) :pointer) ((dim0 dest) sizet)
    ((c-pointer src) :pointer) ((dim0 src) sizet) ((element-size src) sizet))
+  :inputs (dest src)
+  :outputs (dest)
   :c-return :void
   :documentation
   "Like #'choose-random, but samples k items

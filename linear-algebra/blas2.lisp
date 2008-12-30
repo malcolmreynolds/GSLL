@@ -1,9 +1,11 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-12-26 12:23:21EST blas2.lisp>
+;; Time-stamp: <2008-12-29 22:14:14EST blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_blas.h
 
 ;;;;****************************************************************************
 ;;;; Options
@@ -299,39 +301,39 @@
 
 (generate-all-array-tests matrix-product :float-complex
  (let ((m1 (array-default '(3 3)))
-	(v1 (array-default 3))
-	(answer (array-default 3 t))
-	(s1 (scalar-default))
-	(s2 (scalar-default)))
-   (cl-array (matrix-product m1 v1 answer s1 s2))))
+       (v1 (array-default 3))
+       (v2 (array-default 3))
+       (s1 (scalar-default))
+       (s2 (scalar-default)))
+   (cl-array (matrix-product m1 v1 v2 s1 s2))))
 
 (generate-all-array-tests matrix-product-triangular :float-complex
  (let ((m1 (array-default '(3 3)))
-	(v1 (array-default 3))
-	(s1 (scalar-default)))
+       (v1 (array-default 3))
+       (s1 (scalar-default)))
    (cl-array (matrix-product-triangular m1 v1 s1))))
 
 (generate-all-array-tests inverse-matrix-product :float-complex
  (let ((m1 (array-default '(3 3)))
-	(v1 (array-default 3))
-	(s1 (scalar-default)))
+       (v1 (array-default 3))
+       (s1 (scalar-default)))
    (cl-array (inverse-matrix-product m1 v1 s1))))
 
 (generate-all-array-tests matrix-product-symmetric :float
  (let ((m1 (array-default '(3 3)))
 	(v1 (array-default 3))
-	(answer (array-default 3 t))
+	(v3 (array-default 3))
 	(s1 (scalar-default))
 	(s2 (scalar-default)))
-   (cl-array (matrix-product-symmetric m1 v1 answer s1 s2))))
+   (cl-array (matrix-product-symmetric m1 v1 v3 s1 s2))))
 
 (generate-all-array-tests matrix-product-hermitian :complex
  (let ((m1 (array-default '(3 3)))
-	(v1 (array-default 3))
-	(answer (array-default 3 t))
-	(s1 (scalar-default))
-	(s2 (scalar-default)))
-   (cl-array (matrix-product-hermitian m1 v1 answer s1 s2))))
+       (v1 (array-default 3))
+       (v2 (array-default 3))
+       (s1 (scalar-default))
+       (s2 (scalar-default)))
+   (cl-array (matrix-product-hermitian m1 v1 v2 s1 s2))))
 
 #|
 ;;; Error, needs to be tracked down

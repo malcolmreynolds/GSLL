@@ -5,9 +5,9 @@
 (LISP-UNIT:DEFINE-TEST MATRIX-PRODUCT
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
-                         #2A((-34803.824 7799.55 -29131.377)
-                             (-12393.505 2290.2053 12771.404)
-                             (14320.465 -39892.78 4668.254)))
+                         #2A((74519.41 -16747.695 61311.69)
+                             (27307.273 -6133.5903 -25711.75)
+                             (-29088.719 83072.016 -11019.719)))
                         (MULTIPLE-VALUE-LIST
                          (LET ((M1
                                 (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
@@ -19,19 +19,22 @@
                                              '((42.73 -17.24 43.31)
                                                (-16.12 -8.25 21.44)
                                                (-49.08 -39.66 -49.46))))
-                               (ANSWER
-                                (MAKE-MARRAY 'SINGLE-FLOAT :DIMENSIONS '(3 3)))
-                               (S1 19.68)
-                               (S2 -5.55))
-                           (CL-ARRAY (MATRIX-PRODUCT M1 M2 ANSWER S1 S2)))))
+                               (M3
+                                (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
+                                             '((19.68 -5.55 -8.82)
+                                               (25.37 -30.58 31.67)
+                                               (29.36 -33.24 -27.03))))
+                               (S1 -41.67)
+                               (S2 42.0))
+                           (CL-ARRAY (MATRIX-PRODUCT M1 M2 M3 S1 S2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
-                         #2A((-34803.824160000004d0 7799.550047999999d0
-                              -29131.375104000002d0)
-                             (-12393.505583999999d0 2290.2048959999997d0
-                              12771.40488d0)
-                             (14320.464911999996d0 -39892.782864d0
-                              4668.255407999997d0)))
+                         #2A((74519.41329d0 -16747.696061999995d0
+                              61311.694176d0)
+                             (27307.276670999996d0 -6133.589574d0
+                              -25711.752344999997d0)
+                             (-29088.718053000033d0 83072.022741d0
+                              -11019.721527000016d0)))
                         (MULTIPLE-VALUE-LIST
                          (LET ((M1
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
@@ -43,11 +46,14 @@
                                              '((42.73d0 -17.24d0 43.31d0)
                                                (-16.12d0 -8.25d0 21.44d0)
                                                (-49.08d0 -39.66d0 -49.46d0))))
-                               (ANSWER
-                                (MAKE-MARRAY 'DOUBLE-FLOAT :DIMENSIONS '(3 3)))
-                               (S1 19.68d0)
-                               (S2 -5.55d0))
-                           (CL-ARRAY (MATRIX-PRODUCT M1 M2 ANSWER S1 S2)))))
+                               (M3
+                                (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                                             '((19.68d0 -5.55d0 -8.82d0)
+                                               (25.37d0 -30.58d0 31.67d0)
+                                               (29.36d0 -33.24d0 -27.03d0))))
+                               (S1 -41.67d0)
+                               (S2 42.0d0))
+                           (CL-ARRAY (MATRIX-PRODUCT M1 M2 M3 S1 S2)))))
                        (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
                                                (LET ((M1
                                                       (MAKE-MARRAY
@@ -70,15 +76,22 @@
                                                           -49.08 -39.66 -49.46)
                                                          (-49.08 -39.66 -49.46
                                                           19.68 -5.55 -8.82))))
-                                                     (ANSWER
+                                                     (M3
                                                       (MAKE-MARRAY
                                                        '(COMPLEX SINGLE-FLOAT)
-                                                       :DIMENSIONS '(3 3)))
-                                                     (S1 #C(19.68 -5.55))
-                                                     (S2 #C(-5.55 -8.82)))
+                                                       :INITIAL-CONTENTS
+                                                       '((19.68 -5.55 -8.82
+                                                          25.37 -30.58 31.67)
+                                                         (25.37 -30.58 31.67
+                                                          29.36 -33.24 -27.03)
+                                                         (29.36 -33.24 -27.03
+                                                          -41.67 42.0
+                                                          -20.81))))
+                                                     (S1 #C(-41.67 42.0))
+                                                     (S2 #C(42.0 -20.81)))
                                                  (CL-ARRAY
-                                                  (MATRIX-PRODUCT M1 M2 ANSWER
-                                                                  S1 S2))))
+                                                  (MATRIX-PRODUCT M1 M2 M3 S1
+                                                                  S2))))
                        (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
                                                (LET ((M1
                                                       (MAKE-MARRAY
@@ -106,17 +119,26 @@
                                                          (-49.08d0 -39.66d0
                                                           -49.46d0 19.68d0
                                                           -5.55d0 -8.82d0))))
-                                                     (ANSWER
+                                                     (M3
                                                       (MAKE-MARRAY
                                                        '(COMPLEX DOUBLE-FLOAT)
-                                                       :DIMENSIONS '(3 3)))
-                                                     (S1 #C(19.68d0 -5.55d0))
-                                                     (S2 #C(-5.55d0 -8.82d0)))
+                                                       :INITIAL-CONTENTS
+                                                       '((19.68d0 -5.55d0
+                                                          -8.82d0 25.37d0
+                                                          -30.58d0 31.67d0)
+                                                         (25.37d0 -30.58d0
+                                                          31.67d0 29.36d0
+                                                          -33.24d0 -27.03d0)
+                                                         (29.36d0 -33.24d0
+                                                          -27.03d0 -41.67d0
+                                                          42.0d0 -20.81d0))))
+                                                     (S1 #C(-41.67d0 42.0d0))
+                                                     (S2 #C(42.0d0 -20.81d0)))
                                                  (CL-ARRAY
-                                                  (MATRIX-PRODUCT M1 M2 ANSWER
-                                                                  S1 S2))))
+                                                  (MATRIX-PRODUCT M1 M2 M3 S1
+                                                                  S2))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST #(23756.895 19926.967 -60376.652))
+                        (LIST #(72971.1 60998.137 -184676.98))
                         (MULTIPLE-VALUE-LIST
                          (LET ((M1
                                 (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
@@ -126,15 +148,16 @@
                                (V1
                                 (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
                                              '(42.73 -17.24 43.31)))
-                               (ANSWER
-                                (MAKE-MARRAY 'SINGLE-FLOAT :DIMENSIONS '3))
-                               (S1 -16.12)
-                               (S2 -8.25))
-                           (CL-ARRAY (MATRIX-PRODUCT M1 V1 ANSWER S1 S2)))))
+                               (V2
+                                (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
+                                             '(-16.12 -8.25 21.44)))
+                               (S1 -49.08)
+                               (S2 -39.66))
+                           (CL-ARRAY (MATRIX-PRODUCT M1 V1 V2 S1 S2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
-                         #(23756.893524000003d0 19926.966904d0
-                           -60376.649164d0))
+                         #(72971.10171599999d0 60998.13393599999d0
+                           -184676.981676d0))
                         (MULTIPLE-VALUE-LIST
                          (LET ((M1
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
@@ -144,11 +167,12 @@
                                (V1
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
                                              '(42.73d0 -17.24d0 43.31d0)))
-                               (ANSWER
-                                (MAKE-MARRAY 'DOUBLE-FLOAT :DIMENSIONS '3))
-                               (S1 -16.12d0)
-                               (S2 -8.25d0))
-                           (CL-ARRAY (MATRIX-PRODUCT M1 V1 ANSWER S1 S2)))))
+                               (V2
+                                (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                                             '(-16.12d0 -8.25d0 21.44d0)))
+                               (S1 -49.08d0)
+                               (S2 -39.66d0))
+                           (CL-ARRAY (MATRIX-PRODUCT M1 V1 V2 S1 S2)))))
                        (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
                                                (LET ((M1
                                                       (MAKE-MARRAY
@@ -167,15 +191,18 @@
                                                        :INITIAL-CONTENTS
                                                        '(42.73 -17.24 43.31
                                                          -16.12 -8.25 21.44)))
-                                                     (ANSWER
+                                                     (V2
                                                       (MAKE-MARRAY
                                                        '(COMPLEX SINGLE-FLOAT)
-                                                       :DIMENSIONS '3))
-                                                     (S1 #C(-16.12 -8.25))
-                                                     (S2 #C(-8.25 21.44)))
+                                                       :INITIAL-CONTENTS
+                                                       '(-16.12 -8.25 21.44
+                                                         -49.08 -39.66
+                                                         -49.46)))
+                                                     (S1 #C(-49.08 -39.66))
+                                                     (S2 #C(-39.66 -49.46)))
                                                  (CL-ARRAY
-                                                  (MATRIX-PRODUCT M1 V1 ANSWER
-                                                                  S1 S2))))
+                                                  (MATRIX-PRODUCT M1 V1 V2 S1
+                                                                  S2))))
                        (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
                                                (LET ((M1
                                                       (MAKE-MARRAY
@@ -197,13 +224,16 @@
                                                        '(42.73d0 -17.24d0
                                                          43.31d0 -16.12d0
                                                          -8.25d0 21.44d0)))
-                                                     (ANSWER
+                                                     (V2
                                                       (MAKE-MARRAY
                                                        '(COMPLEX DOUBLE-FLOAT)
-                                                       :DIMENSIONS '3))
-                                                     (S1 #C(-16.12d0 -8.25d0))
-                                                     (S2 #C(-8.25d0 21.44d0)))
+                                                       :INITIAL-CONTENTS
+                                                       '(-16.12d0 -8.25d0
+                                                         21.44d0 -49.08d0
+                                                         -39.66d0 -49.46d0)))
+                                                     (S1 #C(-49.08d0 -39.66d0))
+                                                     (S2 #C(-39.66d0 -49.46d0)))
                                                  (CL-ARRAY
-                                                  (MATRIX-PRODUCT M1 V1 ANSWER
-                                                                  S1 S2)))))
+                                                  (MATRIX-PRODUCT M1 V1 V2 S1
+                                                                  S2)))))
 
