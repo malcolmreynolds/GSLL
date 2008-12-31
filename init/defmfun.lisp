@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-12-27 17:02:11EST defmfun.lisp>
+;; Time-stamp: <2008-12-31 12:29:44EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -126,79 +126,6 @@
 	(if (symbolp (first definition))
 	    definition
 	    `(progn ,definition ,@index-export)))))
-
-;;;;****************************************************************************
-;;;; Test cases
-;;;;****************************************************************************
-
-;;; Simple function
-#+(or)
-(expand-defmfun-wrap
- 'airy-Ai '(x)
- "gsl_sf_airy_Ai_e"
- '((x :double) (mode sf-mode) (ret sf-result))
- '(:documentation "The Airy function Ai(x)."))
-
-;;; Generic function and methods of a vector
-#+(or)
-(expand-defmfun-wrap
- 'gsl-zerop
- '((v vector))
- '("gsl_vector" :type "_isnull")
- '(((pointer v) :pointer))
- '(:c-return :boolean
-   :definition :generic
-   :documentation			; FDL
-   "All elements of vector v are zero."))
-
-;;; Generic function and methods of a matrix
-#+(or)
-(expand-defmfun-wrap
- 'gsl-zerop
- '((v matrix))
- '("gsl_" :category :type "_isnull")
- '(((pointer v) :pointer))
- '(:c-return :boolean
-   :definition :generic
-   :documentation			; FDL
-   "All elements of v are zero."))
-
-;;; Defgeneric over both matrices and vectors
-#+(or)
-(expand-defmfun-wrap
- 'gsl-zerop
- '((v both))
- '("gsl_" :category :type "_isnull")
- '(((pointer v) (gsl- :category -c)))
- '(:c-return :boolean
-   :definition :generic
-   :documentation			; FDL
-   "All elements of v are zero."))
-
-;;; Methods without generic function declaration
-#+(or)
-(expand-defmfun-wrap
- 'gsl-zerop
- '((v vector))
- '("gsl_vector" :type "_isnull")
- '(((pointer v) :pointer))
- '(:c-return :boolean
-   :definition :methods
-   :documentation			; FDL
-   "All elements of vector v are zero."))
-
-;;; Regular function with optional arguments
-#+(or)
-(expand-defmfun-wrap
- 'evaluate-chebyshev
- '(chebyshev x &optional order)
- '("gsl_cheb_eval_err" "gsl_cheb_eval_n_err")
- '(((chebyshev :pointer) (x :double) (result :double) (abserr :double))
-   ((chebyshev :pointer) (order size)
-    (x :double) (result :double) (abserr :double)))
- '(:documentation			; FDL
-   "Evaluate the Chebyshev series at a point x, returning result and
-   an estimate of its absolute error."))
 
 ;;;;****************************************************************************
 ;;;; A defgeneric with methods, or the methods alone, for vectors or matrices
@@ -508,6 +435,7 @@
 	   c-arguments)
    :from-end t))
 
+#+native
 (defun native-pointer (array-symbols body)
   "Wrap the body with a form that obtains the native pointer
    and protects it during execution of the body."
@@ -586,7 +514,8 @@
 		  ,@(mapcan
 		     (lambda (arg)
 		       (let ((cfind	; variable is complex
-			      (first (member (st-symbol arg) complex-args :key 'first))))
+			      (first (member (st-symbol arg)
+					     complex-args :key 'first))))
 			 (if cfind ; so substitute call to complex-to-gsl
 			     `(,(third cfind)
 				(complex-to-gsl ,(first cfind) ,(second cfind)))
@@ -603,7 +532,10 @@
 		     `((check-gsl-status ,cret-name
 					 ',(or (defgeneric-method-p name) name)))))
 	    #-native
-	    ,@(when outputs (mapcar (lambda (x) `(setf (cl-invalid ,x) t)) outputs))
+	    ,@(when outputs
+		    (mapcar
+		     (lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
+		     outputs))
 	    ,@(when (eq cret-type :pointer)
 		    `((check-null-pointer
 		       ,cret-name
