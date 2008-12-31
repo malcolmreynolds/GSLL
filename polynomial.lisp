@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-26 18:53:14EST polynomial.lisp>
+;; Time-stamp: <2008-12-30 18:38:17EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,9 +17,10 @@
 (defmfun polynomial-eval (coefficients x)
   "gsl_poly_eval"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet) (x :double))
+  :inputs (coefficients)
+  :c-return :double
   :documentation			; FDL
-  "Evaluate the polyonomial with coefficients at the point x."
-  :c-return :double)
+  "Evaluate the polyonomial with coefficients at the point x.")
 
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials
@@ -37,7 +38,7 @@
   "Compute a divided-difference representation of the
    interpolating polynomial for the points (xa, ya) stored in
    the arrays of equal length.  On output the
-   divided-differences of (@var{xa},@var{ya}) are stored in the array
+   divided-differences of (xa,ya) are stored in the array
    dd, of the same length.")
 
 (defmfun polynomial-eval-divided-difference (dd xa x)
@@ -147,6 +148,8 @@
   "gsl_poly_complex_solve"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
    ((mpointer workspace) :pointer) ((c-pointer answer-pd) :pointer))
+  :inputs (coefficients)
+  :outputs (answer-pd)
   :return
   ((loop for i from 0 below (dim0 answer-pd) by 2
 	 collect (complex (maref answer-pd i)

@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2008-12-26 12:09:51EST bessel.lisp>
+;; Time-stamp: <2008-12-30 18:56:40EST bessel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -368,6 +368,7 @@
 (defmfun spherical-Jnu-array (nu v &optional (mode :double))
   "gsl_sf_bessel_sequence_Jnu_e"
   ((nu :double) (mode sf-mode) ((dim0 v) :int) ((c-pointer v) :pointer))
+  :inputs (v)
   :outputs (v)
   :documentation			; FDL
   "The regular cylindrical Bessel function of
