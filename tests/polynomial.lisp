@@ -57,14 +57,16 @@
                         (MULTIPLE-VALUE-LIST
                          (SOLVE-CUBIC-COMPLEX -1.0d0 1.0d0 -1.0d0)))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
-                        (LIST #C(-0.8090169943749477d0 0.5877852522924734d0)
-                              #C(-0.8090169943749477d0 -0.5877852522924734d0)
-                              #C(0.3090169943749475d0 0.951056516295153d0)
-                              #C(0.3090169943749475d0 -0.951056516295153d0)
-                              #C(0.9999999999999999d0 0.0d0))
+                        (LIST
+                         #(#C(-0.8090169943749477d0 0.5877852522924734d0)
+                           #C(-0.8090169943749477d0 -0.5877852522924734d0)
+                           #C(0.3090169943749475d0 0.951056516295153d0)
+                           #C(0.3090169943749475d0 -0.951056516295153d0)
+                           #C(0.9999999999999999d0 0.0d0)))
                         (MULTIPLE-VALUE-LIST
-                         (POLYNOMIAL-SOLVE
-                          (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
-                                       '(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0
-                                         1.0d0))))))
+                         (CL-ARRAY
+                          (POLYNOMIAL-SOLVE
+                           (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
+                                        '(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0
+                                          1.0d0)))))))
 

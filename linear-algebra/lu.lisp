@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-12-27 10:57:53EST lu.lisp>
+;; Time-stamp: <2008-12-30 22:32:38EST lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -133,16 +133,16 @@
 (export 'invert-matrix)
 (defun invert-matrix (mat)
   "Invert the matrix."
-  (let* ((mmat mat)			; BROKEN, requires copy of mat
-	 (dim (first (dimensions mat)))
+  (let* ((dim (first (dimensions mat)))
 	 (per (make-permutation dim))
 	 (inv (make-marray 'double-float :dimensions (list dim dim))))
-    (LU-decomposition mmat per)
-    (lu-invert mmat per inv)
-    (cl-array inv)))
+    (LU-decomposition mat per)
+    (lu-invert mat per inv)))
 
-(save-test lu
- (invert-matrix
-  (make-marray 'double-float
-	       :dimensions  '(2 2)
-	       :initial-contents '(1.0d0 2.0d0 3.0d0 4.0d0))))
+(save-test
+ lu
+ (cl-array
+  (invert-matrix
+   (make-marray 'double-float
+		:dimensions  '(2 2)
+		:initial-contents '(1.0d0 2.0d0 3.0d0 4.0d0)))))

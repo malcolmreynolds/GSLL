@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-30 18:38:17EST polynomial.lisp>
+;; Time-stamp: <2008-12-30 21:33:37EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -127,39 +127,26 @@
   ((n sizet))
   "complex workspace for polynomials")
 
-(export 'polynomial-solve)
-(defun polynomial-solve (coefficients)
-  ;; FDL
-  "The roots of the general polynomial 
-  P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1} using 
-  balanced-QR reduction of the companion matrix.  The parameter n
-  specifies the length of the coefficient array.  The coefficient of the
-  highest order term must be non-zero.  The function requires a workspace
-  w of the appropriate size.  The n-1 roots are returned in
-  the packed complex array z of length 2(n-1), alternating
-  real and imaginary parts."
-  (let ((len (total-size coefficients)))
-    ;; Should this be making a complex array?
-    (let ((answer (make-marray 'double-float :dimensions (* 2 (1- len))))
-	   (ws (make-polynomial-complex-workspace len)))
-      (values-list (polynomial-solve-ws coefficients ws answer)))))
-
-(defmfun polynomial-solve-ws (coefficients workspace answer-pd)
+(defmfun polynomial-solve
+    (coefficients
+     &optional
+     (answer (make-marray '(complex double-float)
+			  :dimensions (1- (total-size coefficients))))
+     (workspace (make-polynomial-complex-workspace (total-size coefficients))))
   "gsl_poly_complex_solve"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
-   ((mpointer workspace) :pointer) ((c-pointer answer-pd) :pointer))
+   ((mpointer workspace) :pointer) ((c-pointer answer) :pointer))
   :inputs (coefficients)
-  :outputs (answer-pd)
-  :return
-  ((loop for i from 0 below (dim0 answer-pd) by 2
-	 collect (complex (maref answer-pd i)
-			  (maref answer-pd (1+ i)))))
-  :export nil
-  :index polynomial-solve
+  :outputs (answer)
+  :return (answer)
   :documentation			; FDL
-  "Arguments are:
-   a GSL array of coefficients, a workspace, a gsl-array of doubles.")
-
+  "Arguments are: a vector-double-float of coefficients, a complex
+   vector of length one less than coefficients that will hold the
+   answer, and a workspace made by make-polynomial-complex-workspace.
+   The roots of the general polynomial 
+   P(x) = a_0 + a_1 x + a_2 x^2 + ... + a_{n-1} x^{n-1} using 
+   balanced-QR reduction of the companion matrix.  The coefficient of the
+   highest order term must be non-zero.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -183,5 +170,5 @@
  (solve-cubic -6.0d0 -13.0d0 42.0d0)
  (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)
  ;; Example from GSL manual
- (polynomial-solve #m(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)))
+ (cl-array (polynomial-solve #m(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0))))
 
