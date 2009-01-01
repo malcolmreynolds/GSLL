@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2008-12-26 12:23:58EST array-tests.lisp>
+;; Time-stamp: <2008-12-31 21:40:17EST array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -141,7 +141,6 @@
  (let ((m1 (array-default '(3 3))))
    (mmax m1)))
 
-#| Temporarily commented out twos-complement answer for SIGNED-BYTE-8 and SIGNED-BYTE-16
 (generate-all-array-tests vector-min :no-complex
  (let ((v1 (array-default 3)))
    (mmin v1)))
@@ -149,7 +148,6 @@
 (generate-all-array-tests matrix-min :no-complex
  (let ((m1 (array-default '(3 3))))
    (mmin m1)))
-|#
 
 (generate-all-array-tests vector-minmax :no-complex
  (let ((v1 (array-default 3)))

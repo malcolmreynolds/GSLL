@@ -1,6 +1,6 @@
 ;; Mapping of element type names
 ;; Liam Healy 2008-04-13 11:22:46EDT element-types.lisp
-;; Time-stamp: <2008-11-11 21:34:47EST element-types.lisp>
+;; Time-stamp: <2008-12-31 21:10:07EST element-types.lisp>
 ;; $Id$
 
 ;;; The different element type forms:
@@ -39,9 +39,9 @@
     :short :unsigned-short
     :int :unsigned-int
     :long :unsigned-long
-    #-cffi-features:no-long-long
+    #+int64
     :long-long
-    #-cffi-features:no-long-long
+    #+int64
     :unsigned-long-long)
   ;; http://common-lisp.net/project/cffi/manual/html_node/Built_002dIn-Types.html
   "List of integer types supported by CFFI, from the CFFI docs.")
@@ -313,21 +313,3 @@
     (:doubles *double-types*)
     (t element-types)))
 
-;;;;****************************************************************************
-;;;; Types for CFFI (will eventually be in CFFI)
-;;;;****************************************************************************
-
-(defvar *sizet-type* nil
-  "The CL type for size_t.")
-
-(case
-  (cffi:foreign-type-size :long)
-  (8
-   (push :sizet-64 *features*)
-   (setf *sizet-type* '(unsigned-byte 64))
-   (cffi:defctype sizet :uint64))
-  (4
-   (push :sizet-32 *features*)
-   (setf *sizet-type* '(unsigned-byte 32))
-   (cffi:defctype sizet :uint32))
-  (t (error "Size of :long unrecognized")))

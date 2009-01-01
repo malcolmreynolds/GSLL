@@ -131,6 +131,7 @@
                                              :INITIAL-CONTENTS '(116 163 140))))
                            (SWAP V2 V1)
                            (LIST (CL-ARRAY V1) (CL-ARRAY V2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST (LIST #(-91 52 -10) #(-64 -68 71)))
                         (MULTIPLE-VALUE-LIST
@@ -142,6 +143,7 @@
                                              :INITIAL-CONTENTS '(-91 52 -10))))
                            (SWAP V2 V1)
                            (LIST (CL-ARRAY V1) (CL-ARRAY V2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST (LIST #(116 163 140) #(67 44 189)))
                         (MULTIPLE-VALUE-LIST

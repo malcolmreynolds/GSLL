@@ -95,6 +95,7 @@
                                                                      215))))
                                                              (VARIANCE-WITH-FIXED-MEAN
                                                               V1 (MEAN V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 3747.4375d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -107,6 +108,7 @@
                                                                      73 -5))))
                                                              (VARIANCE-WITH-FIXED-MEAN
                                                               V1 (MEAN V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 3004.859375d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1

@@ -97,6 +97,7 @@
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 32) :DIMENSIONS
                                              '(2 3))))
                            (CL-ARRAY (SORT-LARGEST M2 M1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((123 73 71) (52 -5 -10)))
                         (MULTIPLE-VALUE-LIST
@@ -109,6 +110,7 @@
                                 (MAKE-MARRAY '(SIGNED-BYTE 64) :DIMENSIONS
                                              '(2 3))))
                            (CL-ARRAY (SORT-LARGEST M2 M1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((215 189 163) (161 140 116)))
                         (MULTIPLE-VALUE-LIST

@@ -74,6 +74,7 @@
                                              '((67 44 189) (116 163 140)
                                                (161 215 98)))))
                            (STANDARD-DEVIATION M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 74.66592261534039d0)
                         (MULTIPLE-VALUE-LIST
@@ -83,6 +84,7 @@
                                              '((-64 -68 71) (-91 52 -10)
                                                (73 -5 123)))))
                            (STANDARD-DEVIATION M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 56.32741586277306d0)
                         (MULTIPLE-VALUE-LIST

@@ -1,9 +1,9 @@
-;; Regression test MATRIX-MAX-INDEX for GSLL, automatically generated
+;; Regression test MATRIX-MIN for GSLL, automatically generated
 
 (in-package :gsl)
 
-(LISP-UNIT:DEFINE-TEST MATRIX-MAX-INDEX
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 0)
+(LISP-UNIT:DEFINE-TEST MATRIX-MIN
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -34.5)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -18,8 +18,8 @@
                                                                      (49.27
                                                                       -13.49
                                                                       32.5)))))
-                                                             (MAX-INDEX M1))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 0)
+                                                             (MMIN M1))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -34.5d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -34,8 +34,8 @@
                                                                      (49.27d0
                                                                       -13.49d0
                                                                       32.5d0)))))
-                                                             (MAX-INDEX M1))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 2)
+                                                             (MMIN M1))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -91)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -48,8 +48,8 @@
                                                                       -10)
                                                                      (73 -5
                                                                       123)))))
-                                                             (MAX-INDEX M1))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 1)
+                                                             (MMIN M1))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 44)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -62,8 +62,8 @@
                                                                       140)
                                                                      (161 215
                                                                       98)))))
-                                                             (MAX-INDEX M1))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 2)
+                                                             (MMIN M1))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -91)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -76,8 +76,8 @@
                                                                       -10)
                                                                      (73 -5
                                                                       123)))))
-                                                             (MAX-INDEX M1))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 1)
+                                                             (MMIN M1))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 44)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -90,8 +90,8 @@
                                                                       140)
                                                                      (161 215
                                                                       98)))))
-                                                             (MAX-INDEX M1))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 2)
+                                                             (MMIN M1))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -91)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -104,8 +104,8 @@
                                                                       -10)
                                                                      (73 -5
                                                                       123)))))
-                                                             (MAX-INDEX M1))))
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 1)
+                                                             (MMIN M1))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 44)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -118,9 +118,9 @@
                                                                       140)
                                                                      (161 215
                                                                       98)))))
-                                                             (MAX-INDEX M1))))
+                                                             (MMIN M1))))
 		       #+int64
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 2)
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -91)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -133,9 +133,9 @@
                                                                       -10)
                                                                      (73 -5
                                                                       123)))))
-                                                             (MAX-INDEX M1))))
+                                                             (MMIN M1))))
 		       #+int64
-                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 2 1)
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 44)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
                                                                   (MAKE-MARRAY
@@ -148,5 +148,5 @@
                                                                       140)
                                                                      (161 215
                                                                       98)))))
-                                                             (MAX-INDEX M1)))))
+                                                             (MMIN M1)))))
 

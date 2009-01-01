@@ -112,6 +112,7 @@
                                                                      (161 215
                                                                       98)))))
                                                              (MINMAX M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -91 123)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -126,6 +127,7 @@
                                                                      (73 -5
                                                                       123)))))
                                                              (MINMAX M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 44 215)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1

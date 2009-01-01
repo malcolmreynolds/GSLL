@@ -108,6 +108,7 @@
                                                                      189))))
                                                              (SET-ZERO V1)
                                                              (CL-ARRAY V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 0 0))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -119,6 +120,7 @@
                                                                      71))))
                                                              (SET-ZERO V1)
                                                              (CL-ARRAY V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 0 0))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1

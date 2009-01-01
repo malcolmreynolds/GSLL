@@ -217,6 +217,7 @@
                                                (36 109 222)))))
                            (SWAP M2 M1)
                            (LIST (CL-ARRAY M1) (CL-ARRAY M2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          (LIST #2A((32 28 30) (37 -73 -8) (-15 -22 68))
@@ -234,6 +235,7 @@
                                                (-15 -22 68)))))
                            (SWAP M2 M1)
                            (LIST (CL-ARRAY M1) (CL-ARRAY M2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          (LIST #2A((28 10 19) (28 178 217) (36 109 222))

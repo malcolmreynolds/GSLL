@@ -115,6 +115,7 @@
                                              '((67 44 189) (116 163 140)
                                                (161 215 98)))))
                            (CL-ARRAY (SWAP-ROW-COLUMN M1 0 2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((71 -10 123) (-91 52 -68) (73 -5 -64)))
                         (MULTIPLE-VALUE-LIST
@@ -124,6 +125,7 @@
                                              '((-64 -68 71) (-91 52 -10)
                                                (73 -5 123)))))
                            (CL-ARRAY (SWAP-ROW-COLUMN M1 0 2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((189 140 98) (116 163 44) (161 215 67)))
                         (MULTIPLE-VALUE-LIST

@@ -82,6 +82,7 @@
                                                                    '(67 44
                                                                      189))))
                                                              (MINMAX V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -68 71)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -92,6 +93,7 @@
                                                                    '(-64 -68
                                                                      71))))
                                                              (MINMAX V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 44 189)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1

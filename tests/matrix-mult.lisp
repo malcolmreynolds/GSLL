@@ -132,6 +132,7 @@
                                              '((28 10 19) (28 178 217)
                                                (36 109 222)))))
                            (CL-ARRAY (M* M1 M2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((-2048 -1904 2130)
@@ -149,6 +150,7 @@
                                              '((32 28 30) (37 -73 -8)
                                                (-15 -22 68)))))
                            (CL-ARRAY (M* M1 M2)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((1876 440 3591)

@@ -95,6 +95,7 @@
                                                                      140 161
                                                                      215))))
                                                              (MEAN V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST -5.25d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -106,6 +107,7 @@
                                                                      -91 52 -10
                                                                      73 -5))))
                                                              (MEAN V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 136.875d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1

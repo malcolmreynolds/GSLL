@@ -100,6 +100,7 @@
                                                                      140 161
                                                                      215))))
                                                              (MAX-INDEX V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 6)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -111,6 +112,7 @@
                                                                      -91 52 -10
                                                                      73 -5))))
                                                              (MAX-INDEX V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 7)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1

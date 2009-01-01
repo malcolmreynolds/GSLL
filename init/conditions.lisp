@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2008-12-27 16:42:45EST conditions.lisp>
+;; Time-stamp: <2008-12-31 18:32:09EST conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -38,7 +38,8 @@
 
 (defmacro define-gsl-condition (keyword number text &rest superclasses)
   `(progn
-    (define-condition ,keyword (gsl-condition ,@superclasses)
+    (define-condition
+	  ,keyword ,(or superclasses '(gsl-condition))
       ((error-number :initform ,number :reader error-number :allocation :class)
        (error-text :initform ,text :reader error-text :allocation :class))
       (:documentation
@@ -64,7 +65,7 @@
 (define-gsl-condition exceeded-maximum-iterations
     11 "Exceeded max number of iterations")
 (define-gsl-condition gsl-division-by-zero
-    12 "Tried to divide by zero" division-by-zero)
+    12 "Tried to divide by zero" gsl-condition division-by-zero)
 (define-gsl-condition invalid-tolerance 13 "User specified an invalid tolerance")
 (define-gsl-condition failure-to-reach-tolerance
     14 "Failed to reach the specified tolerance")
@@ -93,6 +94,7 @@
     30 "Cannot reach the specified tolerance in X")
 (define-gsl-condition failure-to-reach-tolerance-g
     31 "Cannot reach the specified tolerance in gradient")
+;; not a subclass of gsl-condition
 (define-gsl-condition gsl-eof 32 "End of file" end-of-file)
 ;;; It is possible to return +positive-infinity+
 ;;; by defining a handler for 'overflow.

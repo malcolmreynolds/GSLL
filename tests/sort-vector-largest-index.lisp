@@ -140,6 +140,7 @@
                                                              (CL-ARRAY
                                                               (SORT-VECTOR-LARGEST-INDEX
                                                                COMB V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(6 2 4))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((COMB
@@ -156,6 +157,7 @@
                                                              (CL-ARRAY
                                                               (SORT-VECTOR-LARGEST-INDEX
                                                                COMB V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(7 2 4))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((COMB

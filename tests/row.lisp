@@ -190,6 +190,7 @@
                                                              (CL-ARRAY
                                                               (ROW ROW M1
                                                                    1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-91 52 -10))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -212,6 +213,7 @@
                                                              (CL-ARRAY
                                                               (ROW ROW M1
                                                                    1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(116 163 140))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1

@@ -1,6 +1,6 @@
 ;; Mathematical functions
 ;; Liam Healy, Wed Mar  8 2006 - 22:09
-;; Time-stamp: <2008-10-25 19:09:09EDT mathematical.lisp>
+;; Time-stamp: <2008-12-31 18:44:26EST mathematical.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -13,6 +13,8 @@
 ;;;   Testing for Odd and Even Numbers
 ;;;   Maximum and Minimum functions
 ;;; Does CL need the small integer powers?
+
+#+clisp (setf sys::*inhibit-floating-point-underflow* t)
 
 ;;;;****************************************************************************
 ;;; Infinities and Not-a-number

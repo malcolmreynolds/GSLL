@@ -154,6 +154,7 @@
                                              '(3 3))))
                            (COPY M2 M1)
                            (CL-ARRAY M2))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -68 71) (-91 52 -10) (73 -5 123)))
                         (MULTIPLE-VALUE-LIST
@@ -167,6 +168,7 @@
                                              '(3 3))))
                            (COPY M2 M1)
                            (CL-ARRAY M2))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 44 189) (116 163 140) (161 215 98)))
                         (MULTIPLE-VALUE-LIST

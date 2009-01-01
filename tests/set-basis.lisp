@@ -106,6 +106,7 @@
                                              '(67 44 189 116 163 140 161 215))))
                            (SET-BASIS V1 2)
                            (CL-ARRAY V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(0 0 1 0 0 0 0 0))
                         (MULTIPLE-VALUE-LIST
@@ -115,6 +116,7 @@
                                              '(-64 -68 71 -91 52 -10 73 -5))))
                            (SET-BASIS V1 2)
                            (CL-ARRAY V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(0 0 1 0 0 0 0 0))
                         (MULTIPLE-VALUE-LIST

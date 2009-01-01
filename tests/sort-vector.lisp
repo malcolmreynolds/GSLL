@@ -70,6 +70,7 @@
                                              :INITIAL-CONTENTS
                                              '(67 44 189 116 163 140 161 215))))
                            (CL-ARRAY (SORT-VECTOR V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(-91 -68 -64 -10 -5 52 71 73))
                         (MULTIPLE-VALUE-LIST
@@ -78,6 +79,7 @@
                                              :INITIAL-CONTENTS
                                              '(-64 -68 71 -91 52 -10 73 -5))))
                            (CL-ARRAY (SORT-VECTOR V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(44 67 116 140 161 163 189 215))
                         (MULTIPLE-VALUE-LIST

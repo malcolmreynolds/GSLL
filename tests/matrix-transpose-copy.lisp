@@ -144,6 +144,7 @@
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 32) :DIMENSIONS
                                              '(3 3))))
                            (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -91 73) (-68 52 -5) (71 -10 123)))
                         (MULTIPLE-VALUE-LIST
@@ -156,6 +157,7 @@
                                 (MAKE-MARRAY '(SIGNED-BYTE 64) :DIMENSIONS
                                              '(3 3))))
                            (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 116 161) (44 163 215) (189 140 98)))
                         (MULTIPLE-VALUE-LIST

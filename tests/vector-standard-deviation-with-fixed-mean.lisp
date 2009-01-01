@@ -67,6 +67,7 @@
                                              :INITIAL-CONTENTS
                                              '(67 44 189 116 163 140 161 215))))
                            (STANDARD-DEVIATION-WITH-FIXED-MEAN V1 (MEAN V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 61.216317269172606d0)
                         (MULTIPLE-VALUE-LIST
@@ -75,6 +76,7 @@
                                              :INITIAL-CONTENTS
                                              '(-64 -68 71 -91 52 -10 73 -5))))
                            (STANDARD-DEVIATION-WITH-FIXED-MEAN V1 (MEAN V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 54.81659762334762d0)
                         (MULTIPLE-VALUE-LIST

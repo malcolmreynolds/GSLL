@@ -151,6 +151,7 @@
                                                                    '3)))
                                                              (COPY V2 V1)
                                                              (CL-ARRAY V2))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-64 -68 71))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -168,6 +169,7 @@
                                                                    '3)))
                                                              (COPY V2 V1)
                                                              (CL-ARRAY V2))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(67 44 189))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1

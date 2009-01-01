@@ -160,6 +160,7 @@
                                              :INITIAL-CONTENTS '(28 10 19))))
                            (SETF (COLUMN M1 2) COL)
                            (CL-ARRAY M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -68 32) (-91 52 28) (73 -5 30)))
                         (MULTIPLE-VALUE-LIST
@@ -173,6 +174,7 @@
                                              :INITIAL-CONTENTS '(32 28 30))))
                            (SETF (COLUMN M1 2) COL)
                            (CL-ARRAY M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 44 28) (116 163 10) (161 215 19)))
                         (MULTIPLE-VALUE-LIST

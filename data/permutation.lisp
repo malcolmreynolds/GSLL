@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-28 16:40:35EST permutation.lisp>
+;; Time-stamp: <2008-12-31 21:10:05EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,8 +12,8 @@
 (defclass permutation (mobject foreign-array)
   ((element-type
     :initform
-    #+sizet-64 '(unsigned-byte 64)
-    #+sizet-32 '(unsigned-byte 32)
+    #+int64 '(unsigned-byte 64)
+    #+int32 '(unsigned-byte 32)
     :reader element-type :allocation :class))
   (:documentation "GSL permutations."))
 

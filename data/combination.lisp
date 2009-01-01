@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-28 16:36:24EST combination.lisp>
+;; Time-stamp: <2008-12-31 21:10:06EST combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,8 +12,8 @@
 (defclass combination (mobject foreign-array)
   ((element-type
     :initform
-    #+sizet-64 '(unsigned-byte 64)
-    #+sizet-32 '(unsigned-byte 32)
+    #+int64 '(unsigned-byte 64)
+    #+int32 '(unsigned-byte 32)
     :reader element-type :allocation :class)
    (choice-of :initarg :choice-of :reader choice-of :type (integer 0)
 	      :documentation "Maximum possible value; n in the (n k) notation."))

@@ -97,6 +97,7 @@
                                              '((67 44 189) (116 163 140)
                                                (161 215 98)))))
                            (MEAN M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 9.0d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -111,6 +112,7 @@
                                                                      (73 -5
                                                                       123)))))
                                                              (MEAN M1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 132.55555555555554d0)
                         (MULTIPLE-VALUE-LIST

@@ -79,6 +79,7 @@
                                                                      140 161
                                                                      215))))
                                                              (VARIANCE V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 4282.785714285714d0)
                         (MULTIPLE-VALUE-LIST
@@ -87,6 +88,7 @@
                                              :INITIAL-CONTENTS
                                              '(-64 -68 71 -91 52 -10 73 -5))))
                            (VARIANCE V1))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 3434.125d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1

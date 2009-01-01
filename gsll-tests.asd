@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-11-16 13:29:58EST gsll-tests.asd>
+;; Time-stamp: <2008-12-31 21:53:55EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -92,6 +92,7 @@
 	     (:file "matrix-max-index")
 	     (:file "matrix-max")
 	     (:file "matrix-mean")
+	     (:file "matrix-min")
 	     (:file "matrix-min-index")
 	     (:file "matrix-minmax-index")
 	     (:file "matrix-minmax")
@@ -159,6 +160,7 @@
 	     (:file "vector-max-index")
 	     (:file "vector-max")
 	     (:file "vector-mean")
+	     (:file "vector-min")
 	     (:file "vector-min-index")
 	     (:file "vector-minmax-index")
 	     (:file "vector-minmax")

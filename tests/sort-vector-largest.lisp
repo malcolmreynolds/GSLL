@@ -149,6 +149,7 @@
                                                              (CL-ARRAY
                                                               (SORT-VECTOR-LARGEST
                                                                V2 V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(73 71 52))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -169,6 +170,7 @@
                                                              (CL-ARRAY
                                                               (SORT-VECTOR-LARGEST
                                                                V2 V1)))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(215 189 163))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
