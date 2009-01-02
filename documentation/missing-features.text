@@ -1,3 +1,12 @@
+The following features are missing from GSLL:
+
+Fast Fourier Transforms
+Simulated annealing is broken
+All file input and output (fread, fwrite) functions.
+All submatrix functions and views.
+Stride is always set to 1 in GSL functions that take a stride.
+
+
 Some things that have been added to GSL since 1.8 that should be added
 to GSLL:
 
@@ -28,3 +37,21 @@ order exponential integral.
 ** Added support in gsl_ieee_set_mode for controlling SSE exceptions
 and rounding through the MXCSR control word on x86 processors.
 [Modify existing GSLL function.]
+
+GSL 1.11
+http://lists.gnu.org/archive/html/info-gsl/2008-03/msg00000.html
+** Added new quasi random generators gsl_qrng_halton and
+   gsl_qrng_reversehalton which support dimensions up to 1229.
+** Added function gsl_multifit_linear_residuals for computing the
+   residuals of the fit
+** Added functions for evaluating complex polynomials
+
+GSL 1.12
+http://lists.gnu.org/archive/html/info-gsl/2008-12/msg00001.html
+** Added a faster simplex mininimser gsl_multimin_fminimizer_nmsimplex2
+   which is O(N) instead of O(N^2) [bug #24418]
+** Added new auxiliary functions gsl_cheb_order, gsl_cheb_size,
+   gsl_cheb_coeffs for Chebyshev series [bug #21830]
+** Added missing functions gsl_vector_complex_{isnonneg,add,sub,mul,
+   div,scale,add_constant} and gsl_matrix_complex_float_isnonneg [bug
+   #22478]
