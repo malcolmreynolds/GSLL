@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2008-12-31 12:29:44EST defmfun.lisp>
+;; Time-stamp: <2009-01-01 18:14:27EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -78,15 +78,21 @@
      (special indexed-functions))
     ,@body))
 
-(defparameter *defmfun-llk* '(&optional &key))
+(defparameter *defmfun-llk* '(&optional &key) "Possible lambda-list keywords.")
 
-(defun llkp (arglist)
-  "There is a lambda-list keyword present."
-  (intersection *defmfun-llk* arglist))
+(defun optional-args-to-switch-gsl-functions (arglist gsl-name)
+  "The presence/absence of optional arguments will switch between the
+   first and second listed GSL function names."
+  (and (intersection *defmfun-llk* arglist)
+       (listp gsl-name)
+       (or
+	(every 'stringp gsl-name)
+	(listp (first gsl-name)))))
 
 (defun expand-defmfun-wrap (name arglist gsl-name c-arguments key-args)
   (let (indexed-functions)
-    (declare (ignorable indexed-functions)) ; workaround for compiler errors that don't see it's used
+    ;; workaround for compiler errors that don't see 'indexed-function is used
+    (declare (ignorable indexed-functions))
     (with-defmfun-key-args key-args
       (setf indexed-functions (list))
       (wrap-index-export
@@ -97,7 +103,7 @@
 	  (expand-defmfun-method name arglist gsl-name c-arguments key-args))
 	 ((eq definition :methods)
 	  (expand-defmfun-defmethods name arglist gsl-name c-arguments key-args))
-	 ((and (llkp arglist) (listp gsl-name))
+	 ((optional-args-to-switch-gsl-functions arglist gsl-name)
 	  (expand-defmfun-optional name arglist gsl-name c-arguments key-args))
 	 ((eq definition :function)
 	  (complete-definition 'cl:defun name arglist gsl-name c-arguments key-args)))
@@ -139,30 +145,32 @@
     (multiple-value-bind (noclass-arglist categories)
 	(arglist-plain-and-categories arglist)
       `(defgeneric ,name ,noclass-arglist
-	(:documentation ,documentation)
-	,@(if (member 'both categories)
-	      (progn 
-		(when (> (length categories) 1)
-		  ;; Specify 'both alone
-		  (error "Internal: mixed both and actual category."))
-		;; Generate forms for matrix and vector
-		(append
-		 ;; Multiple C arguments for an &optional argument is
-		 ;; accomodated with the llkp call.
-		 (generate-methods
-		  :method 'vector
-		  name arglist gsl-name
-		  (actual-array-c-type 'vector c-arguments (llkp arglist))
-		  (copy-list key-args) 'vector)
-		 (generate-methods
-		  :method 'matrix
-		  name arglist gsl-name
-		  (actual-array-c-type 'matrix c-arguments (llkp arglist))
-		  (copy-list key-args) 'matrix)))
-	      ;; Generate forms for one category
-	      (generate-methods
-	       :method (first categories)
-	       name arglist gsl-name c-arguments key-args))))))
+	 (:documentation ,documentation)
+	 ,@(if (member 'both categories)
+	       (progn 
+		 (when (> (length categories) 1)
+		   ;; Specify 'both alone
+		   (error "Internal: mixed both and actual category."))
+		 ;; Generate forms for matrix and vector
+		 (append
+		  (generate-methods
+		   :method 'vector
+		   name arglist gsl-name
+		   (actual-array-c-type
+		    'vector c-arguments
+		    (optional-args-to-switch-gsl-functions arglist gsl-name))
+		   (copy-list key-args) 'vector)
+		  (generate-methods
+		   :method 'matrix
+		   name arglist gsl-name
+		   (actual-array-c-type
+		    'matrix c-arguments
+		    (optional-args-to-switch-gsl-functions arglist gsl-name))
+		   (copy-list key-args) 'matrix)))
+	       ;; Generate forms for one category
+	       (generate-methods
+		:method (first categories)
+		name arglist gsl-name c-arguments key-args))))))
 
 (defun expand-defmfun-defmethods (name arglist gsl-name c-arguments key-args)
   "Define methods."
@@ -193,7 +201,7 @@
 		  (setf (getf key-args :c-return) (cl-cffi eltype)))
 		(when (eq c-return :component-float-type)
 		  (setf (getf key-args :c-return) (component-type eltype)))
-		(if (and (llkp arglist) (listp (first gsl-name))) ; ad-hoc detection!
+		(if (optional-args-to-switch-gsl-functions arglist gsl-name)
 		    ;; The methods have optional argument(s) and
 		    ;; multiple GSL functions for presence/absence of
 		    ;; options
@@ -298,7 +306,7 @@
    in the GSL function name."
   (if map-down
       ;; If there are multiple C argument lists due to an optional
-      ;; argument, than map this function onto each.
+      ;; argument, then map this function onto each.
       (mapcar (lambda (carg) (actual-array-c-type category carg nil))
 	      c-arguments)
       (mapcar
@@ -352,9 +360,7 @@
        gsl-name
        c-arguments
        key-args
-       (if (and (llkp arglist) (listp gsl-name))
-	   ;; Even though it might have optional arguments, if there
-	   ;; is only one GSL function, we use 'body-no-optional-arg.
+       (if (optional-args-to-switch-gsl-functions arglist gsl-name)
 	   'body-optional-arg 'body-no-optional-arg)
        (listp gsl-name)))))
 
