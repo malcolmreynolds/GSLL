@@ -28,7 +28,9 @@ This gives an errorneous error value (4th returned value) when run
 from the shell; run inside SLIME gives the correct answer.
 
 === Other known bugs ===
-
+Fail in CCL but not in SBCL:
+(mv-linear-least-squares-example (mv-linear-least-squares-data))
+(multimin-example-fletcher-reeves)
 
 
 === GSL questions ===

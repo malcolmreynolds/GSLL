@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2008-12-26 18:35:53EST minimization-one.lisp>
+;; Time-stamp: <2009-01-03 15:42:59EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -47,9 +47,10 @@
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defmfun iterate-fminimizer (minimizer)
+(defmfun iterate ((minimizer one-dimensional-minimizer))
   "gsl_min_fminimizer_iterate"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :success-continue
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  The following
@@ -59,9 +60,10 @@
    :FAILURE, the algorithm could not improve the current best approximation or
    bounding interval.")
 
-(defmfun fminimizer-x-minimum (minimizer)
+(defmfun solution ((minimizer one-dimensional-minimizer))
   "gsl_min_fminimizer_x_minimum"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "The current estimate of the position of the minimum for the minimizer.")
@@ -80,9 +82,10 @@
   :documentation			; FDL
   "The current upper bound of the interval for the minimizer.")
 
-(defmfun fminimizer-f-minimum (minimizer)
+(defmfun function-value ((minimizer one-dimensional-minimizer))
   "gsl_min_fminimizer_f_minimum"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "The value of the function at the current estimate of the minimum for the
@@ -183,10 +186,10 @@
 	  *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0)))
     (format t "~&iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower")
     (loop for iter from 0
-       for min = (fminimizer-x-minimum minimizer)
+       for min = (solution minimizer)
        for lower = (fminimizer-x-lower minimizer)
        for upper = (fminimizer-x-upper minimizer)
-       do (iterate-fminimizer minimizer)
+       do (iterate minimizer)
        while  (and (< iter max-iter)
 		   ;; abs and rel error swapped in example?
 		   (not (min-test-interval lower upper 0.001d0 0.0d0)))

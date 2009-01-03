@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2008-12-30 10:17:15EST minimization-multi.lisp>
+;; Time-stamp: <2009-01-03 13:27:12EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -103,48 +103,54 @@
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defmfun iterate-mfminimizer (minimizer)
+(defmfun iterate ((minimizer multi-dimensional-minimizer-f))
   "gsl_multimin_fminimizer_iterate"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  If the iteration
    encounters an unexpected problem then an error code will be
    returned.")
 
-(defmfun iterate-mfdfminimizer (minimizer)
+(defmfun iterate ((minimizer multi-dimensional-minimizer-fdf))
   "gsl_multimin_fdfminimizer_iterate"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  If the iteration
    encounters an unexpected problem then an error code will be
    returned.")
 
-(defmfun mfminimizer-x (minimizer)
+(defmfun solution ((minimizer multi-dimensional-minimizer-f))
   "gsl_multimin_fminimizer_x"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
-(defmfun mfdfminimizer-x (minimizer)
+(defmfun solution ((minimizer multi-dimensional-minimizer-fdf))
   "gsl_multimin_fdfminimizer_x"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
-(defmfun mfminimizer-minimum (minimizer)
+(defmfun function-value ((minimizer multi-dimensional-minimizer-f))
   "gsl_multimin_fminimizer_minimum"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
-(defmfun mfdfminimizer-minimum (minimizer)
+(defmfun function-value ((minimizer multi-dimensional-minimizer-fdf))
   "gsl_multimin_fdfminimizer_minimum"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
@@ -316,17 +322,17 @@
        for iter from 0 below 100
        while status
        do
-       (iterate-mfdfminimizer minimizer)
+       (iterate minimizer)
        (setf status
 	     (not (min-test-gradient
 		   (mfdfminimizer-gradient minimizer)
 		   1.0d-3)))
-       (let ((x (mfdfminimizer-x minimizer)))
+       (let ((x (solution minimizer)))
 	 (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f"
 		 iter (maref x 0) (maref x 1)
-		 (mfdfminimizer-minimum minimizer)))
+		 (function-value minimizer)))
        finally (return
-		 (let ((x (mfdfminimizer-x minimizer)))
+		 (let ((x (solution minimizer)))
 		   (values (maref x 0) (maref x 1)))))))
 
 ;;; Because def-minimization-functions bind a symbol
@@ -347,16 +353,16 @@
       (loop with status = T and size
 	 for iter from 0 below 100
 	 while status
-	 do (iterate-mfminimizer minimizer)
+	 do (iterate minimizer)
 	 (setf size
 	       (mfminimizer-size minimizer)
 	       status
 	       (not (min-test-size size 1.0d-2)))
-	 (let ((x (mfminimizer-x minimizer)))
+	 (let ((x (solution minimizer)))
 	   (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f"
 		   iter (maref x 0) (maref x 1)
-		   (mfminimizer-minimum minimizer)
+		   (function-value minimizer)
 		   size))
 	 finally (return
-		   (let ((x (mfminimizer-x minimizer)))
+		   (let ((x (solution minimizer)))
 		     (values (maref x 0) (maref x 1))))))))

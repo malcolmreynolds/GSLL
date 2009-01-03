@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2008-12-30 10:17:14EST roots-one.lisp>
+;; Time-stamp: <2009-01-03 13:08:27EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -81,9 +81,10 @@
 ;;;;****************************************************************************
 
 ;; It appears that this is always returning :SUCCESS (0).
-(defmfun iterate-fsolver (solver)
+(defmfun iterate ((solver one-dimensional-root-solver-f))
   "gsl_root_fsolver_iterate"
   (((mpointer solver) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -92,9 +93,10 @@
    function vanished at the iteration point, preventing the algorithm
    from continuing without a division by zero.")
 
-(defmfun iterate-fdfsolver (solver)
+(defmfun iterate ((solver one-dimensional-root-solver-fdf))
   "gsl_root_fdfsolver_iterate"
   (((mpointer solver) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -103,16 +105,18 @@
    function vanished at the iteration point, preventing the algorithm
    from continuing without a division by zero.")
 
-(defmfun fsolver-root (solver)
+(defmfun solution ((solver one-dimensional-root-solver-f))
   "gsl_root_fsolver_root"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
-(defmfun fdfsolver-root (solver)
+(defmfun solution ((solver one-dimensional-root-solver-fdf))
   "gsl_root_fdfsolver_root"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "The current estimate of the root for the solver.")
@@ -324,10 +328,10 @@
 	  *brent-fsolver* quadratic 0.0d0 5.0d0)))
     (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
     (loop for iter from 0
-       for root = (fsolver-root solver)
+       for root = (solution solver)
        for lower = (fsolver-lower solver)
        for upper = (fsolver-upper solver)
-       do (iterate-fsolver solver)
+       do (iterate solver)
        while  (and (< iter max-iter)
 		   (not (root-test-interval lower upper 0.0d0 0.001d0)))
        do
@@ -353,7 +357,7 @@
     (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
     (loop for iter from 0
        for oldroot = initial then root
-       for root = (progn (iterate-fdfsolver solver) (fdfsolver-root solver))
+       for root = (progn (iterate solver) (solution solver))
        while (and (< iter max-iter)
 		  (not (root-test-delta root oldroot 0.0d0 1.0d-5)))
        do

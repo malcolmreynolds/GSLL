@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2008-12-28 18:49:26EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-01-03 16:05:48EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -61,10 +61,6 @@
   (dx :pointer)
   (state :pointer))
 
-(export '(fdffit-slot))
-(defun fdffit-slot (solver slot)
-  (cffi:foreign-slot-value solver 'gsl-fdffit-solver slot))
-
 ;;;;****************************************************************************
 ;;;; The function to be minimized
 ;;;;****************************************************************************
@@ -112,35 +108,54 @@
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defmfun iterate-ffit (solver)
+(defmfun iterate ((solver nonlinear-ffit))
   "gsl_multifit_fsolver_iterate"
   (((mpointer solver) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the solver.  The solver maintains a
    current estimate of the best-fit parameters at all times. ")
 
-(defmfun iterate-fdffit (solver)
+(defmfun iterate ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_iterate"
   (((mpointer solver) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the solver.  The solver maintains a
    current estimate of the best-fit parameters at all times. ")
 
-(defmfun current-parameters-ffit (solver)
+(defmfun solution ((solver nonlinear-ffit))
   "gsl_multifit_fsolver_position"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best-fit parameters.")
 
-(defmfun current-parameters-fdffit (solver)
+(defmfun solution ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_position"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current best-fit parameters.")
+
+;;; Why doesn't GSL have functions to extract these values?
+(defmethod function-value ((solver nonlinear-fdffit))
+  (make-marray
+   'double-float
+   :from-pointer
+   (cffi:foreign-slot-value (mpointer solver) 'gsl-fdffit-solver 'f)))
+
+(defmethod last-step ((solver nonlinear-fdffit))
+  ;; Raw pointer, because we presume we're passing it on to another GSL function. 
+  (cffi:foreign-slot-value (mpointer solver) 'gsl-fdffit-solver 'dx))
+
+(defun jacobian (solver)
+  ;; Raw pointer, because we presume we're passing it on to another GSL function. 
+  (cffi:foreign-slot-value (mpointer solver) 'gsl-fdffit-solver 'jacobian))
 
 ;;;;****************************************************************************
 ;;;; Search stopping
@@ -346,7 +361,7 @@
 
 (defun norm-f (fit)
   "Find the norm of the fit function f."
-  (euclidean-norm (make-marray 'double-float :from-pointer (fdffit-slot fit 'f))))
+  (euclidean-norm (function-value fit)))
 
 (defun solve-nonlinear-least-squares-example ()
   (let* ((init #m(1.0d0 0.0d0 0.0d0))
@@ -354,13 +369,13 @@
 	  (make-marray 'double-float
 		       :dimensions
 		       (list *number-of-parameters* *number-of-parameters*)))
-	 (fit (mpointer (make-nonlinear-fdffit
-			 *levenberg-marquardt*
-			 *number-of-observations*
-			 *number-of-parameters*
-			 exponential-residual
-			 init))))
-    (macrolet ((fitx (i) `(maref (fdffit-slot fit 'x) ,i))
+	 (fit (make-nonlinear-fdffit
+	       *levenberg-marquardt*
+	       *number-of-observations*
+	       *number-of-parameters*
+	       exponential-residual
+	       init)))
+    (macrolet ((fitx (i) `(maref (solution fit) ,i))
 	       (err (i) `(sqrt (maref covariance ,i ,i))))
       (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
 	      0 (fitx 0) (fitx 1) (fitx 2)
@@ -368,12 +383,10 @@
       (loop for iter from 0 below 25
 	 until
 	 (and (plusp iter)
-	      (fit-test-delta
-	       (fdffit-slot fit 'dx) (fdffit-slot fit 'x)
-	       1.0d-4 1.0d-4))
+	      (fit-test-delta (last-step fit) (mpointer (solution fit)) 1.0d-4 1.0d-4))
 	 do
-	 (iterate-fdffit fit)
-	 (ls-covariance (fdffit-slot fit 'jacobian) 0.0d0 covariance)
+	 (iterate fit)
+	 (ls-covariance (jacobian fit) 0.0d0 covariance)
 	 (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
 		 (1+ iter) (fitx 0) (fitx 1) (fitx 2)
 		 (norm-f fit))

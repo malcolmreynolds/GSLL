@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2008-12-30 09:57:11EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-03 16:07:02EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -93,9 +93,10 @@
 ;;;; Iteration
 ;;;;****************************************************************************
 
-(defmfun iterate-mfsolver (solver)
+(defmfun iterate ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_iterate"
   (((mpointer solver) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -104,9 +105,10 @@
    function vanished at the iteration point, preventing the algorithm
    from continuing without a division by zero.")
 
-(defmfun iterate-mfdfsolver (solver)
+(defmfun iterate ((solver multi-dimensional-root-solver-fdf))
   "gsl_multiroot_fdfsolver_iterate"
   (((mpointer solver) :pointer))
+  :definition :method
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -115,49 +117,55 @@
    function vanished at the iteration point, preventing the algorithm
    from continuing without a division by zero.")
 
-(defmfun mfsolver-root (solver)
+(defmfun solution ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_root"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
-(defmfun mfdfsolver-root (solver)
+(defmfun solution ((solver multi-dimensional-root-solver-fdf))
   "gsl_multiroot_fdfsolver_root"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation
   "The current estimate of the root for the solver.")
 
-(defmfun mfsolver-f (solver)
+(defmfun function-value ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_f"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
-(defmfun mfdfsolver-f (solver)
+(defmfun function-value ((solver multi-dimensional-root-solver-fdf))
   "gsl_multiroot_fdfsolver_f"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
-(defmfun mfsolver-dx (solver)
+(defmfun last-step ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_dx"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
   "The last step dx taken by the solver.")
 
-(defmfun mfdfsolver-dx (solver)
+(defmfun last-step ((solver multi-dimensional-root-solver-fdf))
   "gsl_multiroot_fsolver_dx"
   (((mpointer solver) :pointer))
+  :definition :method
   :c-return (crtn :pointer)
   :return ((make-marray 'double-float :from-pointer crtn))
   :documentation			; FDL
@@ -168,7 +176,7 @@
 ;;;;****************************************************************************
 
 ;;; The only place we need to pick apart the gsl_multiroot_fsolver
-;;; struct is here.  We could use mfsolver-dx etc., but then we'd have
+;;; struct is here.  We could use last-step etc., but then we'd have
 ;;; to discriminate on mfsolver vs. mfdfsolver.
 (cffi:defcstruct gsl-multiroot-fsolver
   ;; See /usr/include/gsl/gsl_multiroots.h
@@ -379,7 +387,7 @@
 (defun roots-multi-example ()
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000))
-    (let* ((vect #m(a -10.0d0 -5.0d0))
+    (let* ((vect #m(-10.0d0 -5.0d0))
 	   (solver (make-multi-dimensional-root-solver-f
 		    *hybrid-scaled* rosenbrock vect)))
       (loop for iter from 0
@@ -388,9 +396,9 @@
 		    (not (multiroot-test-residual solver 1.0d-7)))
 	   
 	 do
-	 (iterate-mfsolver solver)
-	 (setf fnval (cl-array (mfsolver-f solver))
-	       argval (cl-array (mfsolver-root solver)))
+	 (iterate solver)
+	 (setf fnval (cl-array (function-value solver))
+	       argval (cl-array (solution solver)))
 	 (format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
 		 iter
 		 (aref argval 0)
@@ -433,19 +441,19 @@
 		   (maref fnval 0)
 		   (maref fnval 1))))
     (let ((max-iter 1000))
-      (let* ((vect #m(a -10.0d0 -5.0d0))
+      (let* ((vect #m(-10.0d0 -5.0d0))
 	     (solver (make-multi-dimensional-root-solver-fdf
 		      *gnewton-mfdfsolver* rosenbrock-f vect)))
 	(loop for iter from 0
-	   with fnval = (mfdfsolver-f solver)
-	   and argval = (mfdfsolver-root solver)
+	   with fnval = (function-value solver)
+	   and argval = (solution solver)
 	   while (and (< iter max-iter)
 		      (not (multiroot-test-residual solver 1.0d-7)))
 	   initially (print-state iter argval fnval)
 	   do
-	   (iterate-mfdfsolver solver)
-	   (setf fnval (mfdfsolver-f solver)
-		 argval (mfdfsolver-root solver))
+	   (iterate solver)
+	   (setf fnval (function-value solver)
+		 argval (solution solver))
 	   (print-state iter argval fnval)
 	   finally (return
 		     (values (maref argval 0)
