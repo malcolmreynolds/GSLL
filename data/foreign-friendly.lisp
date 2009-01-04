@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2008-12-27 17:54:24EST foreign-friendly.lisp>
+;; Time-stamp: <2009-01-04 12:08:59EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -106,7 +106,7 @@
 ;;;;****************************************************************************
 
 ;;; To be called by a defmfun expander
-#+sbcl
+#+(and native sbcl)
 (defun native-pointer-protect (array-symbols body)
   "Wrap the body with a form that obtains the native pointer
    and protects it during execution of the body."
@@ -115,7 +115,7 @@
        ,(mapcar (lambda (s) `(original-array ,s)) array-symbols)
      ,body))
 
-#+sbcl
+#+(and native sbcl)
 (defun c-pointer (marray)
   "The pointer to the C array."
   (cffi:inc-pointer
@@ -148,7 +148,7 @@
 	 (cffi:with-foreign-object (,pointer ,cffi-type ,length)
 	   ,@body)))))
 
-#+sbcl
+#+(and native sbcl)
 (defmacro pin-to-pointer ((array pointer cffi-type length index-offset)
 			  &body body)
   (declare (ignorable length))
