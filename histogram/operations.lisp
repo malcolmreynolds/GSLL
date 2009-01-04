@@ -1,6 +1,6 @@
 ;; Histogram operations
 ;; Liam Healy, Mon Jan  1 2007 - 16:47
-;; Time-stamp: <2008-12-26 14:47:49EST operations.lisp>
+;; Time-stamp: <2009-01-04 11:15:17EST operations.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,7 +24,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m+ ((histogram1 histogram) (histogram2 histogram))
+(defmfun elt+ ((histogram1 histogram) (histogram2 histogram))
   "gsl_histogram_add"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -36,7 +36,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m+ ((histogram1 histogram2d) (histogram2 histogram2d))
+(defmfun elt+ ((histogram1 histogram2d) (histogram2 histogram2d))
   "gsl_histogram2d_add"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -48,7 +48,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m- ((histogram1 histogram) (histogram2 histogram))
+(defmfun elt- ((histogram1 histogram) (histogram2 histogram))
   "gsl_histogram_sub"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -59,7 +59,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m- ((histogram1 histogram2d) (histogram2 histogram2d))
+(defmfun elt- ((histogram1 histogram2d) (histogram2 histogram2d))
   "gsl_histogram2d_sub"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -70,7 +70,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m* ((histogram1 histogram) (histogram2 histogram))
+(defmfun elt* ((histogram1 histogram) (histogram2 histogram))
   "gsl_histogram_mul"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -82,7 +82,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m* ((histogram1 histogram2d) (histogram2 histogram2d))
+(defmfun elt* ((histogram1 histogram2d) (histogram2 histogram2d))
   "gsl_histogram2d_mul"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -94,7 +94,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m/ ((histogram1 histogram) (histogram2 histogram))
+(defmfun elt/ ((histogram1 histogram) (histogram2 histogram))
   "gsl_histogram_div"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -106,7 +106,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun m/ ((histogram1 histogram2d) (histogram2 histogram2d))
+(defmfun elt/ ((histogram1 histogram2d) (histogram2 histogram2d))
   "gsl_histogram2d_div"
   (((mpointer histogram1) :pointer) ((mpointer histogram2) :pointer))
   :definition :method
@@ -118,7 +118,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun scale ((histogram histogram) scale)
+(defmfun elt* ((histogram histogram) scale)
   "gsl_histogram_scale"
   (((mpointer histogram) :pointer) (scale :double))
   :definition :method
@@ -128,7 +128,7 @@
 
 ;;; GSL documentation does not state what the return value for the
 ;;; C function means; assumed to be error code.
-(defmfun scale ((histogram histogram2d) scale)
+(defmfun elt* ((histogram histogram2d) scale)
   "gsl_histogram2d_scale"
   (((mpointer histogram) :pointer) (scale :double))
   :definition :method

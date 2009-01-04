@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2009-01-03 22:04:21EST array-tests.lisp>
+;; Time-stamp: <2009-01-04 11:15:18EST array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -15,57 +15,49 @@
 ;;;; Bulk operations
 ;;;;****************************************************************************
 
-(generate-all-array-tests
- vector-set-all-m+ :no-complex
+(generate-all-array-tests vector-set-all-add :no-complex
  (let ((v1 (array-default 3 t))
 	(v2 (array-default 3)))
    (set-all v1 (scalar-default))
-   (cl-array (m+ v1 v2))))
+   (cl-array (elt+ v1 v2))))
 
-(generate-all-array-tests
- matrix-set-all-m+ :no-complex
+(generate-all-array-tests matrix-set-all-add :no-complex
  (let ((m1 (array-default '(3 3) t))
        (m2 (array-default '(3 3))))
    (set-all m1 (scalar-default))
-   (cl-array (m+ m1 m2))))
+   (cl-array (elt+ m1 m2))))
 
-(generate-all-array-tests
- vector-set-zero t
+(generate-all-array-tests vector-set-zero t
  (let ((v1 (array-default 3)))
    (set-zero v1)
    (cl-array v1)))
 
-(generate-all-array-tests
- matrix-set-zero t
+(generate-all-array-tests matrix-set-zero t
  (let ((m1 (array-default '(3 3))))
    (set-zero m1)
    (cl-array m1)))
 
-(generate-all-array-tests
- vector-copy t
+(generate-all-array-tests vector-copy t
  (let ((v1 (array-default 3))
-	(v2 (array-default 3 t)))
+       (v2 (array-default 3 t)))
    (copy v2 v1)
    (cl-array v2)))
 
-(generate-all-array-tests
- matrix-copy t
+(generate-all-array-tests matrix-copy t
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3) t)))
+       (m2 (array-default '(3 3) t)))
    (copy m2 m1)
    (cl-array m2)))
 
-(generate-all-array-tests
- vector-swap t
+(generate-all-array-tests vector-swap t
  (let ((v1 (array-default 3))
-	(v2 (array-default 3)))
+       (v2 (array-default 3)))
    (swap v2 v1)
    (list (cl-array v1) (cl-array v2))))
 
-(generate-all-array-tests
- matrix-swap t
+(generate-all-array-tests matrix-swap t
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3))))
+       (m2 (array-default '(3 3))))
    (swap m2 m1)
    (list (cl-array m1) (cl-array m2))))
 
@@ -73,61 +65,61 @@
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
 
-(generate-all-array-tests vector-m+ :no-complex
+(generate-all-array-tests vector-add :no-complex
  (let ((v1 (array-default 3))
-	(v2 (array-default 3)))
-   (cl-array (m+ v1 v2))))
+       (v2 (array-default 3)))
+   (cl-array (elt+ v1 v2))))
 
-(generate-all-array-tests matrix-m+ :no-complex
+(generate-all-array-tests matrix-add :no-complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3))))
-   (cl-array (m+ m1 m2))))
+       (m2 (array-default '(3 3))))
+   (cl-array (elt+ m1 m2))))
 
-(generate-all-array-tests vector-m- :no-complex
+(generate-all-array-tests vector-sub :no-complex
  (let ((v1 (array-default 3))
-	(v2 (array-default 3)))
-   (cl-array (m- v1 v2))))
+       (v2 (array-default 3)))
+   (cl-array (elt- v1 v2))))
 
-(generate-all-array-tests matrix-m- :no-complex
+(generate-all-array-tests matrix-sub :no-complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3))))
-   (cl-array (m- m1 m2))))
+       (m2 (array-default '(3 3))))
+   (cl-array (elt- m1 m2))))
 
 (generate-all-array-tests vector-mult :no-complex
  (let ((v1 (array-default 3))
        (v2 (array-default 3)))
-   (cl-array (e* v1 v2))))
+   (cl-array (elt* v1 v2))))
 
 (generate-all-array-tests matrix-mult :no-complex
  (let ((m1 (array-default '(3 3)))
        (m2 (array-default '(3 3))))
-   (cl-array (e* m1 m2))))
+   (cl-array (elt* m1 m2))))
 
 (generate-all-array-tests vector-div :no-complex
  (let ((v1 (array-default 3))
        (v2 (array-default 3)))
-   (cl-array (e/ v1 v2))))
+   (cl-array (elt/ v1 v2))))
 
 (generate-all-array-tests matrix-div :no-complex
  (let ((m1 (array-default '(3 3)))
        (m2 (array-default '(3 3))))
-   (cl-array (e/ m1 m2))))
+   (cl-array (elt/ m1 m2))))
 
 (generate-all-array-tests vector-mult-scalar :no-complex
  (let ((v1 (array-default 3)))
-   (cl-array (m* v1 1.39d0))))
+   (cl-array (elt* v1 1.39d0))))
 
 (generate-all-array-tests matrix-mult-scalar :no-complex
  (let ((m1 (array-default '(3 3))))
-   (cl-array (m* m1 1.39d0))))
+   (cl-array (elt* m1 1.39d0))))
 
 (generate-all-array-tests vector-add-scalar :no-complex
  (let ((v1 (array-default 3)))
-   (cl-array (m+ v1 18.19d0))))
+   (cl-array (elt+ v1 18.19d0))))
 
 (generate-all-array-tests matrix-add-scalar :no-complex
  (let ((m1 (array-default '(3 3))))
-   (cl-array (m+ m1 18.19d0))))
+   (cl-array (elt+ m1 18.19d0))))
 
 ;;;;****************************************************************************
 ;;;; Maximum and minimum elements

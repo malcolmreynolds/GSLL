@@ -196,7 +196,7 @@ T
  <p>
    Some examples are not yet present, or are too complicated for, the
  function <code>#'examples</code>.  In this case, you need to look in
- the relevant source file; there is either a separate file of
+ the relevant source file; they are in either a separate file of
  examples, or at the end of the file of definitions.
  It is advisable to look at the examples first for calculations that
  require more complex setup (generally, the later chapters in the GSL
@@ -206,9 +206,9 @@ T
 <p>
 GSLL has many functions that work on vectors (one-dimensional arrays)
 and matrices (two-dimensional arrays).  GSLL supports all array
-element types that are supported by CFFI, the CL implementation, and
-GSL.  This list is available in the
-variable <code>*array-element-types*</code>.  On platforms that
+element types that are supported by CFFI, the CL implementation,
+GSL, and the platform.  This list is available in the
+variable <code>*array-element-types*</code>.  On implementations that
 support it (currently only SBCL), the contents are directly available
 to the GSL functions without copying between the Lisp area and the C
 area of memory.</p>
@@ -224,7 +224,7 @@ area of memory.</p>
  by a list of lists of number, each of the same length, a matrix is
  created. 
  <p>
- Classes of vectors and matrices are names by appending the element
+ Classes of vectors and matrices are named by appending the element
  type as hypenated words to "vector" or "matrix".  The following table
  shows the classes available on a 64-bit platform:
  <center>
@@ -316,7 +316,7 @@ version should still be considered alpha.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-01-01 22:34:36EST index.html>
+Time-stamp: <2009-01-03 22:40:07EST index.html>
 </small>
 <!-- hhmts end -->
  </div>

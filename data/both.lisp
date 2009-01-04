@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-01-03 22:01:26EST both.lisp>
+;; Time-stamp: <2009-01-04 11:30:47EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -99,15 +99,20 @@
   "Set single element to the value.  For debugging only; do not use.")
 
 ;;;;****************************************************************************
-;;;; Arithmetic operations
+;;;; Elementwise arithmetic operations overwriting an array
 ;;;;****************************************************************************
+
+;;; These are overwriting elementwise arithmetic operations.  Where
+;;; there are two array arguments, the operation acts on both arrays
+;;; on corresponding elements.  The result is placed in the first
+;;; array, overwriting the original contents.
 
 ;;; Errors in GSL:
 ;;; 1) complex operations in older versions of GSL
 ;;; https://savannah.gnu.org/bugs/index.php?22478
 ;;; Fixed in 1.12, can change the :no-complex spec.
 
-(defmfun m+ ((a both) (b both))
+(defmfun elt+ ((a both) (b both))
   ("gsl_" :category :type "_add")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
@@ -119,7 +124,7 @@
   "Add the elements of b to the elements of vector a
    The two must have the same dimensions.")
 
-(defmfun m+ ((a both) (x float))
+(defmfun elt+ ((a both) (x float))
   ("gsl_" :category :type "_add_constant")
   (((mpointer a) :pointer) (x :double))
   :definition :methods
@@ -130,10 +135,10 @@
   :documentation			; FDL
   "Add the scalar double-float x to all the elements of array a.")
 
-(defmethod m+ ((x float) (a marray))
-  (m+ a x))
+(defmethod elt+ ((x float) (a marray))
+  (elt+ a x))
   
-(defmfun m- ((a both) (b both))
+(defmfun elt- ((a both) (b both))
   ("gsl_" :category :type "_sub")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
@@ -145,7 +150,7 @@
   "Subtract the elements of b from the elements of a.
    The two must have the same dimensions.")
 
-(defmfun e* ((a vector) (b vector))
+(defmfun elt* ((a vector) (b vector))
   ("gsl_" :category :type "_mul")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
@@ -157,7 +162,7 @@
   "Multiply the elements of a by the elements of b.
    The two must have the same dimensions.")
 
-(defmfun e* ((a matrix) (b matrix))
+(defmfun elt* ((a matrix) (b matrix))
   ("gsl_" :category :type "_mul_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :methods
@@ -166,7 +171,7 @@
   :outputs (a)
   :return (a))
 
-(defmfun e/ ((a vector) (b vector))
+(defmfun elt/ ((a vector) (b vector))
   ("gsl_" :category :type "_div")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
@@ -178,7 +183,7 @@
   "Divide the elements of a by the elements of b.
    The two must have the same dimensions.")
 
-(defmfun e/ ((a matrix) (b matrix))
+(defmfun elt/ ((a matrix) (b matrix))
   ("gsl_" :category :type "_div_elements")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :methods
@@ -187,10 +192,10 @@
   :outputs (a)
   :return (a))
 
-(defmfun m* ((a both) (x float))
+(defmfun elt* ((a both) (x float))
   ("gsl_" :category :type "_scale")
   (((mpointer a) :pointer) (x :double))
-  :definition :generic
+  :definition :methods
   :element-types :no-complex
   :inputs (a)
   :outputs (a)
@@ -198,8 +203,8 @@
   :documentation			; FDL
   "Multiply the elements of a by the scalar double-float factor x.")
 
-(defmethod m* ((x float) (a marray))
-  (m* a x))
+(defmethod elt* ((x float) (a marray))
+  (elt* a x))
 
 ;;;;****************************************************************************
 ;;;; Maximum and minimum elements

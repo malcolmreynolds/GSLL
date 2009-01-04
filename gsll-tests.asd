@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2008-12-31 21:53:55EST gsll-tests.asd>
+;; Time-stamp: <2009-01-04 11:26:56EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -96,14 +96,14 @@
 	     (:file "matrix-min-index")
 	     (:file "matrix-minmax-index")
 	     (:file "matrix-minmax")
-	     (:file "matrix-m-")
-	     (:file "matrix-m+")
+	     (:file "matrix-sub")
+	     (:file "matrix-add")
 	     (:file "matrix-mult")
 	     (:file "matrix-product-hermitian")
 	     (:file "matrix-product")
 	     (:file "matrix-product-symmetric")
 	     (:file "matrix-product-triangular")
-	     (:file "matrix-set-all-m+")
+	     (:file "matrix-set-all-add")
 	     (:file "matrix-set-zero")
 	     (:file "matrix-standard-deviation")
 	     (:file "matrix-standard-deviation-with-fixed-mean")
@@ -164,11 +164,11 @@
 	     (:file "vector-min-index")
 	     (:file "vector-minmax-index")
 	     (:file "vector-minmax")
-	     (:file "vector-m-")
-	     (:file "vector-m+")
+	     (:file "vector-sub")
+	     (:file "vector-add")
 	     (:file "vector-mult")
 	     (:file "vector-reverse")
-	     (:file "vector-set-all-m+")
+	     (:file "vector-set-all-add")
 	     (:file "vector-set-zero")
 	     (:file "vector-standard-deviation")
 	     (:file "vector-standard-deviation-with-fixed-mean")

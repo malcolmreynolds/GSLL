@@ -1,8 +1,8 @@
-;; Regression test MATRIX-M+ for GSLL, automatically generated
+;; Regression test MATRIX-ADD for GSLL, automatically generated
 
 (in-package :gsl)
 
-(LISP-UNIT:DEFINE-TEST MATRIX-M+
+(LISP-UNIT:DEFINE-TEST MATRIX-ADD
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((8.23 -9.0 46.600002)
@@ -19,7 +19,7 @@
                                              '((42.73 -17.24 43.31)
                                                (-16.12 -8.25 21.44)
                                                (-49.08 -39.66 -49.46)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((8.229999999999997d0 -8.999999999999998d0 46.6d0)
@@ -37,7 +37,7 @@
                                              '((42.73d0 -17.24d0 43.31d0)
                                                (-16.12d0 -8.25d0 21.44d0)
                                                (-49.08d0 -39.66d0 -49.46d0)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-32 -40 101) (-54 -21 -18) (58 -27 -65)))
                         (MULTIPLE-VALUE-LIST
@@ -49,7 +49,7 @@
                                 (MAKE-MARRAY '(SIGNED-BYTE 8) :INITIAL-CONTENTS
                                              '((32 28 30) (37 -73 -8)
                                                (-15 -22 68)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((95 54 208) (144 85 101) (197 68 64)))
                         (MULTIPLE-VALUE-LIST
@@ -63,7 +63,7 @@
                                              :INITIAL-CONTENTS
                                              '((28 10 19) (28 178 217)
                                                (36 109 222)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-32 -40 101) (-54 -21 -18) (58 -27 191)))
                         (MULTIPLE-VALUE-LIST
@@ -77,7 +77,7 @@
                                              :INITIAL-CONTENTS
                                              '((32 28 30) (37 -73 -8)
                                                (-15 -22 68)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((95 54 208) (144 341 357) (197 324 320)))
                         (MULTIPLE-VALUE-LIST
@@ -91,7 +91,7 @@
                                              :INITIAL-CONTENTS
                                              '((28 10 19) (28 178 217)
                                                (36 109 222)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-32 -40 101) (-54 -21 -18) (58 -27 191)))
                         (MULTIPLE-VALUE-LIST
@@ -105,7 +105,7 @@
                                              :INITIAL-CONTENTS
                                              '((32 28 30) (37 -73 -8)
                                                (-15 -22 68)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((95 54 208) (144 341 357) (197 324 320)))
                         (MULTIPLE-VALUE-LIST
@@ -119,7 +119,7 @@
                                              :INITIAL-CONTENTS
                                              '((28 10 19) (28 178 217)
                                                (36 109 222)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-32 -40 101) (-54 -21 -18) (58 -27 191)))
@@ -134,7 +134,7 @@
                                              :INITIAL-CONTENTS
                                              '((32 28 30) (37 -73 -8)
                                                (-15 -22 68)))))
-                           (CL-ARRAY (M+ M1 M2)))))
+                           (CL-ARRAY (ELT+ M1 M2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((95 54 208) (144 341 357) (197 324 320)))
@@ -149,5 +149,5 @@
                                              :INITIAL-CONTENTS
                                              '((28 10 19) (28 178 217)
                                                (36 109 222)))))
-                           (CL-ARRAY (M+ M1 M2))))))
+                           (CL-ARRAY (ELT+ M1 M2))))))
 

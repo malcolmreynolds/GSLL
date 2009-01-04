@@ -9,14 +9,14 @@
                          (LET ((V1
                                 (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
                                              '(-34.5 8.24 3.29))))
-                           (CL-ARRAY (M*C V1 1.39d0)))))
+                           (CL-ARRAY (ELT* V1 1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(-47.955d0 11.4536d0 4.5731d0))
                         (MULTIPLE-VALUE-LIST
                          (LET ((V1
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
                                              '(-34.5d0 8.24d0 3.29d0))))
-                           (CL-ARRAY (M*C V1 1.39d0)))))
+                           (CL-ARRAY (ELT* V1 1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-88 -94 98))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -27,7 +27,7 @@
                                                                    '(-64 -68
                                                                      71))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(93 61 6))
                                                           (MULTIPLE-VALUE-LIST
@@ -39,7 +39,7 @@
                                                                    '(67 44
                                                                      189))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-88 -94 98))
                                                           (MULTIPLE-VALUE-LIST
@@ -51,7 +51,7 @@
                                                                    '(-64 -68
                                                                      71))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(93 61 262))
                                                           (MULTIPLE-VALUE-LIST
@@ -63,7 +63,7 @@
                                                                    '(67 44
                                                                      189))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-88 -94 98))
                                                           (MULTIPLE-VALUE-LIST
@@ -75,7 +75,7 @@
                                                                    '(-64 -68
                                                                      71))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(93 61 262))
                                                           (MULTIPLE-VALUE-LIST
@@ -87,7 +87,7 @@
                                                                    '(67 44
                                                                      189))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-88 -94 98))
                                                           (MULTIPLE-VALUE-LIST
@@ -99,7 +99,7 @@
                                                                    '(-64 -68
                                                                      71))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(93 61 262))
                                                           (MULTIPLE-VALUE-LIST
@@ -111,6 +111,6 @@
                                                                    '(67 44
                                                                      189))))
                                                              (CL-ARRAY
-                                                              (M*C V1
+                                                              (ELT* V1
                                                                    1.39d0))))))
 

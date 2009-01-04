@@ -12,7 +12,7 @@
                                (V2
                                 (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
                                              '(-8.93 34.12 -6.15))))
-                           (CL-ARRAY (E/ V1 V2)))))
+                           (CL-ARRAY (ELT/ V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(3.8633818589025757d0 0.2415005861664713d0
@@ -24,7 +24,7 @@
                                (V2
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
                                              '(-8.93d0 34.12d0 -6.15d0))))
-                           (CL-ARRAY (E/ V1 V2)))))
+                           (CL-ARRAY (ELT/ V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 -1 -7))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -42,7 +42,7 @@
                                                                    '(-91 52
                                                                      -10))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2)))))
+                                                              (ELT/ V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 0 1))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -60,7 +60,7 @@
                                                                    '(116 163
                                                                      140))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2)))))
+                                                              (ELT/ V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 -1 -7))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -78,7 +78,7 @@
                                                                    '(-91 52
                                                                      -10))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2)))))
+                                                              (ELT/ V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 0 1))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -96,7 +96,7 @@
                                                                    '(116 163
                                                                      140))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2)))))
+                                                              (ELT/ V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 -1 -7))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -114,7 +114,7 @@
                                                                    '(-91 52
                                                                      -10))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2)))))
+                                                              (ELT/ V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 0 1))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -132,7 +132,7 @@
                                                                    '(116 163
                                                                      140))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2)))))
+                                                              (ELT/ V1 V2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 -1 -7))
                                                           (MULTIPLE-VALUE-LIST
@@ -151,7 +151,7 @@
                                                                    '(-91 52
                                                                      -10))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2)))))
+                                                              (ELT/ V1 V2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(0 0 1))
                                                           (MULTIPLE-VALUE-LIST
@@ -170,5 +170,5 @@
                                                                    '(116 163
                                                                      140))))
                                                              (CL-ARRAY
-                                                              (E/ V1 V2))))))
+                                                              (ELT/ V1 V2))))))
 

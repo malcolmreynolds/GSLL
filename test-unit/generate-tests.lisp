@@ -1,6 +1,6 @@
 ;; Make tests from examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-12-26 17:54:49EST generate-tests.lisp>
+;; Time-stamp: <2009-01-04 11:00:11EST generate-tests.lisp>
 ;; $Id: $
 
 ;;; Througout the GSLL interface definition files are #'save-test
@@ -9,7 +9,7 @@
 ;;; the calling the function with a particular name to get the
 ;;; examples, e.g.
 ;;; (examples)
-;;; (examples 'matrix-m+)
+;;; (examples 'matrix-add)
 
 ;;; To do all the tests,
 ;;; (lisp-unit:run-tests)
@@ -19,7 +19,7 @@
 ;;; shouldn't be changed very often.  Rarely, it may be necessary to
 ;;; generate such a file.  In this case, #'write-test-to-file recreates
 ;;; the file, e.g.
-;;; (write-test-to-file 'matrix-m+ "test/")
+;;; (write-test-to-file 'matrix-add "test/")
 
 (in-package :gsl)
 
