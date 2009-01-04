@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2008-12-31 21:40:17EST array-tests.lisp>
+;; Time-stamp: <2009-01-03 22:04:21EST array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -95,39 +95,39 @@
 
 (generate-all-array-tests vector-mult :no-complex
  (let ((v1 (array-default 3))
-	(v2 (array-default 3)))
-   (cl-array (m* v1 v2))))
+       (v2 (array-default 3)))
+   (cl-array (e* v1 v2))))
 
 (generate-all-array-tests matrix-mult :no-complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3))))
-   (cl-array (m* m1 m2))))
+       (m2 (array-default '(3 3))))
+   (cl-array (e* m1 m2))))
 
 (generate-all-array-tests vector-div :no-complex
  (let ((v1 (array-default 3))
-	(v2 (array-default 3)))
-   (cl-array (m/ v1 v2))))
+       (v2 (array-default 3)))
+   (cl-array (e/ v1 v2))))
 
 (generate-all-array-tests matrix-div :no-complex
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3))))
-   (cl-array (m/ m1 m2))))
+       (m2 (array-default '(3 3))))
+   (cl-array (e/ m1 m2))))
 
 (generate-all-array-tests vector-mult-scalar :no-complex
  (let ((v1 (array-default 3)))
-   (cl-array (m*c v1 1.39d0))))
+   (cl-array (m* v1 1.39d0))))
 
 (generate-all-array-tests matrix-mult-scalar :no-complex
  (let ((m1 (array-default '(3 3))))
-   (cl-array (m*c m1 1.39d0))))
+   (cl-array (m* m1 1.39d0))))
 
 (generate-all-array-tests vector-add-scalar :no-complex
  (let ((v1 (array-default 3)))
-   (cl-array (m+c v1 18.19d0))))
+   (cl-array (m+ v1 18.19d0))))
 
 (generate-all-array-tests matrix-add-scalar :no-complex
  (let ((m1 (array-default '(3 3))))
-   (cl-array (m+c m1 18.19d0))))
+   (cl-array (m+ m1 18.19d0))))
 
 ;;;;****************************************************************************
 ;;;; Maximum and minimum elements

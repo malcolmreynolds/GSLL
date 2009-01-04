@@ -12,7 +12,7 @@
                                (V2
                                 (MAKE-MARRAY 'SINGLE-FLOAT :INITIAL-CONTENTS
                                              '(-8.93 34.12 -6.15))))
-                           (CL-ARRAY (M* V1 V2)))))
+                           (CL-ARRAY (E* V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(308.085d0 281.1488d0 -20.233500000000003d0))
                         (MULTIPLE-VALUE-LIST
@@ -22,7 +22,7 @@
                                (V2
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
                                              '(-8.93d0 34.12d0 -6.15d0))))
-                           (CL-ARRAY (M* V1 V2)))))
+                           (CL-ARRAY (E* V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-64 48 58))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -40,7 +40,7 @@
                                                                    '(-91 52
                                                                      -10))))
                                                              (CL-ARRAY
-                                                              (M* V1 V2)))))
+                                                              (E* V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(92 4 92))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((V1
@@ -58,7 +58,7 @@
                                                                    '(116 163
                                                                      140))))
                                                              (CL-ARRAY
-                                                              (M* V1 V2)))))
+                                                              (E* V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(5824 -3536 -710))
                         (MULTIPLE-VALUE-LIST
@@ -68,7 +68,7 @@
                                (V2
                                 (MAKE-MARRAY '(SIGNED-BYTE 16)
                                              :INITIAL-CONTENTS '(-91 52 -10))))
-                           (CL-ARRAY (M* V1 V2)))))
+                           (CL-ARRAY (E* V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(7772 7172 26460))
                         (MULTIPLE-VALUE-LIST
@@ -78,7 +78,7 @@
                                (V2
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 16)
                                              :INITIAL-CONTENTS '(116 163 140))))
-                           (CL-ARRAY (M* V1 V2)))))
+                           (CL-ARRAY (E* V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(5824 -3536 -710))
                         (MULTIPLE-VALUE-LIST
@@ -88,7 +88,7 @@
                                (V2
                                 (MAKE-MARRAY '(SIGNED-BYTE 32)
                                              :INITIAL-CONTENTS '(-91 52 -10))))
-                           (CL-ARRAY (M* V1 V2)))))
+                           (CL-ARRAY (E* V1 V2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(7772 7172 26460))
                         (MULTIPLE-VALUE-LIST
@@ -98,7 +98,7 @@
                                (V2
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 32)
                                              :INITIAL-CONTENTS '(116 163 140))))
-                           (CL-ARRAY (M* V1 V2)))))
+                           (CL-ARRAY (E* V1 V2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(5824 -3536 -710))
@@ -109,7 +109,7 @@
                                (V2
                                 (MAKE-MARRAY '(SIGNED-BYTE 64)
                                              :INITIAL-CONTENTS '(-91 52 -10))))
-                           (CL-ARRAY (M* V1 V2)))))
+                           (CL-ARRAY (E* V1 V2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(7772 7172 26460))
@@ -120,5 +120,5 @@
                                (V2
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 64)
                                              :INITIAL-CONTENTS '(116 163 140))))
-                           (CL-ARRAY (M* V1 V2))))))
+                           (CL-ARRAY (E* V1 V2))))))
 

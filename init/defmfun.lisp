@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-01-01 18:14:27EST defmfun.lisp>
+;; Time-stamp: <2009-01-03 21:48:41EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -137,8 +137,40 @@
 ;;;; A defgeneric with methods, or the methods alone, for vectors or matrices
 ;;;;****************************************************************************
 
+(defun expand-defmfun-arrays
+    (defn name arglist gsl-name c-arguments categories key-args)
+  (setf categories
+	(remove-if-not
+	 (lambda (c) (member c '(both matrix vector)))
+	 categories))
+  (if (member 'both categories)
+      (progn 
+	(when (> (length categories) 1)
+	  ;; Specify 'both alone
+	  (error "Internal: mixed both and actual category."))
+	;; Generate forms for matrix and vector
+	(append
+	 (generate-methods
+	  defn 'vector
+	  name arglist gsl-name
+	  (actual-array-c-type
+	   'vector c-arguments
+	   (optional-args-to-switch-gsl-functions arglist gsl-name))
+	  (copy-list key-args) 'vector)
+	 (generate-methods
+	  defn 'matrix
+	  name arglist gsl-name
+	  (actual-array-c-type
+	   'matrix c-arguments
+	   (optional-args-to-switch-gsl-functions arglist gsl-name))
+	  (copy-list key-args) 'matrix)))
+      ;; Generate forms for one category
+      (generate-methods
+       defn (first categories)
+       name arglist gsl-name c-arguments key-args)))
+
 (defun expand-defmfun-generic (name arglist gsl-name c-arguments key-args)
-  "Define a generic function and methods."
+  "Define a generic function and methods for all kinds of arrays."
   ;; Need to scan the arglist for categories.
   ;; Can be mixed, unless it says 'both, in which case it can only be both.
   (with-defmfun-key-args key-args
@@ -146,39 +178,14 @@
 	(arglist-plain-and-categories arglist)
       `(defgeneric ,name ,noclass-arglist
 	 (:documentation ,documentation)
-	 ,@(if (member 'both categories)
-	       (progn 
-		 (when (> (length categories) 1)
-		   ;; Specify 'both alone
-		   (error "Internal: mixed both and actual category."))
-		 ;; Generate forms for matrix and vector
-		 (append
-		  (generate-methods
-		   :method 'vector
-		   name arglist gsl-name
-		   (actual-array-c-type
-		    'vector c-arguments
-		    (optional-args-to-switch-gsl-functions arglist gsl-name))
-		   (copy-list key-args) 'vector)
-		  (generate-methods
-		   :method 'matrix
-		   name arglist gsl-name
-		   (actual-array-c-type
-		    'matrix c-arguments
-		    (optional-args-to-switch-gsl-functions arglist gsl-name))
-		   (copy-list key-args) 'matrix)))
-	       ;; Generate forms for one category
-	       (generate-methods
-		:method (first categories)
-		name arglist gsl-name c-arguments key-args))))))
+	 ,@(expand-defmfun-arrays
+	    :method name arglist gsl-name c-arguments categories key-args)))))
 
 (defun expand-defmfun-defmethods (name arglist gsl-name c-arguments key-args)
-  "Define methods."
-  ;; I presume 'both will not occur for pure methods
+  "Define methods for all kinds of arrays."
   (let ((categories (nth-value 1 (arglist-plain-and-categories arglist))))
-    (generate-methods
-     'cl:defmethod (first categories)
-     name arglist gsl-name c-arguments key-args)))
+    (expand-defmfun-arrays
+     'cl:defmethod name arglist gsl-name c-arguments categories key-args)))
 
 (defun generate-methods
     (defn category name arglist gsl-name c-arguments key-args
