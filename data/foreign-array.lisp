@@ -1,6 +1,6 @@
 ;; Foreign arrays (usually in C)
 ;; Liam Healy 2008-12-28 10:44:22EST foreign-array.lisp
-;; Time-stamp: <2008-12-29 14:34:24EST foreign-array.lisp>
+;; Time-stamp: <2009-01-04 21:42:09EST foreign-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -42,7 +42,8 @@
 
 ;;; Allowable keys: :dimensions, :initial-contents, :initial-element.
 (defmethod initialize-instance :after
-    ((object foreign-array) &rest initargs &key dimensions initial-contents initial-element)
+    ((object foreign-array) &rest initargs
+     &key dimensions initial-contents initial-element)
   (declare (ignore dimensions initial-contents initial-element))
   (with-slots (cl-array dimensions original-array offset total-size) object
     (let ((ffa (apply #'make-ffa (element-type object) initargs)))

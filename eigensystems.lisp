@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2008-12-26 18:57:10EST eigensystems.lisp>
+;; Time-stamp: <2009-01-04 21:27:10EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -43,9 +43,19 @@
 ;;;; Eigenvalues and eigenvectors
 ;;;;****************************************************************************
 
-(defmfun eigenvalues ((A matrix) eigenvalues ws)
+(defmfun eigenvalues
+    ((A matrix)
+     &optional
+     (eigenvalues
+      (make-marray
+       (element-type A)
+       :dimensions (first (dimensions A))))
+     (ws
+      (if (eq (class-of A) 'complex-double-float)
+	  (make-eigen-herm (first (dimensions A)))
+	  (make-eigen-symm (first (dimensions A))))))
   (double-float "gsl_eigen_symm"
-   complex-double-float "gsl_eigen_herm")
+		complex-double-float "gsl_eigen_herm")
   (((mpointer A) :pointer)
    ((mpointer eigenvalues) :pointer) ((mpointer ws) :pointer))
   :definition :generic
@@ -63,9 +73,23 @@
   referenced.  The eigenvalues are stored in the vector eigenvalues and
   are unordered.")
 
-(defmfun eigenvalues-eigenvectors ((A matrix) eigenvalues eigenvectors ws)
+(defmfun eigenvalues-eigenvectors
+    ((A matrix)
+     &optional
+     (eigenvalues
+      (make-marray
+       (element-type A)
+       :dimensions (first (dimensions A))))
+     (eigenvectors
+      (make-marray
+       (element-type A)
+       :dimensions (dimensions A)))
+     (ws
+      (if (eq (class-of A) 'complex-double-float)
+	  (make-eigen-hermv (first (dimensions A)))
+	  (make-eigen-symmv (first (dimensions A))))))
   (double-float "gsl_eigen_symmv"
-   complex-double-float "gsl_eigen_hermv")  
+		complex-double-float "gsl_eigen_hermv")  
   (((mpointer A) :pointer) ((mpointer eigenvalues) :pointer)
    ((mpointer eigenvectors) :pointer) ((mpointer ws) :pointer))
   :definition :generic
@@ -118,11 +142,11 @@
  
 (defun eigenvalue-eigenvectors-example ()
   (let ((evecs (make-marray 'double-float :dimensions '(3 3)))
-	 (evals (make-marray 'double-float :dimensions 3))
-	 (ws (make-eigen-symmv 3))
-	 (mat #m((20.0d0 -10.0d0 0.0d0)
-		 (-10.0d0 30.0d0 0.0d0)
-		 (0.0d0 0.0d0 40.0d0))))
+	(evals (make-marray 'double-float :dimensions 3))
+	(ws (make-eigen-symmv 3))
+	(mat #m((20.0d0 -10.0d0 0.0d0)
+		(-10.0d0 30.0d0 0.0d0)
+		(0.0d0 0.0d0 40.0d0))))
     (eigenvalues-eigenvectors mat evals evecs ws)
     (values (cl-array evals) (cl-array evecs))))
 

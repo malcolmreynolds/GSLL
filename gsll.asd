@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-03 14:10:02EST gsll.asd>
+;; Time-stamp: <2009-01-04 21:44:14EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -35,7 +35,7 @@
 	    :components
 	    ((:file "foreign-friendly")
 	     (:file "foreign-array" :depends-on (foreign-friendly))
-	     (:file "marray" :depends-on (foreign-friendly))
+	     (:file "marray" :depends-on (foreign-array))
 	     (:file "vector" :depends-on (marray))
 	     (:file "matrix" :depends-on (marray vector))
 	     (:file "maref" :depends-on (marray vector matrix))
