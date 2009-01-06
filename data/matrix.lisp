@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2008-12-29 20:33:38EST matrix.lisp>
+;; Time-stamp: <2009-01-05 22:44:13EST matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,7 +56,9 @@
 ;;;; Copying rows and columns
 ;;;;****************************************************************************
 
-(defmfun row ((vector vector) (matrix matrix) i)
+(defmfun row
+    ((matrix matrix) i
+     &optional (vector :make-marray vector (dim1 matrix)))
   ("gsl_matrix" :type "_get_row")
   (((mpointer vector) :pointer) ((mpointer matrix) :pointer) (i sizet))
   :definition :generic
@@ -79,7 +81,9 @@
   "Copy the elements of the vector into the jth column of the matrix.
   The length of the vector must be the same as the length of the column.")
 
-(defmfun column ((vector vector) (matrix matrix) i)
+(defmfun column
+    ((matrix matrix) i
+     &optional (vector :make-marray vector (dim0 matrix)))
   ("gsl_matrix" :type "_get_col")
   (((mpointer vector) :pointer) ((mpointer matrix) :pointer) (i sizet))
   :definition :generic
@@ -138,7 +142,7 @@
    matrix in-place.  The matrix must be square for this operation to
    be possible.")
 
-(defmfun matrix-transpose ((matrix matrix))
+(defmfun matrix-transpose* ((matrix matrix))
   ("gsl_matrix" :type "_transpose")
   (((mpointer matrix) :pointer))
   :definition :generic
@@ -150,7 +154,10 @@
    of the matrix in-place.  The matrix must be square for this
    operation to be possible.")
 
-(defmfun matrix-transpose-copy ((destination matrix) (source matrix))
+(defmfun matrix-transpose
+    ((source matrix)
+     &optional
+     (destination :make-marray matrix (reverse (dimensions source))))
   ("gsl_matrix" :type "_transpose_memcpy")
   (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :generic

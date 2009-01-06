@@ -12,7 +12,7 @@
                                                (-8.93 34.12 -6.15)
                                                (49.27 -13.49 32.5))))
                                (ROW (MAKE-MARRAY 'SINGLE-FLOAT :DIMENSIONS '3)))
-                           (CL-ARRAY (ROW ROW M1 1)))))
+                           (CL-ARRAY (ROW M1 1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(-8.93d0 34.12d0 -6.15d0))
                         (MULTIPLE-VALUE-LIST
@@ -22,7 +22,7 @@
                                                (-8.93d0 34.12d0 -6.15d0)
                                                (49.27d0 -13.49d0 32.5d0))))
                                (ROW (MAKE-MARRAY 'DOUBLE-FLOAT :DIMENSIONS '3)))
-                           (CL-ARRAY (ROW ROW M1 1)))))
+                           (CL-ARRAY (ROW M1 1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(-8.93 34.12) #C(-6.15 49.27) #C(-13.49 32.5)))
@@ -39,7 +39,7 @@
                                (ROW
                                 (MAKE-MARRAY '(COMPLEX SINGLE-FLOAT)
                                              :DIMENSIONS '3)))
-                           (CL-ARRAY (ROW ROW M1 1)))))
+                           (CL-ARRAY (ROW M1 1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(-8.93d0 34.12d0) #C(-6.15d0 49.27d0)
@@ -57,7 +57,7 @@
                                (ROW
                                 (MAKE-MARRAY '(COMPLEX DOUBLE-FLOAT)
                                              :DIMENSIONS '3)))
-                           (CL-ARRAY (ROW ROW M1 1)))))
+                           (CL-ARRAY (ROW M1 1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-91 52 -10))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -78,8 +78,8 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1)))))
+                                                              (ROW M1
+                                                                   1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(116 163 140))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -100,8 +100,8 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1)))))
+                                                              (ROW M1
+                                                                   1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-91 52 -10))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -122,8 +122,8 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1)))))
+                                                              (ROW M1
+                                                                   1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(116 163 140))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -144,8 +144,8 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1)))))
+                                                              (ROW M1
+                                                                   1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-91 52 -10))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -166,8 +166,8 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1)))))
+                                                              (ROW M1
+                                                                   1 ROW)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(116 163 140))
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((M1
@@ -188,8 +188,8 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1)))))
+                                                              (ROW M1
+                                                                   1 ROW)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-91 52 -10))
                                                           (MULTIPLE-VALUE-LIST
@@ -211,8 +211,8 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1)))))
+                                                              (ROW M1
+                                                                   1 ROW)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(116 163 140))
                                                           (MULTIPLE-VALUE-LIST
@@ -234,6 +234,6 @@
                                                                    :DIMENSIONS
                                                                    '3)))
                                                              (CL-ARRAY
-                                                              (ROW ROW M1
-                                                                   1))))))
+                                                              (ROW M1
+                                                                   1 ROW))))))
 

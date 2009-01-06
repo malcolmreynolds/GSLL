@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2009-01-04 21:27:10EST eigensystems.lisp>
+;; Time-stamp: <2009-01-05 22:33:35EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -46,14 +46,9 @@
 (defmfun eigenvalues
     ((A matrix)
      &optional
-     (eigenvalues
-      (make-marray
-       (element-type A)
-       :dimensions (first (dimensions A))))
-     (ws
-      (if (eq (class-of A) 'complex-double-float)
-	  (make-eigen-herm (first (dimensions A)))
-	  (make-eigen-symm (first (dimensions A))))))
+     (eigenvalues :make-marray vector (dim0 A))
+     (ws complex (make-eigen-herm (dim0 A))
+	 t (make-eigen-symm (dim0 A))))
   (double-float "gsl_eigen_symm"
 		complex-double-float "gsl_eigen_herm")
   (((mpointer A) :pointer)
@@ -76,18 +71,10 @@
 (defmfun eigenvalues-eigenvectors
     ((A matrix)
      &optional
-     (eigenvalues
-      (make-marray
-       (element-type A)
-       :dimensions (first (dimensions A))))
-     (eigenvectors
-      (make-marray
-       (element-type A)
-       :dimensions (dimensions A)))
-     (ws
-      (if (eq (class-of A) 'complex-double-float)
-	  (make-eigen-hermv (first (dimensions A)))
-	  (make-eigen-symmv (first (dimensions A))))))
+     (eigenvalues :make-marray vector (dim0 A))
+     (eigenvectors :make-marray matrix (dimensions A))
+     (ws complex (make-eigen-hermv (dim0 A))
+	 t (make-eigen-symmv (dim0 A))))
   (double-float "gsl_eigen_symmv"
 		complex-double-float "gsl_eigen_hermv")  
   (((mpointer A) :pointer) ((mpointer eigenvalues) :pointer)
@@ -140,14 +127,25 @@
 ;;;; Example
 ;;;;****************************************************************************
  
+#|
+;; When GSL 1.12 is in place and elt+ is supported for complex, this
+;; can be expanded to :double-types, if we can create a hermitian
+;; matrix.
+
+(generate-all-array-tests eigensystems5 (double-float)
+ (let ((m1 (array-default '(5 5))))
+   (multiple-value-bind (eval evec)
+       (eigenvalues-eigenvectors (elt+ m1 (matrix-transpose-copy m1)))
+     (list (cl-array eval) (cl-array evec)))))
+|#
+
 (defun eigenvalue-eigenvectors-example ()
   (let ((evecs (make-marray 'double-float :dimensions '(3 3)))
 	(evals (make-marray 'double-float :dimensions 3))
-	(ws (make-eigen-symmv 3))
 	(mat #m((20.0d0 -10.0d0 0.0d0)
 		(-10.0d0 30.0d0 0.0d0)
 		(0.0d0 0.0d0 40.0d0))))
-    (eigenvalues-eigenvectors mat evals evecs ws)
+    (eigenvalues-eigenvectors mat evals evecs)
     (values (cl-array evals) (cl-array evecs))))
 
 (save-test eigensystems

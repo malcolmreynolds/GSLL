@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2009-01-04 11:15:18EST array-tests.lisp>
+;; Time-stamp: <2009-01-05 22:26:34EST array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -203,8 +203,8 @@
 
 (generate-all-array-tests row t
  (let ((m1 (array-default '(3 3)))
-	(row (array-default 3 t)))
-   (cl-array (row row m1 1))))
+       (row (array-default 3 t)))
+   (cl-array (row m1 1 row))))
 
 (generate-all-array-tests setf-row t
  (let ((m1 (array-default '(3 3)))
@@ -214,8 +214,8 @@
 
 (generate-all-array-tests column t
  (let ((m1 (array-default '(3 3)))
-	(col (array-default 3 t)))
-   (cl-array (column col m1 1))))
+       (col (array-default 3 t)))
+   (cl-array (column m1 1 col))))
 
 (generate-all-array-tests setf-column t
  (let ((m1 (array-default '(3 3)))
@@ -235,11 +235,11 @@
  (let ((m1 (array-default '(3 3))))
    (cl-array (swap-row-column m1 0 2))))
 
-(generate-all-array-tests matrix-transpose t
+(generate-all-array-tests matrix-transpose* t
  (let ((m1 (array-default '(3 3))))
-   (cl-array (matrix-transpose m1))))
+   (cl-array (matrix-transpose* m1))))
 
-(generate-all-array-tests matrix-transpose-copy t
+(generate-all-array-tests matrix-transpose t
  (let ((m1 (array-default '(3 3)))
-	(m2 (array-default '(3 3) t)))
-   (cl-array (matrix-transpose-copy m2 m1))))
+       (m2 (array-default '(3 3) t)))
+   (cl-array (matrix-transpose m1 m2))))

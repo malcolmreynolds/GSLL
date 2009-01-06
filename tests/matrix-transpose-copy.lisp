@@ -1,8 +1,8 @@
-;; Regression test MATRIX-TRANSPOSE-COPY for GSLL, automatically generated
+;; Regression test MATRIX-TRANSPOSE for GSLL, automatically generated
 
 (in-package :gsl)
 
-(LISP-UNIT:DEFINE-TEST MATRIX-TRANSPOSE-COPY
+(LISP-UNIT:DEFINE-TEST MATRIX-TRANSPOSE
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((-34.5 -8.93 49.27)
@@ -16,7 +16,7 @@
                                                (49.27 -13.49 32.5))))
                                (M2
                                 (MAKE-MARRAY 'SINGLE-FLOAT :DIMENSIONS '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((-34.5d0 -8.93d0 49.27d0)
@@ -30,7 +30,7 @@
                                                (49.27d0 -13.49d0 32.5d0))))
                                (M2
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :DIMENSIONS '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((#C(-34.5 8.24) #C(-8.93 34.12) #C(49.27 -13.49))
@@ -50,7 +50,7 @@
                                (M2
                                 (MAKE-MARRAY '(COMPLEX SINGLE-FLOAT)
                                              :DIMENSIONS '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((#C(-34.5d0 8.24d0) #C(-8.93d0 34.12d0)
@@ -72,7 +72,7 @@
                                (M2
                                 (MAKE-MARRAY '(COMPLEX DOUBLE-FLOAT)
                                              :DIMENSIONS '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -91 73) (-68 52 -5) (71 -10 123)))
                         (MULTIPLE-VALUE-LIST
@@ -83,7 +83,7 @@
                                (M2
                                 (MAKE-MARRAY '(SIGNED-BYTE 8) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 116 161) (44 163 215) (189 140 98)))
                         (MULTIPLE-VALUE-LIST
@@ -95,7 +95,7 @@
                                (M2
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 8) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -91 73) (-68 52 -5) (71 -10 123)))
                         (MULTIPLE-VALUE-LIST
@@ -107,7 +107,7 @@
                                (M2
                                 (MAKE-MARRAY '(SIGNED-BYTE 16) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 116 161) (44 163 215) (189 140 98)))
                         (MULTIPLE-VALUE-LIST
@@ -119,7 +119,7 @@
                                (M2
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 16) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -91 73) (-68 52 -5) (71 -10 123)))
                         (MULTIPLE-VALUE-LIST
@@ -131,7 +131,7 @@
                                (M2
                                 (MAKE-MARRAY '(SIGNED-BYTE 32) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 116 161) (44 163 215) (189 140 98)))
                         (MULTIPLE-VALUE-LIST
@@ -143,7 +143,7 @@
                                (M2
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 32) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -91 73) (-68 52 -5) (71 -10 123)))
@@ -156,7 +156,7 @@
                                (M2
                                 (MAKE-MARRAY '(SIGNED-BYTE 64) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1)))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2)))))
 		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 116 161) (44 163 215) (189 140 98)))
@@ -169,5 +169,5 @@
                                (M2
                                 (MAKE-MARRAY '(UNSIGNED-BYTE 64) :DIMENSIONS
                                              '(3 3))))
-                           (CL-ARRAY (MATRIX-TRANSPOSE-COPY M2 M1))))))
+                           (CL-ARRAY (MATRIX-TRANSPOSE M1 M2))))))
 

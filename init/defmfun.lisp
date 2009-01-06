@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-01-03 21:48:41EST defmfun.lisp>
+;; Time-stamp: <2009-01-05 20:32:59EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -284,11 +284,22 @@
 		       replace-both
 		       (second arg))
 		   element-type))))
-	 (if (and (listp arg) (numberp (second arg)))
-	     ;; optional arg default numerical value
-	     (list (first arg)
-		   (coerce (second arg) element-type))
-	     arg))))
+	 (cond ((and (listp arg) (numberp (second arg)))
+		;; Optional arg default numerical value
+		(list (first arg)
+		      (coerce (second arg) element-type)))
+	       ((and (listp arg) (eql (second arg) :make-marray))
+		;; Optional arg replace class
+		(list (first arg)
+		      `(make-marray ',element-type
+				    :dimensions ,(fourth arg))))
+	       ((and (listp arg) (> (length arg) 4))
+		;; Optional arg switch default based on element type
+		(list (first arg)
+		      (loop for (type sexp) on (rest arg) by #'cddr
+			 until (subtypep element-type type)
+			 finally (return sexp))))
+	       (t arg)))))
 
 (defun arglist-plain-and-categories
     (arglist &optional (include-llk t))
