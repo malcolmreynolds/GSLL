@@ -1,11 +1,9 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2008-12-25 14:11:57EST interface.lisp>
+;; Time-stamp: <2009-01-06 18:49:56EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
-
-(export '(gsl-lookup *make-sequence-type*))
 
 ;;;;****************************************************************************
 ;;;; Lookup table to find CL functions from C function names
@@ -19,6 +17,7 @@
   ;; only by the case of one or more letters.
   (setf (gethash (string-downcase gsl-name) *gsl-symbol-equivalence*) cl-name))
 
+(export '(gsl-lookup))
 (defun gsl-lookup (string)
   "Find the GSLL (Lisp) equivalent of the GSL symbol."
   (gethash (string-downcase string) *gsl-symbol-equivalence*))
@@ -143,3 +142,14 @@
           "The version of the GSL library being used.")
 (map-name '*gsl-version* "gsl_version")
 (export '*gsl-version*)
+
+(defun have-at-least-gsl-version (major minor)
+  "The GSL version currently running is at least the specified
+  major/minor version."
+  (let* ((sep-pos (position #\. *gsl-version*))
+	 (my-major
+	  (read-from-string *gsl-version* nil nil :end sep-pos))
+	 (my-minor
+	  (read-from-string *gsl-version* nil nil :start (1+ sep-pos))))
+    (and (>= my-major major)
+	 (>= my-minor minor))))

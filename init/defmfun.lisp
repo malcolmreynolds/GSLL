@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-01-05 20:32:59EST defmfun.lisp>
+;; Time-stamp: <2009-01-06 23:02:05EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,8 +53,10 @@
 ;;; documentation
 ;;; inputs     Arrays whose values are used by the GSL function.
 ;;; outputs    Arrays that are written to in the GSL function.
+;;; before     Forms to be evaluated before the foreign call.
 ;;; after      Forms to be evaluated after the foreign call.
 ;;; enumeration  The name of the enumeration return.
+;;; gsl-version  The GSL version at which this function was introduced.
 
 (defmacro defmfun (name arglist gsl-name c-arguments &rest key-args)
   "Definition of a GSL function."
@@ -70,11 +72,13 @@
      (index t)
      (definition :function)
      (export (not (member definition (list :method :methods))))
-     documentation inputs outputs after enumeration qualifier)
+     documentation inputs outputs before after enumeration qualifier
+     gsl-version)
     ,key-args
     (declare (ignorable c-return return definition element-types
-      index export
-      documentation inputs outputs after enumeration qualifier)
+      index export documentation inputs outputs
+      before after enumeration qualifier
+      gsl-version indexed-functions)
      (special indexed-functions))
     ,@body))
 
@@ -369,8 +373,7 @@
     (if (listp gsl-name)
 	(mapc (lambda (n) (push n indexed-functions)) gsl-name)
 	(push gsl-name indexed-functions))
-    (with-defmfun-key-args key-args
-      (remf key-args :documentation)
+    (remf key-args :documentation)
       (complete-definition
        'cl:defmethod
        name
@@ -380,7 +383,7 @@
        key-args
        (if (optional-args-to-switch-gsl-functions arglist gsl-name)
 	   'body-optional-arg 'body-no-optional-arg)
-       (listp gsl-name)))))
+       (listp gsl-name))))
 
 ;;;;****************************************************************************
 ;;;; Optional argument(s)
@@ -475,30 +478,47 @@
      (mapdown (eq body-maker 'body-optional-arg)))
   "A complete definition form, starting with defun, :method, or defmethod."
   (destructuring-bind
-	(&key documentation inputs outputs after qualifier &allow-other-keys) key-args
+	(&key documentation inputs outputs before after
+	      qualifier gsl-version &allow-other-keys)
+      key-args
     (declare (ignorable inputs outputs)) ; workaround for compiler errors that don't see it's used
-    `(,definition
-	 ,@(when (and name (not (defgeneric-method-p name)))
-		 (list name))
-	 ,@(when qualifier (list qualifier))
-       ,arglist
-       ,(declaration-form
-	 (cl-argument-types arglist c-arguments)
-	 (set-difference (arglist-plain-and-categories arglist nil)
-			 (union
-			  (if mapdown
-			      (apply 'union
-				     (mapcar 'variables-used-in-c-arguments c-arguments))
-			      (variables-used-in-c-arguments c-arguments))
-			  ;; Forms in :after are checked for used variables
-			  (stupid-code-walk-find-variables (cons 'values after)))))
-       ,@(when documentation (list documentation))
-       #-native
-       ,(funcall body-maker name arglist gsl-name c-arguments key-args)
-       #+native
-       ,(native-pointer
-	 (union inputs outputs)
-	 (funcall body-maker name arglist gsl-name c-arguments key-args)))))
+    (if (or (not gsl-version) (apply 'have-at-least-gsl-version gsl-version))
+	`(,definition
+	     ,@(when (and name (not (defgeneric-method-p name)))
+		     (list name))
+	     ,@(when qualifier (list qualifier))
+	   ,arglist
+	   ,(declaration-form
+	     (cl-argument-types arglist c-arguments)
+	     (set-difference
+	      (arglist-plain-and-categories arglist nil)
+	      (union
+	       (if mapdown
+		   (apply 'union
+			  (mapcar 'variables-used-in-c-arguments c-arguments))
+		   (variables-used-in-c-arguments c-arguments))
+	       ;; Forms in :before, :after are checked for used variables
+	       (stupid-code-walk-find-variables
+		(cons 'values (append before after))))))
+	   ,@(when documentation (list documentation))
+	   #-native
+	   ,(funcall body-maker name arglist gsl-name c-arguments key-args)
+	   #+native
+	   ,(native-pointer
+	     (union inputs outputs)
+	     (funcall body-maker name arglist gsl-name c-arguments key-args)))
+        `(,definition
+	     ,@(when (and name (not (defgeneric-method-p name)))
+		     (list name))
+	     ,@(when qualifier (list qualifier))
+	   (&rest args)
+	   (declare (ignore args))
+	   (error
+	    ,(apply 'format
+		    nil
+		    "Function ~a (~a) is not available in your current version ~
+               ~a of GSL; it was introduced in version ~d.~d."
+		    name gsl-name *gsl-version* gsl-version))))))
 
 (defun body-no-optional-arg (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
@@ -515,10 +535,9 @@
 	       (member s (arglist-plain-and-categories arglist nil)))
 	     (variables-used-in-c-arguments c-arguments)))
 	   (allocated-decl
-	    (append
-	     (mapcar
-	      (lambda (s) (find s c-arguments :key #'st-symbol))
-	      allocated)))
+	    (mapcar
+	     (lambda (s) (find s c-arguments :key #'st-symbol))
+	     allocated))
 	   (clret (or			; better as a symbol macro
 		   (substitute cret-name :c-return return)
 		   (mapcan #'cl-convert-form allocated-decl)
@@ -532,6 +551,7 @@
 				    (mapcar #'rest complex-args))))
 	      '(let ()))
 	  #-native ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
+	  ,@before
 	  (let ((,cret-name
 		 (cffi:foreign-funcall
 		  ,gsl-name
