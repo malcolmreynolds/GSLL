@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2008-12-30 22:32:38EST lu.lisp>
+;; Time-stamp: <2009-01-08 12:15:52EST lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,7 +11,7 @@
   :definition :generic
   :inputs (A)
   :outputs (A p)
-  :return (A)
+  :return (A signum)
   :element-types :doubles
   :documentation			; FDL
   "Factorize the square matrix A into the LU decomposition PA = LU,
@@ -21,12 +21,12 @@
   diagonal) contains L.  The diagonal elements of L are unity, and are
   not stored.
 
-  The permutation matrix P is encoded in the permutation
-  p.  The j-th column of the matrix P is given by the
-  k-th column of the identity matrix, where k = p_j the
-  j-th element of the permutation vector. The sign of the
-  permutation is given by signum. It has the value (-1)^n,
-  where n is the number of interchanges in the permutation.
+  The permutation matrix P is encoded in the permutation p.  The j-th
+  column of the matrix P is given by the k-th column of the identity
+  matrix, where k = p_j the j-th element of the permutation
+  vector. The sign of the permutation is returned as the second
+  value; it is the value (-1)^n, where n is the number of
+  interchanges in the permutation.
 
   The algorithm used in the decomposition is Gaussian Elimination with
   partial pivoting (Golub & Van Loan, Matrix Computations,
@@ -52,7 +52,7 @@
   :inputs (LU p)
   :outputs (x)
   :element-types :doubles
-  :documentation			; FLD
+  :documentation			; FDL
   "Solve the square system A x = b in-place
    using the LU decomposition of A into
    (LU, p). On input x should contain the right-hand
@@ -94,23 +94,22 @@
 (defmfun LU-determinant ((LU matrix) signum)
   ("gsl_linalg" :complex "_LU_det")
   (((mpointer LU) :pointer) (signum :int))
-  :c-return :double
   :definition :generic
   :inputs (LU)
   :element-types :doubles
+  :c-return :double
   :documentation			; FDL
   "Compute the determinant of a matrix from its LU
   decomposition, LU. The determinant is computed as the product of the
   diagonal elements of U and the sign of the row permutation signum.")
 
-
 (defmfun LU-log-determinant ((LU matrix))
   ("gsl_linalg" :complex "_LU_lndet")
   (((mpointer LU) :pointer))
-  :c-return :double
   :definition :generic
   :inputs (LU)
   :element-types :doubles
+  :c-return :double
   :documentation			; FDL
   "The logarithm of the absolute value of the
    determinant of a matrix A, ln|det(A)|, from its LU decomposition,
@@ -120,10 +119,10 @@
 (defmfun LU-sgndet ((LU matrix) signum)
   ("gsl_linalg" :complex "_LU_sgndet")
   (((mpointer LU) :pointer) (signum :int))
-  :c-return :int
   :definition :generic
   :inputs (LU)
   :element-types :doubles
+  :c-return :int
   :documentation 			; FDL
   "Compute the sign or phase factor of the determinant of a matrix A,
   det(A)/|det(A)|, from its LU decomposition, LU.")

@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-31 21:10:05EST permutation.lisp>
+;; Time-stamp: <2009-01-08 10:28:06EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,8 +16,6 @@
     #+int32 '(unsigned-byte 32)
     :reader element-type :allocation :class))
   (:documentation "GSL permutations."))
-
-;;(pushnew (cons 'permutation *sizet-type*) *class-element-type* :test #'equal)
 
 (cffi:defcstruct gsl-permutation-c	; The GSL struct
   (size sizet)

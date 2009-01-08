@@ -107,20 +107,13 @@ GSLL should work in any Common Lisp implementation and platform
 combination for which the following are supported:</p>
 <ul>
 <li><a href="http://www.gnu.org/software/gsl/">GSL</a>
-(<a href="http://packages.debian.org/lenny/libgsl0ldbl">libgsl0ldbl</a>
-  in Debian/Ubuntu)
 </li>
 <li><a href="http://common-lisp.net/project/cffi/">CFFI</a>,
-version 0.10.0 or newer;
-only platforms and implementations which have callbacks and
-foreign-funcall support will work
-  (<a href="http://packages.debian.org/lenny/cl-cffi">cl-cffi</a>
-  in Debian/Ubuntu)
+version 0.10.0 or newer; callbacks and <code>foreign-funcall</code> must be supported
 </li>
 <li><a href="http://www.cliki.net/trivial-garbage">trivial-garbage</a>
 <li><a href="http://common-lisp.net/project/cl-utilities/">cl-utilities</a>
-  (<a href="http://packages.debian.org/lenny/cl-utilities">cl-utilities</a>
-  in Debian/Ubuntu)</li>
+</li>
 
 <li><a href="http://www.cliki.net/asdf">ASDF</a></li></ul>
 <p>GSLL has been tested with
@@ -135,20 +128,64 @@ foreign-funcall support will work
 </p>
 
 <h2>Download and Install</h2>
+ <h3>With <a href="http://git.or.cz">git</a> and asdf</h3>
 <a name="getit"/>
-<p>Use <a href="http://git.or.cz">git</a> to download:
-<pre>
-git clone git://repo.or.cz/gsll.git
-</pre>
+<p>Download/update:
+  <ul>
+    <li><code>git clone git://repo.or.cz/gsll.git</code></li>
+    <li><code>git pull</code> in the <code>gsll</code> directory
+    afterwards to update</li> 
+  </ul>
 <p>The <a href="http://repo.or.cz/w/gsll.git"> repository web page</a>
 can be used to browse or retrieve a compressed tarball (click the most
 recent "snapshot" link).
 You will need to make a link of <code>gsll.asd</code> and
 optionally <code>gsll-tests.asd</code> to some directory known to ASDF.
 Then in Lisp, load the system:
-<pre>(asdf:operate 'asdf:load-op :gsll)</pre> 
-<p>and if you wish to run the test suite,
-<pre>(asdf:operate 'asdf:load-op :gsll-tests)</pre> 
+  <ul>
+    <li><code>(asdf:operate 'asdf:load-op :gsll)</code></li>
+  </ul>
+ <h3>With <a href="http://common-lisp.net/project/clbuild/">clbuild</a></h3>
+<p>
+ Add the following to <code>wnpp-projects</code>:
+  <ul>
+    <li><code>gsll get_git git://repo.or.cz/gsll.git</code></li>
+    <li><code>trivial-garbage get_darcs http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
+    <li><code>cl-utilities get_cvs_clnet</code></li>
+  </ul>
+<p>and add
+  <ul>
+    <li><code>gsll cffi trivial-garbage cl-utilities</code></li>
+  </ul>
+<p>
+to <code>dependencies</code> and execute
+from within the clbuild directory:
+  <ul>
+    <li><code>sudo ./clbuild update gsll</code></li>
+  </ul>
+ <h3>With Debian or Ubuntu</h3>
+  <ul>
+    <li><code>sudo aptitude install libgsl0-dev cl-cffi cl-utilities</code></li>
+    <li><code>git clone git://repo.or.cz/gsll.git</code></li>
+    <li><code>darcs get http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
+    <li><code>clc-register-user-package trivial-garbage/trivial-garbage.asd</code></li>
+    <li><code>clc-register-user-package gsll/gsll.asd</code></li>
+    <li><code>clc-register-user-package gsll/gsll-tests.asd</code></li>
+  </ul>
+<p>
+  After starting your Lisp implementation,
+  <ul>
+    <li><code>(clc:clc-require :gsll)</code></li>
+  </ul>
+ <h3>Test suite</h3>
+  <p>The test suite may be run with
+  <ul>
+    <li><code>(asdf:operate 'asdf:load-op :gsll-tests)</code></li>
+    <li><code>(in-package :gsl)</code></li>
+    <li><code>(lisp-unit:run-tests)</code></li>
+  </ul>
+  <p>Please see the file documentation/status.text for known failures.
+ <h3>License</h3>
 <p>
 This software is distributed under
 the <a href="http://www.cliki.net/LLGPL">LLGPL</a>
@@ -278,9 +315,9 @@ eigen-symm eigen-symmv eigen-herm eigen-hermv
 monte-carlo-plain monte-carlo-miser monte-carlo-vegas
 </pre>
 <p>
-An instance each may be created with a function that whose name is
-"make-" followed by the class name, e.g. <code>make-histogram</code>.
-The arguments that the function takes depends on the class.
+An instance may be created with a function whose name is "make-"
+followed by the class name, e.g. <code>make-histogram</code>.  The
+arguments that the function takes depends on the class.
 </p>
 
  <h3>Additional definitions</h3>
@@ -317,7 +354,7 @@ version should still be considered alpha.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-01-07 22:25:08EST index.html>
+Time-stamp: <2009-01-08 13:28:20EST index.html>
 </small>
 <!-- hhmts end -->
  </div>
