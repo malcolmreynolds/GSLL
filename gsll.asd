@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-04 21:44:14EST gsll.asd>
+;; Time-stamp: <2009-01-07 22:09:19EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -22,6 +22,8 @@
 	     (:file "interface"
 		    :depends-on (init conditions element-types number-conversion))
 	     (:file "defmfun" :depends-on (init element-types interface))
+	     (:file "defmfun-array" :depends-on (defmfun))
+	     (:file "defmfun-single" :depends-on (defmfun))
 	     (:file "callback" :depends-on (init))
 	     (:file "generate-examples" :depends-on (init))))
    (:module floating-point

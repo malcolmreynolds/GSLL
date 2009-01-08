@@ -96,7 +96,7 @@ complex conjugate scalar product</a> of two complex vectors of length 3:
       #2m(49.27d0 -13.49d0 32.5d0 42.73d0 -17.24d0 43.31d0))
 #C(-2940.2118d0 1861.9380999999998d0)
 </pre>
-<p>There are many examples available from within GSLL with the
+<p>There are over 1200 examples available from within GSLL with the
 function <code>examples</code>.  These examples also serve
 as a test suite for GSLL.
 
@@ -123,13 +123,6 @@ foreign-funcall support will work
   in Debian/Ubuntu)</li>
 
 <li><a href="http://www.cliki.net/asdf">ASDF</a></li></ul>
-<p>
-You will need to make a link of <code>gsll.asd</code> and
-optionally <code>gsll-tests.asd</code> to some directory known to ASDF.
-Then in Lisp, load the system:
-<pre>(asdf:operate 'asdf:compile-op :gsll)</pre> 
-<p>and if you wish to run the test suite,
-<pre>(asdf:operate 'asdf:compile-op :gsll-tests)</pre> 
 <p>GSLL has been tested with
   <a href="http://sbcl.sourceforge.net/">SBCL</a>
   and
@@ -141,15 +134,23 @@ Then in Lisp, load the system:
   are some known failures; see the file documentation/status.text.
 </p>
 
-<h2>Download</h2>
+<h2>Download and Install</h2>
 <a name="getit"/>
-<p>Use <a href="http://git.or.cz">git</a> to install:
+<p>Use <a href="http://git.or.cz">git</a> to download:
 <pre>
 git clone git://repo.or.cz/gsll.git
 </pre>
 <p>The <a href="http://repo.or.cz/w/gsll.git"> repository web page</a>
 can be used to browse or retrieve a compressed tarball (click the most
-recent "snapshot" link).  This software is distributed under
+recent "snapshot" link).
+You will need to make a link of <code>gsll.asd</code> and
+optionally <code>gsll-tests.asd</code> to some directory known to ASDF.
+Then in Lisp, load the system:
+<pre>(asdf:operate 'asdf:load-op :gsll)</pre> 
+<p>and if you wish to run the test suite,
+<pre>(asdf:operate 'asdf:load-op :gsll-tests)</pre> 
+<p>
+This software is distributed under
 the <a href="http://www.cliki.net/LLGPL">LLGPL</a>
 and <a href="http://www.gnu.org/copyleft/fdl.html">FDL</a>; see
 the file COPYING.  There is absolutely no warranty.</p>
@@ -316,7 +317,7 @@ version should still be considered alpha.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-01-03 22:40:07EST index.html>
+Time-stamp: <2009-01-07 22:25:08EST index.html>
 </small>
 <!-- hhmts end -->
  </div>
