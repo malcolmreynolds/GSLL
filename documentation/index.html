@@ -54,9 +54,9 @@ integration, ordinary differential equations, interpolation, numerical
 integration, numerical differentiation, Chebyshev approximation,
 series acceleration, discrete Hankel transforms, root-finding,
 minimization, least-squares fitting, IEEE floating-point, discrete
-wavelet transforms, basis splines.  See the file
-documentation/missing-features.text on the status of some incomplete
-topics.
+wavelet transforms, basis splines.  See
+<a href="missing-features.text">missing-features.text</a>
+on the status of some incomplete topics.
 </p>
 
 <h2>Examples</h2>
@@ -90,7 +90,7 @@ complex conjugate scalar product</a> of two complex vectors of length 3:
       #2m(#c(49.27d0 -13.49d0) #c(32.5d0 42.73d0) #c(-17.24d0 43.31d0)))
 #C(-2940.2118d0 1861.9380999999998d0)
 </pre>
-<p>or equivalently the initial vectors may be specified with reals,
+<p>or equivalently the vector arguments may be specified with reals,
 <pre>
 (cdot #2m(-34.5d0 8.24d0 3.29d0 -8.93d0 34.12d0 -6.15d0)
       #2m(49.27d0 -13.49d0 32.5d0 42.73d0 -17.24d0 43.31d0))
@@ -124,7 +124,7 @@ version 0.10.0 or newer; callbacks and <code>foreign-funcall</code> must be supp
   <a href="http://sbcl.sourceforge.net/">SBCL</a>
   and
   <a href="http://clisp.cons.org/">CLISP</a> on Debian i386.  There
-  are some known failures; see the file documentation/status.text.
+  are some known failures; see <a href="status.text">status.text</a>.
 </p>
 
 <h2>Download and Install</h2>
@@ -184,7 +184,7 @@ from within the clbuild directory:
     <li><code>(in-package :gsl)</code></li>
     <li><code>(lisp-unit:run-tests)</code></li>
   </ul>
-  <p>Please see the file documentation/status.text for known failures.
+  <p>Please see <a href="status.text">status.text</a> for known failures.
  <h3>License</h3>
 <p>
 This software is distributed under
@@ -259,7 +259,7 @@ area of memory.</p>
  the example above to make an array with a different element type; a
  guide to the numeric argument is given below.  If the macro is
  followed by a list of numbers, a vector is created, if it is followed
- by a list of lists of number, each of the same length, a matrix is
+ by a list of lists of numbers, each of the same length, a matrix is
  created. 
  <p>
  Classes of vectors and matrices are named by appending the element
@@ -334,10 +334,15 @@ GSL doesn't have them.
 <a name="status"/>
 <p>
 GSLL is largely complete and usable, with functioning interfaces to
-most of GSL.  Some chapters are not yet ported.  Known bugs are
-documented in the file documentation/status.text.  It is possible the
-user interface will change but not to a great extent, so the current
-version should still be considered alpha.
+most of GSL.  Some functionality is not yet ported, particularly those
+introduced in the more recent versions of GSL; see
+<a href="missing-features.text">missing-features.text</a>
+for more details.  Known bugs are documented in
+<a href="status.text">status.text</a>.  Work is ongoing to both
+remedy those deficiencies and to simplify the user interface by
+changing more required arguments into optional or key arguments with
+useful default values.  Typically, these arguments bind GSL objects
+and arrays used internally or for function return.
 
 <h2>Contact</h2>
 <a name="contact"/>
@@ -354,7 +359,7 @@ version should still be considered alpha.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-01-08 13:28:20EST index.html>
+Time-stamp: <2009-01-09 13:37:15EST index.html>
 </small>
 <!-- hhmts end -->
  </div>
