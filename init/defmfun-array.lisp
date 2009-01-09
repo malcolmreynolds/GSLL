@@ -1,6 +1,6 @@
 ;; Helpers for defining GSL functions on arrays
 ;; Liam Healy 2009-01-07 22:01:16EST defmfun-array.lisp
-;; Time-stamp: <2009-01-07 22:01:56EST defmfun-array.lisp>
+;; Time-stamp: <2009-01-08 22:02:50EST defmfun-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -156,23 +156,30 @@
 		       replace-both
 		       (second arg))
 		   element-type))))
-	 (cond ((and (listp arg) (numberp (second arg)))
-		;; Optional arg default numerical value
-		(list (first arg)
-		      (coerce (second arg) element-type)))
-	       ((and (listp arg) (eql (second arg) :make-marray))
-		;; Optional arg replace class
-		(list (first arg)
-		      `(make-marray ',element-type
-				    :dimensions ,(fourth arg))))
-	       ((and (listp arg) (> (length arg) 4))
-		;; Optional arg switch default based on element type
-		(list (first arg)
-		      (loop for (type sexp) on (rest arg) by #'cddr
-			 until (subtypep element-type type)
-			 finally (return sexp))))
-	       (t arg)))))
+	 ;; Default values for optional/key arguments are treated
+	 ;; specially for array methods.
+	 (if (and (listp arg) (numberp (second arg)))
+	     (list (first arg)	; Optional arg default numerical value
+		   ;; coerce to the right type
+		   (coerce (second arg) element-type))
+	     (if (listp arg)
+		 (if (and (listp (second arg))
+			  (eq (first (second arg)) 'eltcase))
+		     ;; "eltcase" switch to the matching form
+		     `(,(first arg)
+			,(element-type-select (rest (second arg)) element-type))
+		     ;; 'element-type is bound to the element-type.
+		     (list
+		      (first arg)
+		      (subst `',element-type 'element-type
+			     (second arg))))
+		 arg)))))
 
+(defun element-type-select (form element-type)
+  "Find the actual form to use as the default based on the list in form."
+  (loop for (type result) on form by #'cddr
+     thereis (when (subtypep element-type type) result)))
+     
 (defun arglist-plain-and-categories
     (arglist &optional (include-llk t))
   "Get arglist without classes and a list of categories."

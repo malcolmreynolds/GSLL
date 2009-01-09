@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2009-01-05 22:44:13EST matrix.lisp>
+;; Time-stamp: <2009-01-08 21:50:38EST matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,7 +58,7 @@
 
 (defmfun row
     ((matrix matrix) i
-     &optional (vector :make-marray vector (dim1 matrix)))
+     &optional (vector (make-marray element-type :dimensions (dim1 matrix))))
   ("gsl_matrix" :type "_get_row")
   (((mpointer vector) :pointer) ((mpointer matrix) :pointer) (i sizet))
   :definition :generic
@@ -83,7 +83,7 @@
 
 (defmfun column
     ((matrix matrix) i
-     &optional (vector :make-marray vector (dim0 matrix)))
+     &optional (vector (make-marray element-type :dimensions (dim0 matrix))))
   ("gsl_matrix" :type "_get_col")
   (((mpointer vector) :pointer) ((mpointer matrix) :pointer) (i sizet))
   :definition :generic
@@ -157,7 +157,8 @@
 (defmfun matrix-transpose
     ((source matrix)
      &optional
-     (destination :make-marray matrix (reverse (dimensions source))))
+     (destination
+      (make-marray element-type :dimensions (reverse (dimensions source)))))
   ("gsl_matrix" :type "_transpose_memcpy")
   (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :generic

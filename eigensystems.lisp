@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2009-01-05 22:33:35EST eigensystems.lisp>
+;; Time-stamp: <2009-01-08 21:49:15EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -46,9 +46,9 @@
 (defmfun eigenvalues
     ((A matrix)
      &optional
-     (eigenvalues :make-marray vector (dim0 A))
-     (ws complex (make-eigen-herm (dim0 A))
-	 t (make-eigen-symm (dim0 A))))
+     (eigenvalues (make-marray element-type :dimensions (dim0 A)))
+     (ws (eltcase complex (make-eigen-herm (dim0 A))
+		  t (make-eigen-symm (dim0 A)))))
   (double-float "gsl_eigen_symm"
 		complex-double-float "gsl_eigen_herm")
   (((mpointer A) :pointer)
@@ -71,10 +71,10 @@
 (defmfun eigenvalues-eigenvectors
     ((A matrix)
      &optional
-     (eigenvalues :make-marray vector (dim0 A))
-     (eigenvectors :make-marray matrix (dimensions A))
-     (ws complex (make-eigen-hermv (dim0 A))
-	 t (make-eigen-symmv (dim0 A))))
+     (eigenvalues (make-marray element-type :dimensions (dim0 A)))
+     (eigenvectors (make-marray element-type :dimensions (dimensions A)))
+     (ws (eltcase complex (make-eigen-hermv (dim0 A))
+		  t (make-eigen-symmv (dim0 A)))))
   (double-float "gsl_eigen_symmv"
 		complex-double-float "gsl_eigen_hermv")  
   (((mpointer A) :pointer) ((mpointer eigenvalues) :pointer)
