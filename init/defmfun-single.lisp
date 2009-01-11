@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-01-10 20:15:42EST defmfun-single.lisp>
+;; Time-stamp: <2009-01-11 10:07:06EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -91,7 +91,9 @@
 			 (let ((auxstart (position '&aux arglist)))
 			   ;; &aux bindings are checked
 			   (when auxstart
-			     (mapcan 'rest (subseq arglist (1+ auxstart)))))))))))
+			     (apply
+			      'append
+			      (mapcar 'rest (subseq arglist (1+ auxstart))))))))))))
 	   ,@(when documentation (list documentation))
 	   #-native
 	   ,(funcall body-maker name arglist gsl-name c-arguments key-args)

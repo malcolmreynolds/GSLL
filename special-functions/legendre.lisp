@@ -1,6 +1,6 @@
 ;; Legendre functions
 ;; Liam Healy, Sat Apr 29 2006 - 19:16
-;; Time-stamp: <2008-12-26 11:52:33EST legendre.lisp>
+;; Time-stamp: <2009-01-11 10:21:24EST legendre.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -35,21 +35,25 @@
   "The Legendre polynomial P_l(x) for a specific value of l,
    x subject to l >= 0, |x| <= 1.")
 
-(defmfun legendre-Pl-array (x array)
+(defmfun legendre-Pl-array
+    (x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_legendre_Pl_array"
   (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "Compute an array of Legendre polynomials
-  P_l(x) for l = 0, ..., length(array), |x| <= 1."
-  :outputs (array))
+  P_l(x) for l = 0, ..., length(array), |x| <= 1.")
 
-(defmfun legendre-Pl-deriv-array (x array)
+(defmfun legendre-Pl-deriv-array
+    (x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_legendre_Pl_deriv_array"
   (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "Compute an array of Legendre polynomials derivatives
-  dP_l(x)/dx, for l = 0, ...,  length(array), |x| <= 1."
-  :outputs (array))
+  dP_l(x)/dx, for l = 0, ...,  length(array), |x| <= 1.")
 
 (defmfun legendre-Q0 (x)
   "gsl_sf_legendre_Q0_e" ((x :double) (ret sf-result))
@@ -91,25 +95,31 @@
   "The associated Legendre polynomial
    P_l^m(x) for m >= 0, l >= m, |x| <= 1.")
 
-(defmfun legendre-Plm-array (m x array)
+(defmfun legendre-Plm-array
+    (m x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_legendre_Plm_array"
   (((+ (dim0 array) m -1) :int) (m :int) (x :double)
    ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "An array of Legendre polynomials
     P_l^m(x), for m >= 0, 
-    l = |m|, ..., |m|+length(array)-1} and |x| <= 1."
-  :outputs (array))
+    l = |m|, ..., |m|+length(array)-1} and |x| <= 1.")
 
-(defmfun legendre-Plm-deriv-array (m x values derivatives)
+(defmfun legendre-Plm-deriv-array
+    (m x &optional (values-size-or-array *default-sf-array-size*)
+       (derivatives-size-or-array *default-sf-array-size*)
+       &aux (values (vdf values-size-or-array))
+       (derivatives (vdf derivatives-size-or-array)))
   "gsl_sf_legendre_Plm_deriv_array"
   (((+ (dim0 values) m -1) :int) (m :int) (x :double)
    ((c-pointer values) :pointer) ((c-pointer derivatives) :pointer))
+  :outputs (values derivatives)
   :documentation			; FDL
   "An array of Legendre polynomials
     values and derivatives dP_l^m(x)/dx for m >= 0, 
-    l = |m|, ..., length(values) and |x| <= 1."
-  :outputs (values derivatives))
+    l = |m|, ..., length(values) and |x| <= 1.")
 
 (defmfun legendre-sphPlm (l m x)
   "gsl_sf_legendre_sphPlm_e" ((l :int) (m :int) (x :double) (ret sf-result))
@@ -120,25 +130,31 @@
    m >= 0, l >= m, |x| <= 1.  These routines avoid the overflows
    that occur for the standard normalization of P_l^m(x).")
 
-(defmfun legendre-sphPlm-array (m x array)
+(defmfun legendre-sphPlm-array
+    (m x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_legendre_sphPlm_array"
   (((+ (dim0 array) m -1) :int) (m :int) (x :double)
    ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "An array of normalized associated Legendre functions
    \sqrt(2l+1)/(4\pi) \sqrt(l-m)!/(l+m)! P_l^m(x),
-   for m >= 0, l = |m|, ..., length(array)}, |x| <= 1.0."
-  :outputs (array))
+   for m >= 0, l = |m|, ..., length(array)}, |x| <= 1.0.")
 
-(defmfun legendre-sphPlm-deriv-array (m x values derivatives)
+(defmfun legendre-sphPlm-deriv-array
+    (m x &optional (values-size-or-array *default-sf-array-size*)
+       (derivatives-size-or-array *default-sf-array-size*)
+       &aux (values (vdf values-size-or-array))
+       (derivatives (vdf derivatives-size-or-array)))
   "gsl_sf_legendre_sphPlm_deriv_array"
   (((+ (dim0 values) m -1) :int) (m :int) (x :double)
    ((c-pointer values) :pointer) ((c-pointer derivatives) :pointer))
+  :outputs (values derivatives)
   :documentation			; FDL
   "An array of normalized associated Legendre functions
    values and derivatives for m >= 0,
-   l = |m|, ..., length(array)}, |x| <= 1.0."
-  :outputs (values derivatives))
+   l = |m|, ..., length(array)}, |x| <= 1.0.")
 
 (defmfun legendre-array-size (lmax m)
   "gsl_sf_legendre_array_size" ((lmax :int) (m :int))
@@ -234,7 +250,9 @@
    \eta >= 0, l >= 0.  In the flat limit this takes the form
    L^{H3d}_l(\lambda,\eta) = j_l(\lambda\eta).")
 
-(defmfun legendre-H3d-array (lambda eta array)
+(defmfun legendre-H3d-array
+    (lambda eta &optional (size-or-array *default-sf-array-size*)
+	    &aux (array (vdf size-or-array)))
   "gsl_sf_legendre_H3d_array"
   (((1- (dim0 array)) :int) (lambda :double) (eta :double)
    ((c-pointer array) :pointer))
@@ -242,10 +260,6 @@
   :documentation			; FDL
   "An array of radial eigenfunctions
    L^{H3d}_l(\lambda, \eta) for 0 <= l <= length(array).")
-
-;;; (defparameter hleg (make-data 'vector nil 3))
-;;; (legendre-H3d-array 1.0d0 0.5d0 hleg)
-;;; #<GSL-VECTOR #(0.9200342692589383d0 0.21694026450392123d0 0.047950660488307775d0) {C07CB51}>
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

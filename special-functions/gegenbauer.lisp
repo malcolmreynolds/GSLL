@@ -1,6 +1,6 @@
 ;; Gegenbauer polynomials
 ;; Liam Healy, Fri Apr 28 2006 - 20:40
-;; Time-stamp: <2008-12-26 12:25:31EST gegenbauer.lisp>
+;; Time-stamp: <2009-01-11 09:45:00EST gegenbauer.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -27,17 +27,16 @@
   "The Gegenbauer polynomial C^{(\lambda)}_n(x)} for a specific value of n,
   lambda, x subject to \lambda > -1/2, n >= 0.")
 
-(defmfun gegenbauer-array (lambda x result)
+(defmfun gegenbauer-array
+    (lambda x &optional (size-or-array *default-sf-array-size*)
+	    &aux (array (vdf size-or-array)))
   "gsl_sf_gegenpoly_array"
-  (((1- (dim0 result)) :int)
-   (lambda :double) (x :double) ((c-pointer result) :pointer))
-  :outputs (result)
+  (((1- (dim0 array)) :int)
+   (lambda :double) (x :double) ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "Compute an array of Gegenbauer polynomials C^{(\lambda)}_n(X)}
-   for n = 0, 1, 2, ..., length(result)-1}, subject to \lambda > -1/2.")
-
-;;; (defparameter vec (make-data 'vector nil 3))
-;;; (gegenbauer-array 1.0d0 3.0d0 vec)
+   for n = 0, 1, 2, ..., length(array)-1}, subject to \lambda > -1/2.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -48,5 +47,4 @@
   (gegenbauer-2 1.0d0 3.0d0)
   (gegenbauer-3 1.0d0 3.0d0)
   (gegenbauer 4 1.0d0 3.0d0)
-  (let ((arr (make-marray 'double-float :dimensions 4)))
-      (gegenbauer-array 1.0d0 3.0d0 arr) (cl-array arr)))
+  (cl-array (gegenbauer-array 1.0d0 3.0d0 4)))

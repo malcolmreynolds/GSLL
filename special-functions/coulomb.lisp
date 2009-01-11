@@ -1,6 +1,6 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2008-12-29 20:49:45EST coulomb.lisp>
+;; Time-stamp: <2009-01-11 10:14:54EST coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,7 +48,9 @@
   overflow occurs, the condition 'overflow is signalled and scaling
   exponents are stored in the modifiable parameters exp-F, exp-G.")
 
-(defmfun coulomb-wave-F-array (L-min eta x fc-array)
+(defmfun coulomb-wave-F-array
+    (L-min eta x &optional (size-or-array *default-sf-array-size*)
+	   &aux (fc-array (vdf size-or-array)))
   "gsl_sf_coulomb_wave_F_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((c-pointer fc-array) :pointer) (F-exponent :double))
@@ -59,7 +61,12 @@
   L = Lmin ... Lmin + kmax, storing the results in fc-array.
   In the case of overflow the exponent is stored in the second value returned.")
 
-(defmfun coulomb-wave-FG-array (L-min eta x fc-array gc-array)
+(defmfun coulomb-wave-FG-array
+    (L-min eta x
+	   &optional (fc-size-or-array *default-sf-array-size*)
+	   gc-size-or-array
+	   &aux (fc-array (vdf fc-size-or-array))
+	   (gc-array (vdf (or gc-size-or-array (dim0 fc-array)))))
   "gsl_sf_coulomb_wave_FG_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((c-pointer fc-array) :pointer) ((c-pointer gc-array) :pointer)
@@ -72,7 +79,16 @@
   results in fc_array and gc_array.  In the case of overflow the
   exponents are stored in F_exponent and G_exponent.")
 
-(defmfun coulomb-wave-FGp-array (L-min eta x fc-array fcp-array gc-array gcp-array)
+(defmfun coulomb-wave-FGp-array
+    (L-min eta x
+	   &optional (fc-size-or-array *default-sf-array-size*)
+	   fcp-size-or-array
+	   gc-size-or-array
+	   gcp-size-or-array
+	   &aux (fc-array (vdf fc-size-or-array))
+	   (fcp-array (vdf (or fcp-size-or-array (dim0 fc-array))))
+	   (gc-array (vdf (or gc-size-or-array (dim0 fc-array))))
+	   (gcp-array (vdf (or gcp-size-or-array (dim0 fc-array)))))
   "gsl_sf_coulomb_wave_FGp_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((c-pointer fc-array) :pointer) ((c-pointer fcp-array) :pointer)
@@ -90,7 +106,9 @@
   In the case of overflow the exponents are stored in F_exponent
   and G_exponent.")
 
-(defmfun coulomb-wave-sphF-array (L-min eta x fc-array)
+(defmfun coulomb-wave-sphF-array
+    (L-min eta x &optional (size-or-array *default-sf-array-size*)
+	   &aux (fc-array (vdf size-or-array)))
   "gsl_sf_coulomb_wave_sphF_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((c-pointer fc-array) :pointer) (F-exponent :double))
@@ -113,14 +131,16 @@
   "The Coulomb wave function normalization constant C_L(\eta)
    for L > -1.")
 
-(defmfun coulomb-CL-array (L-min eta cl)
+(defmfun coulomb-CL-array
+    (L-min eta &optional (size-or-array *default-sf-array-size*)
+	   &aux (array (vdf size-or-array)))
   "gsl_sf_coulomb_CL_array"
-  ((L-min :double) ((1- (dim0 cl)) :int) (eta :double)
-   ((c-pointer cl) :pointer))
+  ((L-min :double) ((1- (dim0 array)) :int) (eta :double)
+   ((c-pointer array) :pointer))
+  :outputs (array)
   :documentation			; FDL
   "The Coulomb wave function normalization constant C_L(\eta)
-   for L = Lmin ... Lmin + kmax, Lmin > -1."
-  :outputs (cl))
+   for L = Lmin ... Lmin + kmax, Lmin > -1.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test

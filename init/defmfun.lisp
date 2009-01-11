@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-01-10 20:29:54EST defmfun.lisp>
+;; Time-stamp: <2009-01-10 21:47:36EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -182,18 +182,24 @@
    selects one of two GSL functions."
   (let ((optpos (position-if (lambda (s) (member s *defmfun-optk*)) arglist)))
     (if optpos
-	(let ((mandatory-arglist (subseq arglist 0 optpos))
-	      (optional-arglist (subseq arglist (1+ optpos))))
-	  `(if ,(first optional-arglist)
-	       ,(body-no-optional-arg 
-		 name
-		 (append mandatory-arglist optional-arglist)
-		 (second gsl-name)
-		 (second c-arguments)
-		 key-args)
-	       ,(body-no-optional-arg
-		 name
-		 mandatory-arglist
-		 (first gsl-name)
-		 (first c-arguments)
-		 key-args))))))
+	(with-defmfun-key-args key-args
+	  (let ((mandatory-arglist (subseq arglist 0 optpos))
+		(optional-arglist (subseq arglist (1+ optpos))))
+	    `(if ,(or (first switch) (first optional-arglist))
+		 ,(body-no-optional-arg 
+		   name
+		   (append mandatory-arglist optional-arglist)
+		   (second gsl-name)
+		   (second c-arguments)
+		   key-args)
+		 ,(body-no-optional-arg
+		   name
+		   (append mandatory-arglist
+			   (when switch
+			     (remove-if
+			      (lambda (arg)
+				(member (if (listp arg) (first arg) arg) switch))
+			      optional-arglist)))
+		   (first gsl-name)
+		   (first c-arguments)
+		   key-args)))))))
