@@ -34,10 +34,14 @@ Fail in CCL but not in SBCL:
 
 
 === GSL questions ===
+Sun Nov  9 2008:
 gsl_stats_float_wmean gives erroneous answers; other weighted?
 Query: What is _swap_rowcol supposed to do?  What is its purpose?
 gsl_blas_cdotu, gsl_blas_cdotc give nonsense results.
 Any explanation for any of the modified Givens rotations such as
 gsl_blas_drotmg? 
 gsl_blas_dger rank 1 update says lengths are bad?
-(from Sun Nov  9 2008)
+Sun Jan 11 2009:
+gsl_permutation_valid (presumably combination too) signals an error if
+the permutation is invalid, rather than just returning an error code.
+Is this intentional?

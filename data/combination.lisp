@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2008-12-31 21:10:06EST combination.lisp>
+;; Time-stamp: <2009-01-11 14:23:51EST combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -120,11 +120,11 @@
   "A pointer to the array of elements in the combination.")
 |#
 
-(defmfun data-valid ((combination combination))
+(defmfun validp ((combination combination))
   "gsl_combination_valid"
   (((mpointer combination) :pointer))
   :definition :method 
-  :c-return :boolean
+  :c-return :success-failure
   :documentation			; FDL
   "Check that the combination is valid.  The k
    elements should lie in the range 0 to n-1, with each
