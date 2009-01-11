@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2008-12-30 18:56:40EST bessel.lisp>
+;; Time-stamp: <2009-01-10 19:25:39EST bessel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,7 +25,9 @@
   :documentation			; FDL
   "The regular cylindrical Bessel function of order n, J_n(x).")
 
-(defmfun cylindrical-bessel-Jn-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Jn-array
+    (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_Jn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((c-pointer array) :pointer))
@@ -56,7 +58,9 @@
   :documentation			; FDL
   "The irregular cylindrical Bessel function of order n, Y_n(x).")
 
-(defmfun cylindrical-bessel-Yn-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Yn-array
+    (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_Yn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((c-pointer array) :pointer))
@@ -87,7 +91,9 @@
   :documentation			; FDL
   "The regular modified cylindrical Bessel function of order n, I_n(x).")
 
-(defmfun cylindrical-bessel-In-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-In-array
+    (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_In_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((c-pointer array) :pointer))
@@ -116,7 +122,9 @@
   "The scaled regular modified cylindrical Bessel function of order n,
   \exp(-|x|) I_n(x)}.")
 
-(defmfun cylindrical-bessel-In-scaled-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-In-scaled-array
+    (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_In_scaled_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((c-pointer array) :pointer))
@@ -149,7 +157,9 @@
   :documentation			; FDL
   "The irregular modified cylindrical Bessel function of order n, K_n(x).")
 
-(defmfun cylindrical-bessel-Kn-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Kn-array
+    (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_Kn_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((c-pointer array) :pointer))
@@ -178,7 +188,9 @@
   "The scaled irregular modified cylindrical Bessel function of order n,
   \exp(-|x|) K_n(x).")
 
-(defmfun cylindrical-bessel-Kn-scaled-array (x array &optional (nmin 0))
+(defmfun cylindrical-bessel-Kn-scaled-array
+    (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_Kn_scaled_array"
   ((nmin :int) ((+ nmin (dim0 array) -1) :int) (x :double)
    ((c-pointer array) :pointer))
@@ -219,7 +231,9 @@
   "The regular spherical Bessel function of order
    l, j_l(x), for l >= 0 and x >= 0.")
 
-(defmfun spherical-bessel-jl-array (x array)
+(defmfun spherical-bessel-jl-array
+    (x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_jl_array"
   (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
   :outputs (array)
@@ -229,7 +243,9 @@
   The values are computed using recurrence relations for
   efficiency, and therefore may differ slightly from the exact values.")
 
-(defmfun spherical-bessel-jl-steed-array (x array)
+(defmfun spherical-bessel-jl-steed-array
+    (x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_jl_steed_array"
   (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
   :outputs (array)
@@ -268,7 +284,9 @@
   :documentation			; FDL
   "The irregular spherical Bessel function of order l, y_l(x), for l >= 0.")
 
-(defmfun spherical-bessel-yl-array (x array)
+(defmfun spherical-bessel-yl-array
+    (x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_yl_array"
   (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
   :outputs (array)
@@ -306,7 +324,9 @@
   "The scaled regular modified spherical Bessel function of order l,
    \exp(-|x|) i_l(x).")
 
-(defmfun spherical-bessel-il-scaled-array (x array)
+(defmfun spherical-bessel-il-scaled-array
+    (x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_il_scaled_array"
   (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
   :outputs (array)
@@ -344,7 +364,9 @@
   "The scaled irregular modified spherical Bessel function of order l,
    \exp(x) k_l(x), for x>0.")
 
-(defmfun spherical-bessel-kl-scaled-array (x array)
+(defmfun spherical-bessel-kl-scaled-array
+    (x &optional (size-or-array *default-sf-array-size*)
+       &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_kl_scaled_array"
   (((1- (dim0 array)) :int) (x :double) ((c-pointer array) :pointer))
   :outputs (array)

@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2009-01-04 12:08:59EST foreign-friendly.lisp>
+;; Time-stamp: <2009-01-10 12:47:53EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -102,7 +102,7 @@
 	array)))
 
 ;;;;****************************************************************************
-;;;; Protect native pointers (supercedes "pointer management" below for native)
+;;;; Protect native pointers
 ;;;;****************************************************************************
 
 ;;; To be called by a defmfun expander
@@ -124,47 +124,6 @@
 ;;;;****************************************************************************
 ;;;; Pointer management
 ;;;;****************************************************************************
-
-#+native
-(defmacro with-pointer-to-array ((array pointer cffi-type length)
-				 &body body)
-  (assert (symbolp pointer))
-  (once-only (array cffi-type)
-    (with-unique-names (original-array index-offset)
-      `(multiple-value-bind (,original-array ,index-offset)
-	   (find-original-array ,array)
-	 (pin-to-pointer (,original-array ,pointer ,cffi-type
-					  ,length ,index-offset)
-	   ,@body)))))
-
-#-native
-(defmacro with-pointer-to-array ((array pointer cffi-type length)
-				 &body body)
-  (assert (symbolp pointer))
-  (once-only (array cffi-type)
-    (with-unique-names (original-array index-offset)
-      `(multiple-value-bind (,original-array ,index-offset)
-	   (find-original-array ,array)
-	 (cffi:with-foreign-object (,pointer ,cffi-type ,length)
-	   ,@body)))))
-
-#+(and native sbcl)
-(defmacro pin-to-pointer ((array pointer cffi-type length index-offset)
-			  &body body)
-  (declare (ignorable length))
-  "Use SBCL's sb-sys:with-pinned-objects and sb-sys:vector-sap for
-mapping an array to a memory location.  NOTE: checking that cffi-type
-matches the type of the array is the responsibility of the user of
-this macro.  The size of the array is checked.  The array is required
-to have rank one."
-  (once-only (array)
-    `(sb-sys:with-pinned-objects (,array)
-       ;;(assert (<= (+ ,index-offset ,length) (length ,array)))
-       (let ((,pointer
-	      (cffi:inc-pointer
-	       (sb-sys:vector-sap ,array)
-	       (* ,index-offset (cffi:foreign-type-size ,cffi-type)))))
-	 ,@body))))
 
 (defun find-original-array (array)
   "Find the original parent of a displaced array, return this and the

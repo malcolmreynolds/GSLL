@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-01-07 22:02:49EST defmfun.lisp>
+;; Time-stamp: <2009-01-10 20:29:54EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -57,6 +57,7 @@
 ;;; after      Forms to be evaluated after the foreign call.
 ;;; enumeration  The name of the enumeration return.
 ;;; gsl-version  The GSL version at which this function was introduced.
+;;; switch     Switch only the listed optional/key variables (default all of them)
 
 (defmacro defmfun (name arglist gsl-name c-arguments &rest key-args)
   "Definition of a GSL function."
@@ -73,21 +74,25 @@
      (definition :function)
      (export (not (member definition (list :method :methods))))
      documentation inputs outputs before after enumeration qualifier
-     gsl-version)
+     gsl-version switch)
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export documentation inputs outputs
       before after enumeration qualifier
-      gsl-version indexed-functions)
+      gsl-version switch indexed-functions)
      (special indexed-functions))
     ,@body))
 
-(defparameter *defmfun-llk* '(&optional &key) "Possible lambda-list keywords.")
+(defparameter *defmfun-llk* '(&optional &key &aux)
+  "Possible lambda-list keywords.")
+
+(defparameter *defmfun-optk* '(&optional &key)
+  "Possible optional-argument keywords.")
 
 (defun optional-args-to-switch-gsl-functions (arglist gsl-name)
   "The presence/absence of optional arguments will switch between the
    first and second listed GSL function names."
-  (and (intersection *defmfun-llk* arglist)
+  (and (intersection *defmfun-optk* arglist)
        (listp gsl-name)
        (or
 	(every 'stringp gsl-name)
@@ -175,7 +180,7 @@
   "Create the body of a defmfun with &optional in its arglist,
    where the presence or absence of the optional argument(s)
    selects one of two GSL functions."
-  (let ((optpos (position '&optional arglist)))
+  (let ((optpos (position-if (lambda (s) (member s *defmfun-optk*)) arglist)))
     (if optpos
 	(let ((mandatory-arglist (subseq arglist 0 optpos))
 	      (optional-arglist (subseq arglist (1+ optpos))))

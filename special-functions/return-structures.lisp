@@ -1,6 +1,6 @@
 ;; Structures returned by special functions.
 ;; Liam Healy, Mon Jan  1 2007 - 11:35
-;; Time-stamp: <2008-08-10 17:47:07EDT return-structures.lisp>
+;; Time-stamp: <2009-01-10 17:21:24EST return-structures.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,3 +39,15 @@
 (defun e10 (sf-result)
   (cffi:foreign-slot-value sf-result 'sf-result-e10 'e10))
 
+;;;;****************************************************************************
+;;;; Array construction
+;;;;****************************************************************************
+
+(defparameter *default-sf-array-size* 5
+  "The default size to make an array returned from a special function.")
+
+(defun vdf (size-or-array)
+  "Make or take a vector-double-float."
+  (if (integerp size-or-array)
+      (make-marray 'double-float :dimensions size-or-array)
+      size-or-array))
