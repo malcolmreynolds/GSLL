@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-01-11 10:07:06EST defmfun-single.lisp>
+;; Time-stamp: <2009-01-11 22:37:31EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -137,7 +137,10 @@
 	     (variables-used-in-c-arguments c-arguments)))
 	   (allocated-decl
 	    (mapcar
-	     (lambda (s) (find s c-arguments :key #'st-symbol))
+	     (lambda (s)
+	       (or (find s c-arguments :key #'st-symbol)
+		   ;; Catch programming errors, usually typos
+		   (error "Could not find ~a among the arguments" s)))
 	     allocated))
 	   (clret (or			; better as a symbol macro
 		   (substitute cret-name :c-return return)

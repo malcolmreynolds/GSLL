@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2008-12-29 22:33:11EST mobject.lisp>
+;; Time-stamp: <2009-01-11 22:13:07EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -11,6 +11,10 @@
 ;;; object.
 
 (in-package :gsl)
+
+;;;;****************************************************************************
+;;;; The class definition
+;;;;****************************************************************************
 
 (defclass mobject ()
   ((mpointer :initarg :mpointer :reader mpointer
@@ -117,21 +121,13 @@
       (list (intern (symbol-name symbol) :keyword)
 	    symbol)))
 
-;;; To make-load-form
-;;; (make-basis-spline (bspline-order bspline) (number-of-breakpoints bspline))
-;;; Then initialize by making a vector from (breakpoint i bspline)
-;;; and calling knots.
+;;;;****************************************************************************
+;;;; Generic functions
+;;;;****************************************************************************
 
 (defgeneric allocate (object &key &allow-other-keys)
   (:documentation
    "Use GSL to allocate memory.  Returns pointer but does not bind mpointer slot."))
-
-;;; Could be part of copy when the second argument is optional?
-(export 'clone)
-(defgeneric clone (object)
-  (:documentation "Create a duplicate object.")
-  (:method :around ((object mobject))
-	   (make-instance (class-of object) :mpointer (call-next-method))))
 
 (export 'name)
 (defgeneric name (object)
@@ -158,3 +154,55 @@
 (defmethod mpointer ((object #.+foreign-pointer-class+))
   (check-type object #.+foreign-pointer-type+)
   object)
+
+;;;;****************************************************************************
+;;;; Making objects from existing objects
+;;;;****************************************************************************
+
+(export 'copy)
+(defgeneric copy (object &optional destination)
+  (:documentation "Create a duplicate object.")
+  ;; This method is used for all GSL objects except arrays.
+  (:method ((object mobject) &optional destination)
+    (if destination
+	(copy-to-destination object destination)
+	(copy-making-destination object))))
+
+(defgeneric copy-to-destination (object destination)
+  ;; This copies values into an existing object.  Methods are defined
+  ;; for non-array GSL objects that have _memcpy functions defined.
+  ;; Defined for
+  ;; random-number-generator, quasi-random-number-generator,
+  ;; histogram, histogram2d, permutation, combination.
+  (:documentation "Copy contents into existing object."))
+
+(defgeneric copy-making-destination (object)
+  (:documentation "Create new duplicate object.")
+  (:method :around ((object mobject))
+    (if (next-method-p)
+	;; The subclass method should only return the malloced
+	;; mpointer (as from a "_clone" function); it will be put into
+	;; the CL object here.  The initial-instance method for these
+	;; objects must be written to do nothing if the mpointer is
+	;; already defined.
+	;; Defined for
+	;; histogram, histogram2d, 
+	;; random-number-generator, quasi-random-number-generator,
+	(make-instance (class-of object) :mpointer (call-next-method))
+	;; The subclass does not supply a method, so this will be called
+	;; by default.  We can only try to make something from the load form.
+	(eval (make-load-form object)))))
+
+;;; Could be part of copy when the second argument is optional?
+(export 'clone)
+(defgeneric clone (object)
+  (:documentation "Create a duplicate object.")
+  (:method :around ((object mobject))
+	   (make-instance (class-of object) :mpointer (call-next-method))))
+
+
+;;; To make-load-form
+;;; (make-basis-spline (bspline-order bspline) (number-of-breakpoints bspline))
+;;; Then initialize by making a vector from (breakpoint i bspline)
+;;; and calling knots.
+

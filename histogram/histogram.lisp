@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2008-12-26 12:31:18EST histogram.lisp>
+;; Time-stamp: <2009-01-11 22:40:23EST histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -65,44 +65,41 @@
   :definition :method
   :return (histogram))
 
-(defmfun copy ((destination histogram) (source histogram))
+(defmfun copy-to-destination ((source histogram) (destination histogram))
   "gsl_histogram_memcpy"
   (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :method
   :return (destination)
+  :index copy
   :documentation			; FDL
   "Copy the histogram source into the pre-existing
    histogram destination, making the latter into
    an exact copy of the former.
    The two histograms must be of the same size.")
 
-(defmfun copy ((destination histogram2d) (source histogram2d))
+(defmfun copy-to-destination ((source histogram2d) (destination histogram2d))
   "gsl_histogram2d_memcpy"
   (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :method
   :return (destination)
+  :index copy
   :documentation			; FDL
   "Copy the histogram source into the pre-existing
    histogram destination, making the latter into
    an exact copy of the former.
    The two histograms must be of the same size.")
 
-(defmfun clone ((source histogram))
+(defmfun copy-making-destination ((source histogram))
   "gsl_histogram_clone"
   (((mpointer source) :pointer))
   :definition :method
-  :c-return (mptr :pointer)
-  :return ((make-instance 'histogram :mpointer mptr))
-  :documentation			; FDL
-  "Create a new histogram which is an
-   exact copy of the histogram source, and return the pointer.")
+  :c-return :pointer
+  :index copy)
 
-(defmfun clone (source)
+(defmfun copy-making-destination ((source histogram2d))
   "gsl_histogram2d_clone"
   (((mpointer source) :pointer))
   :definition :method
-  :c-return (mptr :pointer)
-  :return ((make-instance 'histogram2d :mpointer mptr))
-  :documentation			; FDL
-  "Create a new histogram which is an
-   exact copy of the histogram source, and return the pointer.")
+  :c-return :pointer
+  :index copy)
+

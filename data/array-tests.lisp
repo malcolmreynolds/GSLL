@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2009-01-05 22:26:34EST array-tests.lisp>
+;; Time-stamp: <2009-01-11 22:19:58EST array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -38,16 +38,10 @@
    (cl-array m1)))
 
 (generate-all-array-tests vector-copy t
- (let ((v1 (array-default 3))
-       (v2 (array-default 3 t)))
-   (copy v2 v1)
-   (cl-array v2)))
+ (cl-array (copy (array-default 3))))
 
 (generate-all-array-tests matrix-copy t
- (let ((m1 (array-default '(3 3)))
-       (m2 (array-default '(3 3) t)))
-   (copy m2 m1)
-   (cl-array m2)))
+ (cl-array (copy (array-default '(3 3)))))
 
 (generate-all-array-tests vector-swap t
  (let ((v1 (array-default 3))

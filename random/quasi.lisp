@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2008-12-27 11:10:20EST quasi.lisp>
+;; Time-stamp: <2009-01-11 23:02:11EST quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -47,24 +47,23 @@
   :export nil
   :index gsl-random-state)
 
-(defmfun copy
-    ((destination quasi-random-number-generator)
-     (source quasi-random-number-generator))
+(defmfun copy-to-destination
+    ((source quasi-random-number-generator)
+     (destination quasi-random-number-generator))
   "gsl_qrng_memcpy"
   (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :method
+  :index copy
   :documentation			; FDL
   "Copy the quasi-random sequence generator src into the
    pre-existing generator dest, making dest into an exact copy
    of src.  The two generators must be of the same type.")
 
-(defmfun clone ((instance quasi-random-number-generator))
+(defmfun copy-making-destination ((instance quasi-random-number-generator))
   "gsl_qrng_clone" (((mpointer instance) :pointer))
   :definition :method
-  :c-return (mptr :pointer)
-  :return ((make-instance 'quasi-random-number-generator :mpointer mptr))
-  :documentation			; FDL
-  "Create a new generator which is an exact copy of the original.")
+  :c-return :pointer
+  :index copy)
 
 (def-rng-type *niederreiter2*
     ;; FDL

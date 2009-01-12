@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2009-01-11 14:18:42EST permutation.lisp>
+;; Time-stamp: <2009-01-11 21:18:15EST permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -63,7 +63,7 @@
   "Initialize the permutation p to the identity, i.e.
    (0,1,2,...,n-1).")
 
-(defmfun copy ((destination permutation) (source permutation))
+(defmfun copy-to-destination ((source permutation) (destination permutation))
   "gsl_permutation_memcpy"
   (((mpointer destination) :pointer)
    ((mpointer source) :pointer))
@@ -71,6 +71,7 @@
   :inputs (source)
   :outputs (destination)
   :return (destination)
+  :index copy
   :documentation			; FDL
   "Copy the elements of the permutation source into the
    permutation destination.  The two permutations must have the same size.")

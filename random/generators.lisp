@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2008-12-26 18:17:35EST generators.lisp>
+;; Time-stamp: <2009-01-11 23:01:36EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -150,22 +150,23 @@
 ;;;; Copying state
 ;;;;****************************************************************************
 
-(defmfun copy
-    ((destination random-number-generator) (source random-number-generator))
+(defmfun copy-to-destination
+    ((source random-number-generator) (destination random-number-generator))
   "gsl_rng_memcpy"
   (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :method
+  :index copy
   :documentation			; FDL
   "Copy the random number generator source into the
    pre-existing generator destination,
    making destination into an exact copy
    of source.  The two generators must be of the same type.")
 
-(defmfun clone ((instance random-number-generator))
+(defmfun copy-making-destination ((instance random-number-generator))
   "gsl_rng_clone" (((mpointer instance) :pointer))
   :definition :method
-  :c-return (mptr :pointer)
-  :return ((make-instance 'random-number-generator :mpointer mptr)))
+  :c-return :pointer
+  :index copy)
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
