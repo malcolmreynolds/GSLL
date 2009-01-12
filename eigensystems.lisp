@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2009-01-11 10:35:06EST eigensystems.lisp>
+;; Time-stamp: <2009-01-12 10:22:00EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -210,7 +210,7 @@
      (eigenvectors
       (make-marray  '(complex double-float) :dimensions (dimensions A)))
      (ws (make-eigen-nonsymmv (dim0 A)))
-     compute-shur-form balance shur-vectors
+     shur-vectors
      &aux
      (sv
       (if (eql shur-vectors t)
@@ -223,15 +223,11 @@
    (((mpointer A) :pointer)
     ((mpointer eigenvalues) :pointer) ((mpointer eigenvectors) :pointer)
     ((mpointer ws) :pointer) ((mpointer sv) :pointer)))
-  :before		      ; this applies for evec-eval too, right?
-  ((set-parameters-nonsymmetric ws compute-shur-form balance))
   :gsl-version (1 9)
   :switch (shur-vectors)
   :inputs (A)
   :outputs (A eigenvalues eigenvectors)
-  :return
-  (eigenvalues
-   (cffi:foreign-slot-value (mpointer ws) 'gsl-nonsymm-ws 'n-evals))
+  :return (eigenvalues eigenvectors)
   :documentation			; FDL
   "Compute eigenvalues and right eigenvectors of the n-by-n real
   nonsymmetric matrix A. It first calls #'eigenvalues-nonsymm to
@@ -242,34 +238,7 @@
   t to have it automatically made.  The computed eigenvectors are
   normalized to have unit magnitude. On output, the upper portion of A
   contains the Schur form T.  If #'eigenvalues-nonsymm fails, no
-  eigenvectors are computed, and an error code is returned.
-
-  If compute-shur-form is true, the full Schur form T will be computed.
-  If it is set to nil, T will not be computed (this is
-  the default setting). Computing the full Schur form requires
-  approximately 1.5-2 times the number of flops.
-
-  If balance is true, a balancing transformation is applied to the
-  matrix prior to computing eigenvalues. This transformation is
-  designed to make the rows and columns of the matrix have comparable
-  norms, and can result in more accurate eigenvalues for matrices
-  whose entries vary widely in magnitude. See Balancing for more
-  information. Note that the balancing transformation does not
-  preserve the orthogonality of the Schur vectors, so if you wish to
-  compute the Schur vectors with you will obtain the Schur vectors of
-  the balanced matrix instead of the original matrix. The relationship
-  will be
-
-          T = Q^t D^(-1) A D Q
-
-  where Q is the matrix of Schur vectors for the balanced matrix, and D
-  is the balancing transformation. Then this function will compute
-  a matrix Z which satisfies
-
-          T = Z^(-1) A Z
-
-  with Z = D Q. Note that Z will not be orthogonal. For this reason,
-  balancing is not performed by default.")
+  eigenvectors are computed, and an error code is returned.")
 
 ;;;;****************************************************************************
 ;;;; Sorting Eigenvalues and Eigenvectors

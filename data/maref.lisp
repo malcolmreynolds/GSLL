@@ -1,6 +1,6 @@
 ;; Get/set array or elements: cl-array, maref
 ;; Liam Healy 2008-08-27 22:43:10EDT maref.lisp
-;; Time-stamp: <2008-12-28 18:09:19EST maref.lisp>
+;; Time-stamp: <2009-01-12 09:43:16EST maref.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -89,7 +89,7 @@
 ;;; callback functions in solve-minimize-fit and in #'cl-array method
 ;;; for pointers.
 
-(eval-when (:compile-toplevel :load-toplevel)
+(eval-when (:compile-toplevel)
 (defun maref-function-picker (type-symbol category ffrestargs &optional value-symbol)
   "Generate sexp to select on the various gsl_{vector,matrix}*_{get,set} functions."
   (cons 'cond
