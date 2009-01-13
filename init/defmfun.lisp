@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-01-10 21:47:36EST defmfun.lisp>
+;; Time-stamp: <2009-01-12 21:50:07EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -79,7 +79,7 @@
     (declare (ignorable c-return return definition element-types
       index export documentation inputs outputs
       before after enumeration qualifier
-      gsl-version switch indexed-functions)
+      gsl-version switch)
      (special indexed-functions))
     ,@body))
 

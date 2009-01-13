@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2008-12-26 19:51:20EST simulated-annealing.lisp>
+;; Time-stamp: <2009-01-12 22:48:38EST simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -69,7 +69,7 @@
    ;;((cffi:get-callback copy-function) :pointer)
    ;;((cffi:get-callback copy-constructor) :pointer)
    ;;((cffi:get-callback destructor) :pointer)
-   (element-size size) (parameters simulated-annealing-parameters))
+   (element-size sizet) (parameters simulated-annealing-parameters))
   :c-return :void
   :documentation			; FDL
   "Perform a simulated annealing search through a given
@@ -110,7 +110,7 @@
 
 (defmacro def-step-function (name)
   "Define a step fuction for simulated annealing."
-  (let ((mpointer (gensym "GEN"))
+  (let ((generator (gensym "GEN"))
 	(arguments (gensym "ARGS"))
 	(step-size (gensym "SS")))
     `(cffi:defcallback ,name :void
@@ -181,7 +181,7 @@
       (with-simulated-annealing-parameters
 	  (params 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6)
 	(simulated-annealing
-	 (make-random-number-generator) initial
+	 (make-random-number-generator *mt19937* 0) initial
 	 'E2 'S2 'M2 'P2
 	 (cffi:foreign-type-size :double)
 	 params)))))
