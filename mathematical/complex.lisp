@@ -1,6 +1,6 @@
 ;; Functions of complex numbers
 ;; Liam Healy 2009-01-13 21:19:38EST complex.lisp
-;; Time-stamp: <2009-01-13 21:57:29EST complex.lisp>
+;; Time-stamp: <2009-01-15 14:14:07EST complex.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -22,17 +22,17 @@
   :c-return :double
   :documentation "The magnitude, or modulus of the complex number.")
 
-(defmfun abs2 (number)
+(defmfun modulus2 (number)
   "gsl_complex_abs2"
   ((number complex-double-c))
   :c-return :double
   :documentation "The magnitude squared of the complex number.")
 
-(defmfun logabs2 (number)
-  "gsl_complex_logabs2"
+(defmfun log-modulus (number)
+  "gsl_complex_logabs"
   ((number complex-double-c))
   :c-return :double
-  :documentation "The magnitude squared of the complex number.")
+  :documentation "The logarithm of the magnitude of the complex number.")
 
 ;;;;****************************************************************************
 ;;; Complex arithmetic

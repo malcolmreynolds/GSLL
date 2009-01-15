@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-14 22:12:10EST gsll.asd>
+;; Time-stamp: <2009-01-15 14:12:18EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -32,8 +32,11 @@
 	    :components
 	    ((:file "ieee-modes")
 	     (:file "floating-point")))
-   (:file "mathematical" :depends-on (init))
-   ;; complex numbers not necessary?  Just make a struct.
+   (:module mathematical
+	    :depends-on (init)
+	    :components
+	    ((:file "mathematical")
+	     (:file "complex")))
    (:module data
 	    :depends-on (init)
 	    :components
