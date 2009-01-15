@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-07 22:09:19EST gsll.asd>
+;; Time-stamp: <2009-01-14 22:12:10EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -17,7 +17,8 @@
 	     (:file "conditions" :depends-on (init))
 	     (:file "mobject" :depends-on (init))
 	     (:file "types" :depends-on (init))
-	     (:file "element-types" :depends-on (init types))
+	     (:file "complex-types" :depends-on (types))
+	     (:file "element-types" :depends-on (init complex-types))
 	     (:file "number-conversion" :depends-on (init))
 	     (:file "interface"
 		    :depends-on (init conditions element-types number-conversion))
@@ -29,7 +30,8 @@
    (:module floating-point
 	    :depends-on (init)
 	    :components
-	    ((:file "ieee-modes")))
+	    ((:file "ieee-modes")
+	     (:file "floating-point")))
    (:file "mathematical" :depends-on (init))
    ;; complex numbers not necessary?  Just make a struct.
    (:module data

@@ -1,6 +1,6 @@
 ;; Comparison of floating point numbers using sequence integers
 ;; Liam Healy 2008-01-22 19:00:17EST floating-point.lisp
-;; Time-stamp: <2008-04-04 11:35:20EDT floating-point.lisp>
+;; Time-stamp: <2009-01-14 21:33:50EST floating-point.lisp>
 ;; $Id$
 
 ;;; All floats can be represented by integers.  There are two slightly
@@ -76,7 +76,9 @@
     (declare (ignore expbits))
     (when (eq ieee754 t) (setf ieee754 (type-of float)))
     (if ieee754
-	(* (dpb 1 (ieee754-sign-bit ieee754) (+ (ash exp sigbits) mant)))
+	(dpb (if (minusp sign) 1 0)
+	     (ieee754-sign-bit ieee754)
+	     (+ (ash exp sigbits) mant))
 	(* sign (+ (ash exp sigbits) mant)))))
 
 ;; (float-as-integer most-negative-single-float)

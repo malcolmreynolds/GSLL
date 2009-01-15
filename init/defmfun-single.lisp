@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-01-11 22:37:31EST defmfun-single.lisp>
+;; Time-stamp: <2009-01-14 22:03:12EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -148,52 +148,50 @@
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
-      (wrap-letlike
-       (or allocated-decl complex-args)
-       (mapcar #'wfo-declare
-	       (append allocated-decl 
-		       (mapcar #'rest complex-args)))
-       'cffi:with-foreign-objects
-       `(#-native
-	 ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
-	 ,@before
-	 (let ((,cret-name
-		(cffi:foreign-funcall
-		 ,gsl-name
-		 ,@(mapcan
-		    (lambda (arg)
-		      (let ((cfind	; variable is complex
-			     (first (member (st-symbol arg)
-					    complex-args :key 'first))))
-			(if cfind ; so substitute call to complex-to-gsl
-			    `(,(third cfind)
-			       (complex-to-gsl ,(first cfind) ,(second cfind)))
-			    ;; otherwise use without conversion
-			    (list (if (member (st-symbol arg) allocated)
-				      :pointer
-				      (st-type arg))
-				  (st-symbol arg)))))
-		    c-arguments)
-		 ,cret-type)))
-	   ,@(case c-return
-		   (:void `((declare (ignore ,cret-name))))
-		   (:error-code		; fill in arguments
-		    `((check-gsl-status ,cret-name
-					',(or (defgeneric-method-p name) name)))))
-	   #-native
-	   ,@(when outputs
-		   (mapcar
-		    (lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
-		    outputs))
-	   ,@(when (eq cret-type :pointer)
-		   `((check-null-pointer
-		      ,cret-name
-		      ,@'('memory-allocation-failure "No memory allocated."))))
-	   ,@after
-	   (values
-	    ,@(defmfun-return
-	       c-return cret-name clret allocated return return-supplied-p
-	       enumeration outputs))))))))
+      (if (and complex-args (not *pass-complex-scalar-as-two-reals*))
+	  '(error 'pass-complex-by-value) ; arglist should be declared ignore
+	  (wrap-letlike
+	   allocated-decl
+	   (mapcar #'wfo-declare allocated-decl)
+	   'cffi:with-foreign-objects
+	   `(#-native
+	     ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
+	     ,@before
+	     (let ((,cret-name
+		    (cffi:foreign-funcall
+		     ,gsl-name
+		     ,@(mapcan
+			(lambda (arg)
+			  (let ((cfind	; variable is complex
+				 (find (st-symbol arg) complex-args :key 'first)))
+			    (if cfind	; make two successive scalars
+				(passing-complex-by-value cfind)
+				;; otherwise use without conversion
+				(list (if (member (st-symbol arg) allocated)
+					  :pointer
+					  (st-type arg))
+				      (st-symbol arg)))))
+			c-arguments)
+		     ,cret-type)))
+	       ,@(case c-return
+		       (:void `((declare (ignore ,cret-name))))
+		       (:error-code	; fill in arguments
+			`((check-gsl-status ,cret-name
+					    ',(or (defgeneric-method-p name) name)))))
+	       #-native
+	       ,@(when outputs
+		       (mapcar
+			(lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
+			outputs))
+	       ,@(when (eq cret-type :pointer)
+		       `((check-null-pointer
+			  ,cret-name
+			  ,@'('memory-allocation-failure "No memory allocated."))))
+	       ,@after
+	       (values
+		,@(defmfun-return
+		   c-return cret-name clret allocated return return-supplied-p
+		   enumeration outputs)))))))))
 
 (defun defmfun-return
     (c-return cret-name clret allocated return return-supplied-p enumeration outputs)

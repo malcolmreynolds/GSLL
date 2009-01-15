@@ -1,6 +1,6 @@
 ;; Conversion of numbers C->CL
 ;; Liam Healy, Sun May 28 2006 - 22:04
-;; Time-stamp: <2008-07-06 16:33:06EDT number-conversion.lisp>
+;; Time-stamp: <2009-01-13 21:40:26EST number-conversion.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,7 +23,7 @@
 ;;;; Complex numbers
 ;;;;****************************************************************************
 
-;;; GSL complex struct is defined in init/element-types.lisp.
+;;; GSL complex struct is defined in init/complex-types.lisp.
 (defun complex-to-cl
     (gsl-complex &optional (index 0) (complex-type 'complex-double-c))
   "Make a CL complex number from the GSL pointer to a complex struct or

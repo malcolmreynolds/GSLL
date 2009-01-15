@@ -62,32 +62,41 @@
                                                -13.49d0)))
                                (SCALAR 32.5d0))
                            (CL-ARRAY (SCALE SCALAR V1)))))
-                       (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
-                                               (LET ((V1
-                                                      (MAKE-MARRAY
-                                                       '(COMPLEX SINGLE-FLOAT)
-                                                       :INITIAL-CONTENTS
-                                                       '(-34.5 8.24 3.29 -8.93
-                                                         34.12 -6.15 49.27
-                                                         -13.49 32.5 42.73
-                                                         -17.24 43.31 -16.12
-                                                         -8.25 21.44 -49.08)))
-                                                     (SCALAR #C(32.5 42.73)))
-                                                 (CL-ARRAY (SCALE SCALAR V1))))
-                       (LISP-UNIT:ASSERT-ERROR 'SIMPLE-ERROR
-                                               (LET ((V1
-                                                      (MAKE-MARRAY
-                                                       '(COMPLEX DOUBLE-FLOAT)
-                                                       :INITIAL-CONTENTS
-                                                       '(-34.5d0 8.24d0 3.29d0
-                                                         -8.93d0 34.12d0
-                                                         -6.15d0 49.27d0
-                                                         -13.49d0 32.5d0
-                                                         42.73d0 -17.24d0
-                                                         43.31d0 -16.12d0
-                                                         -8.25d0 21.44d0
-                                                         -49.08d0)))
-                                                     (SCALAR
-                                                      #C(32.5d0 42.73d0)))
-                                                 (CL-ARRAY (SCALE SCALAR V1)))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+                        (LIST
+                         #(#C(-1473.3452 -1206.385) #C(488.5039 -149.64331)
+                           #C(1371.6895 1258.0725) #C(2177.7026 1666.8821)
+                           #C(-769.6029 2777.45) #C(-2410.9363 670.9099)
+                           #C(-171.37753 -956.9326) #C(2793.9885 -678.9689)))
+                        (MULTIPLE-VALUE-LIST
+                         (LET ((V1
+                                (MAKE-MARRAY '(COMPLEX SINGLE-FLOAT)
+                                             :INITIAL-CONTENTS
+                                             '(-34.5 8.24 3.29 -8.93 34.12
+                                               -6.15 49.27 -13.49 32.5 42.73
+                                               -17.24 43.31 -16.12 -8.25 21.44
+                                               -49.08)))
+                               (SCALAR #C(32.5 42.73)))
+                           (CL-ARRAY (SCALE SCALAR V1)))))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+                        (LIST
+                         #(#C(-1473.3452d0 -1206.385d0)
+                           #C(488.5039d0 -149.64329999999998d0)
+                           #C(1371.6895d0 1258.0725999999997d0)
+                           #C(2177.7027d0 1666.8821d0)
+                           #C(-769.6028999999996d0 2777.45d0)
+                           #C(-2410.9363d0 670.9098000000001d0)
+                           #C(-171.3775d0 -956.9326d0)
+                           #C(2793.9883999999997d0 -678.9687999999999d0)))
+                        (MULTIPLE-VALUE-LIST
+                         (LET ((V1
+                                (MAKE-MARRAY '(COMPLEX DOUBLE-FLOAT)
+                                             :INITIAL-CONTENTS
+                                             '(-34.5d0 8.24d0 3.29d0 -8.93d0
+                                               34.12d0 -6.15d0 49.27d0 -13.49d0
+                                               32.5d0 42.73d0 -17.24d0 43.31d0
+                                               -16.12d0 -8.25d0 21.44d0
+                                               -49.08d0)))
+                               (SCALAR #C(32.5d0 42.73d0)))
+                           (CL-ARRAY (SCALE SCALAR V1))))))
 
