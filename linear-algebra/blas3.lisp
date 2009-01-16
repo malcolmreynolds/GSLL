@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-12-29 21:57:02EST blas3.lisp>
+;; Time-stamp: <2009-01-15 21:49:10EST blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,8 +20,10 @@
 ;;;;****************************************************************************
 
 (defmfun matrix-product
-    ((A matrix) (B matrix) (C matrix)
-     &optional (alpha 1) (beta 1) (TransA :notrans) (TransB :notrans))
+    ((A matrix) (B matrix)
+     &optional
+     (C (make-marray element-type :dimensions (matrix-product-dimensions A B)))
+     (alpha 1) (beta 1) (TransA :notrans) (TransB :notrans))
   ("gsl_blas_" :type "gemm")
   ((TransA cblas-transpose) (TransB cblas-transpose)
    (alpha :element-c-type) ((mpointer A) :pointer)
@@ -32,8 +34,10 @@
   :outputs (C))
 
 (defmfun matrix-product-symmetric
-    ((A matrix) (B matrix) (C matrix)
-     &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
+    ((A matrix) (B matrix)
+     &optional
+     (C (make-marray element-type :dimensions (matrix-product-dimensions A B)))
+     (alpha 1) (beta 1) (uplo :upper) (side :left))
   ("gsl_blas_" :type "symm")
   ((side cblas-side) (uplo cblas-uplo) (alpha :element-c-type)
    ((mpointer A) :pointer) ((mpointer B) :pointer)
@@ -44,8 +48,10 @@
   :outputs (C))
 
 (defmfun matrix-product-hermitian
-    ((A matrix) (B matrix) (C matrix)
-     &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
+    ((A matrix) (B matrix)
+     &optional
+     (C (make-marray element-type :dimensions (matrix-product-dimensions A B)))
+     (alpha 1) (beta 1) (uplo :upper) (side :left))
   ;; This always signals an error because you can't pass a
   ;; struct in CFFI yet.
   ("gsl_blas_" :type "hemm")

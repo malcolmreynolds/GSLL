@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2008-12-29 22:14:14EST blas2.lisp>
+;; Time-stamp: <2009-01-15 21:45:11EST blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -27,10 +27,18 @@
 ;;;; Functions
 ;;;;****************************************************************************
 
+(defun matrix-product-dimensions (a b)
+  (if (typep b 'matrix)
+      (list (first (dimensions a))
+	    (second (dimensions a)))
+      (first (dimensions a))))
+
 ;;; To do: the y should be an optional argument, default to a zero vector.
 (defmfun matrix-product
-    ((A matrix) (x vector) (y vector)
-     &optional (alpha 1) (beta 1) (TransA :notrans) TransB)
+    ((A matrix) (x vector)
+     &optional
+     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (alpha 1) (beta 1) (TransA :notrans) TransB)
   ("gsl_blas_" :type "gemv")
   ((transa cblas-transpose) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
@@ -113,8 +121,10 @@
    matrix A are taken as unity and are not referenced.")
 
 (defmfun matrix-product-symmetric
-    ((A matrix) (x vector) (y vector)
-     &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
+    ((A matrix) (x vector)
+     &optional
+     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (alpha 1) (beta 1) (uplo :upper) (side :left))
   ("gsl_blas_" :type "symv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
@@ -139,8 +149,10 @@
   and diagonal of A are used.")
 
 (defmfun matrix-product-hermitian
-    ((A matrix) (x vector) (y vector)
-     &optional (alpha 1) (beta 1) (uplo :upper) (side :left))
+    ((A matrix) (x vector)
+     &optional
+     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (alpha 1) (beta 1) (uplo :upper) (side :left))
   ;; This always signals an error because you can't pass a
   ;; struct in CFFI yet.
   ("gsl_blas_" :type "hemv")

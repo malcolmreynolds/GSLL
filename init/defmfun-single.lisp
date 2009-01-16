@@ -1,13 +1,9 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-01-14 22:03:12EST defmfun-single.lisp>
+;; Time-stamp: <2009-01-15 22:27:56EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
-
-;;;;****************************************************************************
-;;;; A single function
-;;;;****************************************************************************
 
 (defun defgeneric-method-p (name)
   "When defining :method in a defgeneric, (nil foo) is used for
@@ -56,6 +52,23 @@
       ;; http://www.sbcl.org/manual/Calling-Lisp-From-C.html
       (native-pointer-protect array-symbols body)
       body))
+
+(define-condition obsolete-gsl-version (error)
+  ((name :initarg :name :reader name)
+   (gsl-name :initarg :gsl-name :reader gsl-name)
+   (gsl-version :initarg :gsl-version :reader gsl-version))
+  (:report
+   (lambda (condition stream)
+     (apply 'format stream
+	    "Function ~a (~a) is not available in the ~
+               ~%currently loaded releases ~a of GSL; it was introduced in release ~d.~d."
+	    (name condition)
+	    (gsl-name condition)
+	    *gsl-version*
+	    (gsl-version condition))))
+  (:documentation
+   "An error indicating that the currently loaded version of the GSL libary
+    does not have the function defined."))
 
 (defun complete-definition
     (definition name arglist gsl-name c-arguments key-args
@@ -107,12 +120,8 @@
 	     ,@(when qualifier (list qualifier))
 	   (&rest args)
 	   (declare (ignore args))
-	   (error
-	    ,(apply 'format
-		    nil
-		    "Function ~a (~a) is not available in your current version ~
-               ~a of GSL; it was introduced in version ~d.~d."
-		    name gsl-name *gsl-version* gsl-version))))))
+	   (error 'obsolete-gsl-version
+		  :name ',name :gsl-name ,gsl-name :gsl-version ',gsl-version)))))
 
 (defun wrap-letlike (when binding wrapping body)
   (if when

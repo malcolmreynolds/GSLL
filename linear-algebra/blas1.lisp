@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2008-12-26 16:30:16EST blas1.lisp>
+;; Time-stamp: <2009-01-15 21:28:41EST blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -92,7 +92,10 @@
   :documentation			; FDL
   "Copy the elements of the vector x into the vector y.")
 
-(defmfun axpy (alpha (x vector) (y vector))
+(defmfun axpy
+    (alpha (x vector)
+	   &optional
+	   (y (make-marray element-type :dimensions (dimensions x))))
   ;; This gets an error for complex types because you can't pass a
   ;; struct in CFFI yet.
   ("gsl_blas_" :type "axpy")
