@@ -112,7 +112,6 @@ combination for which the following are supported:</p>
 version 0.10.0 or newer; callbacks and <code>foreign-funcall</code> must be supported
 </li>
 <li><a href="http://www.cliki.net/trivial-garbage">trivial-garbage</a>
-<li><a href="http://common-lisp.net/project/cl-utilities/">cl-utilities</a>
 </li>
 
 <li><a href="http://www.cliki.net/asdf">ASDF</a></li></ul>
@@ -151,11 +150,10 @@ Then in Lisp, load the system:
   <ul>
     <li><code>gsll get_git git://repo.or.cz/gsll.git</code></li>
     <li><code>trivial-garbage get_darcs http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
-    <li><code>cl-utilities get_cvs_clnet</code></li>
   </ul>
 <p>and add
   <ul>
-    <li><code>gsll cffi trivial-garbage cl-utilities</code></li>
+    <li><code>gsll cffi trivial-garbage</code></li>
   </ul>
 <p>
 to <code>dependencies</code> and execute
@@ -165,7 +163,7 @@ from within the clbuild directory:
   </ul>
  <h3>With Debian or Ubuntu</h3>
   <ul>
-    <li><code>sudo aptitude install libgsl0-dev cl-cffi cl-utilities</code></li>
+    <li><code>sudo aptitude install libgsl0-dev cl-cffi</code></li>
     <li><code>git clone git://repo.or.cz/gsll.git</code></li>
     <li><code>darcs get http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
     <li><code>clc-register-user-package trivial-garbage/trivial-garbage.asd</code></li>
@@ -232,7 +230,7 @@ T
  examples also serve as a regression (unit) test suite for GSLL.</li>
  </ul>
  <p>
-   Some examples are not yet present, or are too complicated for, the
+   Some examples are not yet present in, or are too complicated for, the
  function <code>#'examples</code>.  In this case, you need to look in
  the relevant source file; they are in either a separate file of
  examples, or at the end of the file of definitions.
@@ -359,7 +357,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-01-09 13:37:15EST index.html>
+Time-stamp: <2009-01-16 09:22:35EST index.html>
 </small>
 <!-- hhmts end -->
  </div>

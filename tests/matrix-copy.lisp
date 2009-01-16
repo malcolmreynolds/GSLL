@@ -108,6 +108,7 @@
                            (MAKE-MARRAY '(UNSIGNED-BYTE 32) :INITIAL-CONTENTS
                                         '((67 44 189) (116 163 140)
                                           (161 215 98)))))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((-64 -68 71) (-91 52 -10) (73 -5 123)))
                         (MULTIPLE-VALUE-LIST
@@ -116,6 +117,7 @@
                            (MAKE-MARRAY '(SIGNED-BYTE 64) :INITIAL-CONTENTS
                                         '((-64 -68 71) (-91 52 -10)
                                           (73 -5 123)))))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #2A((67 44 189) (116 163 140) (161 215 98)))
                         (MULTIPLE-VALUE-LIST

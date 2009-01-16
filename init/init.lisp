@@ -1,11 +1,11 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2009-01-15 22:10:30EST init.lisp>
+;; Time-stamp: <2009-01-16 11:06:20EST init.lisp>
 ;; $Id$
 
 (defpackage gsll
   (:nicknames :gsl)
-  (:use :common-lisp :cffi :cl-utilities))
+  (:use :common-lisp :cffi))
 
 (cffi:define-foreign-library libgslcblas
     (:darwin

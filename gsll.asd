@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-15 21:18:57EST gsll.asd>
+;; Time-stamp: <2009-01-16 11:13:17EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -9,7 +9,7 @@
     :version "0"
     :author "Liam M. Healy"
     :licence "LLGPL v3, FDL"
-    :depends-on (cffi trivial-garbage cl-utilities)
+    :depends-on (cffi trivial-garbage)
     :components
     ((:module init
 	      :components
@@ -24,7 +24,7 @@
 		      :depends-on (init conditions element-types number-conversion))
 	       (:file "defmfun" :depends-on (init element-types interface))
 	       (:file "defmfun-array" :depends-on (defmfun))
-	       (:file "defmfun-single" :depends-on (defmfun))
+	       (:file "defmfun-single" :depends-on (defmfun mobject))
 	       (:file "callback" :depends-on (init))
 	       (:file "generate-examples" :depends-on (init))))
      (:module floating-point

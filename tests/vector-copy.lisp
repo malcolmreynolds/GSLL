@@ -91,6 +91,7 @@
                                                                 32)
                                                               :INITIAL-CONTENTS
                                                               '(67 44 189))))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(-64 -68 71))
                                                           (MULTIPLE-VALUE-LIST
                                                            (CL-ARRAY
@@ -100,6 +101,7 @@
                                                               :INITIAL-CONTENTS
                                                               '(-64 -68
                                                                 71))))))
+		       #+int64
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST #(67 44 189))
                                                           (MULTIPLE-VALUE-LIST
                                                            (CL-ARRAY
