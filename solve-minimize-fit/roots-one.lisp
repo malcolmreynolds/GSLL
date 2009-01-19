@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-03 13:08:27EST roots-one.lisp>
+;; Time-stamp: <2009-01-19 16:31:35EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,24 +23,35 @@
 
 (export 'def-solver-functions)
 
-(defmacro def-solver-functions (function df fdf &optional dimensions)
+(defmacro def-solver-functions (function df fdf &optional dimensions array)
   "Setup functions for solvers.
    The CL functions name and derivative should be defined previously
-   with defuns.  If dimensions is non-nil, set multiroot solver
-   functions."
+   with defuns.  If dimensions is non-nil (positive fixnum), set multiroot solver
+   functions.  If dimensions is a number, the functions should expect
+   dimensions scalar (double-float) arguments and return "
   (let ((struct (if dimensions 'gsl-mfunction-fdf 'gsl-function-fdf))
-	(argtype (if dimensions :pointer :double))
-	(rettype (if dimensions :success-failure :double)))
+	(argtype (if dimensions (if array :pointer `((:double ,dimensions))) :double))
+	(rettype (if dimensions :success-failure :double))
+	(vecrettype (if array '(:pointer) `((:set :double ,dimensions))))
+	(matrettype
+	 (if array '(:pointer) `((:set :double ,dimensions ,dimensions)))))
     `(progn
-      (defmcallback ,function ,rettype ,argtype
-		    ,(when dimensions '(:pointer)))
-      (defmcallback ,df ,rettype ,argtype
-		    ,(when dimensions '(:pointer)))
-      (defmcallback
-	  ,fdf ,(if dimensions :success-failure :pointer)
-	,argtype (:pointer :pointer))
-      (defcbstruct (,function function ,df df ,fdf fdf) ,struct
-	,(when dimensions `((dimensions ,dimensions)))))))
+       (defmcallback
+	   ,function ,rettype ,argtype ,(when dimensions vecrettype) ,dimensions)
+       (defmcallback
+	   ,df ,rettype ,argtype
+	   ,(when dimensions matrettype)
+	   ,dimensions)
+       (defmcallback
+	   ,fdf
+	   ,(if dimensions :success-failure :void)
+	 ,argtype
+	 ,(if dimensions 
+	      (append vecrettype matrettype)
+	      '((:set :double 1) (:set :double 1)))
+	 ,dimensions)
+       (defcbstruct (,function function ,df df ,fdf fdf) ,struct
+	 ,(when dimensions `((dimensions ,dimensions)))))))
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -313,10 +324,9 @@
     (+ (* (+ (* a x) b) x) c))
   (defun quadratic-derivative (x)
     (+ (* 2 a x) b))
-  (defun quadratic-and-derivative (x cy cdy)
-    (with-c-doubles ((cy y) (cdy dy))
-      (setf y (+ (* (+ (* a x) b) x) c)
-	    dy (+ (* 2 a x) b)))))
+  (defun quadratic-and-derivative (x)
+    (values (+ (* (+ (* a x) b) x) c)
+	    (+ (* 2 a x) b))))
 
 (def-single-function quadratic)
 
@@ -348,19 +358,23 @@
 (def-solver-functions
     quadratic-df quadratic-derivative quadratic-and-derivative)
 
-(defun roots-one-fdf-example ()
+(defun roots-one-fdf-example (&optional (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let* ((max-iter 100)
 	 (initial 5.0d0)
 	 (solver (make-one-dimensional-root-solver-fdf
 		  *newton-fdfsolver* quadratic-df initial)))
-    (format t "~&iter ~6t ~8troot ~22terr ~34terr(est)")
+    (when print-steps
+      (format t "iter ~6t ~8troot ~22terr ~34terr(est)~&"))
     (loop for iter from 0
        for oldroot = initial then root
        for root = (progn (iterate solver) (solution solver))
        while (and (< iter max-iter)
 		  (not (root-test-delta root oldroot 0.0d0 1.0d-5)))
        do
-       (format t "~&~d~6t~10,8g ~18t~10,6g~34t~10,6g"
-	       iter root (- root (sqrt 5.0d0)) (- root oldroot)))))
+       (when print-steps
+	 (format t "~d~6t~10,8g ~18t~10,6g~34t~10,6g~&"
+		 iter root (- root (sqrt 5.0d0)) (- root oldroot)))
+       finally (return root))))
 
+(save-test roots-one (roots-one-fdf-example nil))

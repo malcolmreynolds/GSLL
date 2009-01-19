@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-01-18 17:04:46EST callback.lisp>
+;; Time-stamp: <2009-01-19 16:44:13EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -64,6 +64,16 @@
 ;;;; Macros for defining a callback to wrap a CL function
 ;;;;****************************************************************************
 
+;;; Callback functions are defined using demcallback by passing the
+;;; name of the function and the argument list of types.  Arrays can
+;;; be handled in one of two ways.  If they are declared :pointer, the
+;;; CL function will be passed a C pointer, and it is responsible for
+;;; reading or setting the array, with #'dcref or #'maref.  If they
+;;; are declared (type size) then size scalars will be passed as
+;;; arguments to the CL function, and if they are declared (:set type
+;;; size), the CL function return size values, to which the array
+;;; elements will be set.
+
 ;;; Usage example for scalar function (e.g. numerical-integration,
 ;;; numerical-differentiation, chebyshev, ntuple).  
 ;;; (defmcallback myfn :double :double)
@@ -92,18 +102,28 @@
 
 ;;; (embedded-clfunc-args '(:double (:double 2) (:set :double 2)) (callback-args '(:double (:double 2) (:set :double 2))))
 ;;; (#:ARG1244 (MEM-AREF #:ARG1245 ':DOUBLE 0) (MEM-AREF #:ARG1245 ':DOUBLE 1))
-(defun embedded-clfunc-args (types callback-args)
+(defun embedded-clfunc-args (types callback-args &optional marray)
   "The arguments passed to the CL function call embedded in the callback."
   (loop for spec in types
-     for (symbol type) in callback-args
+     for (symbol nil) in callback-args
      append
      (unless (and (listp spec) (eq (first spec) :set))
        (if (listp spec)
-	   (loop for ind from 0 below (second spec)
-	      collect `(cffi:mem-aref ,symbol ',(first spec) ,ind))
+	   (if (third spec)
+	       ;; matrix, marrays only
+	       (loop for i from 0 below (second spec)
+		  append
+		  (loop for j from 0 below (third spec)
+		     collect
+		       `(maref ,symbol ,i ,j ',(cffi-cl (first spec)))))
+	       ;; vector, marray or C array
+	       (loop for ind from 0 below (second spec)
+		  collect (if marray
+			      `(maref ,symbol ,ind nil ',(cffi-cl (first spec)))
+			      `(cffi:mem-aref ,symbol ',(first spec) ,ind))))
 	   (list symbol)))))
 
-(defun callback-set-mvb (form types callback-args)
+(defun callback-set-mvb (form types callback-args &optional marray)
   "Create the multiple-value-bind form in the callback to set the return C arrays."
   (multiple-value-bind (settype setcba)
       (loop for cba in callback-args
@@ -114,9 +134,8 @@
 	 when setting
 	 collect type into settype
 	 finally (return (values (mapcar 'rest settype) setcba)))
-    (print settype)
-    (let* ((setvbls (embedded-clfunc-args settype setcba))
-	   (count (apply '+ (mapcar 'second settype)))
+    (let* ((setvbls (embedded-clfunc-args settype setcba marray))
+	   (count (apply '+ (mapcar (lambda (inds) (apply '* (rest inds))) settype)))
 	   (mvbvbls (loop repeat count collect (gensym "SETCB"))))
       (if (zerop count)
 	  form
@@ -131,7 +150,7 @@
 
 (defmacro defmcallback
     (name &optional (return-type :double) (argument-types :double)
-     additional-argument-types)
+     additional-argument-types marray)
   "Define a callback function used by GSL; the GSL function will call
    it with an additional `parameters' argument that is ignored.  the
    argument-types is a single type or list of types of the argument(s)
@@ -157,9 +176,11 @@
        ,(callback-set-mvb
 	 `(,name
 	   ,@(append
-	      (embedded-clfunc-args atl cbargs) (embedded-clfunc-args aatl cbaddl)))
+	      (embedded-clfunc-args atl cbargs marray)
+	      (embedded-clfunc-args aatl cbaddl marray)))
 	 (append atl aatl)
-	 (append cbargs cbaddl))
+	 (append cbargs cbaddl)
+	 marray)
        ,@(case
 	  return-type
 	  (:success-failure
@@ -208,17 +229,22 @@
     (name
      &optional (return-type :double) (argument-type :double)
      (structure 'gsl-function)
-     additional-slots
-     additional-argument-types)
+     dimensions
+     (dimensions-return dimensions)
+     (marray t))
   "Define a callback and optionally a related C struct used by GSL.
    This struct is bound to a CL special with the specified name.
    This macro can be used whenever a callback is defined and
    placed in a struct that has no other functions defined."
   `(progn
-    (defmcallback ,name ,return-type ,argument-type ,additional-argument-types)
-    ,@(when
-       structure
-       `((defcbstruct ,name ,structure ,additional-slots)))))
+     (defmcallback ,name ,return-type
+       ,(if dimensions `((,argument-type ,dimensions)) argument-type)
+       ,(if dimensions-return `((:set ,argument-type ,dimensions-return)))
+       ,marray)
+     ,@(when
+	structure
+	`((defcbstruct ,name ,structure
+	    ,(if dimensions `((dimensions ,dimensions))))))))
 
 ;;; Combine a defun and def-single-function in one:
 (defmacro defun-single (name arglist &body body)

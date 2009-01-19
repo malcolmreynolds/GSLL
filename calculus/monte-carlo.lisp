@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2008-12-26 19:34:42EST monte-carlo.lisp>
+;; Time-stamp: <2009-01-19 16:30:06EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -219,8 +219,8 @@
 
 (export 'def-mc-function)
 (defmacro def-mc-function (name dimensions)
-  `(def-single-function ,name :double :pointer monte-function
-    ((dimensions ,dimensions))))
+  `(def-single-function ,name :double :double monte-function
+    ,dimensions nil nil))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -229,10 +229,9 @@
 ;;; Example from Sec. 23.5
 ;;; This is a function that occurs in random walk studies.
 
-(defun monte-carlo-g (arg)
-  (with-c-double (arg x y z)
-    (* (/ (expt pi 3))
-       (/ (- 1 (* (cos x) (cos y) (cos z)))))))
+(defun monte-carlo-g (x y z)
+  (* (/ (expt pi 3))
+     (/ (- 1 (* (cos x) (cos y) (cos z))))))
 
 (def-mc-function monte-carlo-g 3)
 

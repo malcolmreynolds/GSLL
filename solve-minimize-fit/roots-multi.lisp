@@ -1,11 +1,17 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-03 16:07:02EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-19 16:10:31EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_multiroots.h
+
+;;; Currently, functions defined for root solving will be passed
+;;; scalars and should return scalars as multiple values.  A possible
+;;; future enhancement is to optionally pass marrays and return
+;;; marrays instead.  This would allow directly manipulation of
+;;; marrays by the user function.  Notes Mon Jan 19 2009.
 
 ;;;;****************************************************************************
 ;;;; Function definition
@@ -21,9 +27,8 @@
 (export 'def-mfunction)
 (defmacro def-mfunction (name dimensions)
   "Define a function for multivariate root solving."
-  `(def-single-function ,name :success-failure :pointer gsl-mfunction
-    ((dimensions ,dimensions))
-    (gsl-vector-c)))
+  `(def-single-function ,name :success-failure :double gsl-mfunction
+    ,dimensions))
 
 (cffi:defcstruct gsl-mfunction-fdf
   ;; See /usr/include/gsl/gsl_multiroots.h
@@ -70,7 +75,7 @@
     (:type type
      :dimension
      (if ,set (dim0 initial) function-or-dimension))
-    (:function function-or-dimension :initial initial)))
+    (:function-derivative function-or-dimension :initial initial)))
   (initial))
 
 (defmfun name ((solver multi-dimensional-root-solver-f))
@@ -188,7 +193,7 @@
   (state :pointer))
 
 (defun multiroot-slot (solver slot)
-  (cffi:foreign-slot-value solver 'gsl-multiroot-fsolver slot))
+  (cffi:foreign-slot-value (mpointer solver) 'gsl-multiroot-fsolver slot))
 
 (defmfun multiroot-test-delta (solver absolute-error relative-error)
   "gsl_multiroot_test_delta"
@@ -359,32 +364,28 @@
 ;;;;****************************************************************************
 
 (defparameter *powell-A* 1.0d4)
-(defun powell (argument return)
+(defun powell (arg0 arg1)
   "Powell's test function."
-  (setf (maref return 0)
-	(- (* *powell-A* (maref argument 0) (maref argument 1))
-	   1)
-	(maref return 1)
-	(+ (exp (- (maref argument 0))) (exp (- (maref argument 1)))
-	   (- (1+ (/ *powell-A*))))))
+  (values
+   (- (* *powell-A* arg0 arg1) 1)
+   (+ (exp (- arg0)) (exp (- arg1)) (- (1+ (/ *powell-A*))))))
 
-;;; (def-mfunction powell 2)
+(def-mfunction powell 2)
 
 ;;; This is the example given in Sec. 34.8.
 
 (defparameter *rosenbrock-a* 1.0d0)
 (defparameter *rosenbrock-b* 10.0d0)
 
-(defun rosenbrock (argument return)
+(defun rosenbrock (arg0 arg1)
   "Rosenbrock test function."
-  (setf (maref return 0)
-	(* *rosenbrock-a* (- 1 (maref argument 0)))
-	(maref return 1)
-	(* *rosenbrock-b* (- (maref argument 1) (expt (maref argument 0) 2)))))
+  (values
+   (* *rosenbrock-a* (- 1 arg0))
+   (* *rosenbrock-b* (- arg1 (expt arg0 2)))))
 
 (def-mfunction rosenbrock 2)
 
-(defun roots-multi-example ()
+(defun roots-multi-example (&optional (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000))
     (let* ((vect #m(-10.0d0 -5.0d0))
@@ -399,28 +400,34 @@
 	 (iterate solver)
 	 (setf fnval (cl-array (function-value solver))
 	       argval (cl-array (solution solver)))
-	 (format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
-		 iter
-		 (aref argval 0)
-		 (aref argval 1)
-		 (aref fnval 0)
-		 (aref fnval 1))
+	 (when print-steps
+	   (format t "iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g~&"
+		   iter
+		   (aref argval 0)
+		   (aref argval 1)
+		   (aref fnval 0)
+		   (aref fnval 1)))
 	 finally (return
 		   (values (aref argval 0)
 			   (aref argval 1)
 			   (aref fnval 0)
 			   (aref fnval 1)))))))
 
-(defun rosenbrock-df (argument jacobian)
+(defun rosenbrock-df (arg0 arg1)
   "The partial derivatives of the Rosenbrock functions."
-  (setf (maref jacobian 0 0) (- *rosenbrock-a*)
-	(maref jacobian 0 1) 0.0d0
-	(maref jacobian 1 0) (* -2 *rosenbrock-b* (maref argument 0))
-	(maref jacobian 1 1) *rosenbrock-b*))
+  (declare (ignore arg1))
+  (values (- *rosenbrock-a*)
+	  0.0d0
+	  (* -2 *rosenbrock-b* arg0)
+	  *rosenbrock-b*))
 
-(defun rosenbrock-fdf (argument value jacobian)
-  (rosenbrock argument value)
-  (rosenbrock-df argument jacobian))
+;;; Why is it necessary to define a function that calls the two other functions?
+(defun rosenbrock-fdf (arg0 arg1)
+  (multiple-value-bind (v0 v1)
+      (rosenbrock arg0 arg1)
+    (multiple-value-bind (j0 j1 j2 j3)
+	(rosenbrock-df arg0 arg1)
+      (values v0 v1 j0 j1 j2 j3))))
 
 ;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
@@ -430,16 +437,17 @@
 
 (def-solver-functions rosenbrock-f rosenbrock-df rosenbrock-fdf 2)
 
-(defun roots-multi-example-df ()
+(defun roots-multi-example-df (&optional (print-steps t))
   "Solving Rosenbrock with derivatives, the example given in Sec. 34.8
    of the GSL manual."
   (flet ((print-state (iter argval fnval)
-	   (format t "~&iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g"
-		   iter
-		   (maref argval 0)
-		   (maref argval 1)
-		   (maref fnval 0)
-		   (maref fnval 1))))
+	   (when print-steps
+	     (format t "iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g~&"
+		     iter
+		     (maref argval 0)
+		     (maref argval 1)
+		     (maref fnval 0)
+		     (maref fnval 1)))))
     (let ((max-iter 1000))
       (let* ((vect #m(-10.0d0 -5.0d0))
 	     (solver (make-multi-dimensional-root-solver-fdf
@@ -460,3 +468,7 @@
 			     (maref argval 1)
 			     (maref fnval 0)
 			     (maref fnval 1))))))))
+
+(save-test roots-multi
+ (roots-multi-example nil)
+ (roots-multi-example-df nil))

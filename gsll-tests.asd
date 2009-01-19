@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-18 19:02:18EST gsll-tests.asd>
+;; Time-stamp: <2009-01-19 16:40:15EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -131,6 +131,8 @@
 	     (:file "random-number-generators")
 	     (:file "rayleigh")
 	     (:file "rayleigh-tail")
+	     (:file "roots-multi")
+	     (:file "roots-one")
 	     (:file "row")
 	     (:file "scale")
 	     (:file "set-basis")

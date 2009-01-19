@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-01-11 22:13:07EST mobject.lisp>
+;; Time-stamp: <2009-01-19 13:50:33EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -56,7 +56,10 @@
 	 :index ,maker)
 
        (defmethod initialize-instance :after
-	   ((object ,class) &key mpointer ,@cl-alloc-args)
+	   ((object ,class) &key mpointer ,@(union cl-alloc-args cl-initialize-args))
+	 ,@(let ((not-alloc (set-difference cl-initialize-args cl-alloc-args)))
+		(when not-alloc)
+		`((declare (ignore ,@not-alloc))))
 	 (unless mpointer
 	   (setf mpointer
 		 (allocate object ,@(symbol-keyword-symbol cl-alloc-args))
