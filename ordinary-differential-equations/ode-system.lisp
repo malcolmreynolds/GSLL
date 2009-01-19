@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2008-08-21 22:04:31EDT ode-system.lisp>
+;; Time-stamp: <2009-01-18 18:23:07EST ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,19 +16,29 @@
 (export '(def-ode-functions with-ode-integration))
 
 (defmacro def-ode-functions (name jacobian dimension)
-  "Setup functions for ODE integrators.
+  "Setup functions for ODE integrators.  The variable name is used as the name of the 
    The CL functions name and jacobian should be defined previously
-   with defuns."
-  ;; The function should take three arguments: time, dependent, derivatives
-  ;; The latter two will be C arrays.  To reference them, use #'with-c-doubles.
-  ;; To make this more transparent using a normal CL function
-  ;; would require transferring numbers back and forth between C and CL arrays,
-  ;; which could be inefficient.
+   with defuns.
+   The function and Jacobian arguments are the same: time and
+   dimension dependent variables as scalars.
+   The function returns dimension multiple values corresponding to
+   the derivatives of the dependent variables, f(t).
+   The Jacobian returns dimension^2 values corresponding to the
+   partial derivatives of each of the functions f with respect to each
+   of the dependent variables y, and dimension values corresponding to
+   the derivatives of f with respect to t."
+  ;; set return values
+  ;; Possible future improvements: take/set arrays easily, allow lambdas instead of named functions. 
   `(progn
-    (defmcallback ,name :success-failure (:double :pointer :pointer))
-    (defmcallback ,jacobian :success-failure (:double :pointer :pointer :pointer))
-    (defcbstruct (,name function ,jacobian jacobian) ode-system
-      ((dimension ,dimension)))))
+     (defmcallback
+	 ,name :success-failure
+       (:double (:double ,dimension) (:set :double ,dimension)))
+     (defmcallback
+	 ,jacobian :success-failure
+       (:double (:double ,dimension) (:set :double ,(expt dimension 2))
+		(:set :double ,dimension)))
+     (defcbstruct (,name function ,jacobian jacobian) ode-system
+       ((dimension ,dimension)))))
 
 (defmacro with-ode-integration
     ((time step-size dependent dimensions &optional (stepper '*step-rk8pd*)

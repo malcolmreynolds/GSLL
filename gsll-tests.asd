@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-04 11:26:56EST gsll-tests.asd>
+;; Time-stamp: <2009-01-18 19:02:18EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -120,6 +120,7 @@
 	     (:file "negative-binomial")
 	     (:file "numerical-differentiation")
 	     (:file "numerical-integration")
+	     (:file "ode")
 	     (:file "pareto")
 	     (:file "permutation")
 	     (:file "poisson")

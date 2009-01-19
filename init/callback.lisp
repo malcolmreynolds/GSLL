@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2008-02-16 10:52:36EST callback.lisp>
+;; Time-stamp: <2009-01-18 17:04:46EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -61,17 +61,73 @@
   (parameters :pointer))
 
 ;;;;****************************************************************************
-;;;; Macros for defining a callback and placing in a structure
+;;;; Macros for defining a callback to wrap a CL function
 ;;;;****************************************************************************
 
 ;;; Usage example for scalar function (e.g. numerical-integration,
 ;;; numerical-differentiation, chebyshev, ntuple).  
 ;;; (defmcallback myfn :double :double)
-;;; Usage example for gsl-vector function (e.g. roots-multi)
+;;; Usage example for vector function (e.g. roots-multi)
 ;;; (defmcallback myfn :pointer :int (:pointer))
 ;;; Usage example for function and derivative
 ;;; (defmcallback fdf :pointer :double (:pointer :pointer))
 ;;; (defmcallback fdf :success-failure :int (:pointer :pointer))
+;;; Usage example for def-ode-functions
+;;; (defmcallback vanderpol :success-failure (:double (:double 2) (:set :double 2)))
+;;; or
+;;; (defmcallback vanderpol :success-failure (:double :pointer :pointer))
+;;; to read and set within the CL function with #'dcref.
+
+;;; (callback-args '(:double (:double 2) (:set :double 2)))
+;;; ((#:ARG1193 :DOUBLE) (#:ARG1194 :POINTER) (#:ARG1195 :POINTER))
+(defun callback-args (types)
+  "The arguments passed by GSL to the callback function."
+  (mapcar (lambda (type)
+	    (let ((symbol (gensym "ARG")))
+	      (list symbol
+		    (if (listp type)	; like (:double 3)
+			:pointer	; C array
+			type))))
+	  (if (listp types) types (list types))))
+
+;;; (embedded-clfunc-args '(:double (:double 2) (:set :double 2)) (callback-args '(:double (:double 2) (:set :double 2))))
+;;; (#:ARG1244 (MEM-AREF #:ARG1245 ':DOUBLE 0) (MEM-AREF #:ARG1245 ':DOUBLE 1))
+(defun embedded-clfunc-args (types callback-args)
+  "The arguments passed to the CL function call embedded in the callback."
+  (loop for spec in types
+     for (symbol type) in callback-args
+     append
+     (unless (and (listp spec) (eq (first spec) :set))
+       (if (listp spec)
+	   (loop for ind from 0 below (second spec)
+	      collect `(cffi:mem-aref ,symbol ',(first spec) ,ind))
+	   (list symbol)))))
+
+(defun callback-set-mvb (form types callback-args)
+  "Create the multiple-value-bind form in the callback to set the return C arrays."
+  (multiple-value-bind (settype setcba)
+      (loop for cba in callback-args
+	 for type in types
+	 for setting = (and (listp type) (eq (first type) :set))
+	 when setting
+	 collect cba into setcba
+	 when setting
+	 collect type into settype
+	 finally (return (values (mapcar 'rest settype) setcba)))
+    (print settype)
+    (let* ((setvbls (embedded-clfunc-args settype setcba))
+	   (count (apply '+ (mapcar 'second settype)))
+	   (mvbvbls (loop repeat count collect (gensym "SETCB"))))
+      (if (zerop count)
+	  form
+	  `(multiple-value-bind ,mvbvbls
+	       ,form
+	     (setf ,@(loop for mvbvbl in mvbvbls
+			for setvbl in setvbls
+			append (list setvbl mvbvbl))))))))
+
+;;; (DEFMCALLBACK VANDERPOL :SUCCESS-FAILURE (:DOUBLE (:DOUBLE 2) (:SET :DOUBLE 2)))
+;;; (DEFMCALLBACK VANDERPOL :SUCCESS-FAILURE (:DOUBLE (:DOUBLE 2)))
 
 (defmacro defmcallback
     (name &optional (return-type :double) (argument-types :double)
@@ -81,33 +137,39 @@
    argument-types is a single type or list of types of the argument(s)
    that appear before parameters, and the additional-argument-types
    (default none) is a single type or list of types of the argument(s)
-   that appear after parameters.  The return-type is the type that
-   should be returned to GSL.  If :success-failure, a GSL_SUCCESS
-   code (0) is always returned; if :pointer, a null pointer is
-   returned."
-  (flet ((arg-type (types)
-	   (when types
-	     (mapcar (lambda (type) (list (gensym "ARG") type))
-		     (if (listp types) types (list types))))))
-    (let ((arguments (arg-type argument-types))
-	  (additional-arguments (arg-type additional-argument-types)))
-      `(cffi:defcallback ,name
-	,(if (eq return-type :success-failure) :int return-type)
-	(,@arguments (params :pointer) ,@additional-arguments)
-	;; Parameters as C argument are always ignored, because we have
-	;; CL specials to do the same job.
-	(declare (ignore params))
-	(,name ,@(mapcar #'first (append arguments additional-arguments)))
-	,@(case
-	   return-type
-	   (:success-failure
-	    ;; We always return success, because if there was a
-	    ;; problem, a CL error would be signalled.
-	    '(success))
-	   (:pointer
-	    ;; For unclear reasons, some GSL functions want callbacks
-	    ;; to return a void pointer which is apparently meaningless.
-	    '((cffi:null-pointer))))))))
+   that appear after parameters.  The argument types are C types or
+   a list of a C type and a length, indicating a C array of that type
+   for which each element will be passed as a separate argument.
+   The return-type is the type that should be returned to GSL.
+   If :success-failure, a GSL_SUCCESS code (0) is always returned;
+   if :pointer, a null pointer is returned."
+  (let* ((atl (if (listp argument-types) argument-types (list argument-types)))
+	 (aatl (if (listp additional-argument-types) additional-argument-types
+		   (list additional-argument-types)))
+	 (cbargs (callback-args atl))
+	 (cbaddl (callback-args aatl)))
+    `(cffi:defcallback ,name
+	 ,(if (eq return-type :success-failure) :int return-type)
+	 (,@cbargs (params :pointer) ,@cbaddl)
+       ;; Parameters as C argument are always ignored, because we have
+       ;; CL specials to do the same job.
+       (declare (ignore params))
+       ,(callback-set-mvb
+	 `(,name
+	   ,@(append
+	      (embedded-clfunc-args atl cbargs) (embedded-clfunc-args aatl cbaddl)))
+	 (append atl aatl)
+	 (append cbargs cbaddl))
+       ,@(case
+	  return-type
+	  (:success-failure
+	   ;; We always return success, because if there was a
+	   ;; problem, a CL error would be signalled.
+	   '(success))
+	  (:pointer
+	   ;; For unclear reasons, some GSL functions want callbacks
+	   ;; to return a void pointer which is apparently meaningless.
+	   '((cffi:null-pointer)))))))
 
 (defmacro defcbstruct
     (functions &optional (structure 'gsl-function) additional-slots)
