@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-01-03 16:05:48EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-01-19 22:10:45EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -310,11 +310,11 @@
    (make-exponent-fit-data
     :n *number-of-observations*
     :y
-    (let ((arr (make-marray 'double-float :dimensions *number-of-observations*)))
-      (let ((rng (make-random-number-generator *mt19937* 0)))
-	(dotimes (i *number-of-observations* arr)
-	  (setf (maref arr i)
-		(+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0))))))
+    (let ((arr (make-marray 'double-float :dimensions *number-of-observations*))
+	  (rng (make-random-number-generator *mt19937* 0)))
+      (dotimes (i *number-of-observations* arr)
+	(setf (maref arr i)
+	      (+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0)))))
     :sigma
     (make-marray 'double-float :dimensions *number-of-observations* :initial-element 0.1d0))))
 
@@ -363,7 +363,7 @@
   "Find the norm of the fit function f."
   (euclidean-norm (function-value fit)))
 
-(defun solve-nonlinear-least-squares-example ()
+(defun solve-nonlinear-least-squares-example (&optional (print-steps t))
   (let* ((init #m(1.0d0 0.0d0 0.0d0))
 	 (covariance
 	  (make-marray 'double-float
@@ -377,9 +377,10 @@
 	       init)))
     (macrolet ((fitx (i) `(maref (solution fit) ,i))
 	       (err (i) `(sqrt (maref covariance ,i ,i))))
-      (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
-	      0 (fitx 0) (fitx 1) (fitx 2)
-	      (norm-f fit))
+      (when print-steps
+	(format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
+		0 (fitx 0) (fitx 1) (fitx 2)
+		(norm-f fit)))
       (loop for iter from 0 below 25
 	 until
 	 (and (plusp iter)
@@ -387,20 +388,20 @@
 	 do
 	 (iterate fit)
 	 (ls-covariance (jacobian fit) 0.0d0 covariance)
-	 (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
-		 (1+ iter) (fitx 0) (fitx 1) (fitx 2)
-		 (norm-f fit))
+	 (when print-steps
+	   (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
+		   (1+ iter) (fitx 0) (fitx 1) (fitx 2)
+		   (norm-f fit)))
 	 finally
 	 (let* ((chi (norm-f fit))
 		(dof (- *number-of-observations* *number-of-parameters*))
 		(c (max 1.0d0 (/ chi (sqrt dof)))))
-	   (format t "~&chisq/dof = ~g" (/ (expt chi 2) dof))
-	   (format t "~&A         = ~,5f +/- ~,5f" (fitx 0) (* c (err 0)))
-	   (format t "~&lambda    = ~,5f +/- ~,5f" (fitx 1) (* c (err 1)))
-	   (format t "~&b         = ~,5f +/- ~,5f" (fitx 2) (* c (err 2)))
+	   (when print-steps
+	     (format t "~&chisq/dof = ~g" (/ (expt chi 2) dof))
+	     (format t "~&A         = ~,5f +/- ~,5f" (fitx 0) (* c (err 0)))
+	     (format t "~&lambda    = ~,5f +/- ~,5f" (fitx 1) (* c (err 1)))
+	     (format t "~&b         = ~,5f +/- ~,5f" (fitx 2) (* c (err 2))))
 	   (return (list (fitx 0) (fitx 1) (fitx 2))))))))
 
-;;; Run example:
-;;; (nlls-setup)
-;;; (solve-nonlinear-least-squares-example)
-;;; (5.045357801443204d0 0.10404905892045835d0 1.0192487061031013d0)
+(save-test nonlinear-least-squares
+ (progn (nlls-setup) (solve-nonlinear-least-squares-example nil)))

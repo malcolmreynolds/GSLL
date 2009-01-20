@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-19 16:31:35EST roots-one.lisp>
+;; Time-stamp: <2009-01-19 22:04:19EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -330,13 +330,14 @@
 
 (def-single-function quadratic)
 
-(defun roots-one-example ()
+(defun roots-one-example (&optional (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50)
 	(solver
 	 (make-one-dimensional-root-solver-f
 	  *brent-fsolver* quadratic 0.0d0 5.0d0)))
-    (format t "~&iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)")
+    (when print-steps
+      (format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
     (loop for iter from 0
        for root = (solution solver)
        for lower = (fsolver-lower solver)
@@ -345,10 +346,12 @@
        while  (and (< iter max-iter)
 		   (not (root-test-interval lower upper 0.0d0 0.001d0)))
        do
-       (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
-	       iter lower upper
-	       root (- root (sqrt 5.0d0))
-	       (- upper lower)))))
+       (when print-steps
+	 (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g~&"
+		 iter lower upper
+		 root (- root (sqrt 5.0d0))
+		 (- upper lower)))
+       finally (return root))))
 
 ;;; Because def-solver-functions and def-single-function bind a symbol
 ;;; of the same name as the first function, and we want both to run,
@@ -377,4 +380,6 @@
 		 iter root (- root (sqrt 5.0d0)) (- root oldroot)))
        finally (return root))))
 
-(save-test roots-one (roots-one-fdf-example nil))
+(save-test roots-one
+ (roots-one-example nil)
+ (roots-one-fdf-example nil))

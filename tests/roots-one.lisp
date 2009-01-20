@@ -4,6 +4,9 @@
 
 (LISP-UNIT:DEFINE-TEST ROOTS-ONE
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
+                        (LIST 2.2360634081902244d0)
+                        (MULTIPLE-VALUE-LIST (ROOTS-ONE-EXAMPLE NIL)))
+                       (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 2.236067977499978d0)
                         (MULTIPLE-VALUE-LIST (ROOTS-ONE-FDF-EXAMPLE NIL))))
 

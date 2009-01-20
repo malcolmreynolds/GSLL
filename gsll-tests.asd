@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-19 16:40:15EST gsll-tests.asd>
+;; Time-stamp: <2009-01-19 22:43:17EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -81,6 +81,7 @@
 	     (:file "laplace")
 	     (:file "legendre")
 	     (:file "levy")
+	     (:file "linear-least-squares")
 	     (:file "logarithmic")
 	     (:file "logarithm")
 	     (:file "logistic")
@@ -118,6 +119,7 @@
 	     (:file "monte-carlo")
 	     (:file "multinomial")
 	     (:file "negative-binomial")
+	     (:file "nonlinear-least-squares")
 	     (:file "numerical-differentiation")
 	     (:file "numerical-integration")
 	     (:file "ode")

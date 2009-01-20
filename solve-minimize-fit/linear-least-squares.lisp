@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2008-12-26 18:38:44EST linear-least-squares.lisp>
+;; Time-stamp: <2009-01-19 23:23:11EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -189,8 +189,24 @@
    tolerance tolerance, and the effective rank is returned as the
    second value.")
 
+(defun size-array (array-or-size)
+  (if (numberp array-or-size)
+      array-or-size
+      (dim0 array-or-size)))
+
 (defmfun weighted-linear-mfit
-    (model weight observations parameters covariance workspace)
+    (model weight observations parameters-or-size
+	   &optional
+	   (covariance
+	    (make-marray
+	     'double-float
+	     :dimensions
+	     (let ((s (size-array parameters-or-size))) (list s s))))
+	   (workspace
+	    (make-fit-workspace
+	     (dim0 observations) (size-array parameters-or-size)))
+	   &aux
+	   (parameters (vdf parameters-or-size)))
   "gsl_multifit_wlinear"
   (((mpointer model) :pointer)
    ((mpointer weight) :pointer)
@@ -200,6 +216,7 @@
    ((mpointer workspace) :pointer))
   :inputs (model observations)
   :outputs (parameters covariance)
+  :return (parameters covariance (dcref chisq))
   :documentation			; FDL
   "Compute the best-fit parameters c of the weighted
    model y = X c for the observations y and weights
@@ -257,37 +274,38 @@
 ;;;; Examples
 ;;;;****************************************************************************
 
-(defun univariate-linear-least-squares-example ()
+(defun univariate-linear-least-squares-example (&optional (print-steps t))
   "First example in Section 36.5 of the GSL manual."
   ;; Results not given in manual so not verified yet.
   (let ((x #m(1970.0d0 1980.0d0 1990.0d0 2000.0d0))
-	 (y #m(12.0d0 11.0d0 14.0d0 13.0d0))
-	 (w #m(0.1d0 0.2d0 0.3d0 0.4d0)))
-	(multiple-value-bind (c0 c1 cov00 cov01 cov11 chisq)
-	    (weighted-linear-fit x w y)
-	  (format t "~&Best fit: Y = ~8,5f + ~8,5f X" c0 c1)
-	  (format t "~&Covariance matrix:~&[~12,5f ~12,5f~&~12,5f ~12,5f]"
-		  cov00 cov01 cov01 cov11)
-	  (format t "~&Chisq = ~g" chisq)
-	  (loop for i from 0 below (dim0 x)
-		do
-		(format t "~&data: ~12,5f ~12,5f ~12,5f"
-			(maref x i)
-			(maref y i)
-			(/ (maref w i))))
-	  (loop for i from -30 below 130 by 10 ; don't print everything
-		for
-		xf = (+ (maref x 0)
-			(* (/ i 100)
-			   (- (maref x (1- (dim0 x)))
-			      (maref x 0))))
-		do
-		(multiple-value-bind (yf yferr)
-		    (linear-estimate xf c0 c1 cov00 cov01 cov11)
-		  (format t "~&fit:~6t~g ~g" xf yf)
-		  (format t "~&high:~6t~g ~g" xf (+ yf yferr))
-		  (format t "~&low:~6t~g ~g" xf (- yf yferr))))
-	  (fresh-line))))
+	(y #m(12.0d0 11.0d0 14.0d0 13.0d0))
+	(w #m(0.1d0 0.2d0 0.3d0 0.4d0)))
+    (multiple-value-bind (c0 c1 cov00 cov01 cov11 chisq)
+	(weighted-linear-fit x w y)
+      (when print-steps
+	(format t "Best fit: Y = ~8,5f + ~8,5f X~&" c0 c1)
+	(format t "Covariance matrix:~&[~12,5f ~12,5f~&~12,5f ~12,5f]~&"
+		cov00 cov01 cov01 cov11)
+	(format t "Chisq = ~g~&" chisq)
+	(loop for i from 0 below (dim0 x)
+	   do
+	   (format t "data: ~12,5f ~12,5f ~12,5f~&"
+		   (maref x i)
+		   (maref y i)
+		   (/ (maref w i))))
+	(loop for i from -30 below 130 by 10 ; don't print everything
+	   for
+	   xf = (+ (maref x 0)
+		   (* (/ i 100)
+		      (- (maref x (1- (dim0 x)))
+			 (maref x 0))))
+	   do
+	   (multiple-value-bind (yf yferr)
+	       (linear-estimate xf c0 c1 cov00 cov01 cov11)
+	     (format t "fit:~6t~g ~g~&" xf yf)
+	     (format t "high:~6t~g ~g~&" xf (+ yf yferr))
+	     (format t "low:~6t~g ~g~&" xf (- yf yferr)))))
+      (values c0 c1 cov00 cov01 cov11 chisq))))
 
 (defun mv-linear-least-squares-data ()
   "Generate data for second example in Section 36.5 of the GSL
@@ -300,14 +318,14 @@
 	  collect
 	  (list xd (+ y0 (gaussian rng sigma)) sigma))))
 
-(defun mv-linear-least-squares-example (data)
-  "Second example in Section 36.5 of the GSL manual."
-  (let* ((n (length data)) chisq
+(defun mv-linear-least-squares-example (data &optional (print-steps t))
+  "Second example in Section 36.5 of the GSL manual.  Returns the
+   coefficients of x^0, x^1, x^2 for the best fit, and the chi
+   squared."
+  (let* ((n (length data))
 	 (x (make-marray 'double-float :dimensions (list n 3)))
-	 (cov (make-marray 'double-float :dimensions '(3 3)))
 	 (y (make-marray 'double-float :dimensions n))
-	 (w (make-marray 'double-float :dimensions n))
-	 (c (make-marray 'double-float :dimensions 3)))
+	 (w (make-marray 'double-float :dimensions n)))
     (loop for i from 0
        for row in data do
        (setf (maref X i 0) 1.0d0
@@ -315,21 +333,23 @@
 	     (maref X i 2) (expt (first row) 2)
 	     (maref y i) (second row)
 	     (maref w i) (/ (expt (third row) 2))))
-    (let ((ws (make-fit-workspace n 3)))
-      (setf chisq
-	    (weighted-linear-mfit X w y c cov ws)))
-    (format t "~&Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2"
-	    (maref c 0) (maref c 1) (maref c 2))
-    (format t "~&Covariance matrix:")
-    (format
-     t "~&~10,8f ~10,8f ~10,8f"
-     (maref cov 0 0) (maref cov 0 1) (maref cov 0 2))
-    (format
-     t "~&~10,8f ~10,8f ~10,8f"
-     (maref cov 1 0) (maref cov 1 1) (maref cov 1 2))
-    (format
-     t "~&~10,8f ~10,8f ~10,8f"
-     (maref cov 2 0) (maref cov 2 1) (maref cov 2 2))
-    (format t "~&Chisq = ~10,6f" chisq)))
+    (multiple-value-bind (parameters cov chisq)
+	(weighted-linear-mfit X w y 3)
+      (when print-steps
+	(format t "Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2~&"
+		(maref parameters 0) (maref parameters 1) (maref parameters 2))
+	(format t "Covariance matrix:~&")
+	(format t "~10,8f ~10,8f ~10,8f~&"
+		(maref cov 0 0) (maref cov 0 1) (maref cov 0 2))
+	(format t "~10,8f ~10,8f ~10,8f~&"
+		(maref cov 1 0) (maref cov 1 1) (maref cov 1 2))
+	(format t "~10,8f ~10,8f ~10,8f~&"
+		(maref cov 2 0) (maref cov 2 1) (maref cov 2 2))
+	(format t "Chisq = ~10,6f~&" chisq))
+      (values
+       (maref parameters 0) (maref parameters 1) (maref parameters 2)
+       chisq))))
 
-;;; (mv-linear-least-squares-example (mv-linear-least-squares-data))
+(save-test linear-least-squares
+ (univariate-linear-least-squares-example nil)
+ (mv-linear-least-squares-example (mv-linear-least-squares-data) nil))
