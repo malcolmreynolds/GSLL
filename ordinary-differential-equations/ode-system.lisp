@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2009-01-18 18:23:07EST ode-system.lisp>
+;; Time-stamp: <2009-01-20 22:47:16EST ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -51,23 +51,20 @@
    with-c-double."
   (let ((ctime (make-symbol "CTIME"))
 	(cstep (make-symbol "CSTEP")))
-    `(let ((stepper (step-allocate ,stepper ,dimensions))
+    `(let ((stepper (make-ode-stepper ,stepper ,dimensions))
 	   (control (new-y-control ,absolute-error ,relative-error))
-	   (evolve (allocate-evolution ,dimensions)))
-      (unwind-protect
-	   (cffi:with-foreign-objects
-	       ((,(if (listp dependent) (first dependent) dependent)
-		  :double ,dimensions) (,ctime :double) (,cstep :double))
-	     (setf
-	      (dcref ,cstep) ,step-size
-	      (dcref ,ctime) ,time)
-	     ,(if (listp dependent)
-		  `(with-c-double ,dependent
-		    (symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
-		    ,@body))
-		  `(symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
-		    ,@body)))
-	(free-evolution evolve)
-	(free-control control)
-	(step-free stepper)))))
-
+	   (evolve (make-ode-evolution ,dimensions)))
+       (unwind-protect
+	    (cffi:with-foreign-objects
+		((,(if (listp dependent) (first dependent) dependent)
+		   :double ,dimensions) (,ctime :double) (,cstep :double))
+	      (setf
+	       (dcref ,cstep) ,step-size
+	       (dcref ,ctime) ,time)
+	      ,(if (listp dependent)
+		   `(with-c-double ,dependent
+		      (symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
+			,@body))
+		   `(symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
+		      ,@body)))
+	 (free-control control)))))

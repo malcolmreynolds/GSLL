@@ -1,22 +1,20 @@
 ;; Evolution functions for ODE integration.
 ;; Liam Healy, Sun Sep 30 2007 - 14:31
-;; Time-stamp: <2008-08-21 22:07:27EDT evolution.lisp>
+;; Time-stamp: <2009-01-20 22:42:27EST evolution.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun allocate-evolution (dimension)
-  "gsl_odeiv_evolve_alloc"
-  ((dimension sizet))
-  :c-return :pointer
-  :documentation			; FDL
-  "Allocate a new instance of an evolution function
-   for a system of dimension dimensions and return the pointer.")
+(defmobject ode-evolution "gsl_odeiv_evolve"
+  ((dimensions sizet))
+  "evolution for ordinary differential equations"
+  "Make an object to advance the ODE solution."
+  "reset" nil)
 
 (defmfun apply-evolution
     (evolve control step dydt time max-time step-size y)
   "gsl_odeiv_evolve_apply"
-  ((evolve :pointer) (control :pointer) (step :pointer)
+  (((mpointer evolve) :pointer) (control :pointer) ((mpointer step) :pointer)
    (dydt :pointer) (time :pointer) (max-time :double)
    (step-size :pointer) (y :pointer))
   :documentation			; FDL
@@ -31,17 +29,3 @@
    time max-time is guaranteed not to be exceeded by the time-step.  On the
    final time-step the value of time will be set to t1 exactly.")
 
-(defmfun reset-evolution (evolve)
-  "gsl_odeiv_evolve_reset"
-  ((evolve :pointer))
-  :documentation
-  "Reset the evolution function evolve.  It should be used
-   whenever the next use of evolve will not be a continuation of a
-   previous step.")
-
-(defmfun free-evolution (evolve)
-    "gsl_odeiv_evolve_free"
-  ((evolve :pointer))
-  :c-return :void
-  :documentation
-  "Frees all the memory associated with the evolution function.")

@@ -1,44 +1,31 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2008-08-21 22:05:20EDT stepping.lisp>
+;; Time-stamp: <2009-01-20 19:09:55EST stepping.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun step-allocate (step-type dim)
-  "gsl_odeiv_step_alloc"
-  ((step-type :pointer) (dim sizet))
-  :c-return :pointer
-  :documentation			; FDL
-  "Allocate a new instance of a stepping function of
-   type step-type for a system of dim dimensions,
-   returning the pointer.")
+(defmobject ode-stepper "gsl_odeiv_step"
+  ((type :pointer) (dimensions sizet))
+  "stepper for ordinary differential equations"
+  "Make a stepper for ordinary differential equations.  The type is
+   one of the GSL-supplied types defined in stepping.lisp, and
+   dimensions is the number of dependent variables.  This instance
+   should be reinitialized whenever the next use of it will not be a
+   continuation of a previous step."
+  "reset" nil)
 
-(defmfun step-reset (stepper)
-  "gsl_odeiv_step_reset"
-  ((stepper :pointer))
-  :documentation			; FDL
-  "Reset the stepping function.  It should be used whenever
-   the next use of it will not be a continuation of a previous
-   step.")
-
-(defmfun step-free (stepper)
-  "gsl_odeiv_step_free"
-  ((stepper :pointer))
-  :c-return :void
-  :documentation			; FDL
-  "Free all the memory associated with the stepping function.")
-
-(defmfun step-name (stepper)
+(defmfun name ((object ode-stepper))
   "gsl_odeiv_step_name"
-  ((stepper :pointer))
+  (((mpointer object) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the stepping function.")
 
 (defmfun step-order (stepper)
   "gsl_odeiv_step_order"
-  ((stepper :pointer))
+  (((mpointer stepper) :pointer))
   :c-return :uint
   :documentation			; FDL
   "The order of the stepping function on the previous
@@ -47,7 +34,7 @@
 (defmfun step-apply
     (stepper time step-size y yerr dydt-in dydt-out dydt)
   "gsl_odeiv_step_apply"
-  ((stepper :pointer)
+  (((mpointer stepper) :pointer)
    (time :double)
    (step-size :double)
    (y :pointer)

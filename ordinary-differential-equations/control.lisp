@@ -1,20 +1,20 @@
 ;; Adaptive step-size control
 ;; Liam Healy 2008-02-17 17:30:04EST control.lisp
-;; Time-stamp: <2008-08-21 22:08:55EDT control.lisp>
+;; Time-stamp: <2009-01-20 19:39:08EST control.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun new-standard-control (absolute-error relative-error y dydt)
+(defmfun new-standard-control (absolute-error relative-error y-scaling dydt-scaling)
   "gsl_odeiv_control_standard_new"
   ((absolute-error :double) (relative-error :double)
-   (ay :double) (adydt :double))
+   (y-scaling :double) (dydt-scaling :double))
   :c-return (ptr :pointer)
   :return (ptr)
   :documentation			; FDL
   "The standard control object is a four parameter heuristic based on
    absolute and relative errors absolute-error and relative-error, and
-   scaling factors ay and adydt for the system state y(t) and derivatives
+   scaling factors y-scaling and dydt-scaling for the system state y(t) and derivatives
    y'(t) respectively.
 
    The step-size adjustment procedure for this method begins by computing
@@ -47,8 +47,8 @@
   "Create a new control object which will keep the local
    error on each step within an absolute error of absolute-error and
    relative error of relative-error with respect to the solution y_i(t).
-   This is equivalent to the standard control object with ay=1 and
-   adydt=0.")
+   This is equivalent to the standard control object with y-scaling=1 and
+   dydt-scaling=0.")
 
 (defmfun new-yp-control (absolute-error relative-error)
   "gsl_odeiv_control_yp_new"
@@ -60,12 +60,13 @@
    error on each step within an absolute error of absolute-error and
    relative error of relative-error with respect to the derivatives of the
    solution y'_i(t).  This is equivalent to the standard control
-   object with ay=0 and adydt=1.")
+   object with y-scaling=0 and dydt-scaling=1.")
 
 (defmfun new-scaled-control
-    (absolute-error relative-error y dydt absolute-scale dimension)
+    (absolute-error relative-error y-scaling dydt-scaling absolute-scale dimension)
   "gsl_odeiv_control_scaled_new"
-  ((absolute-error :double) (relative-error :double) (y :double) (dydt :double)
+  ((absolute-error :double) (relative-error :double)
+   (y-scaling :double) (dydt-scaling :double)
    (absolute-scale :pointer) (dimension sizet))
   :c-return (ptr :pointer)
   :return (ptr)
