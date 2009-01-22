@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-01-19 13:50:33EST mobject.lisp>
+;; Time-stamp: <2009-01-21 22:38:01EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -64,12 +64,11 @@
 	   (setf mpointer
 		 (allocate object ,@(symbol-keyword-symbol cl-alloc-args))
 		 (slot-value object 'mpointer) mpointer))
-	 (trivial-garbage:finalize
-	  object
-	  (lambda ()
-	    (cffi:foreign-funcall
-	     ,(format nil "~a_free" realprefix)
-	     :pointer mpointer :void))))
+	 (tg:finalize object
+		      (lambda ()
+			(cffi:foreign-funcall
+			 ,(format nil "~a_free" realprefix)
+			 :pointer mpointer :void))))
 
        ,@(when initialize-suffix
 	       `((defmfun reinitialize-instance

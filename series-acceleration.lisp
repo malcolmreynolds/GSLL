@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2008-12-26 18:22:40EST series-acceleration.lisp>
+;; Time-stamp: <2009-01-21 22:48:11EST series-acceleration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,6 +22,9 @@
   (dq-num :pointer)
   (dq-den :pointer)
   (dsum :pointer))
+
+(defun levin-value (levin slot)
+  (cffi:foreign-slot-value (mpointer levin) 'levin-c slot))
 
 (defmobject levin "gsl_sum_levin_u"
   ((order sizet))
@@ -78,7 +81,7 @@
 
 ;;; From Sec. 29.3 in the GSL manual.
 
-(defun acceleration-example ()
+(defun acceleration-example (&optional (print-explanation t))
   (let ((maxterms 20)
 	(sum 0.0d0)
 	(zeta2 (/ (expt pi 2) 6)))
@@ -89,16 +92,23 @@
 	(incf sum (maref array n)))
       (multiple-value-bind (accelerated-sum error)
 	  (accelerate array levin)
-	(format t "~&term-by-term sum =~f using ~d terms" sum maxterms)
-	(format t "~&term-by-term sum =~f using ~d terms"
-		(cffi:foreign-slot-value levin 'levin-c 'sum-plain)
-		(cffi:foreign-slot-value levin 'levin-c 'terms-used))
-	(format t "~&exact value     = ~f" zeta2)
-	(format t "~&accelerated sum = ~f using ~d terms"
+	(when print-explanation
+	  (format t "term-by-term sum =~f using ~d terms~&" sum maxterms)
+	  (format t "term-by-term sum =~f using ~d terms~&"
+		  (levin-value levin 'sum-plain)
+		  (levin-value levin 'terms-used))
+	  (format t "exact value     = ~f~&" zeta2)
+	  (format t "accelerated sum = ~f using ~d terms~&"
+		  accelerated-sum
+		  (levin-value levin 'terms-used))
+	  (format t "estimated error = ~f~&" error)
+	  (format t "actual error = ~f ~&" (- accelerated-sum zeta2)))
+	(values sum maxterms
+		(levin-value levin 'sum-plain)
+		(levin-value levin 'terms-used)
 		accelerated-sum
-		(cffi:foreign-slot-value levin 'levin-c 'terms-used))
-	(format t "~&estimated error = ~f" error)
-	(format t "~&actual error = ~f" (- accelerated-sum zeta2))))))
+		error
+		(- accelerated-sum zeta2))))))
 
 ;; term-by-term sum =1.5961632439130233 using 20 terms
 ;; term-by-term sum =1.5759958390005426 using 13 terms
@@ -106,3 +116,5 @@
 ;; accelerated sum = 1.6449340669228176 using 13 terms
 ;; estimated error = 0.00000000008883604962761638
 ;; actual error = 0.00000000007459122208786084
+
+(save-test series-acceleration (acceleration-example nil))

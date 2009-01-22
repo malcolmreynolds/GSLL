@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-19 22:43:17EST gsll-tests.asd>
+;; Time-stamp: <2009-01-21 22:58:22EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -137,6 +137,7 @@
 	     (:file "roots-one")
 	     (:file "row")
 	     (:file "scale")
+	     (:file "series-acceleration")
 	     (:file "set-basis")
 	     (:file "setf-column")
 	     (:file "setf-row")

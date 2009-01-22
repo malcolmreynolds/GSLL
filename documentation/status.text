@@ -31,7 +31,9 @@ from the shell; run inside SLIME gives the correct answer.
 Fail in CCL but not in SBCL:
 (mv-linear-least-squares-example (mv-linear-least-squares-data))
 (multimin-example-fletcher-reeves)
-
+series-acceleration
+linear-least-squares
+nonlinear-least-squares
 
 === GSL questions ===
 Sun Nov  9 2008:

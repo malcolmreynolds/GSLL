@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-19 16:10:31EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-21 22:38:26EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -395,7 +395,6 @@
 	 with fnval and argval
 	 while (and (< iter max-iter)
 		    (not (multiroot-test-residual solver 1.0d-7)))
-	   
 	 do
 	 (iterate solver)
 	 (setf fnval (cl-array (function-value solver))
