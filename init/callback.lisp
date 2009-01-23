@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-01-19 16:44:13EST callback.lisp>
+;; Time-stamp: <2009-01-22 22:36:00EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,13 +20,17 @@
 
 ;;; Other GSL tasks make use of callback functions with different
 ;;; characteristics.  Since they are specific to each of the tasks,
-;;; they are defined with those tasks.  A complexity encountered with
-;;; using a vector of double floats not present with scalars is that
-;;; there is no portable way to make a C array available directly to
-;;; Lisp, so callbacks using C arrays must read them using a macro.
-;;; Therefore it is necessary to define the function in a way that
-;;; prevents its use in Lisp; to ameliorate this, the macro
-;;; #'with-c-double is provided to give named access to the elements.
+;;; they are defined with those tasks.  The macro #'defmcallback can
+;;; specify that the CL function is to expect in arglist and return as
+;;; multiple values scalar quantities that come from and will be bound
+;;; to either marrays or C vectors.  This is done with a list of the
+;;; type and size, e.g. (:double 3), and for setting :set, type size,
+;;; e.g. (:set :double 3).  If the 'marray argument is nil, it will
+;;; expand to read or set a C vector; if it is T, it will expand to
+;;; read or set a marray.  This allows the user to define ordinary CL
+;;; functions with scalars as input and output.  However, it may be
+;;; desirable to read and set marrays, in which case :pointer is the
+;;; right specification.
 
 (export
  '(def-single-function undef-cbstruct defun-single
@@ -90,6 +94,7 @@
 
 ;;; (callback-args '(:double (:double 2) (:set :double 2)))
 ;;; ((#:ARG1193 :DOUBLE) (#:ARG1194 :POINTER) (#:ARG1195 :POINTER))
+
 (defun callback-args (types)
   "The arguments passed by GSL to the callback function."
   (mapcar (lambda (type)
@@ -102,12 +107,18 @@
 
 ;;; (embedded-clfunc-args '(:double (:double 2) (:set :double 2)) (callback-args '(:double (:double 2) (:set :double 2))))
 ;;; (#:ARG1244 (MEM-AREF #:ARG1245 ':DOUBLE 0) (MEM-AREF #:ARG1245 ':DOUBLE 1))
+
+(defvar *setting-spec* '(:set))
 (defun embedded-clfunc-args (types callback-args &optional marray)
-  "The arguments passed to the CL function call embedded in the callback."
+  "The arguments passed to the CL function call embedded in the callback.
+   If 'marray is T, then reference GSL arrays; otherwise reference raw
+   C vectors.  A specification (:set ...) means that the CL function
+   will define the array as multiple values; if the size is negative,
+   then the opposite value will be used for marray."
   (loop for spec in types
      for (symbol nil) in callback-args
      append
-     (unless (and (listp spec) (eq (first spec) :set))
+     (unless (and (listp spec) (member (first spec) *setting-spec*))
        (if (listp spec)
 	   (if (third spec)
 	       ;; matrix, marrays only
@@ -115,10 +126,10 @@
 		  append
 		  (loop for j from 0 below (third spec)
 		     collect
-		       `(maref ,symbol ,i ,j ',(cffi-cl (first spec)))))
+		     `(maref ,symbol ,i ,j ',(cffi-cl (first spec)))))
 	       ;; vector, marray or C array
-	       (loop for ind from 0 below (second spec)
-		  collect (if marray
+	       (loop for ind from 0 below (abs (second spec))
+		  collect (if (if (minusp (second spec)) (not marray) marray)
 			      `(maref ,symbol ,ind nil ',(cffi-cl (first spec)))
 			      `(cffi:mem-aref ,symbol ',(first spec) ,ind))))
 	   (list symbol)))))
@@ -128,14 +139,17 @@
   (multiple-value-bind (settype setcba)
       (loop for cba in callback-args
 	 for type in types
-	 for setting = (and (listp type) (eq (first type) :set))
+	 for setting = (and (listp type) (member (first type) *setting-spec*))
 	 when setting
 	 collect cba into setcba
 	 when setting
 	 collect type into settype
 	 finally (return (values (mapcar 'rest settype) setcba)))
     (let* ((setvbls (embedded-clfunc-args settype setcba marray))
-	   (count (apply '+ (mapcar (lambda (inds) (apply '* (rest inds))) settype)))
+	   (count
+	    (apply
+	     '+
+	     (mapcar (lambda (inds) (abs (apply '* (rest inds)))) settype)))
 	   (mvbvbls (loop repeat count collect (gensym "SETCB"))))
       (if (zerop count)
 	  form
@@ -144,9 +158,6 @@
 	     (setf ,@(loop for mvbvbl in mvbvbls
 			for setvbl in setvbls
 			append (list setvbl mvbvbl))))))))
-
-;;; (DEFMCALLBACK VANDERPOL :SUCCESS-FAILURE (:DOUBLE (:DOUBLE 2) (:SET :DOUBLE 2)))
-;;; (DEFMCALLBACK VANDERPOL :SUCCESS-FAILURE (:DOUBLE (:DOUBLE 2)))
 
 (defmacro defmcallback
     (name &optional (return-type :double) (argument-types :double)

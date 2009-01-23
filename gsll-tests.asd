@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-21 22:58:22EST gsll-tests.asd>
+;; Time-stamp: <2009-01-22 21:37:49EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -116,6 +116,8 @@
 	     (:file "matrix-variance-with-fixed-mean")
 	     (:file "matrix-variance-with-mean")
 	     (:file "median-percentile")
+	     (:file "minimization-one")
+	     (:file "minimization-multi")
 	     (:file "monte-carlo")
 	     (:file "multinomial")
 	     (:file "negative-binomial")

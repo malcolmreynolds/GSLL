@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-21 22:38:26EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-22 22:19:34EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -385,32 +385,33 @@
 
 (def-mfunction rosenbrock 2)
 
-(defun roots-multi-example (&optional (print-steps t))
+(defun roots-multi-example-no-derivative
+    (&optional (method *hybrid-scaled*) (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
-  (let ((max-iter 1000))
-    (let* ((vect #m(-10.0d0 -5.0d0))
-	   (solver (make-multi-dimensional-root-solver-f
-		    *hybrid-scaled* rosenbrock vect)))
-      (loop for iter from 0
-	 with fnval and argval
-	 while (and (< iter max-iter)
-		    (not (multiroot-test-residual solver 1.0d-7)))
-	 do
-	 (iterate solver)
-	 (setf fnval (cl-array (function-value solver))
-	       argval (cl-array (solution solver)))
-	 (when print-steps
-	   (format t "iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g~&"
-		   iter
-		   (aref argval 0)
-		   (aref argval 1)
-		   (aref fnval 0)
-		   (aref fnval 1)))
-	 finally (return
-		   (values (aref argval 0)
-			   (aref argval 1)
-			   (aref fnval 0)
-			   (aref fnval 1)))))))
+  (let ((max-iter 1000)
+	(solver (make-multi-dimensional-root-solver-f
+		 method rosenbrock
+		 #m(-10.0d0 -5.0d0))))
+    (loop for iter from 0
+       with fnval and argval
+       while (and (< iter max-iter)
+		  (not (multiroot-test-residual solver 1.0d-7)))
+       do
+       (iterate solver)
+       (setf fnval (function-value solver)
+	     argval (solution solver))
+       (when print-steps
+	 (format t "iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g~&"
+		 iter
+		 (maref argval 0)
+		 (maref argval 1)
+		 (maref fnval 0)
+		 (maref fnval 1)))
+       finally (return
+		 (values (maref argval 0)
+			 (maref argval 1)
+			 (maref fnval 0)
+			 (maref fnval 1))))))
 
 (defun rosenbrock-df (arg0 arg1)
   "The partial derivatives of the Rosenbrock functions."
@@ -436,7 +437,7 @@
 
 (def-solver-functions rosenbrock-f rosenbrock-df rosenbrock-fdf 2)
 
-(defun roots-multi-example-df (&optional (print-steps t))
+(defun roots-multi-example-derivative (&optional (method *gnewton-mfdfsolver*) (print-steps t))
   "Solving Rosenbrock with derivatives, the example given in Sec. 34.8
    of the GSL manual."
   (flet ((print-state (iter argval fnval)
@@ -447,27 +448,35 @@
 		     (maref argval 1)
 		     (maref fnval 0)
 		     (maref fnval 1)))))
-    (let ((max-iter 1000))
-      (let* ((vect #m(-10.0d0 -5.0d0))
-	     (solver (make-multi-dimensional-root-solver-fdf
-		      *gnewton-mfdfsolver* rosenbrock-f vect)))
-	(loop for iter from 0
-	   with fnval = (function-value solver)
-	   and argval = (solution solver)
-	   while (and (< iter max-iter)
-		      (not (multiroot-test-residual solver 1.0d-7)))
-	   initially (print-state iter argval fnval)
-	   do
-	   (iterate solver)
-	   (setf fnval (function-value solver)
-		 argval (solution solver))
-	   (print-state iter argval fnval)
-	   finally (return
-		     (values (maref argval 0)
-			     (maref argval 1)
-			     (maref fnval 0)
-			     (maref fnval 1))))))))
+    (let ((max-iter 1000)
+	  (solver (make-multi-dimensional-root-solver-fdf
+		   method rosenbrock-f
+		   #m(-10.0d0 -5.0d0))))
+      (loop for iter from 0
+	 with fnval = (function-value solver)
+	 and argval = (solution solver)
+	 while (and (< iter max-iter)
+		    (not (multiroot-test-residual solver 1.0d-7)))
+	 initially (print-state iter argval fnval)
+	 do
+	 (iterate solver)
+	 (setf fnval (function-value solver)
+	       argval (solution solver))
+	 (print-state iter argval fnval)
+	 finally (return
+		   (values (maref argval 0)
+			   (maref argval 1)
+			   (maref fnval 0)
+			   (maref fnval 1)))))))
 
+;; To see step-by-step information as the solution progresses, make
+;; the last argument T.
 (save-test roots-multi
- (roots-multi-example nil)
- (roots-multi-example-df nil))
+ (roots-multi-example-no-derivative *hybrid-unscaled* nil)
+ (roots-multi-example-no-derivative *hybrid-scaled* nil)
+ (roots-multi-example-no-derivative *discrete-newton* nil)
+ (roots-multi-example-no-derivative *broyden* nil)
+ (roots-multi-example-derivative *newton-mfdfsolver* nil)
+ (roots-multi-example-derivative *gnewton-mfdfsolver* nil)
+ (roots-multi-example-derivative *powells-hybrid* nil)
+ (roots-multi-example-derivative *powells-hybrid-unscaled* nil))

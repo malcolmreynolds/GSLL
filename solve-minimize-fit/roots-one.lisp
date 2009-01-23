@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-19 22:04:19EST roots-one.lisp>
+;; Time-stamp: <2009-01-22 22:15:50EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -330,12 +330,12 @@
 
 (def-single-function quadratic)
 
-(defun roots-one-example (&optional (print-steps t))
+(defun roots-one-example-no-derivative
+    (&optional (method *brent-fsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50)
 	(solver
-	 (make-one-dimensional-root-solver-f
-	  *brent-fsolver* quadratic 0.0d0 5.0d0)))
+	 (make-one-dimensional-root-solver-f method quadratic 0.0d0 5.0d0)))
     (when print-steps
       (format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
     (loop for iter from 0
@@ -361,12 +361,13 @@
 (def-solver-functions
     quadratic-df quadratic-derivative quadratic-and-derivative)
 
-(defun roots-one-fdf-example (&optional (print-steps t))
+(defun roots-one-example-derivative
+    (&optional (method *newton-fdfsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let* ((max-iter 100)
 	 (initial 5.0d0)
 	 (solver (make-one-dimensional-root-solver-fdf
-		  *newton-fdfsolver* quadratic-df initial)))
+		  method quadratic-df initial)))
     (when print-steps
       (format t "iter ~6t ~8troot ~22terr ~34terr(est)~&"))
     (loop for iter from 0
@@ -380,6 +381,12 @@
 		 iter root (- root (sqrt 5.0d0)) (- root oldroot)))
        finally (return root))))
 
+;; To see step-by-step information as the solution progresses, make
+;; the last argument T.
 (save-test roots-one
- (roots-one-example nil)
- (roots-one-fdf-example nil))
+ (roots-one-example-no-derivative *bisection-fsolver* nil)
+ (roots-one-example-no-derivative *false-position-fsolver* nil)
+ (roots-one-example-no-derivative *brent-fsolver* nil)
+ (roots-one-example-derivative *newton-fdfsolver* nil)
+ (roots-one-example-derivative *secant-fdfsolver* nil)
+ (roots-one-example-derivative *steffenson-fdfsolver* nil))

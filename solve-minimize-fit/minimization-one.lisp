@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-01-03 15:42:59EST minimization-one.lisp>
+;; Time-stamp: <2009-01-22 18:59:23EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -178,24 +178,34 @@
 (defun-single minimization-one-fn (x)
   (1+ (cos x)))
 
-(defun minimization-one-example ()
+(defun minimization-one-example
+    (&optional (minimizer-type *brent-fminimizer*) (print-steps t))
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
   (let ((max-iter 100)
 	(minimizer
 	 (make-one-dimensional-minimizer
-	  *brent-fminimizer* minimization-one-fn 2.0d0 0.0d0 6.0d0)))
-    (format t "~&iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower")
+	  minimizer-type minimization-one-fn 2.0d0 0.0d0 6.0d0)))
+    (when print-steps
+      (format
+       t
+       "iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower~&"))
     (loop for iter from 0
        for min = (solution minimizer)
        for lower = (fminimizer-x-lower minimizer)
        for upper = (fminimizer-x-upper minimizer)
        do (iterate minimizer)
+       (when print-steps
+	 (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g~&"
+		 iter lower upper
+		 min (- min pi)
+		 (- upper lower)))
+
        while  (and (< iter max-iter)
 		   ;; abs and rel error swapped in example?
 		   (not (min-test-interval lower upper 0.001d0 0.0d0)))
-       do
-       (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g"
-	       iter lower upper
-	       min (- min pi)
-	       (- upper lower)))))
+       finally
+       (return (values iter lower upper min (- min pi) (- upper lower))))))
 
+(save-test minimization-one
+ (minimization-one-example *brent-fminimizer* nil)
+ (minimization-one-example *golden-section-fminimizer* nil))

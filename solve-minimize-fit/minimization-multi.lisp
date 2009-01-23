@@ -1,18 +1,18 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-01-03 13:27:12EST minimization-multi.lisp>
+;; Time-stamp: <2009-01-22 21:35:26EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_multimin.h
 
-;; In the parabaloid example, I notice that the consruct 
-;; (min-test-gradient (mfdfminimizer-gradient minimizer) 1.0d-3)
-;; is constructing a CL vector-double-float (in mfdfminimizer-gradient) and
-;; then immediately pulling out the pointer (in min-test-gradient).  It
-;; is easy enough to eliminate this, but then mfdfminimizer-gradient
-;; would not be useful to a CL user.
+;;; In the parabaloid example, I notice that the consruct 
+;;; (min-test-gradient (mfdfminimizer-gradient minimizer) 1.0d-3)
+;;; is constructing a CL vector-double-float (in mfdfminimizer-gradient) and
+;;; then immediately pulling out the pointer (in min-test-gradient).  It
+;;; is easy enough to eliminate this, but then mfdfminimizer-gradient
+;;; would not be useful to a CL user.
 
 ;;;;****************************************************************************
 ;;;; Function definition
@@ -28,23 +28,24 @@
 ;;; they point to have different signatures.
 
 (export 'def-minimization-functions)
-(defmacro def-minimization-functions (function dimensions &optional df fdf)
+(defmacro def-minimization-functions (function dimensions &optional df fdf array)
   "Setup functions for multivariate minimization.
    The CL functions name and derivative should be defined previously
    with defuns."
-  `(progn
-    (defmcallback ,function :double :pointer)
-    ,@(when df
-	    `((defmcallback ,df :pointer :pointer :pointer)
-	      (defmcallback ,fdf :pointer :pointer (:pointer :pointer))))
-    ,(if df
-	 `(defcbstruct (,function function ,df df ,fdf fdf)
-	   gsl-mfunction-fdf
-	   ((dimensions ,dimensions)))
-	 `(defcbstruct (,function function)
-	   gsl-mfunction
-	   ((dimensions ,dimensions))))))
-
+  (let ((vdec (if array :pointer `((:double ,dimensions))))
+	(svdec (if array :pointer `(:set :double ,dimensions))))
+    `(progn
+       (defmcallback ,function :double ,vdec nil t)
+       ,@(when df
+	       `((defmcallback ,df :void ,vdec (,svdec) t)
+		 (defmcallback ,fdf :void ,vdec ((:set :double -1) ,svdec) t)))
+       ,(if df
+	    `(defcbstruct (,function function ,df df ,fdf fdf)
+		 gsl-mfunction-fdf
+	       ((dimensions ,dimensions)))
+	    `(defcbstruct (,function function)
+		 gsl-mfunction
+	       ((dimensions ,dimensions)))))))
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -280,10 +281,13 @@
 
 ;;; Examples from Sec. 35.8.
 
+;;; Example using derivatives, taking a vector argument.
+
 (defparameter *parabaloid-center* #(1.0d0 2.0d0))
 
 (defun parabaloid (gsl-vector-pointer)
-  "A parabaloid function of two arguments, given in GSL manual Sec. 35.4."
+  "A parabaloid function of two arguments, given in GSL manual Sec. 35.4.
+   This version takes a vector-double-float argument."
   (let ((x (maref gsl-vector-pointer 0))
 	(y (maref gsl-vector-pointer 1))
 	(dp0 (aref *parabaloid-center* 0))
@@ -303,20 +307,21 @@
 	  (maref derivative-gv-pointer 1)
 	  (* 40 (- y dp1)))))
 
-(defun parabaloid-and-derivative
-    (arguments-gv-pointer fnval derivative-gv-pointer)
-  (setf (dcref fnval) (parabaloid arguments-gv-pointer))
-  (parabaloid-derivative
-   arguments-gv-pointer derivative-gv-pointer))
+(defun parabaloid-and-derivative (arguments-gv-pointer derivative-gv-pointer)
+  (prog1
+      (parabaloid arguments-gv-pointer)
+    (parabaloid-derivative
+     arguments-gv-pointer derivative-gv-pointer)))
 
 (def-minimization-functions
-    parabaloid 2 parabaloid-derivative parabaloid-and-derivative)
+    parabaloid 2 parabaloid-derivative parabaloid-and-derivative t)
 
-(defun multimin-example-fletcher-reeves ()
+(defun multimin-example-derivative
+    (&optional (method *conjugate-fletcher-reeves*) (print-steps t))
   (let* ((initial #m(5.0d0 7.0d0))
 	 (minimizer
 	  (make-multi-dimensional-minimizer-fdf
-	   *conjugate-fletcher-reeves* 2 parabaloid
+	   method 2 parabaloid
 	   initial 0.01d0 1.0d-4)))
     (loop with status = T
        for iter from 0 below 100
@@ -327,29 +332,36 @@
 	     (not (min-test-gradient
 		   (mfdfminimizer-gradient minimizer)
 		   1.0d-3)))
-       (let ((x (solution minimizer)))
-	 (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f"
-		 iter (maref x 0) (maref x 1)
-		 (function-value minimizer)))
-       finally (return
-		 (let ((x (solution minimizer)))
-		   (values (maref x 0) (maref x 1)))))))
+       (when print-steps
+	 (let ((x (solution minimizer)))
+	   (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f~&"
+		   iter (maref x 0) (maref x 1)
+		   (function-value minimizer))))
+       finally
+       (return
+	 (let ((x (solution minimizer)))
+	   (values (maref x 0) (maref x 1) (function-value minimizer)))))))
 
-;;; Because def-minimization-functions bind a symbol
-;;; of the same name as the first function, and we want both to run,
-;;; we'll make an alias function so we can use both.  
-(defun parabaloid-f (gsl-vector-pointer)
-  (parabaloid gsl-vector-pointer))
+;;; Example without derivatives, same function but now defined using
+
+(defun parabaloid-f (x y)
+  "A parabaloid function of two arguments, given in GSL manual Sec. 35.4.
+   This version takes scalar arguments."
+  (let ((dp0 (aref *parabaloid-center* 0))
+	(dp1 (aref *parabaloid-center* 1)))
+    (+ (* 10 (expt (- x dp0) 2))
+       (* 20 (expt (- y dp1) 2))
+       30)))
 
 (def-minimization-functions parabaloid-f 2)
 
-(defun multimin-example-nelder-mead ()
-  (let ((initial #m(5.0d0 7.0d0))
-	(step-size (make-marray 'double-float :dimensions 2)))
+(defun multimin-example-no-derivative
+    (&optional (method *simplex-nelder-mead*) (print-steps t))
+  (let ((step-size (make-marray 'double-float :dimensions 2)))
     (set-all step-size 1.0d0)
     (let ((minimizer
 	   (make-multi-dimensional-minimizer-f
-	    *simplex-nelder-mead* 2 parabaloid-f initial step-size)))
+	    method 2 parabaloid-f #m(5.0d0 7.0d0) step-size)))
       (loop with status = T and size
 	 for iter from 0 below 100
 	 while status
@@ -358,11 +370,19 @@
 	       (mfminimizer-size minimizer)
 	       status
 	       (not (min-test-size size 1.0d-2)))
-	 (let ((x (solution minimizer)))
-	   (format t "~&~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f"
-		   iter (maref x 0) (maref x 1)
-		   (function-value minimizer)
-		   size))
-	 finally (return
-		   (let ((x (solution minimizer)))
-		     (values (maref x 0) (maref x 1))))))))
+	 (when print-steps
+	   (let ((x (solution minimizer)))
+	     (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f~40t~8,3f~&"
+		     iter (maref x 0) (maref x 1)
+		     (function-value minimizer)
+		     size)))
+	 finally
+	 (return
+	   (let ((x (solution minimizer)))
+	     (values (maref x 0) (maref x 1) (function-value minimizer))))))))
+
+(save-test minimization-multi
+ (multimin-example-no-derivative *simplex-nelder-mead* nil)
+ (multimin-example-derivative *conjugate-fletcher-reeves* nil)
+ (multimin-example-derivative *conjugate-polak-ribiere* nil)
+ (multimin-example-derivative *vector-bfgs* nil))

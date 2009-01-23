@@ -34,6 +34,7 @@ Fail in CCL but not in SBCL:
 series-acceleration
 linear-least-squares
 nonlinear-least-squares
+minimization-multi
 
 === GSL questions ===
 Sun Nov  9 2008:
