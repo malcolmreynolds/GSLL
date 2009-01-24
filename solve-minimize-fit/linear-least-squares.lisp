@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2009-01-19 23:23:11EST linear-least-squares.lisp>
+;; Time-stamp: <2009-01-24 09:24:25EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -137,8 +137,27 @@
   "multi-dimensional root solver with function only"
   "Make a workspace for a multidimensional linear least-squares fit.")
 
+(defun size-array (array-or-size)
+  (if (numberp array-or-size)
+      array-or-size
+      (dim0 array-or-size)))
+
+(defun default-covariance (parameters-or-size)
+  (make-marray
+   'double-float
+   :dimensions
+   (let ((s (size-array parameters-or-size))) (list s s))))
+
+(defun default-lls-workspace (observations parameters-or-size)
+  (make-fit-workspace
+   (dim0 observations) (size-array parameters-or-size)))
+
 (defmfun linear-mfit
-    (model observations parameters covariance tolerance workspace)
+    (model observations parameters-or-size tolerance
+	   &optional
+	   (covariance (default-covariance parameters-or-size))
+	   (workspace (default-lls-workspace observations parameters-or-size))
+	   &aux (parameters (vdf parameters-or-size)))
   "gsl_multifit_linear"
   (((mpointer model) :pointer) ((mpointer observations) :pointer)
    (tolerance :double)
@@ -161,7 +180,11 @@
    zero singular value (to machine precision) are discarded from the fit.")
 
 (defmfun linear-mfit-svd
-    (model observations parameters covariance tolerance workspace)
+    (model observations parameters-or-size tolerance
+	   &optional
+	   (covariance (default-covariance parameters-or-size))
+	   (workspace (default-lls-workspace observations parameters-or-size))
+	   &aux (parameters (vdf parameters-or-size)))
   "gsl_multifit_linear_svd"
   (((mpointer model) :pointer) ((mpointer observations) :pointer)
    (tolerance :double)
@@ -189,22 +212,11 @@
    tolerance tolerance, and the effective rank is returned as the
    second value.")
 
-(defun size-array (array-or-size)
-  (if (numberp array-or-size)
-      array-or-size
-      (dim0 array-or-size)))
-
 (defmfun weighted-linear-mfit
     (model weight observations parameters-or-size
 	   &optional
-	   (covariance
-	    (make-marray
-	     'double-float
-	     :dimensions
-	     (let ((s (size-array parameters-or-size))) (list s s))))
-	   (workspace
-	    (make-fit-workspace
-	     (dim0 observations) (size-array parameters-or-size)))
+	   (covariance (default-covariance parameters-or-size))
+	   (workspace (default-lls-workspace observations parameters-or-size))
 	   &aux
 	   (parameters (vdf parameters-or-size)))
   "gsl_multifit_wlinear"
@@ -231,7 +243,11 @@
    discarded from the fit.")
 
 (defmfun weighted-linear-mfit-svd
-    (model weight observations parameters covariance tolerance workspace)
+    (model weight observations parameters-or-size tolerance
+	   &optional
+	   (covariance (default-covariance parameters-or-size))
+	   (workspace (default-lls-workspace observations parameters-or-size))
+	   &aux (parameters (vdf parameters-or-size)))
   "gsl_multifit_wlinear_svd"
   (((mpointer model) :pointer)
    ((mpointer weight) :pointer)
@@ -274,7 +290,7 @@
 ;;;; Examples
 ;;;;****************************************************************************
 
-(defun univariate-linear-least-squares-example (&optional (print-steps t))
+(defun linear-least-squares-univariate-example (&optional (print-steps t))
   "First example in Section 36.5 of the GSL manual."
   ;; Results not given in manual so not verified yet.
   (let ((x #m(1970.0d0 1980.0d0 1990.0d0 2000.0d0))
@@ -318,7 +334,7 @@
 	  collect
 	  (list xd (+ y0 (gaussian rng sigma)) sigma))))
 
-(defun mv-linear-least-squares-example (data &optional (print-steps t))
+(defun linear-least-squares-multivariate-example (data &optional (print-details t))
   "Second example in Section 36.5 of the GSL manual.  Returns the
    coefficients of x^0, x^1, x^2 for the best fit, and the chi
    squared."
@@ -335,7 +351,7 @@
 	     (maref w i) (/ (expt (third row) 2))))
     (multiple-value-bind (parameters cov chisq)
 	(weighted-linear-mfit X w y 3)
-      (when print-steps
+      (when print-details
 	(format t "Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2~&"
 		(maref parameters 0) (maref parameters 1) (maref parameters 2))
 	(format t "Covariance matrix:~&")
@@ -351,5 +367,5 @@
        chisq))))
 
 (save-test linear-least-squares
- (univariate-linear-least-squares-example nil)
- (mv-linear-least-squares-example (mv-linear-least-squares-data) nil))
+ (linear-least-squares-univariate-example nil)
+ (linear-least-squares-multivariate-example (mv-linear-least-squares-data) nil))

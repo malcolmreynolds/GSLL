@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-01-19 22:10:45EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-01-24 11:46:27EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -66,14 +66,16 @@
 ;;;;****************************************************************************
 
 (cffi:defcstruct gsl-ffit-function
-  ;; See /usr/include/gsl/gsl_multifit_nlin.h
   "The definition of a function for nonlinear least squares fitting in GSL."
+  ;; See gsl_multifit_function in /usr/include/gsl/gsl_multifit_nlin.h
+  ;; Note that this is moot because GSL currently does not have any
+  ;; derivative-free fitting functions.
   (function :pointer)
-  (dimensions sizet)
+  (number-of-observations sizet)
+  (number-of-parameters sizet)
   (parameters :pointer))
 
 (cffi:defcstruct gsl-fdffit-function
-  ;; See 
   "The definition of a function and its derivatives for nonlinear
    least squares fitting in GSL."
   (function :pointer)
@@ -85,24 +87,35 @@
 
 (export 'def-fitting-functions)
 (defmacro def-fitting-functions
-    (function number-of-observations number-of-parameters &optional df fdf)
+    (function number-of-parameters &optional df fdf (number-of-observations 0))
   "Setup functions for nonlinear least squares fitting.
    The CL functions name and derivative should be defined previously
    with defuns."
+  ;; The number of observations doesn't have anything to do with the
+  ;; fitting functions, only with the data.  Therefore it defaults to
+  ;; 0 and should be specified separately with the data.
   `(progn
-    (defmcallback ,function :success-failure :pointer :pointer)
-    ,@(when df
-	    `((defmcallback ,df :success-failure :pointer :pointer)
-	      (defmcallback ,fdf :success-failure :pointer (:pointer :pointer))))
-    ,(if df
-	 `(defcbstruct (,function function ,df df ,fdf fdf)
-	   gsl-fdffit-function
-	   ((number-of-observations ,number-of-observations)
-	    (number-of-parameters ,number-of-parameters)))
-	 `(defcbstruct (,function function)
-	   gsl-ffit-function
-	   ((number-of-observations ,number-of-observations)
-	    (number-of-parameters ,number-of-parameters))))))
+     (defmcallback ,function :success-failure :pointer :pointer)
+     ,@(when df
+	     `((defmcallback ,df :success-failure :pointer :pointer)
+	       (defmcallback ,fdf :success-failure :pointer (:pointer :pointer))))
+     ,(if df
+	  `(defcbstruct (,function function ,df df ,fdf fdf)
+	       gsl-fdffit-function
+	     ((number-of-observations ,number-of-observations)
+	      (number-of-parameters ,number-of-parameters)))
+	  `(defcbstruct (,function function)
+	       gsl-ffit-function
+	     ((number-of-observations ,number-of-observations)
+	      (number-of-parameters ,number-of-parameters))))))
+
+(export '(number-of-parameters number-of-observations))
+
+(defun number-of-parameters (pointer)
+  (cffi:foreign-slot-value pointer 'gsl-fdffit-function 'number-of-parameters))
+
+(defmacro number-of-observations (pointer)
+  `(cffi:foreign-slot-value ,pointer 'gsl-fdffit-function 'number-of-observations))
 
 ;;;;****************************************************************************
 ;;;; Iteration
@@ -297,26 +310,22 @@
 ;;; See the GSL source tree, doc/examples/expfit.c for the functions
 ;;; and doc/examples/nlfit.c for the solver.
 
-
-(defparameter *number-of-observations* 40)
-(defparameter *number-of-parameters* 3)
 (defstruct exponent-fit-data n y sigma)
 (defvar *nlls-example-data*)
 
-(defun nlls-setup ()
+(defun generate-nlls-data (&optional (number-of-observations 40))
   "Create the data used in the nonlinear least squares fit example."
-  (setf
-   *nlls-example-data*
-   (make-exponent-fit-data
-    :n *number-of-observations*
-    :y
-    (let ((arr (make-marray 'double-float :dimensions *number-of-observations*))
-	  (rng (make-random-number-generator *mt19937* 0)))
-      (dotimes (i *number-of-observations* arr)
-	(setf (maref arr i)
-	      (+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0)))))
-    :sigma
-    (make-marray 'double-float :dimensions *number-of-observations* :initial-element 0.1d0))))
+  (make-exponent-fit-data
+   :n number-of-observations
+   :y
+   (let ((arr (make-marray 'double-float :dimensions number-of-observations))
+	 (rng (make-random-number-generator *mt19937* 0)))
+     (dotimes (i number-of-observations arr)
+       (setf (maref arr i)
+	     (+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0)))))
+   :sigma
+   (make-marray
+    'double-float :dimensions number-of-observations :initial-element 0.1d0)))
 
 (defun exponential-residual (x f)
   "Compute the negative of the residuals with the exponential model
@@ -327,7 +336,7 @@
     (symbol-macrolet
 	((y (exponent-fit-data-y *nlls-example-data*))
 	 (sigma (exponent-fit-data-sigma *nlls-example-data*)))
-      (dotimes (i *number-of-observations*)
+      (dotimes (i (exponent-fit-data-n *nlls-example-data*))
 	(setf (maref f i)
 	      ;; the difference model - observation = - residual
 	      (/ (- (+ (* A (exp (* (- lambda) i))) b) (maref y i))
@@ -341,7 +350,7 @@
 	(lambda (maref x 1)))
     (symbol-macrolet
 	  ((sigma (exponent-fit-data-sigma *nlls-example-data*)))
-	(dotimes (i *number-of-observations*)
+	(dotimes (i (exponent-fit-data-n *nlls-example-data*))
 	  (let ((e (exp (* (- lambda) i)))
 		(s (maref sigma i)))
 	  (setf (maref jacobian i 0) (/ e s)
@@ -355,53 +364,58 @@
   (exponential-residual x f)
   (exponential-residual-derivative x jacobian))
 
-(def-fitting-functions
-    exponential-residual *number-of-observations* *number-of-parameters*
-    exponential-residual-derivative exponential-residual-fdf)
+(def-fitting-functions exponential-residual 3
+  exponential-residual-derivative exponential-residual-fdf)
 
 (defun norm-f (fit)
   "Find the norm of the fit function f."
   (euclidean-norm (function-value fit)))
 
-(defun solve-nonlinear-least-squares-example (&optional (print-steps t))
-  (let* ((init #m(1.0d0 0.0d0 0.0d0))
-	 (covariance
-	  (make-marray 'double-float
-		       :dimensions
-		       (list *number-of-parameters* *number-of-parameters*)))
-	 (fit (make-nonlinear-fdffit
-	       *levenberg-marquardt*
-	       *number-of-observations*
-	       *number-of-parameters*
-	       exponential-residual
-	       init)))
-    (macrolet ((fitx (i) `(maref (solution fit) ,i))
-	       (err (i) `(sqrt (maref covariance ,i ,i))))
-      (when print-steps
-	(format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
-		0 (fitx 0) (fitx 1) (fitx 2)
-		(norm-f fit)))
-      (loop for iter from 0 below 25
-	 until
-	 (and (plusp iter)
-	      (fit-test-delta (last-step fit) (mpointer (solution fit)) 1.0d-4 1.0d-4))
-	 do
-	 (iterate fit)
-	 (ls-covariance (jacobian fit) 0.0d0 covariance)
-	 (when print-steps
-	   (format t "~&iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g"
-		   (1+ iter) (fitx 0) (fitx 1) (fitx 2)
-		   (norm-f fit)))
-	 finally
-	 (let* ((chi (norm-f fit))
-		(dof (- *number-of-observations* *number-of-parameters*))
-		(c (max 1.0d0 (/ chi (sqrt dof)))))
+(defun nonlinear-least-squares-example
+    (&optional (number-of-observations 40)
+     (method *levenberg-marquardt*)
+     (print-steps t))
+  (let ((*nlls-example-data* (generate-nlls-data number-of-observations)))
+    (setf (number-of-observations exponential-residual) number-of-observations)
+    (let* ((init #m(1.0d0 0.0d0 0.0d0))
+	   (number-of-parameters (number-of-parameters exponential-residual))
+	   (covariance
+	    (make-marray 'double-float
+			 :dimensions
+			 (list number-of-parameters number-of-parameters)))
+	   (fit (make-nonlinear-fdffit
+		 method
+		 number-of-observations
+		 number-of-parameters
+		 exponential-residual
+		 init)))
+      (macrolet ((fitx (i) `(maref (solution fit) ,i))
+		 (err (i) `(sqrt (maref covariance ,i ,i))))
+	(when print-steps
+	  (format t "iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g~&"
+		  0 (fitx 0) (fitx 1) (fitx 2)
+		  (norm-f fit)))
+	(loop for iter from 0 below 25
+	   until
+	   (and (plusp iter)
+		(fit-test-delta (last-step fit) (mpointer (solution fit)) 1.0d-4 1.0d-4))
+	   do
+	   (iterate fit)
+	   (ls-covariance (jacobian fit) 0.0d0 covariance)
 	   (when print-steps
-	     (format t "~&chisq/dof = ~g" (/ (expt chi 2) dof))
-	     (format t "~&A         = ~,5f +/- ~,5f" (fitx 0) (* c (err 0)))
-	     (format t "~&lambda    = ~,5f +/- ~,5f" (fitx 1) (* c (err 1)))
-	     (format t "~&b         = ~,5f +/- ~,5f" (fitx 2) (* c (err 2))))
-	   (return (list (fitx 0) (fitx 1) (fitx 2))))))))
+	     (format t "iter: ~d x = ~15,8f ~15,8f ~15,8f |f(x)|=~7,6g~&"
+		     (1+ iter) (fitx 0) (fitx 1) (fitx 2)
+		     (norm-f fit)))
+	   finally
+	   (let* ((chi (norm-f fit))
+		  (dof (- number-of-observations number-of-parameters))
+		  (c (max 1.0d0 (/ chi (sqrt dof)))))
+	     (when print-steps
+	       (format t "chisq/dof = ~g~&" (/ (expt chi 2) dof))
+	       (format t "A         = ~,5f +/- ~,5f~&" (fitx 0) (* c (err 0)))
+	       (format t "lambda    = ~,5f +/- ~,5f~&" (fitx 1) (* c (err 1)))
+	       (format t "b         = ~,5f +/- ~,5f~&" (fitx 2) (* c (err 2))))
+	     (return (list (fitx 0) (fitx 1) (fitx 2)))))))))
 
 (save-test nonlinear-least-squares
- (progn (nlls-setup) (solve-nonlinear-least-squares-example nil)))
+	   (nonlinear-least-squares-example 40 *levenberg-marquardt* nil))

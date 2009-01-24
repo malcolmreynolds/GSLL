@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-22 22:19:34EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-24 09:12:18EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -12,33 +12,6 @@
 ;;; future enhancement is to optionally pass marrays and return
 ;;; marrays instead.  This would allow directly manipulation of
 ;;; marrays by the user function.  Notes Mon Jan 19 2009.
-
-;;;;****************************************************************************
-;;;; Function definition
-;;;;****************************************************************************
-
-(cffi:defcstruct gsl-mfunction
-  ;; See /usr/include/gsl/gsl_multiroots.h
-  "The definition of a function for multiroot finding in GSL."
-  (function :pointer)
-  (dimensions sizet)
-  (parameters :pointer))
-
-(export 'def-mfunction)
-(defmacro def-mfunction (name dimensions)
-  "Define a function for multivariate root solving."
-  `(def-single-function ,name :success-failure :double gsl-mfunction
-    ,dimensions))
-
-(cffi:defcstruct gsl-mfunction-fdf
-  ;; See /usr/include/gsl/gsl_multiroots.h
-  "The definition of a function and its derivatives for multiroot
-   finding in GSL."
-  (function :pointer)
-  (df :pointer)
-  (fdf :pointer)
-  (dimensions sizet)
-  (parameters :pointer))
 
 ;;;;****************************************************************************
 ;;;; Initialization

@@ -8,7 +8,4 @@
                          (LIST 5.045357801443204d0 0.10404905892045835d0
                                1.0192487061031013d0))
                         (MULTIPLE-VALUE-LIST
-                         (PROGN
-                          (NLLS-SETUP)
-                          (SOLVE-NONLINEAR-LEAST-SQUARES-EXAMPLE NIL)))))
-
+			 (NONLINEAR-LEAST-SQUARES-EXAMPLE 40 *levenberg-marquardt* NIL))))
