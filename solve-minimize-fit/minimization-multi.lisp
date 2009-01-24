@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-01-22 21:35:26EST minimization-multi.lisp>
+;; Time-stamp: <2009-01-24 16:58:00EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -27,25 +27,28 @@
 ;;; pointer is a pointer, even though the C definition the functions
 ;;; they point to have different signatures.
 
-(export 'def-minimization-functions)
-(defmacro def-minimization-functions (function dimensions &optional df fdf array)
+(export 'make-minimization-functions)
+(defmacro make-minimization-functions (function dimensions &optional df fdf array)
   "Setup functions for multivariate minimization.
    The CL functions name and derivative should be defined previously
    with defuns."
   (let ((vdec (if array :pointer `((:double ,dimensions))))
 	(svdec (if array :pointer `(:set :double ,dimensions))))
-    `(progn
-       (defmcallback ,function :double ,vdec nil t)
-       ,@(when df
-	       `((defmcallback ,df :void ,vdec (,svdec) t)
-		 (defmcallback ,fdf :void ,vdec ((:set :double -1) ,svdec) t)))
-       ,(if df
-	    `(defcbstruct (,function function ,df df ,fdf fdf)
-		 gsl-mfunction-fdf
-	       ((dimensions ,dimensions)))
-	    `(defcbstruct (,function function)
-		 gsl-mfunction
-	       ((dimensions ,dimensions)))))))
+    (with-unique-names (solverfn solverdf solverfdf)
+      `(progn
+	 (defmcallback ,solverfn :double ,vdec nil t ,function)
+	 ,@(when
+	    df
+	    `((defmcallback ,solverdf :void ,vdec (,svdec) t ,df)
+	      (defmcallback
+		  ,solverfdf :void ,vdec ((:set :double -1) ,svdec) t ,fdf)))
+	 ,(if df
+	      `(defcbstruct (,solverfn function ,solverdf df ,solverfdf fdf)
+		   gsl-mfunction-fdf
+		 ((dimensions ,dimensions)))
+	      `(defcbstruct (,solverfn function)
+		   gsl-mfunction
+		 ((dimensions ,dimensions))))))))
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -285,11 +288,11 @@
 
 (defparameter *parabaloid-center* #(1.0d0 2.0d0))
 
-(defun parabaloid (gsl-vector-pointer)
+(defun parabaloid-vector (gsl-vector)
   "A parabaloid function of two arguments, given in GSL manual Sec. 35.4.
    This version takes a vector-double-float argument."
-  (let ((x (maref gsl-vector-pointer 0))
-	(y (maref gsl-vector-pointer 1))
+  (let ((x (maref gsl-vector 0))
+	(y (maref gsl-vector 1))
 	(dp0 (aref *parabaloid-center* 0))
 	(dp1 (aref *parabaloid-center* 1)))
     (+ (* 10 (expt (- x dp0) 2))
@@ -309,19 +312,19 @@
 
 (defun parabaloid-and-derivative (arguments-gv-pointer derivative-gv-pointer)
   (prog1
-      (parabaloid arguments-gv-pointer)
+      (parabaloid-vector arguments-gv-pointer)
     (parabaloid-derivative
      arguments-gv-pointer derivative-gv-pointer)))
-
-(def-minimization-functions
-    parabaloid 2 parabaloid-derivative parabaloid-and-derivative t)
 
 (defun multimin-example-derivative
     (&optional (method *conjugate-fletcher-reeves*) (print-steps t))
   (let* ((initial #m(5.0d0 7.0d0))
 	 (minimizer
 	  (make-multi-dimensional-minimizer-fdf
-	   method 2 parabaloid
+	   method 2
+	   (make-minimization-functions
+	    parabaloid-vector 2
+	    parabaloid-derivative parabaloid-and-derivative t)
 	   initial 0.01d0 1.0d-4)))
     (loop with status = T
        for iter from 0 below 100
@@ -343,8 +346,9 @@
 	   (values (maref x 0) (maref x 1) (function-value minimizer)))))))
 
 ;;; Example without derivatives, same function but now defined using
+;;; scalars.
 
-(defun parabaloid-f (x y)
+(defun parabaloid-scalar (x y)
   "A parabaloid function of two arguments, given in GSL manual Sec. 35.4.
    This version takes scalar arguments."
   (let ((dp0 (aref *parabaloid-center* 0))
@@ -353,15 +357,15 @@
        (* 20 (expt (- y dp1) 2))
        30)))
 
-(def-minimization-functions parabaloid-f 2)
-
 (defun multimin-example-no-derivative
     (&optional (method *simplex-nelder-mead*) (print-steps t))
   (let ((step-size (make-marray 'double-float :dimensions 2)))
     (set-all step-size 1.0d0)
     (let ((minimizer
 	   (make-multi-dimensional-minimizer-f
-	    method 2 parabaloid-f #m(5.0d0 7.0d0) step-size)))
+	    method 2
+	    (make-minimization-functions parabaloid-scalar 2)
+	    #m(5.0d0 7.0d0) step-size)))
       (loop with status = T and size
 	 for iter from 0 below 100
 	 while status

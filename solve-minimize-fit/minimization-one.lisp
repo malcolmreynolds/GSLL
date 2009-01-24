@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-01-22 18:59:23EST minimization-one.lisp>
+;; Time-stamp: <2009-01-24 14:46:49EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -175,7 +175,7 @@
 ;;; This is the example given in Sec. 33.8.  The results are different
 ;;; than given there.
 
-(defun-single minimization-one-fn (x)
+(defun minimization-one-fn (x)
   (1+ (cos x)))
 
 (defun minimization-one-example
@@ -184,7 +184,9 @@
   (let ((max-iter 100)
 	(minimizer
 	 (make-one-dimensional-minimizer
-	  minimizer-type minimization-one-fn 2.0d0 0.0d0 6.0d0)))
+	  minimizer-type
+	  (make-single-function minimization-one-fn)
+	  2.0d0 0.0d0 6.0d0)))
     (when print-steps
       (format
        t

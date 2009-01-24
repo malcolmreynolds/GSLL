@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-01-19 16:30:06EST monte-carlo.lisp>
+;; Time-stamp: <2009-01-24 12:58:12EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -217,9 +217,9 @@
   (dimensions sizet)
   (parameters :pointer))
 
-(export 'def-mc-function)
-(defmacro def-mc-function (name dimensions)
-  `(def-single-function ,name :double :double monte-function
+(export 'make-monte-carlo-function)
+(defmacro make-monte-carlo-function (name dimensions)
+  `(make-single-function ,name :double :double monte-function
     ,dimensions nil nil))
 
 ;;;;****************************************************************************
@@ -233,28 +233,29 @@
   (* (/ (expt pi 3))
      (/ (- 1 (* (cos x) (cos y) (cos z))))))
 
-(def-mc-function monte-carlo-g 3)
+(defparameter *monte-carlo-g*
+  (make-monte-carlo-function monte-carlo-g 3))
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-plain 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-plain monte-carlo-g lower upper nsamples rng ws)))
+    (monte-carlo-integrate-plain *monte-carlo-g* lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-miser 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-miser monte-carlo-g lower upper nsamples rng ws)))
+    (monte-carlo-integrate-miser *monte-carlo-g* lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-vegas 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-vegas monte-carlo-g lower upper nsamples rng ws)))
+    (monte-carlo-integrate-vegas *monte-carlo-g* lower upper nsamples rng ws)))
 
 (save-test monte-carlo
   (random-walk-plain-example)

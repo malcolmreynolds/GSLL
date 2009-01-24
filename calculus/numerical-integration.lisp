@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2008-12-26 18:54:27EST numerical-integration.lisp>
+;; Time-stamp: <2009-01-24 14:48:39EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -206,18 +206,12 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(defun-single one-sine (x) (sin x))
-
-#|
-;;; Parameters may be defined through the lexical environment:
-(let ((mult 2.0d0))
-  (defun-single two-sine (x) (sin (* mult x))))
-|#
+(defun one-sine (x) (sin x))
+(defparameter *one-sine* (make-single-function one-sine))
 
 (save-test numerical-integration
-  (integration-qng one-sine 0.0d0 pi)
+  (integration-qng *one-sine* 0.0d0 pi)
   (let ((ws (make-integration-workspace 20)))
-     (integration-QAG one-sine 0.0d0 pi :gauss15 20 ws))
+     (integration-QAG *one-sine* 0.0d0 pi :gauss15 20 ws))
   (let ((ws (make-integration-workspace 20)))
-     (integration-QAG one-sine 0.0d0 pi :gauss15 50 ws)))
-
+     (integration-QAG *one-sine* 0.0d0 pi :gauss15 50 ws)))

@@ -1,6 +1,6 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
-;; Time-stamp: <2009-01-18 18:29:53EST ode-example.lisp>
+;; Time-stamp: <2009-01-24 14:34:20EST ode-example.lisp>
 ;; $Id$
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
@@ -24,8 +24,6 @@
 	  (- (* -2 mu y0 y1) 1.0d0)
 	  (* -1 mu (- (* y0 y0) 1.0d0))))
 
-(def-ode-functions vanderpol vanderpol-jacobian 2)
-
 (defparameter *max-iter* 2000)
 
 (defun integrate-vanderpol (max-time &optional (step-size 1.0d-6) (print-steps t))
@@ -38,7 +36,8 @@
       (loop (when (or (>= (dcref time) max-time) (> iter *max-iter*))
 	      (return (values (dcref time) dep0 dep1)))
 	 (apply-evolution
-	  evolve control stepper vanderpol
+	  evolve control stepper
+	  (make-ode-functions vanderpol vanderpol-jacobian 2)
 	  time max-time step-size dependent)
 	 (incf iter)
 	 (when print-steps

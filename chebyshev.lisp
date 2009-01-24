@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2008-12-26 18:21:11EST chebyshev.lisp>
+;; Time-stamp: <2009-01-24 12:56:27EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -75,11 +75,13 @@
 ;;; From Chap. 28.5, except I have set steps = 100 instead of 10000
 ;;; to keep things sane.
 
-(defun-single chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
+(defun chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
 
 (defun chebyshev-table-example ()
   (let ((steps 100))
-    (let ((cheb (make-chebyshev 40 chebyshev-step 0.0d0 1.0d0)))
+    (let ((cheb
+	   (make-chebyshev
+	    40 (make-single-function chebyshev-step) 0.0d0 1.0d0)))
       (dotimes (i steps)
 	(let ((x (coerce (/ i steps) 'double-float)))
 	  (format t "~&~a ~a ~a ~a"
@@ -90,9 +92,10 @@
 
 (defun chebyshev-point-example (x)
   (check-type x double-float)
-  (let ((cheb (make-chebyshev 40 chebyshev-step 0.0d0 1.0d0))
-	 (deriv (make-chebyshev 40))
-	 (integ (make-chebyshev 40)))
+  (let ((cheb (make-chebyshev
+	       40 (make-single-function chebyshev-step) 0.0d0 1.0d0))
+	(deriv (make-chebyshev 40))
+	(integ (make-chebyshev 40)))
     (derivative-chebyshev deriv cheb)
     (integral-chebyshev integ cheb)
     (list

@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-24 09:12:18EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-24 13:09:32EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -342,8 +342,7 @@
   (values
    (- (* *powell-A* arg0 arg1) 1)
    (+ (exp (- arg0)) (exp (- arg1)) (- (1+ (/ *powell-A*))))))
-
-(def-mfunction powell 2)
+;; not used?
 
 ;;; This is the example given in Sec. 34.8.
 
@@ -356,14 +355,12 @@
    (* *rosenbrock-a* (- 1 arg0))
    (* *rosenbrock-b* (- arg1 (expt arg0 2)))))
 
-(def-mfunction rosenbrock 2)
-
 (defun roots-multi-example-no-derivative
     (&optional (method *hybrid-scaled*) (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000)
 	(solver (make-multi-dimensional-root-solver-f
-		 method rosenbrock
+		 method (make-mfunction rosenbrock 2)
 		 #m(-10.0d0 -5.0d0))))
     (loop for iter from 0
        with fnval and argval
@@ -402,14 +399,6 @@
 	(rosenbrock-df arg0 arg1)
       (values v0 v1 j0 j1 j2 j3))))
 
-;;; Because def-solver-functions and def-single-function bind a symbol
-;;; of the same name as the first function, and we want both to run,
-;;; we'll make an alias function so we can use both.  
-(defun rosenbrock-f (argument return)
-  (rosenbrock argument return))
-
-(def-solver-functions rosenbrock-f rosenbrock-df rosenbrock-fdf 2)
-
 (defun roots-multi-example-derivative (&optional (method *gnewton-mfdfsolver*) (print-steps t))
   "Solving Rosenbrock with derivatives, the example given in Sec. 34.8
    of the GSL manual."
@@ -423,7 +412,8 @@
 		     (maref fnval 1)))))
     (let ((max-iter 1000)
 	  (solver (make-multi-dimensional-root-solver-fdf
-		   method rosenbrock-f
+		   method
+		   (make-solver-functions rosenbrock rosenbrock-df rosenbrock-fdf 2)
 		   #m(-10.0d0 -5.0d0))))
       (loop for iter from 0
 	 with fnval = (function-value solver)

@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-01-24 11:46:27EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-01-24 16:58:11EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -85,29 +85,30 @@
   (number-of-parameters sizet)
   (parameters :pointer))
 
-(export 'def-fitting-functions)
-(defmacro def-fitting-functions
-    (function number-of-parameters &optional df fdf (number-of-observations 0))
-  "Setup functions for nonlinear least squares fitting.
+(export 'make-fitting-functions)
+(defmacro make-fitting-functions
+    (function number-of-parameters number-of-observations &optional df fdf)
+  "Create the GSL struct for nonlinear least squares fitting.
    The CL functions name and derivative should be defined previously
    with defuns."
-  ;; The number of observations doesn't have anything to do with the
-  ;; fitting functions, only with the data.  Therefore it defaults to
-  ;; 0 and should be specified separately with the data.
-  `(progn
-     (defmcallback ,function :success-failure :pointer :pointer)
-     ,@(when df
-	     `((defmcallback ,df :success-failure :pointer :pointer)
-	       (defmcallback ,fdf :success-failure :pointer (:pointer :pointer))))
-     ,(if df
-	  `(defcbstruct (,function function ,df df ,fdf fdf)
-	       gsl-fdffit-function
-	     ((number-of-observations ,number-of-observations)
-	      (number-of-parameters ,number-of-parameters)))
-	  `(defcbstruct (,function function)
-	       gsl-ffit-function
-	     ((number-of-observations ,number-of-observations)
-	      (number-of-parameters ,number-of-parameters))))))
+  ;; The number of observations defaults to 0 so that the value can be
+  ;; set separately and should be specified separately with the data.
+  (let ((numbers `((number-of-observations ,number-of-observations)
+		   (number-of-parameters ,number-of-parameters))))
+    (with-unique-names (solverfn solverdf solverfdf)
+      `(progn
+	 (defmcallback ,solverfn :success-failure :pointer :pointer nil ,function)
+	 ,@(when
+	    df
+	    `((defmcallback ,solverdf :success-failure :pointer :pointer nil ,df)
+	      (defmcallback
+		  ,solverfdf
+		  :success-failure :pointer (:pointer :pointer) nil ,fdf)))
+	 ,(if df
+	      `(defcbstruct (,solverfn function ,solverdf df ,solverfdf fdf)
+		   gsl-fdffit-function ,numbers)
+	      `(defcbstruct (,function function)
+		   gsl-ffit-function ,numbers))))))
 
 (export '(number-of-parameters number-of-observations))
 
@@ -364,9 +365,6 @@
   (exponential-residual x f)
   (exponential-residual-derivative x jacobian))
 
-(def-fitting-functions exponential-residual 3
-  exponential-residual-derivative exponential-residual-fdf)
-
 (defun norm-f (fit)
   "Find the norm of the fit function f."
   (euclidean-norm (function-value fit)))
@@ -375,10 +373,14 @@
     (&optional (number-of-observations 40)
      (method *levenberg-marquardt*)
      (print-steps t))
-  (let ((*nlls-example-data* (generate-nlls-data number-of-observations)))
-    (setf (number-of-observations exponential-residual) number-of-observations)
+  (let ((*nlls-example-data* (generate-nlls-data number-of-observations))
+	(nlls-callback
+	 (make-fitting-functions
+	  exponential-residual 3 number-of-observations
+	  exponential-residual-derivative exponential-residual-fdf)))
+    (setf (number-of-observations nlls-callback) number-of-observations)
     (let* ((init #m(1.0d0 0.0d0 0.0d0))
-	   (number-of-parameters (number-of-parameters exponential-residual))
+	   (number-of-parameters (number-of-parameters nlls-callback))
 	   (covariance
 	    (make-marray 'double-float
 			 :dimensions
@@ -387,7 +389,7 @@
 		 method
 		 number-of-observations
 		 number-of-parameters
-		 exponential-residual
+		 nlls-callback
 		 init)))
       (macrolet ((fitx (i) `(maref (solution fit) ,i))
 		 (err (i) `(sqrt (maref covariance ,i ,i))))

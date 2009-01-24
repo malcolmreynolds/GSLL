@@ -1,57 +1,11 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-22 22:15:50EST roots-one.lisp>
+;; Time-stamp: <2009-01-24 15:08:14EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_roots.h
-
-;;;;****************************************************************************
-;;;; Function definition
-;;;;****************************************************************************
-
-;;; Solvers that require the function and its derivative use the
-;;; following structure.
-(cffi:defcstruct gsl-function-fdf
-  ;; See /usr/include/gsl/gsl_math.h
-  "The definition of a function and its derivative for root finding in GSL."
-  (function :pointer)
-  (df :pointer)
-  (fdf :pointer)
-  (parameters :pointer))
-
-(export 'def-solver-functions)
-
-(defmacro def-solver-functions (function df fdf &optional dimensions array)
-  "Setup functions for solvers.
-   The CL functions name and derivative should be defined previously
-   with defuns.  If dimensions is non-nil (positive fixnum), set multiroot solver
-   functions.  If dimensions is a number, the functions should expect
-   dimensions scalar (double-float) arguments and return "
-  (let ((struct (if dimensions 'gsl-mfunction-fdf 'gsl-function-fdf))
-	(argtype (if dimensions (if array :pointer `((:double ,dimensions))) :double))
-	(rettype (if dimensions :success-failure :double))
-	(vecrettype (if array '(:pointer) `((:set :double ,dimensions))))
-	(matrettype
-	 (if array '(:pointer) `((:set :double ,dimensions ,dimensions)))))
-    `(progn
-       (defmcallback
-	   ,function ,rettype ,argtype ,(when dimensions vecrettype) ,dimensions)
-       (defmcallback
-	   ,df ,rettype ,argtype
-	   ,(when dimensions matrettype)
-	   ,dimensions)
-       (defmcallback
-	   ,fdf
-	   ,(if dimensions :success-failure :void)
-	 ,argtype
-	 ,(if dimensions 
-	      (append vecrettype matrettype)
-	      '((:set :double 1) (:set :double 1)))
-	 ,dimensions)
-       (defcbstruct (,function function ,df df ,fdf fdf) ,struct
-	 ,(when dimensions `((dimensions ,dimensions)))))))
 
 ;;;;****************************************************************************
 ;;;; Initialization
@@ -328,14 +282,13 @@
     (values (+ (* (+ (* a x) b) x) c)
 	    (+ (* 2 a x) b))))
 
-(def-single-function quadratic)
-
 (defun roots-one-example-no-derivative
     (&optional (method *brent-fsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50)
 	(solver
-	 (make-one-dimensional-root-solver-f method quadratic 0.0d0 5.0d0)))
+	 (make-one-dimensional-root-solver-f
+	  method (make-single-function quadratic) 0.0d0 5.0d0)))
     (when print-steps
       (format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
     (loop for iter from 0
@@ -353,21 +306,16 @@
 		 (- upper lower)))
        finally (return root))))
 
-;;; Because def-solver-functions and def-single-function bind a symbol
-;;; of the same name as the first function, and we want both to run,
-;;; we'll make an alias function so we can use both.  
-(defun quadratic-df (x) (quadratic x))
-
-(def-solver-functions
-    quadratic-df quadratic-derivative quadratic-and-derivative)
-
 (defun roots-one-example-derivative
     (&optional (method *newton-fdfsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let* ((max-iter 100)
 	 (initial 5.0d0)
 	 (solver (make-one-dimensional-root-solver-fdf
-		  method quadratic-df initial)))
+		  method
+		  (make-solver-functions
+		   quadratic quadratic-derivative quadratic-and-derivative)
+		  initial)))
     (when print-steps
       (format t "iter ~6t ~8troot ~22terr ~34terr(est)~&"))
     (loop for iter from 0

@@ -1,22 +1,21 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-01-22 22:36:00EST callback.lisp>
+;; Time-stamp: <2009-01-24 18:17:53EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; Callback functions are functions which are passed as data; to Lisp
 ;;; that means they are just functions, but C makes a distinction.
-;;; They are needed by several GSL tasks.
-;;; Functions that take one double-float and return one double-float
-;;; and are defined using the gsl_function structure (see gsl_math.h)
-;;; are called scalar functions.  They are used in 
-;;; numerical-integration, numerical-differentiation, chebyshev and
-;;; definitions to aid in creating and using them are provided here.
-;;; The idea behind the definitions is that the boundary between the CL
-;;; and C functions is a narrow as possible; #'defun-single is
-;;; macro that allows one to define a function in Lisp and make
-;;; use it in these GSL tasks.
+;;; They are needed by several GSL tasks.  Functions that take one
+;;; double-float and return one double-float and are defined using the
+;;; gsl_function structure (see gsl_math.h) are called scalar
+;;; functions.  They are used in numerical-integration,
+;;; numerical-differentiation, chebyshev and definitions to aid in
+;;; creating and using them are provided here.  The idea behind the
+;;; definitions is that they absorb us much of the definition overhead
+;;; as possible so that the user just defines a CL function and calls
+;;; a macro to generate something to pass to the GSL functions.
 
 ;;; Other GSL tasks make use of callback functions with different
 ;;; characteristics.  Since they are specific to each of the tasks,
@@ -33,8 +32,7 @@
 ;;; right specification.
 
 (export
- '(def-single-function undef-cbstruct defun-single
-   with-c-double with-c-doubles))
+ '(make-single-function undef-cbstruct with-c-double with-c-doubles))
 
 ;;;;****************************************************************************
 ;;;; Setting slots
@@ -161,7 +159,7 @@
 
 (defmacro defmcallback
     (name &optional (return-type :double) (argument-types :double)
-     additional-argument-types marray)
+     additional-argument-types marray (function-name name))
   "Define a callback function used by GSL; the GSL function will call
    it with an additional `parameters' argument that is ignored.  the
    argument-types is a single type or list of types of the argument(s)
@@ -185,7 +183,7 @@
        ;; CL specials to do the same job.
        (declare (ignore params))
        ,(callback-set-mvb
-	 `(,name
+	 `(,function-name
 	   ,@(append
 	      (embedded-clfunc-args atl cbargs marray)
 	      (embedded-clfunc-args aatl cbaddl marray)))
@@ -209,34 +207,31 @@
    This struct is bound to a CL special with the specified name.
    This macro can be used whenever a callback is defined and
    placed in a struct that has no other functions defined."
-  (let ((name
-	 ;; Bind a CL special under this name to the C structure.
-	 (if (listp functions) (first functions) functions))
+  (let ((name (make-symbol "CBSTRUCT"))
 	(fnlist
 	 ;; Make a list of (function slot-name ...) for each function.
 	 (if (listp functions) functions (list `,functions 'function))))
-    `(progn
-      ;; Create the C structure and bind CL variable to it.
-      (defparameter ,name (cffi:foreign-alloc ',structure))
-      ;; Set all the function slots.
-      ,@(loop for (fn slot-name) on fnlist by #'cddr collect
+    `(let ((,name (cffi:foreign-alloc ',structure)))
+       ;; Create the C structure and bind CL variable to it.
+       ;; Set all the function slots.
+       ,@(loop for (fn slot-name) on fnlist by #'cddr collect
 	      `(set-slot-function ,name ',structure ',slot-name ',fn))
-      ;; Set the parameters.
-      (set-parameters ,name ',structure)
-      ;; Set any additional slots.
-      ,@(loop for slot in additional-slots
-	      collect
-	      `(set-structure-slot
-		,name ',structure ',(first slot) ,(second slot))))))
+       ;; Set the parameters.
+       (set-parameters ,name ',structure)
+       ;; Set any additional slots.
+       ,@(loop for slot in additional-slots
+	    collect
+	    `(set-structure-slot
+	      ,name ',structure ',(first slot) ,(second slot)))
+       ,name)))
 
-(defun undef-cbstruct (name)
+(defun undef-cbstruct (object)
   "Free foreign callback function.  It is not necessary to do this; think
    of the memory taken by an unused foreign function as much
    less than that used by an unused defun."
-  (cffi:foreign-free (symbol-value name))
-  (makunbound name))
+  (cffi:foreign-free object))
 
-(defmacro def-single-function
+(defmacro make-single-function
     (name
      &optional (return-type :double) (argument-type :double)
      (structure 'gsl-function)
@@ -247,23 +242,17 @@
    This struct is bound to a CL special with the specified name.
    This macro can be used whenever a callback is defined and
    placed in a struct that has no other functions defined."
-  `(progn
-     (defmcallback ,name ,return-type
-       ,(if dimensions `((,argument-type ,dimensions)) argument-type)
-       ,(if dimensions-return `((:set ,argument-type ,dimensions-return)))
-       ,marray)
-     ,@(when
-	structure
-	`((defcbstruct ,name ,structure
-	    ,(if dimensions `((dimensions ,dimensions))))))))
-
-;;; Combine a defun and def-single-function in one:
-(defmacro defun-single (name arglist &body body)
-  "Define a function of a scalar double-float argument returning
-   a double-float in CL and C."
-  `(progn
-    (defun ,name ,arglist ,@body)
-    (def-single-function ,name)))
+  ;; I don't think structure=nil is ever used, but it is permissible
+  (with-unique-names (cbsymb)
+    `(progn
+       (defmcallback ,cbsymb ,return-type
+	 ,(if dimensions `((,argument-type ,dimensions)) argument-type)
+	 ,(if dimensions-return `((:set ,argument-type ,dimensions-return)))
+	 ,marray ,name)
+       ,@(when
+	  structure
+	  `((defcbstruct ,cbsymb ,structure
+	      ,(if dimensions `((dimensions ,dimensions)))))))))
 
 ;;;;****************************************************************************
 ;;;; Vector of doubles
