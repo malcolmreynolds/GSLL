@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-01-25 10:35:08EST mobject.lisp>
+;; Time-stamp: <2009-01-25 17:27:46EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -22,15 +22,14 @@
 
 (defmacro defmobject
     (class prefix allocation-args description 
-     &key documentation initialize-suffix initialize-args arglists-function
-     inputs gsl-version)
+     &key documentation initialize-suffix initialize-name initialize-args
+     arglists-function inputs gsl-version allocator allocate-inputs freer
+     (superclasses '(mobject)))
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
-  ;; If prefix is a list, the first is the actual prefix, and the
-  ;; second is the name of the allocator.  I'm looking at you,
-  ;; discrete-random.  Grrr.
-  ;; Argument 'initialize-suffix: string appended to prefix for form GSL function name
-  ;;   or a list of such a string and the c-return argument.
+  ;; Argument 'initialize-suffix: string appended to prefix to form
+  ;; GSL function name or a list of such a string and the c-return
+  ;; argument.
   (let* ((settingp (make-symbol "SETTINGP"))
 	 (arglists
 	  (when arglists-function
@@ -39,19 +38,20 @@
 	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
 	 (cl-initialize-args
 	  (variables-used-in-c-arguments initialize-args))
-	 (realprefix (if (listp prefix) (first prefix) prefix)))
+	 (initializerp (or initialize-name initialize-suffix))
+	 (initargs ; arguments that are exclusively for reinitialize-instance
+	  (remove-if (lambda (s) (member s cl-alloc-args)) cl-initialize-args)))
     (if (have-at-least-gsl-version gsl-version)
 	`(progn
-	   (defclass ,class (mobject)
+	   (defclass ,class ,superclasses
 	     ()
 	     (:documentation
 	      ,(format nil "The GSL representation of the ~a." description)))
 
 	   (defmfun allocate ((object ,class) &key ,@cl-alloc-args)
-	     ,(if (listp prefix) (second prefix) (format nil "~a_alloc" prefix))
+	     ,(or allocator (format nil "~a_alloc" prefix))
 	     ,allocation-args
-	     ,@(if (and (listp prefix) (third prefix))
-		   `(:inputs ,(third prefix)))
+	     ,@(if allocate-inputs `(:inputs ,allocate-inputs))
 	     :definition :method
 	     :c-return :pointer
 	     :index ,maker)
@@ -68,20 +68,21 @@
 	     (tg:finalize object
 			  (lambda ()
 			    (cffi:foreign-funcall
-			     ,(format nil "~a_free" realprefix)
+			     ,(or freer (format nil "~a_free" prefix))
 			     :pointer mpointer :void))))
 
-	   ,@(when initialize-suffix
+	   ,@(when initializerp
 		   `((defmfun reinitialize-instance
 			 ((object ,class) &key ,@cl-initialize-args)
-		       ,(format nil "~a_~a" realprefix
-				(if (listp initialize-suffix)
-				    (first initialize-suffix)
-				    initialize-suffix))
+		       ,(or initialize-name
+			    (format nil "~a_~a" prefix
+				    (if (listp initialize-suffix)
+					(first initialize-suffix)
+					initialize-suffix)))
 		       (((mpointer object) :pointer) ,@initialize-args)
 		       :definition :method
 		       :qualifier :after
-		       ,@(when (listp initialize-suffix)
+		       ,@(when (and initialize-suffix (listp initialize-suffix))
 			       `(:c-return ,(second initialize-suffix)))
 		       :return (object)
 		       ,@(when inputs `(:inputs ,inputs))
@@ -93,11 +94,11 @@
 	       ,(if arglists
 		    (first arglists)
 		    `(,@cl-alloc-args
-		      ,@(when initialize-args
+		      ,@(when initargs
 			      (append
-			       (list '&optional
-				     (list (first cl-initialize-args) nil settingp))
-			       (rest cl-initialize-args)))))
+			       (list
+				'&optional (list (first initargs) nil settingp))
+			       (rest initargs)))))
 	     ,(format
 	       nil "Create the GSL object representing a ~a (class ~a).~@[~&~a~]"
 	       description class documentation)
@@ -108,20 +109,26 @@
 			   (second arglists)
 			   (symbol-keyword-symbol cl-alloc-args)))))
 	       ;; There is an initialization step
-	       ,@(when initialize-suffix
+	       ,@(when initializerp
 		       (if initialize-args ; with arguments
-			   `((when ,settingp
-			       (reinitialize-instance
-				object
-				,@(if arglists
-				      (third arglists)
-				      (symbol-keyword-symbol cl-initialize-args)))))
+			   (if initargs
+			       `((when ,settingp
+				   (reinitialize-instance
+				    object
+				    ,@(if arglists
+					  (third arglists)
+					  (symbol-keyword-symbol cl-initialize-args)))))
+			       `((reinitialize-instance
+				  object
+				  ,@(if arglists
+					(third arglists)
+					(symbol-keyword-symbol cl-initialize-args)))))
 			   '((reinitialize-instance object)))) ; without arguments
 	       object)))
 	`(defun ,maker (&rest args)
 	   (declare (ignore args))
 	   (error 'obsolete-gsl-version
-		  :name ',class :gsl-name ,realprefix
+		  :name ',class :gsl-name ,prefix
 		  :gsl-version ',gsl-version)))))
 
 (defun symbol-keyword-symbol (symbol)

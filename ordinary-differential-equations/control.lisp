@@ -1,24 +1,27 @@
 ;; Adaptive step-size control
 ;; Liam Healy 2008-02-17 17:30:04EST control.lisp
-;; Time-stamp: <2009-01-25 10:01:56EST control.lisp>
+;; Time-stamp: <2009-01-25 17:09:29EST control.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-#|
-(defmobject standard-control ("gsl_odeiv_control_standard" "new")
+(defclass ode-control (mobject)
+  ()
+  (:documentation
+   "Objects used for control of ordinary differential equation integration."))
+
+(defmobject standard-control
+    "gsl_odeiv_control_standard"
   ((absolute-error :double) (relative-error :double)
    (y-scaling :double) (dydt-scaling :double))
   "standard control for ordinary differential equations"
-  "")
-|#
-
-(defmfun new-standard-control (absolute-error relative-error y-scaling dydt-scaling)
-  "gsl_odeiv_control_standard_new"
+  :superclasses (ode-control)
+  :initialize-name "gsl_odeiv_control_init"
+  :initialize-args
   ((absolute-error :double) (relative-error :double)
    (y-scaling :double) (dydt-scaling :double))
-  :c-return (ptr :pointer)
-  :return (ptr)
+  :allocator "gsl_odeiv_control_standard_new"
+  :freer "gsl_odeiv_control_free"
   :documentation			; FDL
   "The standard control object is a four parameter heuristic based on
    absolute and relative errors absolute-error and relative-error, and
@@ -46,11 +49,17 @@
    uncontrolled changes in the stepsize, the overall scaling factor is
    limited to the range 1/5 to 5.")
 
-(defmfun new-y-control (absolute-error relative-error)
-  "gsl_odeiv_control_y_new"
+(defmobject y-control
+  "gsl_odeiv_control_y"
   ((absolute-error :double) (relative-error :double))
-  :c-return (ptr :pointer)
-  :return (ptr)
+  "y control for ordinary differential equations"
+  :superclasses (ode-control)
+  :initialize-name "gsl_odeiv_control_init"
+  :initialize-args
+  ((absolute-error :double) (relative-error :double)
+   (y-scaling :double) (dydt-scaling :double))
+  :allocator "gsl_odeiv_control_y_new"
+  :freer "gsl_odeiv_control_free"
   :documentation			; FDL
   "Create a new control object which will keep the local
    error on each step within an absolute error of absolute-error and
@@ -58,11 +67,17 @@
    This is equivalent to the standard control object with y-scaling=1 and
    dydt-scaling=0.")
 
-(defmfun new-yp-control (absolute-error relative-error)
-  "gsl_odeiv_control_yp_new"
+(defmobject yp-control
+    "gsl_odeiv_control_yp"
   ((absolute-error :double) (relative-error :double))
-  :c-return (ptr :pointer)
-  :return (ptr)
+  "yp control for ordinary differential equations"
+  :superclasses (ode-control)
+  :initialize-name "gsl_odeiv_control_init"
+  :initialize-args
+  ((absolute-error :double) (relative-error :double)
+   (y-scaling :double) (dydt-scaling :double))
+  :allocator "gsl_odeiv_control_yp_new"
+  :freer "gsl_odeiv_control_free"
   :documentation			; FDL
   "Create a new control object which will keep the local
    error on each step within an absolute error of absolute-error and
@@ -70,14 +85,19 @@
    solution y'_i(t).  This is equivalent to the standard control
    object with y-scaling=0 and dydt-scaling=1.")
 
-(defmfun new-scaled-control
-    (absolute-error relative-error y-scaling dydt-scaling absolute-scale dimension)
-  "gsl_odeiv_control_scaled_new"
+(defmobject scaled-control
+    "gsl_odeiv_control_scaled"
   ((absolute-error :double) (relative-error :double)
    (y-scaling :double) (dydt-scaling :double)
    (absolute-scale :pointer) (dimension sizet))
-  :c-return (ptr :pointer)
-  :return (ptr)
+  "scaled control for ordinary differential equations"
+  :superclasses (ode-control)
+  :initialize-name "gsl_odeiv_control_init"
+  :initialize-args
+  ((absolute-error :double) (relative-error :double)
+   (y-scaling :double) (dydt-scaling :double))
+  :allocator "gsl_odeiv_control_scaled_new"
+  :freer "gsl_odeiv_control_free"
   :documentation			; FDL
   "Create a new control object which uses the same algorithm
    as #'new-standard-control but with an absolute error
@@ -98,30 +118,12 @@
    defining new types of control functions.  For most purposes the standard
    control functions described above should be sufficient.")
 
-(defmfun initialize-control
-    (control absolute-error relative-error y-scaling dydt-scaling)
-  "gsl_odeiv_control_init"
-  ((control :pointer) (absolute-error :double) (relative-error :double)
-   (y-scaling :double) (dydt-scaling :double))
-  :documentation			; FDL
-  "Initialize the control function control with the
-   parameters absolute-error, relative-error,
-   y-scaling (scaling factor for y) and dydt-scaling (scaling 
-   factor for derivatives).")
-
-(defmfun free-control (control)
-  "gsl_odeiv_control_free"
-  ((control :pointer))
-  :c-return :void
-  :documentation			; FDL
-  "Free all the memory associated with the control function control.")
-
 (cffi:defcenum step-size-adjustment
   (:step-size-decreased -1) :step-size-unchanged :step-size-increased)
 
 (defmfun adjust-stepsize (control stepper current-y y-error dydt step-size)
   "gsl_odeiv_control_hadjust"
-  ((control :pointer) (stepper :pointer) (current-y :pointer)
+  (((mpointer control) :pointer) (stepper :pointer) (current-y :pointer)
    (y-error :pointer) (dydt :pointer) (step-size :pointer))
   :c-return :enumerate
   :enumeration step-size-adjustment
@@ -138,9 +140,11 @@
    step-size which satisfies the user-specified accuracy requirements for
    the current point.")
 
-(defmfun control-name (control)
+;; Generalize this to all ODE control
+(defmfun name ((control ode-control))
   "gsl_odeiv_control_name"
-  ((control :pointer))
+  (((mpointer control) :pointer))
+  :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the control function.")

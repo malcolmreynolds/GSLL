@@ -1,16 +1,17 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2009-01-25 09:54:54EST discrete.lisp>
+;; Time-stamp: <2009-01-25 11:17:05EST discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_randist.h
 
-(defmobject discrete-random
-    ("gsl_ran_discrete" "gsl_ran_discrete_preproc" (probabilities))
+(defmobject discrete-random "gsl_ran_discrete"
   (((dim0 probabilities) sizet) ((c-pointer probabilities) :pointer))
   "lookup table for the discrete random number generator"
+  :allocator "gsl_ran_discrete_preproc"
+  :allocate-inputs (probabilities)
   :documentation			; FDL
   "Make a structure that contains the lookup
   table for the discrete random number generator.  The array probabilities contains

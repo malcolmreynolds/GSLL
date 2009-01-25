@@ -1,6 +1,6 @@
 ;; Evolution functions for ODE integration.
 ;; Liam Healy, Sun Sep 30 2007 - 14:31
-;; Time-stamp: <2009-01-25 10:00:41EST evolution.lisp>
+;; Time-stamp: <2009-01-25 17:11:41EST evolution.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,7 +16,8 @@
 (defmfun apply-evolution
     (evolve control step dydt time max-time step-size y)
   "gsl_odeiv_evolve_apply"
-  (((mpointer evolve) :pointer) (control :pointer) ((mpointer step) :pointer)
+  (((mpointer evolve) :pointer) ((mpointer control) :pointer)
+   ((mpointer step) :pointer)
    (dydt :pointer) (time :pointer) (max-time :double)
    (step-size :pointer) (y :pointer))
   :documentation			; FDL
