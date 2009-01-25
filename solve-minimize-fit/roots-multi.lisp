@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-24 13:09:32EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-24 20:09:17EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -360,7 +360,7 @@
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000)
 	(solver (make-multi-dimensional-root-solver-f
-		 method (make-mfunction rosenbrock 2)
+		 method (make-solver-functions rosenbrock nil nil 2)
 		 #m(-10.0d0 -5.0d0))))
     (loop for iter from 0
        with fnval and argval

@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-01-24 12:58:12EST monte-carlo.lisp>
+;; Time-stamp: <2009-01-24 19:32:18EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -218,9 +218,13 @@
   (parameters :pointer))
 
 (export 'make-monte-carlo-function)
-(defmacro make-monte-carlo-function (name dimensions)
-  `(make-single-function ,name :double :double monte-function
-    ,dimensions nil nil))
+(defmacro make-monte-carlo-function (name-or-lambda &optional (dimensions 1))
+  "Define the function for use in the Monte Carlo functions.  The function
+   should be specified with either the name of a CL function already defined,
+   or as a lambda form.  In the latter case, the number of dimensions need
+   not be specified, they will be computed."
+  `(make-single-function ,name-or-lambda :double :double monte-function
+			 ,dimensions nil nil))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -229,33 +233,32 @@
 ;;; Example from Sec. 23.5
 ;;; This is a function that occurs in random walk studies.
 
-(defun monte-carlo-g (x y z)
-  (* (/ (expt pi 3))
-     (/ (- 1 (* (cos x) (cos y) (cos z))))))
-
-(defparameter *monte-carlo-g*
-  (make-monte-carlo-function monte-carlo-g 3))
+(defparameter *monte-carlo-cb*
+  (make-monte-carlo-function
+   (lambda (x y z)
+     (* (/ (expt pi 3))
+	(/ (- 1 (* (cos x) (cos y) (cos z))))))))
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-plain 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-plain *monte-carlo-g* lower upper nsamples rng ws)))
+    (monte-carlo-integrate-plain *monte-carlo-cb* lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-miser 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-miser *monte-carlo-g* lower upper nsamples rng ws)))
+    (monte-carlo-integrate-miser *monte-carlo-cb* lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-vegas 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-vegas *monte-carlo-g* lower upper nsamples rng ws)))
+    (monte-carlo-integrate-vegas *monte-carlo-cb* lower upper nsamples rng ws)))
 
 (save-test monte-carlo
   (random-walk-plain-example)

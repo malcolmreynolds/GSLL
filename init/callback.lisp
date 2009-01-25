@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-01-24 18:17:53EST callback.lisp>
+;; Time-stamp: <2009-01-24 19:31:51EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -159,7 +159,7 @@
 
 (defmacro defmcallback
     (name &optional (return-type :double) (argument-types :double)
-     additional-argument-types marray (function-name name))
+     additional-argument-types marray (function-name-or-lambda name))
   "Define a callback function used by GSL; the GSL function will call
    it with an additional `parameters' argument that is ignored.  the
    argument-types is a single type or list of types of the argument(s)
@@ -183,7 +183,7 @@
        ;; CL specials to do the same job.
        (declare (ignore params))
        ,(callback-set-mvb
-	 `(,function-name
+	 `(,function-name-or-lambda
 	   ,@(append
 	      (embedded-clfunc-args atl cbargs marray)
 	      (embedded-clfunc-args aatl cbaddl marray)))
@@ -231,6 +231,22 @@
    less than that used by an unused defun."
   (cffi:foreign-free object))
 
+(defmacro with-computed-dimensions
+    (dimensions-spec dimensions-used lambda-form &body body)
+  (cl-utilities:once-only (lambda-form)
+    `(let ((,dimensions-used
+	    (if (and (listp ,lambda-form) (eq (first ,lambda-form) 'lambda))
+		(length (second ,lambda-form))
+		,dimensions-spec)))
+       ,@body)))
+
+(defun dimensions-from-lambda (lambda-form dimensions)
+  "Determine the number of dimensions from the lambda form,
+   or return the value specified in 'dimensions."
+  (if (and (listp lambda-form) (eq (first lambda-form) 'lambda))
+      (length (second lambda-form))
+      dimensions))
+
 (defmacro make-single-function
     (name
      &optional (return-type :double) (argument-type :double)
@@ -244,15 +260,16 @@
    placed in a struct that has no other functions defined."
   ;; I don't think structure=nil is ever used, but it is permissible
   (with-unique-names (cbsymb)
+    (let ((dim (dimensions-from-lambda name dimensions)))
     `(progn
        (defmcallback ,cbsymb ,return-type
-	 ,(if dimensions `((,argument-type ,dimensions)) argument-type)
+	 ,(if dim `((,argument-type ,dim)) argument-type)
 	 ,(if dimensions-return `((:set ,argument-type ,dimensions-return)))
 	 ,marray ,name)
        ,@(when
 	  structure
 	  `((defcbstruct ,cbsymb ,structure
-	      ,(if dimensions `((dimensions ,dimensions)))))))))
+	      ,(if dim `((dimensions ,dim))))))))))
 
 ;;;;****************************************************************************
 ;;;; Vector of doubles
