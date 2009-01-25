@@ -1,6 +1,6 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2009-01-20 19:09:55EST stepping.lisp>
+;; Time-stamp: <2009-01-25 10:00:40EST stepping.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,12 +8,14 @@
 (defmobject ode-stepper "gsl_odeiv_step"
   ((type :pointer) (dimensions sizet))
   "stepper for ordinary differential equations"
+  :documentation
   "Make a stepper for ordinary differential equations.  The type is
    one of the GSL-supplied types defined in stepping.lisp, and
    dimensions is the number of dependent variables.  This instance
    should be reinitialized whenever the next use of it will not be a
    continuation of a previous step."
-  "reset" nil)
+  :initialize-suffix "reset"
+  :initialize-args nil)
 
 (defmfun name ((object ode-stepper))
   "gsl_odeiv_step_name"

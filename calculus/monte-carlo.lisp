@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-01-24 19:32:18EST monte-carlo.lisp>
+;; Time-stamp: <2009-01-25 10:21:38EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,10 +17,11 @@
 (defmobject monte-carlo-plain
     "gsl_monte_plain"
   ((dim sizet))
-  "plain Monte Carlo integration"				; FDL
+  "plain Monte Carlo integration"
+  :documentation			; FDL
   "Make and initialize a workspace for Monte Carlo integration in dim dimensions."
-  "init"
-  nil)
+  :initialize-suffix "init"
+  :initialize-args nil)
 
 (cffi:defcstruct plain-state
   (dim sizet)
@@ -59,12 +60,13 @@
 (defmobject monte-carlo-miser
     "gsl_monte_miser"
   ((dim sizet))
-  "miser Monte Carlo integration"				; FDL
+  "miser Monte Carlo integration"
+  :documentation			; FDL
   "Make and initialize a workspace for Monte Carlo integration in
    dim dimensions.  The workspace is used to maintain
    the state of the integration."
-  "init"
-  nil)
+  :initialize-suffix "init"
+  :initialize-args nil)
 
 (cffi:defcstruct miser-state
   (min-calls sizet)
@@ -133,12 +135,13 @@
 (defmobject monte-carlo-vegas
     "gsl_monte_vegas"
   ((dim sizet))
-  "vegas Monte Carlo integration"				; FDL
+  "vegas Monte Carlo integration"
+  :documentation			; FDL
   "Make and initialize a workspace for Monte Carlo integration in
    dim dimensions.  The workspace is used to maintain
    the state of the integration.  Returns a pointer to vegas-state."
-  "init"
-  nil)
+  :initialize-suffix "init"
+  :initialize-args nil)
 
 (cffi:defcstruct vegas-state
   ;; grid 

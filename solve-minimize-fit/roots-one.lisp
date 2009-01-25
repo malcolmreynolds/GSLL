@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-24 15:08:14EST roots-one.lisp>
+;; Time-stamp: <2009-01-25 10:10:24EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -13,17 +13,15 @@
 
 (defmobject one-dimensional-root-solver-f "gsl_root_fsolver"
   ((type :pointer))
-  "one-dimensional root solver with function only"			; FDL
-  ""
-  "set"
-  ((function :pointer) (lower :double) (upper :double)))
+  "one-dimensional root solver with function only"
+  :initialize-suffix "set"
+  :initialize-args ((function :pointer) (lower :double) (upper :double)))
 
 (defmobject one-dimensional-root-solver-fdf "gsl_root_fdfsolver"
   ((type :pointer))
-  "one-dimensional root solver with function and derivative"			; FDL
-  ""
-  "set"
-  ((function-derivative :pointer) (root-guess :double)))
+  "one-dimensional root solver with function and derivative"
+  :initialize-suffix "set"
+  :initialize-args ((function-derivative :pointer) (root-guess :double)))
 
 (defmfun name ((solver one-dimensional-root-solver-f))
   "gsl_root_fsolver_name"

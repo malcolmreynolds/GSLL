@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-01-11 23:01:36EST generators.lisp>
+;; Time-stamp: <2009-01-25 09:57:17EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,7 +14,8 @@
 (defmobject random-number-generator
     "gsl_rng"
   ((rng-type :pointer))
-  "random number generator"		; FDL
+  "random number generator"
+  :documentation			; FDL
   "Make and optionally initialize (or `seed') the random number
    generator of the specified type.  If the generator is seeded with
    the same value of s on two different runs, the same stream of
@@ -25,8 +26,8 @@
    For example, the original Fortran source code for the *ranlux*
    generator used a seed of 314159265, and so choosing s equal to zero
    reproduces this when using *ranlux*."
-  ("set" :void)
-  ((value :ulong)))
+  :initialize-suffix ("set" :void)
+  :initialize-args ((value :ulong)))
 
 ;;;;****************************************************************************
 ;;;; Seed

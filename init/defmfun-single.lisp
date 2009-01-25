@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-01-15 22:27:56EST defmfun-single.lisp>
+;; Time-stamp: <2009-01-25 10:37:13EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -81,7 +81,7 @@
 	      qualifier gsl-version &allow-other-keys)
       key-args
     (declare (ignorable inputs outputs)) ; workaround for compiler errors that don't see it's used
-    (if (or (not gsl-version) (apply 'have-at-least-gsl-version gsl-version))
+    (if (have-at-least-gsl-version gsl-version)
 	`(,definition
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))

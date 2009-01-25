@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2008-12-26 18:48:14EST wavelet.lisp>
+;; Time-stamp: <2009-01-25 09:58:21EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -23,7 +23,8 @@
 
 (defmobject wavelet "gsl_wavelet"
   ((type :pointer) (member sizet))
-  "wavelet"				; FDL
+  "wavelet"
+  :documentation			; FDL
   "Make and initialize a wavelet object of type 'type.  The
    parameter 'member selects the specific member of the wavelet
    family.  A memory-allocation-failure error indicates either
@@ -74,7 +75,8 @@
 (defmobject wavelet-workspace
   "gsl_wavelet_workspace"
   ((size sizet))
-  "wavelet workspace"				; FDL
+  "wavelet workspace"
+  :documentation			; FDL
   "Make a workspace for the discrete wavelet transform.
    To perform a one-dimensional transform on size elements, a workspace
    of size size must be provided.  For two-dimensional transforms of

@@ -1,13 +1,14 @@
 ;; Index lookup and acceleration
 ;; Liam Healy, Sun Nov  4 2007 - 18:09
-;; Time-stamp: <2008-12-26 16:41:21EST lookup.lisp>
+;; Time-stamp: <2009-01-25 10:14:47EST lookup.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmobject acceleration "gsl_interp_accel"
   ()
-  "acceleration for interpolation"			; FDL
+  "acceleration for interpolation"
+  :documentation			; FDL
   "Make an accelerator object, which is a
    kind of iterator for interpolation lookups.  It tracks the state of
    lookups, thus allowing for application of various acceleration

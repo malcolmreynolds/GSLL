@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-01-24 12:56:27EST chebyshev.lisp>
+;; Time-stamp: <2009-01-25 10:12:45EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -13,9 +13,11 @@
 
 (defmobject chebyshev "gsl_cheb"
   ((order sizet))
-  "Chebyshev series"			; FDL
+  "Chebyshev series"
+  :documentation			; FDL
   "Make a Chebyshev series of specified order."
-  "init"
+  :initialize-suffix "init"
+  :initialize-args
   ((function :pointer) (lower-limit :double) (upper-limit :double)))
 
 ;;;;****************************************************************************

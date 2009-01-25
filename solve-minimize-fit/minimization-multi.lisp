@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-01-24 16:58:00EST minimization-multi.lisp>
+;; Time-stamp: <2009-01-25 10:09:46EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -57,21 +57,23 @@
 (defmobject multi-dimensional-minimizer-f
     "gsl_multimin_fminimizer"
   ((type :pointer) (dimension sizet))
-  "multi-dimensional minimizer with function only" ; FDL
+  "multi-dimensional minimizer with function only"
+  :documentation			; FDL
   "Make an instance of a minimizer of the given for an function of the
    given dimensions.  Optionally initialize the minimizer to minimize
    the function starting from the initial point.  The size of the
    initial trial steps is given in vector step-size. The precise
    meaning of this parameter depends on the method used."
-  "set"
-  ;; Could have one fewer argument: dimension=(dim0 initial)
+  :initialize-suffix "set"
+  :initialize-args ;; Could have one fewer argument: dimension=(dim0 initial)
   ((function :pointer) ((mpointer initial) :pointer)
    ((mpointer step-size) :pointer)))
 
 (defmobject multi-dimensional-minimizer-fdf
     "gsl_multimin_fdfminimizer"
   ((type :pointer) (dimension sizet))
-  "multi-dimensional minimizer with function and derivative" ; FDL
+  "multi-dimensional minimizer with function and derivative"
+  :documentation			; FDL
   "Make an instance of a derivative-based minimizer of the given for
    an function of the given dimensions.  Optionally initialize the
    minimizer to minimize the function starting from the initial point.
@@ -82,7 +84,8 @@
    gradient of the function g is orthogonal to the current search
    direction p to a relative accuracy of tolerance, where dot(p,g) <
    tol |p| |g|."
-  "set"
+  :initialize-suffix "set"
+  :initialize-args
   ;; Could have one fewer argument: dimension=(dim0 initial)
   ((function-derivative :pointer) ((mpointer initial) :pointer)
    (step-size :double) (tolerance :double)))

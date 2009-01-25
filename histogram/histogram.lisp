@@ -1,6 +1,6 @@
 ;; The histogram structure
 ;; Liam Healy, Mon Jan  1 2007 - 11:32
-;; Time-stamp: <2009-01-11 22:40:23EST histogram.lisp>
+;; Time-stamp: <2009-01-25 10:03:15EST histogram.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,16 +14,15 @@
     "gsl_histogram"
   ((number-of-bins sizet))
   "one-dimensional histogram, including bin boundaries and bin contents."
-  NIL
-  "set_ranges"
-  (((c-pointer ranges) :pointer) ((dim0 ranges) sizet)))
+  :initialize-suffix "set_ranges"
+  :initialize-args (((c-pointer ranges) :pointer) ((dim0 ranges) sizet)))
 
 (defmobject histogram2d
     "gsl_histogram2d"
   ((number-of-bins-x sizet) (number-of-bins-y sizet))
   "two-dimensional histogram, including bin boundaries and bin contents."
-  NIL
-  "set_ranges"
+  :initialize-suffix "set_ranges"
+  :initialize-args
   (((c-pointer x-ranges) :pointer) ((dim0 x-ranges) sizet)
    ((c-pointer y-ranges) :pointer) ((dim0 y-ranges) sizet)))
 

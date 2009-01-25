@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2008-12-26 18:25:41EST basis-splines.lisp>
+;; Time-stamp: <2009-01-25 10:11:48EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,7 +11,8 @@
 
 (defmobject basis-spline "gsl_bspline"
   ((order sizet) (number-of-breakpoints sizet))
-  "basis spline"			; FDL
+  "basis spline"
+  :documentation			; FDL
   "Allocate a workspace for computing B-splines. The number of
    breakpoints is given by number-of-breakpoints.  This leads to n =
    nbreak + k - 2 basis functions where k = order. Cubic B-splines are

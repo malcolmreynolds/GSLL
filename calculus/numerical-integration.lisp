@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-01-24 14:48:39EST numerical-integration.lisp>
+;; Time-stamp: <2009-01-25 10:16:31EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -40,9 +40,10 @@
 
 (defmobject integration-workspace
     "gsl_integration_workspace" ((size sizet))
-    "integration workspace"		; FDL
+    "integration workspace"
+    :documentation			; FDL
     "Make a workspace sufficient to hold n double
-  precision intervals, their integration results and error estimates.")
+     precision intervals, their integration results and error estimates.")
 
 (cffi:defcenum integrate-method
   :gauss15 :gauss21 :gauss31

@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2009-01-12 10:22:00EST eigensystems.lisp>
+;; Time-stamp: <2009-01-25 10:37:09EST eigensystems.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,15 +17,17 @@
 
 (defmobject eigen-symm
     "gsl_eigen_symm" ((n sizet))
-    "symmetric eigenvalue workspace"	; FDL
+    "symmetric eigenvalue workspace"
+    :documentation			; FDL
     "Make a workspace for computing eigenvalues of
   n-by-n real symmetric matrices.  The size of the workspace
   is O(2n).")
 
-;; V 1.9
 (defmobject eigen-nonsymm
     "gsl_eigen_nonsymm" ((n sizet))
-    "non-symmetric eigenvalue workspace"	; FDL
+    "non-symmetric eigenvalue workspace"
+    :gsl-version (1 9)
+    :documentation			; FDL
     "Make a workspace for computing eigenvalues of
   n-by-n real non-symmetric matrices.  The size of the workspace
   is O(2n).")
@@ -41,15 +43,17 @@
 
 (defmobject eigen-symmv
     "gsl_eigen_symmv" ((n sizet))
-    "symmetric eigensystem workspace"	; FDL
+    "symmetric eigensystem workspace"
+    :documentation			; FDL
     "Make a workspace for computing eigenvalues and
   eigenvectors of n-by-n real symmetric matrices.  The size of
   the workspace is O(4n).")
 
-;; V 1.9
 (defmobject eigen-nonsymmv
     "gsl_eigen_nonsymmv" ((n sizet))
-    "non-symmetric eigenvalue workspace"	; FDL
+    "non-symmetric eigenvalue workspace"
+    :gsl-version (1 9)
+    :documentation			; FDL
     "Make a workspace for computing for computing eigenvalues and
     eigenvectors of n-by-n real nonsymmetric matrices. The size of the
     workspace is O(5n).")
@@ -57,13 +61,15 @@
 (defmobject eigen-herm
     "gsl_eigen_herm" ((n sizet))
     "Hermitian eigenvalue workspace"	; FDL
+    :documentation			; FDL
     "Make a workspace for computing eigenvalues of
   n-by-n complex Hermitian matrices.  The size of the workspace
   is O(3n).")
 
 (defmobject eigen-hermv
     "gsl_eigen_hermv" ((n sizet))
-    "Hermitian eigensystem workspace"	; FDL
+    "Hermitian eigensystem workspace"
+    :documentation			; FDL
     "Make a workspace for computing eigenvalues and
   eigenvectors of n-by-n complex hermitian matrices.  The size of
   the workspace is O(5n).")

@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-24 20:09:17EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-25 10:06:14EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -19,37 +19,42 @@
 
 (defmobject multi-dimensional-root-solver-f "gsl_multiroot_fsolver"
   ((type :pointer) (dimension sizet))
-  "multi-dimensional root solver with function only"			; FDL
+  "multi-dimensional root solver with function only"
+  :documentation			; FDL
   "Make an instance of a solver of the type specified for a system of
    the specified number of dimensions.  Optionally
    set or reset an existing solver to use the function and the
    initial guess gsl-vector."
-  "set"
-  ((function :pointer) ((mpointer initial) :pointer))
+  :initialize-suffix "set"
+  :initialize-args ((function :pointer) ((mpointer initial) :pointer))
+  :arglists-function
   (lambda (set)
-  `((type &optional function-or-dimension (initial nil ,set))
-    (:type type
-     :dimension
-     (if ,set (dim0 initial) function-or-dimension))
-    (:function function-or-dimension :initial initial)))
-  (initial))
+    `((type &optional function-or-dimension (initial nil ,set))
+      (:type type
+	     :dimension
+	     (if ,set (dim0 initial) function-or-dimension))
+      (:function function-or-dimension :initial initial)))
+  :inputs (initial))
 
 (defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
   ((type :pointer) (dimension sizet))
-  "multi-dimensional root solver with function and derivative"			; FDL
+  "multi-dimensional root solver with function and derivative"
+  :documentation			; FDL
   "Make an instance of a derivative solver of the type specified for
    a system of the specified number of dimensions.  Optionally
    set or reset an existing solver to use the function and derivative
    (fdf) and the initial guess."
-  "set"
+  :initialize-suffix "set"
+  :initialize-args
   ((function-derivative :pointer) ((mpointer initial) :pointer))
+  :arglists-function
   (lambda (set)
   `((type &optional function-or-dimension (initial nil ,set))
     (:type type
      :dimension
      (if ,set (dim0 initial) function-or-dimension))
     (:function-derivative function-or-dimension :initial initial)))
-  (initial))
+  :inputs (initial))
 
 (defmfun name ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_name"

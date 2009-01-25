@@ -1,9 +1,17 @@
 ;; Adaptive step-size control
 ;; Liam Healy 2008-02-17 17:30:04EST control.lisp
-;; Time-stamp: <2009-01-20 19:39:08EST control.lisp>
+;; Time-stamp: <2009-01-25 10:01:56EST control.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+#|
+(defmobject standard-control ("gsl_odeiv_control_standard" "new")
+  ((absolute-error :double) (relative-error :double)
+   (y-scaling :double) (dydt-scaling :double))
+  "standard control for ordinary differential equations"
+  "")
+|#
 
 (defmfun new-standard-control (absolute-error relative-error y-scaling dydt-scaling)
   "gsl_odeiv_control_standard_new"

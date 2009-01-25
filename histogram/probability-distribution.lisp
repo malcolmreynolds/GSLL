@@ -1,6 +1,6 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
-;; Time-stamp: <2008-12-26 18:38:41EST probability-distribution.lisp>
+;; Time-stamp: <2009-01-25 10:04:23EST probability-distribution.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,23 +12,25 @@
     "gsl_histogram_pdf"
   ((number-of-bins sizet))
   "one-dimensional histogram PDF"
+  :documentation
   "Optionally initialize the probability distribution pdf with the contents
    of the histogram.  If any of the bins are negative then an
    input-domain error is signalled because a probability distribution
    cannot contain negative values."
-  "init"
-  (((mpointer histogram) :pointer)))
+  :initialize-suffix "init"
+  :initialize-args (((mpointer histogram) :pointer)))
 
 (defmobject histogram2d-pdf
     "gsl_histogram2d_pdf"
   ((number-of-bins-x sizet) (number-of-bins-y sizet))
   "two-dimensional histogram PDF"
+  :documentation
   "Optionally initialize the probability distribution pdf with the contents
    of the histogram.  If any of the bins are negative then an
    input-domain error is signalled because a probability distribution
    cannot contain negative values."
-  "init"
-  (((mpointer histogram) :pointer)))
+  :initialize-suffix "init"
+  :initialize-args (((mpointer histogram) :pointer)))
 
 (export 'sample)
 (defgeneric sample (pdf value)

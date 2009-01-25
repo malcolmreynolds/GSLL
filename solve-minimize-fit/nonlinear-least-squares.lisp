@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-01-24 16:58:11EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-01-25 10:11:21EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,10 +16,11 @@
 
 (defmobject nonlinear-ffit "gsl_multifit_fsolver"
   ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
-  "nonlinear least squares fit with function only"			; FDL
+  "nonlinear least squares fit with function only"
+  :documentation			; FDL
   "The number of observations must be greater than or equal to parameters."
-  "set"
-  ((function :pointer) ((mpointer initial-guess) :pointer)))
+  :initialize-suffix "set"
+  :initialize-args ((function :pointer) ((mpointer initial-guess) :pointer)))
 
 (defmfun name ((solver nonlinear-ffit))
   "gsl_multifit_fsolver_name"
@@ -34,12 +35,14 @@
 ;;;;****************************************************************************
 
 (defmobject nonlinear-fdffit "gsl_multifit_fdfsolver"
-  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
-  "nonlinear least squares fit with function and derivative"			; FDL
+  ((solver-type :pointer) (number-of-observations sizet)
+   (number-of-parameters sizet))
+  "nonlinear least squares fit with function and derivative"
+  :documentation			; FDL
   "The number of observations must be greater than or
    equal to parameters."
-  "set"
-  ((function :pointer) ((mpointer initial-guess) :pointer)))
+  :initialize-suffix "set"
+  :initialize-args ((function :pointer) ((mpointer initial-guess) :pointer)))
 
 (defmfun name ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_name"

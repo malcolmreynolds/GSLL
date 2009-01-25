@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2009-01-21 22:48:11EST series-acceleration.lisp>
+;; Time-stamp: <2009-01-25 10:12:17EST series-acceleration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,7 +28,8 @@
 
 (defmobject levin "gsl_sum_levin_u"
   ((order sizet))
-  "Levin u-transform"			; FDL
+  "Levin u-transform"
+  :documentation			; FDL
   "Make a workspace for a Levin u-transform of n
    terms.  The size of the workspace is O(2n^2 + 3n).")
 
@@ -53,7 +54,8 @@
 
 (defmobject levin-truncated "gsl_sum_levin_utrunc"
   ((order sizet))
-  "truncated Levin u-transform"			; FDL
+  "truncated Levin u-transform"
+  :documentation			; FDL
   "Make a workspace for a Levin u-transform of n
    terms, without error estimation.  The size of the workspace is
    O(3n).")

@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-01-21 22:38:01EST mobject.lisp>
+;; Time-stamp: <2009-01-25 10:35:08EST mobject.lisp>
 ;; $Id$
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
@@ -22,8 +22,8 @@
 
 (defmacro defmobject
     (class prefix allocation-args description 
-     &optional docstring initialize-suffix initialize-args arglists-function
-     inputs)
+     &key documentation initialize-suffix initialize-args arglists-function
+     inputs gsl-version)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   ;; If prefix is a list, the first is the actual prefix, and the
@@ -40,82 +40,89 @@
 	 (cl-initialize-args
 	  (variables-used-in-c-arguments initialize-args))
 	 (realprefix (if (listp prefix) (first prefix) prefix)))
-    `(progn
-       (defclass ,class (mobject)
-	 ()
-	 (:documentation
-	  ,(format nil "The GSL representation of the ~a." description)))
+    (if (have-at-least-gsl-version gsl-version)
+	`(progn
+	   (defclass ,class (mobject)
+	     ()
+	     (:documentation
+	      ,(format nil "The GSL representation of the ~a." description)))
 
-       (defmfun allocate ((object ,class) &key ,@cl-alloc-args)
-	 ,(if (listp prefix) (second prefix) (format nil "~a_alloc" prefix))
-	 ,allocation-args
-	 ,@(if (and (listp prefix) (third prefix))
-	       `(:inputs ,(third prefix)))
-	 :definition :method
-	 :c-return :pointer
-	 :index ,maker)
+	   (defmfun allocate ((object ,class) &key ,@cl-alloc-args)
+	     ,(if (listp prefix) (second prefix) (format nil "~a_alloc" prefix))
+	     ,allocation-args
+	     ,@(if (and (listp prefix) (third prefix))
+		   `(:inputs ,(third prefix)))
+	     :definition :method
+	     :c-return :pointer
+	     :index ,maker)
 
-       (defmethod initialize-instance :after
-	   ((object ,class) &key mpointer ,@(union cl-alloc-args cl-initialize-args))
-	 ,@(let ((not-alloc (set-difference cl-initialize-args cl-alloc-args)))
-		(when not-alloc)
-		`((declare (ignore ,@not-alloc))))
-	 (unless mpointer
-	   (setf mpointer
-		 (allocate object ,@(symbol-keyword-symbol cl-alloc-args))
-		 (slot-value object 'mpointer) mpointer))
-	 (tg:finalize object
-		      (lambda ()
-			(cffi:foreign-funcall
-			 ,(format nil "~a_free" realprefix)
-			 :pointer mpointer :void))))
+	   (defmethod initialize-instance :after
+	       ((object ,class) &key mpointer ,@(union cl-alloc-args cl-initialize-args))
+	     ,@(let ((not-alloc (set-difference cl-initialize-args cl-alloc-args)))
+		    (when not-alloc)
+		    `((declare (ignore ,@not-alloc))))
+	     (unless mpointer
+	       (setf mpointer
+		     (allocate object ,@(symbol-keyword-symbol cl-alloc-args))
+		     (slot-value object 'mpointer) mpointer))
+	     (tg:finalize object
+			  (lambda ()
+			    (cffi:foreign-funcall
+			     ,(format nil "~a_free" realprefix)
+			     :pointer mpointer :void))))
 
-       ,@(when initialize-suffix
-	       `((defmfun reinitialize-instance
-		     ((object ,class) &key ,@cl-initialize-args)
-		   ,(format nil "~a_~a" realprefix
-			    (if (listp initialize-suffix)
-				(first initialize-suffix)
-				initialize-suffix))
-		   (((mpointer object) :pointer) ,@initialize-args)
-		   :definition :method
-		   :qualifier :after
-		   ,@(when (listp initialize-suffix)
-			   `(:c-return ,(second initialize-suffix)))
-		   :return (object)
-		   ,@(when inputs `(:inputs ,inputs))
-		   :export nil
-		   :index (reinitialize-instance ,class))))
-
-       (export ',maker)
-       (defun ,maker
-	   ,(if arglists
-		(first arglists)
-		`(,@cl-alloc-args
-		  ,@(when initialize-args
-			  (append
-			   (list '&optional
-				 (list (first cl-initialize-args) nil settingp))
-			   (rest cl-initialize-args)))))
-	 ,(format nil "Create the GSL object representing a ~a (class ~a).~@[~&~a~]"
-		  description class docstring)
-	 (let ((object
-		(make-instance
-		 ',class
-		 ,@(if arglists
-		       (second arglists)
-		       (symbol-keyword-symbol cl-alloc-args)))))
-	   ;; There is an initialization step
 	   ,@(when initialize-suffix
-		   (if initialize-args	; with arguments
-		       `((when ,settingp
-			   (reinitialize-instance
-			    object
-			    ,@(if arglists
-				  (third arglists)
-				  (symbol-keyword-symbol cl-initialize-args)))))
-		       '((reinitialize-instance object)))) ; without arguments
-	   object)))))
+		   `((defmfun reinitialize-instance
+			 ((object ,class) &key ,@cl-initialize-args)
+		       ,(format nil "~a_~a" realprefix
+				(if (listp initialize-suffix)
+				    (first initialize-suffix)
+				    initialize-suffix))
+		       (((mpointer object) :pointer) ,@initialize-args)
+		       :definition :method
+		       :qualifier :after
+		       ,@(when (listp initialize-suffix)
+			       `(:c-return ,(second initialize-suffix)))
+		       :return (object)
+		       ,@(when inputs `(:inputs ,inputs))
+		       :export nil
+		       :index (reinitialize-instance ,class))))
+
+	   (export ',maker)
+	   (defun ,maker
+	       ,(if arglists
+		    (first arglists)
+		    `(,@cl-alloc-args
+		      ,@(when initialize-args
+			      (append
+			       (list '&optional
+				     (list (first cl-initialize-args) nil settingp))
+			       (rest cl-initialize-args)))))
+	     ,(format
+	       nil "Create the GSL object representing a ~a (class ~a).~@[~&~a~]"
+	       description class documentation)
+	     (let ((object
+		    (make-instance
+		     ',class
+		     ,@(if arglists
+			   (second arglists)
+			   (symbol-keyword-symbol cl-alloc-args)))))
+	       ;; There is an initialization step
+	       ,@(when initialize-suffix
+		       (if initialize-args ; with arguments
+			   `((when ,settingp
+			       (reinitialize-instance
+				object
+				,@(if arglists
+				      (third arglists)
+				      (symbol-keyword-symbol cl-initialize-args)))))
+			   '((reinitialize-instance object)))) ; without arguments
+	       object)))
+	`(defun ,maker (&rest args)
+	   (declare (ignore args))
+	   (error 'obsolete-gsl-version
+		  :name ',class :gsl-name ,realprefix
+		  :gsl-version ',gsl-version)))))
 
 (defun symbol-keyword-symbol (symbol)
   (if (listp symbol)

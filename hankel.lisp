@@ -1,6 +1,6 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2008-12-26 18:46:20EST hankel.lisp>
+;; Time-stamp: <2009-01-25 10:00:41EST hankel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,10 +14,11 @@
 (defmobject hankel "gsl_dht"
   ((size sizet))
   "discrete Hankel Transform"
+  :documentation
   "Allocate a Discrete Hankel transform object of the given size and
    optionally initialize the transform for the given values of nu and x."
-  "init"
-  ((nu :double) (xmax :double)))
+  :initialize-suffix "init"
+  :initialize-args ((nu :double) (xmax :double)))
 
 (defmfun apply-hankel (hankel array-in array-out)
   "gsl_dht_apply"

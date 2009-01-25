@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-06 18:49:56EST interface.lisp>
+;; Time-stamp: <2009-01-25 10:30:39EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -143,13 +143,14 @@
 (map-name '*gsl-version* "gsl_version")
 (export '*gsl-version*)
 
-(defun have-at-least-gsl-version (major minor)
+(defun have-at-least-gsl-version (major-minor)
   "The GSL version currently running is at least the specified
   major/minor version."
-  (let* ((sep-pos (position #\. *gsl-version*))
-	 (my-major
-	  (read-from-string *gsl-version* nil nil :end sep-pos))
-	 (my-minor
-	  (read-from-string *gsl-version* nil nil :start (1+ sep-pos))))
-    (and (>= my-major major)
-	 (>= my-minor minor))))
+  (or (null major-minor)
+      (let* ((sep-pos (position #\. *gsl-version*))
+	     (my-major
+	      (read-from-string *gsl-version* nil nil :end sep-pos))
+	     (my-minor
+	      (read-from-string *gsl-version* nil nil :start (1+ sep-pos))))
+	(and (>= my-major (first major-minor))
+	     (>= my-minor (second major-minor))))))
