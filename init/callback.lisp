@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-01-24 19:31:51EST callback.lisp>
+;; Time-stamp: <2009-01-25 19:21:02EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -31,8 +31,7 @@
 ;;; desirable to read and set marrays, in which case :pointer is the
 ;;; right specification.
 
-(export
- '(make-single-function undef-cbstruct with-c-double with-c-doubles))
+(export '(make-single-function undef-cbstruct))
 
 ;;;;****************************************************************************
 ;;;; Setting slots
@@ -270,33 +269,3 @@
 	  structure
 	  `((defcbstruct ,cbsymb ,structure
 	      ,(if dim `((dimensions ,dim))))))))))
-
-;;;;****************************************************************************
-;;;; Vector of doubles
-;;;;****************************************************************************
-
-;;; Unfortunately, because vectors must be copied between languages
-;;; (even with vector-sap in callbacks, unless vector-sap can be
-;;; setfed), there is no way to provide a function of a vector and
-;;; have it work in both languages.  As a consolation the macro
-;;; #'with-c-double is provided to make things easier.
-
-(defmacro with-c-double
-    ((c-vector &rest element-names) &body body)
-  "Provide named access to each element of a C array of doubles, for either
-   reading or setting."
-  `(symbol-macrolet
-    ,(loop for i from 0 for a in element-names
-	   collect `(,a (dcref ,c-vector ,i)))
-    ,@body))
-
-(defmacro with-c-doubles
-    ((&rest cvector-names) &body body)
-  "Provide named access to each element of a C array of doubles, for either
-   reading or setting."
-  `(symbol-macrolet
-    ,(loop for (c-vector . element-names) in cvector-names
-	   append
-	   (loop for i from 0 for a in element-names
-		 collect `(,a (dcref ,c-vector ,i))))
-    ,@body))

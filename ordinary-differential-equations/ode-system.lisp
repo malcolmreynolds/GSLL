@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2009-01-25 17:10:32EST ode-system.lisp>
+;; Time-stamp: <2009-01-25 19:01:57EST ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -42,28 +42,30 @@
 	 ((dimension ,dimension))))))
 
 (defmacro with-ode-integration
-    ((time step-size dependent dimensions &optional (stepper '*step-rk8pd*)
-	   (absolute-error 1.0d-6) (relative-error 0.0d0))
+    ((function time step-size max-time
+	       dependent dimensions &optional (stepper '*step-rk8pd*)
+	       (absolute-error 1.0d-6) (relative-error 0.0d0))
      &body body)
-  "Environment for integration of ordinary differential equations.
-   The variables time and step-size will become C doubles in the body;
-   to convert back, use #'dcref  The dependent variable may
-   be specified as a list being the same as the first argument to
-   with-c-double."
-  (let ((ctime (make-symbol "CTIME"))
+  "Environment for integration of ordinary differential equations."
+  (let ((dep (make-symbol "DEP"))
+	(ctime (make-symbol "CTIME"))
 	(cstep (make-symbol "CSTEP")))
-    `(let ((stepper (make-ode-stepper ,stepper ,dimensions))
+    `(let ((stepperobj (make-ode-stepper ,stepper ,dimensions))
 	   (control (make-y-control ,absolute-error ,relative-error))
-	   (evolve (make-ode-evolution ,dimensions)))
-       (cffi:with-foreign-objects
-	   ((,(if (listp dependent) (first dependent) dependent)
-	      :double ,dimensions) (,ctime :double) (,cstep :double))
-	 (setf
-	  (dcref ,cstep) ,step-size
-	  (dcref ,ctime) ,time)
-	 ,(if (listp dependent)
-	      `(with-c-double ,dependent
-		 (symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
-		   ,@body))
-	      `(symbol-macrolet ((,time ,ctime) (,step-size ,cstep))
-		 ,@body))))))
+	   (evolve (make-ode-evolution ,dimensions))
+	   (,dep
+	    (make-marray 'double-float :dimensions ,dimensions))
+	   (,ctime (make-marray 'double-float :dimensions 1))
+	   (,cstep (make-marray 'double-float :dimensions 1)))
+       (symbol-macrolet
+	   ((,time (maref ,ctime 0))
+	    (,step-size (maref ,cstep 0))
+	    ,@(loop for symb in dependent
+		 for i from 0
+		 collect `(,symb (maref ,dep ,i)))
+	    (make-next-step
+	     (apply-evolution
+	      evolve control stepperobj
+	      ,function ,ctime
+	      ,max-time ,cstep ,dep)))
+	 ,@body))))

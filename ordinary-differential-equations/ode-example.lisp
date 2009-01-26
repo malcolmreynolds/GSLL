@@ -1,6 +1,6 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
-;; Time-stamp: <2009-01-24 14:34:20EST ode-example.lisp>
+;; Time-stamp: <2009-01-25 19:15:39EST ode-example.lisp>
 ;; $Id$
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
@@ -26,22 +26,34 @@
 
 (defparameter *max-iter* 2000)
 
-(defun integrate-vanderpol (max-time &optional (step-size 1.0d-6) (print-steps t))
+(defun integrate-vanderpol
+    (max-time &optional (step-size 1.0d-6) (stepper *step-rk8pd*) (print-steps t))
   "Integrate the van der Pol oscillator as given in Section 25.5 of the
    GSL manual.  To reproduce that example, (integrate-vanderpol 100.0d0)."
-  (let ((mu 10.0d0) (time 0.0d0) (iter 0))
+  (let ((mu 10.0d0) (initial-time 0.0d0) (iter 0))
     (declare (special mu))
-    (with-ode-integration (time step-size (dependent dep0 dep1) 2)
-      (setf dep0 1.0d0 dep1 0.0d0)
-      (loop (when (or (>= (dcref time) max-time) (> iter *max-iter*))
-	      (return (values (dcref time) dep0 dep1)))
-	 (apply-evolution
-	  evolve control stepper
-	  (make-ode-functions vanderpol vanderpol-jacobian 2)
-	  time max-time step-size dependent)
+    (with-ode-integration
+	((make-ode-functions vanderpol vanderpol-jacobian 2)
+	 time step max-time (dep0 dep1) 2 stepper)
+      (setf dep0 1.0d0 dep1 0.0d0 step step-size time initial-time)
+      (loop
+	 (when (or (>= time max-time) (> iter *max-iter*))
+	   (return (values iter time dep0 dep1)))
+	 make-next-step
 	 (incf iter)
 	 (when print-steps
-	   (format t "~12,6f~10t~12,6f~24t~12,6f~&"
-		   (dcref time) dep0 dep1))))))
+	   (format t "~12,6f~10t~12,6f~24t~12,6f~&" time dep0 dep1))))))
 
-(save-test ode (integrate-vanderpol 1.0d0 1.d-4 nil))
+(save-test
+ ode
+ (integrate-vanderpol 1.0d0 1.d-4 *step-rk2* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 *step-rk4* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 *step-rkf45* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 *step-rkck* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 *step-rk8pd* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 *step-rk2imp* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 *step-rk4imp* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 *step-bsimp* nil)
+ (let ((*max-iter* 12000))
+   (integrate-vanderpol 1.0d0 1.d-4 *step-gear1* nil))
+ (integrate-vanderpol 1.0d0 1.d-4 *step-gear2* nil))
