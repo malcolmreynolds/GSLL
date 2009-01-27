@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-25 10:06:14EST roots-multi.lisp>
+;;; Time-stamp: <2009-01-26 21:45:23EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -360,12 +360,19 @@
    (* *rosenbrock-a* (- 1 arg0))
    (* *rosenbrock-b* (- arg1 (expt arg0 2)))))
 
+#+callback-toplevel-only
+(defparameter *solver-nodf-cb* 
+  (make-solver-functions rosenbrock nil nil 2))
+
 (defun roots-multi-example-no-derivative
     (&optional (method *hybrid-scaled*) (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000)
 	(solver (make-multi-dimensional-root-solver-f
-		 method (make-solver-functions rosenbrock nil nil 2)
+		 method
+		 #-callback-toplevel-only
+		 (make-solver-functions rosenbrock nil nil 2)
+		 #+callback-toplevel-only *solver-nodf-cb* 
 		 #m(-10.0d0 -5.0d0))))
     (loop for iter from 0
        with fnval and argval
@@ -404,6 +411,10 @@
 	(rosenbrock-df arg0 arg1)
       (values v0 v1 j0 j1 j2 j3))))
 
+#+callback-toplevel-only
+(defparameter *solver-df-cb* 
+  (make-solver-functions rosenbrock rosenbrock-df rosenbrock-fdf 2))
+
 (defun roots-multi-example-derivative (&optional (method *gnewton-mfdfsolver*) (print-steps t))
   "Solving Rosenbrock with derivatives, the example given in Sec. 34.8
    of the GSL manual."
@@ -418,7 +429,9 @@
     (let ((max-iter 1000)
 	  (solver (make-multi-dimensional-root-solver-fdf
 		   method
+		   #-callback-toplevel-only
 		   (make-solver-functions rosenbrock rosenbrock-df rosenbrock-fdf 2)
+		   #+callback-toplevel-only *solver-df-cb* 
 		   #m(-10.0d0 -5.0d0))))
       (loop for iter from 0
 	 with fnval = (function-value solver)

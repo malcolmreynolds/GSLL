@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-25 10:10:24EST roots-one.lisp>
+;; Time-stamp: <2009-01-26 21:44:26EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -280,13 +280,20 @@
     (values (+ (* (+ (* a x) b) x) c)
 	    (+ (* 2 a x) b))))
 
+#+callback-toplevel-only
+(defparameter *roots-one-noderiv-cb*
+  (make-single-function quadratic))
+
 (defun roots-one-example-no-derivative
     (&optional (method *brent-fsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50)
 	(solver
 	 (make-one-dimensional-root-solver-f
-	  method (make-single-function quadratic) 0.0d0 5.0d0)))
+	  method
+	  #-callback-toplevel-only (make-single-function quadratic)
+	  #+callback-toplevel-only *roots-one-noderiv-cb*
+	  0.0d0 5.0d0)))
     (when print-steps
       (format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
     (loop for iter from 0
@@ -304,6 +311,11 @@
 		 (- upper lower)))
        finally (return root))))
 
+#+callback-toplevel-only
+(defparameter *roots-one-deriv-cb*
+  (make-solver-functions
+   quadratic quadratic-derivative quadratic-and-derivative))
+
 (defun roots-one-example-derivative
     (&optional (method *newton-fdfsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
@@ -311,8 +323,11 @@
 	 (initial 5.0d0)
 	 (solver (make-one-dimensional-root-solver-fdf
 		  method
+		  #-callback-toplevel-only
 		  (make-solver-functions
 		   quadratic quadratic-derivative quadratic-and-derivative)
+		  #+callback-toplevel-only
+		  *roots-one-deriv-cb*
 		  initial)))
     (when print-steps
       (format t "iter ~6t ~8troot ~22terr ~34terr(est)~&"))

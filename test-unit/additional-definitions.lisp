@@ -1,11 +1,7 @@
-;********************************************************
-; file:        tests.lisp                                
-; description: Test functions.                           
-; date:        Sat Apr 22 2006 - 16:52                   
-; author:      Liam M. Healy                             
-; modified:    Tue Jul 18 2006 - 22:36
-;********************************************************
-;;; $Id$
+;; Test functions.
+;; Liam Healy Sat Apr 22 2006 - 16:52
+;; Time-stamp: <2009-01-26 21:34:35EST additional-definitions.lisp>
+;; $Id: $
 
 ;;; Interface with lisp-unit, add a definition for comparing floating
 ;;; point numbers and a form for generating floating point tests.

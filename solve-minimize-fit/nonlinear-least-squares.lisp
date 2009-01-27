@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-01-25 10:11:21EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-01-26 21:43:22EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -372,15 +372,23 @@
   "Find the norm of the fit function f."
   (euclidean-norm (function-value fit)))
 
+#+callback-toplevel-only
+(defparameter *fitting-cb*
+  (make-fitting-functions
+   exponential-residual 3 40
+   exponential-residual-derivative exponential-residual-fdf))
+
 (defun nonlinear-least-squares-example
     (&optional (number-of-observations 40)
      (method *levenberg-marquardt*)
      (print-steps t))
   (let ((*nlls-example-data* (generate-nlls-data number-of-observations))
 	(nlls-callback
-	 (make-fitting-functions
-	  exponential-residual 3 number-of-observations
-	  exponential-residual-derivative exponential-residual-fdf)))
+	 #-callback-toplevel-only
+	  (make-fitting-functions
+	   exponential-residual 3 number-of-observations
+	   exponential-residual-derivative exponential-residual-fdf)
+	  #+callback-toplevel-only *fitting-cb*))
     (setf (number-of-observations nlls-callback) number-of-observations)
     (let* ((init #m(1.0d0 0.0d0 0.0d0))
 	   (number-of-parameters (number-of-parameters nlls-callback))

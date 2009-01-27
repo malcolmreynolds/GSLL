@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-01-25 10:09:46EST minimization-multi.lisp>
+;; Time-stamp: <2009-01-26 21:55:26EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -191,6 +191,7 @@
 (defmfun min-test-gradient (gradient absolute-error)
   "gsl_multimin_test_gradient"
   (((mpointer gradient) :pointer) (absolute-error :double))
+  :inputs (gradient)
   :c-return :success-continue
   :documentation			; FDL
   "Test the norm of the gradient against the
@@ -319,15 +320,23 @@
     (parabaloid-derivative
      arguments-gv-pointer derivative-gv-pointer)))
 
+#+callback-toplevel-only
+(defparameter *minmultidf-cb*
+  (make-minimization-functions
+   parabaloid-vector 2
+   parabaloid-derivative parabaloid-and-derivative t))
+
 (defun multimin-example-derivative
     (&optional (method *conjugate-fletcher-reeves*) (print-steps t))
   (let* ((initial #m(5.0d0 7.0d0))
 	 (minimizer
 	  (make-multi-dimensional-minimizer-fdf
 	   method 2
+	   #-callback-toplevel-only
 	   (make-minimization-functions
 	    parabaloid-vector 2
 	    parabaloid-derivative parabaloid-and-derivative t)
+	   #+callback-toplevel-only *minmultidf-cb*
 	   initial 0.01d0 1.0d-4)))
     (loop with status = T
        for iter from 0 below 100
@@ -360,6 +369,10 @@
        (* 20 (expt (- y dp1) 2))
        30)))
 
+#+callback-toplevel-only
+(defparameter *minmulti-cb*
+  (make-minimization-functions parabaloid-scalar 2))
+
 (defun multimin-example-no-derivative
     (&optional (method *simplex-nelder-mead*) (print-steps t))
   (let ((step-size (make-marray 'double-float :dimensions 2)))
@@ -367,7 +380,9 @@
     (let ((minimizer
 	   (make-multi-dimensional-minimizer-f
 	    method 2
+	    #-callback-toplevel-only
 	    (make-minimization-functions parabaloid-scalar 2)
+	    #+callback-toplevel-only *minmulti-cb*
 	    #m(5.0d0 7.0d0) step-size)))
       (loop with status = T and size
 	 for iter from 0 below 100

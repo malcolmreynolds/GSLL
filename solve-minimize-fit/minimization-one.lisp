@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-01-25 10:07:59EST minimization-one.lisp>
+;; Time-stamp: <2009-01-26 21:40:02EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -180,6 +180,9 @@
 (defun minimization-one-fn (x)
   (1+ (cos x)))
 
+#+callback-toplevel-only
+(defparameter *minone-cb* (make-single-function minimization-one-fn))
+
 (defun minimization-one-example
     (&optional (minimizer-type *brent-fminimizer*) (print-steps t))
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
@@ -187,7 +190,8 @@
 	(minimizer
 	 (make-one-dimensional-minimizer
 	  minimizer-type
-	  (make-single-function minimization-one-fn)
+	  #-callback-toplevel-only (make-single-function minimization-one-fn)
+	  #+callback-toplevel-only *minone-cb*
 	  2.0d0 0.0d0 6.0d0)))
     (when print-steps
       (format

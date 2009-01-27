@@ -1,6 +1,6 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2009-01-24 18:07:19EST init.lisp>
+;; Time-stamp: <2009-01-26 21:39:39EST init.lisp>
 ;; $Id$
 
 (defpackage gsll
@@ -38,6 +38,10 @@
 #+sbcl
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (pushnew :native *features*))
+
+#+openmcl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (pushnew :callback-toplevel-only *features*))
 
 ;;; CFFI currently doesn't allow uninterned callback names for CCL;
 ;;; patch here.
