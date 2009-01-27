@@ -1,27 +1,27 @@
 ;; Example spline
 ;; Liam Healy, Sat Nov 10 2007 - 21:18
-;; Time-stamp: <2008-12-26 12:53:23EST spline-example.lisp>
+;; Time-stamp: <2009-01-26 22:43:41EST spline-example.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;;; Possible future improvement: direct double-float vectors.
-
-(defun spline-example-arrays ()
-  (let ((xarr (make-array '(10) :element-type 'double-float))
-	(yarr (make-array '(10) :element-type 'double-float)))
-    (loop for i from 0 below 10
-	  do (setf (aref xarr i) (+ i (* 0.5d0 (sin (coerce i 'double-float))))
-		   (aref yarr i) (+ i (cos (expt (coerce i 'double-float) 2)))))
-    (values xarr yarr)))
-
-(defun spline-example ()
+(defun spline-example (&optional (step 0.01d0))
   "The first example in Sec. 26.7 of the GSL manual."
-  (multiple-value-bind (xarr yarr)
-      (spline-example-arrays)
-    (let* ((acc (make-acceleration))
-	   (cxarr (make-marray 'double-float :dimensions xarr))
-	   (cyarr (make-marray 'double-float :dimensions yarr))
-	   (spline (make-spline *cubic-spline-interpolation* cxarr cyarr)))
-      (loop for xi from (aref xarr 0) below (aref xarr 9) by 0.01d0
-	 collect (list xi (evaluate-spline spline xi acc))))))
+  (let* ((acc (make-acceleration))
+	 (xarr
+	  (make-marray
+	   'double-float
+	   :initial-contents
+	   (loop for i from 0.0d0 below 10.0d0
+	      collect (+ i (* 0.5d0 (sin i))))))
+	 (yarr
+	  (make-marray
+	   'double-float
+	   :initial-contents
+	   (loop for i from 0.0d0 below 10.0d0
+	      collect (+ i (cos (expt i 2))))))
+	 (spline (make-spline *cubic-spline-interpolation* xarr yarr)))
+    (loop for xi from (maref xarr 0) below (maref xarr 9) by step
+       collect (list xi (evaluate-spline spline xi acc)))))
+
+(save-test interpolation (spline-example 0.1d0))

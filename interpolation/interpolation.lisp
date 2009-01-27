@@ -1,6 +1,6 @@
 ;; Interpolation allocation, initialization, and freeing.
 ;; Liam Healy, Sun Nov  4 2007 - 17:24
-;; Time-stamp: <2009-01-25 10:14:30EST interpolation.lisp>
+;; Time-stamp: <2009-01-26 22:51:09EST interpolation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -37,6 +37,7 @@
   :initialize-suffix "init"
   :initialize-args
   (((c-pointer xa) :pointer) ((c-pointer ya) :pointer) ((dim0 xa) sizet))
+  :inputs (xa ya)
   :arglists-function
   (lambda (set)
     `((type &optional xa-or-size (ya nil ,set))

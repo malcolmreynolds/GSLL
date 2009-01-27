@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-22 21:37:49EST gsll-tests.asd>
+;; Time-stamp: <2009-01-26 22:45:42EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -74,6 +74,7 @@
 	     (:file "hypergeometric")
 	     (:file "hypergeometric-randist")
 	     (:file "index-max")
+	     (:file "interpolation")
 	     (:file "inverse-matrix-product")
 	     (:file "laguerre")
 	     (:file "lambert")

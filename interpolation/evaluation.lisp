@@ -5,8 +5,9 @@
 
 (defmfun evaluate-interpolation (interpolation xa ya x acceleration)
   "gsl_interp_eval"
-  ((interpolation :pointer) (xa :pointer) (ya :pointer) (x :double)
-   (acceleration :pointer))
+  (((mpointer interpolation) :pointer) (xa :pointer) (ya :pointer) (x :double)
+   ((mpointer acceleration) :pointer))
+  :inputs (xa ya)
   :c-return :double
   :documentation			; FDL
   "Find the interpolated value of y for a given
@@ -15,8 +16,9 @@
 
 (defmfun derivative-evaluate-interpolation (interpolation xa ya x acceleration)
   "gsl_interp_eval_deriv"
-  ((interpolation :pointer) (xa :pointer) (ya :pointer) (x :double)
-   (acceleration :pointer))
+  (((mpointer interpolation) :pointer) (xa :pointer) (ya :pointer) (x :double)
+   ((mpointer acceleration) :pointer))
+  :inputs (xa ya)
   :c-return :double
   :documentation			; FDL
   "Find the derivative of an interpolated function for a given point
@@ -25,8 +27,9 @@
 
 (defmfun second-derivative-evaluate-interpolation (interpolation xa ya x acceleration)
   "gsl_interp_eval_deriv2"
-  ((interpolation :pointer) (xa :pointer) (ya :pointer) (x :double)
-   (acceleration :pointer))
+  (((mpointer interpolation) :pointer) (xa :pointer) (ya :pointer) (x :double)
+   ((mpointer acceleration) :pointer))
+  :inputs (xa ya)
   :c-return :double
   :documentation			; FDL
   "Find the second derivative of an interpolated function for a given point
@@ -35,8 +38,9 @@
 
 (defmfun integral-evaluate-interpolation (interpolation xa ya x low high acceleration)
   "gsl_interp_eval_integ"
-  ((interpolation :pointer) (xa :pointer) (ya :pointer) (x :double)
-   (low :double) (high :double) (acceleration :pointer))
+  (((mpointer interpolation) :pointer) (xa :pointer) (ya :pointer) (x :double)
+   (low :double) (high :double) ((mpointer acceleration) :pointer))
+  :inputs (xa ya)
   :c-return :double
   :documentation			; FDL
   "Find the numerical integral of an interpolated function over the
@@ -46,7 +50,7 @@
 ;;; Spline
 (defmfun evaluate-spline (spline x acceleration)
   "gsl_spline_eval"
-  ((spline :pointer) (x :double) (acceleration :pointer))
+  (((mpointer spline) :pointer) (x :double) ((mpointer acceleration) :pointer))
   :c-return :double
   :documentation
   "Find the interpolated value of y for a given
@@ -55,7 +59,7 @@
 
 (defmfun derivative-evaluate-spline (spline x acceleration)
   "gsl_spline_eval_deriv"
-  ((spline :pointer) (x :double) (acceleration :pointer))
+  (((mpointer spline) :pointer) (x :double) ((mpointer acceleration) :pointer))
   :c-return :double
   :documentation			; FDL
   "Find the derivative of an interpolated function for a given point
@@ -64,7 +68,7 @@
 
 (defmfun second-derivative-evaluate-spline (spline x acceleration)
   "gsl_spline_eval_deriv2"
-  ((spline :pointer) (x :double) (acceleration :pointer))
+  (((mpointer spline) :pointer) (x :double) ((mpointer acceleration) :pointer))
   :c-return :double
   :documentation			; FDL
   "Find the second derivative of an interpolated function for a given point
@@ -73,8 +77,8 @@
 
 (defmfun integral-evaluate-spline (spline x low high acceleration)
   "gsl_spline_eval_integ"
-  ((spline :pointer) (x :double) (low :double) (high :double)
-   (acceleration :pointer))
+  (((mpointer spline) :pointer) (x :double) (low :double) (high :double)
+   ((mpointer acceleration) :pointer))
   :c-return :double
   :documentation			; FDL
   "Find the numerical integral of an interpolated function over the
