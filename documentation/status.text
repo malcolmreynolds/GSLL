@@ -35,6 +35,7 @@ series-acceleration
 linear-least-squares
 nonlinear-least-squares
 minimization-multi
+basis-spline
 
 === GSL questions ===
 Sun Nov  9 2008:
@@ -48,3 +49,6 @@ Sun Jan 11 2009:
 gsl_permutation_valid (presumably combination too) signals an error if
 the permutation is invalid, rather than just returning an error code.
 Is this intentional?
+Wed Jan 28 2009:
+What are the _e functions in interpolation for, how are the results to
+be interpreted?

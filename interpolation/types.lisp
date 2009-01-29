@@ -1,6 +1,6 @@
 ;; Interpolation types
 ;; Liam Healy, Sun Nov  4 2007 - 17:41
-;; Time-stamp: <2008-12-26 17:23:12EST types.lisp>
+;; Time-stamp: <2009-01-28 21:02:31EST types.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,28 +53,29 @@
   :documentation			; FDL
   "The name of the interpolation type.")
 
-(defmfun interpolation-minimum-size (interpolation)
-  "gsl_interp_min_size"
-  ((interpolation :pointer))
-  :c-return :uint
-  :documentation			; FDL
-  "The minimum number of points required by the
+(export 'minimum-size)
+(defgeneric minimum-size (object)
+  (:documentation			; FDL
+   "The minimum number of points required by the
    interpolation.  For example, Akima spline interpolation
-   requires a minimum of 5 points.")
+   requires a minimum of 5 points."))
 
-(defmfun name ((interpolation spline))
+(defmfun minimum-size ((object interpolation))
+  "gsl_interp_min_size"
+  ((object :pointer))
+  :definition :method
+  :c-return :uint)
+
+(defmfun name ((object spline))
   "gsl_spline_name"
-  ((interpolation :pointer))
+  ((object :pointer))
   :definition :method
   :c-return :string
   :documentation			; FDL
   "The name of the interpolation type.")
 
-(defmfun spline-minimum-size (interpolation)
+(defmfun minimum-size ((object spline))
   "gsl_spline_min_size"
-  ((interpolation :pointer))
-  :c-return :uint
-  :documentation			; FDL
-  "The minimum number of points required by the
-   interpolation.  For example, Akima spline interpolation
-   requires a minimum of 5 points.")
+  ((object :pointer))
+  :definition :method
+  :c-return :uint)

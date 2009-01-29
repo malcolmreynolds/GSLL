@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-01-25 10:12:45EST chebyshev.lisp>
+;; Time-stamp: <2009-01-28 19:05:30EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,12 +26,13 @@
 
 ;;; The functions that don't return are defined, but it is recommended
 ;;; to use the functions that do return error (and ignore it if
-;;; desired) in the form of #'evaluate-chebyshev.
+;;; desired) in the form of #'evaluate.
 
-(defmfun evaluate-chebyshev (chebyshev x &optional order)
+(defmfun evaluate ((object chebyshev) x &key order)
   ("gsl_cheb_eval" "gsl_cheb_eval_n")
-  ((((mpointer chebyshev) :pointer) (x :double))
-   (((mpointer chebyshev) :pointer) (order sizet) (x :double)))
+  ((((mpointer object) :pointer) (x :double))
+   (((mpointer object) :pointer) (order sizet) (x :double)))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "Evaluate the Chebyshev series at a point x.  If order is supplied,
@@ -89,8 +90,8 @@
 	  (format t "~&~a ~a ~a ~a"
 		  x
 		  (chebyshev-step x)
-		  (evaluate-chebyshev cheb x 10)
-		  (evaluate-chebyshev cheb x)))))))
+		  (evaluate cheb x :order 10)
+		  (evaluate cheb x)))))))
 
 (defun chebyshev-point-example (x)
   (check-type x double-float)
@@ -101,9 +102,9 @@
     (derivative-chebyshev deriv cheb)
     (integral-chebyshev integ cheb)
     (list
-     (evaluate-chebyshev cheb x)
-     (evaluate-chebyshev deriv x)
-     (evaluate-chebyshev integ x))))
+     (evaluate cheb x)
+     (evaluate deriv x)
+     (evaluate integ x))))
 
 ;;; Unit test
 (save-test chebyshev

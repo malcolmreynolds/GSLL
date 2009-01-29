@@ -1,7 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-01-25 17:27:46EST mobject.lisp>
-;; $Id$
+;; Time-stamp: <2009-01-28 19:19:54EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -148,6 +147,10 @@
 (export 'name)
 (defgeneric name (object)
   (:documentation "The name given to the GSL object."))
+
+(export 'evaluate)
+(defgeneric evaluate (object point &key)
+  (:documentation "Evaluate the GSL object."))
 
 ;;; Pointer type
 (eval-when (:compile-toplevel :load-toplevel :execute)

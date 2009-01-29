@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-26 22:45:42EST gsll-tests.asd>
+;; Time-stamp: <2009-01-28 20:59:16EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -24,6 +24,7 @@
 	     (:file "airy")
 	     (:file "autocorrelation")
 	     (:file "axpy")
+	     (:file "basis-spline")
 	     (:file "bernoulli")
 	     (:file "bessel")
 	     (:file "beta")
