@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2008-12-30 21:33:37EST polynomial.lisp>
+;; Time-stamp: <2009-01-31 19:34:56EST polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,13 +14,49 @@
 ;;;; Polynomial Evaluation
 ;;;;****************************************************************************
 
-(defmfun polynomial-eval (coefficients x)
-  "gsl_poly_eval"
-  (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet) (x :double))
-  :inputs (coefficients)
+(defmfun evaluate
+    ((coefficients vector-double-float) (x float) &key divided-difference)
+  ("gsl_poly_eval" "gsl_poly_dd_eval")
+  ((((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
+    (x :double))
+   (((c-pointer divided-difference) :pointer)
+    ((c-pointer coefficients) :pointer)
+    ((dim0 coefficients) sizet)
+    (x :double)))
+  :definition :method
+  :inputs (coefficients divided-difference)
   :c-return :double
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the point x.")
+
+#|
+;;; These won't work until we can take returned complex (structs).
+(defmfun evaluate
+    ((coefficients vector-double-float) (x complex)
+     &key &allow-other-keys)
+  "gsl_poly_complex_eval"
+  (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
+   (x complex-double-c))
+  :definition :method
+  :gsl-version (1 11)
+  :inputs (coefficients)
+  :c-return complex-double-c
+  :documentation			; FDL
+  "Evaluate the polyonomial with coefficients at the complex value x.")
+
+(defmfun evaluate
+    ((coefficients vector-complex-double-float) (x complex)
+     &key &allow-other-keys)
+  "gsl_complex_poly_complex_eval"
+  (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
+   (x complex-double-c))
+  :definition :method
+  :gsl-version (1 11)
+  :inputs (coefficients)
+  :c-return complex-double-c
+  :documentation			; FDL
+  "Evaluate the polyonomial with coefficients at the complex value x.")
+|#
 
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials
@@ -40,18 +76,6 @@
    the arrays of equal length.  On output the
    divided-differences of (xa,ya) are stored in the array
    dd, of the same length.")
-
-(defmfun polynomial-eval-divided-difference (dd xa x)
-  "gsl_poly_dd_eval"
-  (((c-pointer dd) :pointer)
-   ((c-pointer xa) :pointer)
-   ((dim0 xa) sizet)
-   (x :double))
-  :inputs (dd xa)
-  :c-return :double
-  :documentation			; FDL
-  "Evaluate the polynomial stored in divided-difference form
-   in the arrays dd and xa at the point x.")
 
 (defmfun taylor-divided-difference (coefs xp dd xa workspace)
   "gsl_poly_dd_taylor"
@@ -154,16 +178,16 @@
 
 (save-test polynomial
  (let ((xa #m(0.0d0 1.0d0 2.0d0 3.0d0))
-	(ya #m(2.5d0 7.2d0 32.7d0 91.0d0))
-	(dd (make-marray 'double-float :dimensions 4)))
+       (ya #m(2.5d0 7.2d0 32.7d0 91.0d0))
+       (dd (make-marray 'double-float :dimensions 4)))
    (divided-difference dd xa ya)
    (list
-    (polynomial-eval-divided-difference dd xa 0.0d0)
-    (polynomial-eval-divided-difference dd xa 1.0d0)
-    (polynomial-eval-divided-difference dd xa 2.0d0)
-    (polynomial-eval-divided-difference dd xa 3.0d0)))
+    (evaluate xa 0.0d0 :divided-difference dd)
+    (evaluate xa 1.0d0 :divided-difference dd)
+    (evaluate xa 2.0d0 :divided-difference dd)
+    (evaluate xa 3.0d0 :divided-difference dd)))
  (let ((vec #m(1.0d0 2.0d0 3.0d0)))
-   (polynomial-eval vec -1.0d0))
+   (evaluate vec -1.0d0))
  (solve-quadratic 1.0d0 0.0d0 1.0d0)
  (solve-quadratic 1.0d0 -2.0d0 1.0d0)
  (solve-quadratic-complex 1.0d0 -2.0d0 1.0d0)

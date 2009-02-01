@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-01-25 10:37:13EST defmfun-single.lisp>
+;; Time-stamp: <2009-01-31 21:19:28EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -77,10 +77,9 @@
      (mapdown (eq body-maker 'body-optional-arg)))
   "A complete definition form, starting with defun, :method, or defmethod."
   (destructuring-bind
-	(&key documentation inputs outputs before after
+	(&key documentation before after
 	      qualifier gsl-version &allow-other-keys)
       key-args
-    (declare (ignorable inputs outputs)) ; workaround for compiler errors that don't see it's used
     (if (have-at-least-gsl-version gsl-version)
 	`(,definition
 	     ,@(when (and name (not (defgeneric-method-p name)))
@@ -108,12 +107,7 @@
 			      'append
 			      (mapcar 'rest (subseq arglist (1+ auxstart))))))))))))
 	   ,@(when documentation (list documentation))
-	   #-native
-	   ,(funcall body-maker name arglist gsl-name c-arguments key-args)
-	   #+native
-	   ,(native-pointer
-	     (union inputs outputs)
-	     (funcall body-maker name arglist gsl-name c-arguments key-args)))
+	   ,(funcall body-maker name arglist gsl-name c-arguments key-args))
         `(,definition
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))
@@ -131,6 +125,23 @@
 	  `(progn ,@body))))
 
 (defun body-no-optional-arg (name arglist gsl-name c-arguments key-args)
+  "Wrap necessary array-handling forms around the expanded unswitched
+  body form."
+  #-native
+  (destructuring-bind (&key inputs &allow-other-keys) key-args
+    `(progn
+       ,@(mapcar (lambda (v) `(copy-cl-to-c ,v))
+		 (intersection
+		  inputs (arglist-plain-and-categories arglist nil)))
+       ,(body-expand name arglist gsl-name c-arguments key-args)))
+  #+native
+  (destructuring-bind (&key inputs outputs &allow-other-keys) key-args
+    (native-pointer
+     (intersection
+      (union inputs outputs) (arglist-plain-and-categories arglist nil))
+     (body-expand name arglist gsl-name c-arguments key-args))))
+
+(defun body-expand (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
   (with-defmfun-key-args key-args
     (let* ((cret-type (if (member c-return *special-c-return*)
@@ -163,9 +174,7 @@
 	   allocated-decl
 	   (mapcar #'wfo-declare allocated-decl)
 	   'cffi:with-foreign-objects
-	   `(#-native
-	     ,@(mapcar (lambda (v) `(copy-cl-to-c ,v)) inputs)
-	     ,@before
+	   `(,@before
 	     (let ((,cret-name
 		    (cffi:foreign-funcall
 		     ,gsl-name
