@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-01-26 21:45:23EST roots-multi.lisp>
+;;; Time-stamp: <2009-02-02 11:27:16EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -354,7 +354,7 @@
 (defparameter *rosenbrock-a* 1.0d0)
 (defparameter *rosenbrock-b* 10.0d0)
 
-(defun rosenbrock (arg0 arg1)
+(defun* rosenbrock (arg0 arg1) (2 2)
   "Rosenbrock test function."
   (values
    (* *rosenbrock-a* (- 1 arg0))
@@ -395,7 +395,8 @@
 			 (maref fnval 0)
 			 (maref fnval 1))))))
 
-(defun rosenbrock-df (arg0 arg1)
+(defun* rosenbrock-df (arg0 arg1)
+  (2 (2 2))
   "The partial derivatives of the Rosenbrock functions."
   (declare (ignore arg1))
   (values (- *rosenbrock-a*)
@@ -415,7 +416,8 @@
 (defparameter *solver-df-cb* 
   (make-solver-functions rosenbrock rosenbrock-df rosenbrock-fdf 2))
 
-(defun roots-multi-example-derivative (&optional (method *gnewton-mfdfsolver*) (print-steps t))
+(defun roots-multi-example-derivative
+    (&optional (method *gnewton-mfdfsolver*) (print-steps t))
   "Solving Rosenbrock with derivatives, the example given in Sec. 34.8
    of the GSL manual."
   (flet ((print-state (iter argval fnval)

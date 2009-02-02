@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-01-25 19:21:02EST callback.lisp>
+;; Time-stamp: <2009-02-02 11:33:32EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -269,3 +269,32 @@
 	  structure
 	  `((defcbstruct ,cbsymb ,structure
 	      ,(if dim `((dimensions ,dim))))))))))
+
+(defun cbname-for-marrays (name)
+  (intern (format nil "~a-~a" name "MARRAY")))
+
+(defun cbname-for-cvectors (name)
+  (intern (format nil "~a-~a" name "CVECTOR")))
+
+(defmacro defun*
+    (name args (dimensions-in dimensions-out) &body body)
+  "Define a function as with a defun, and make a callback for it so
+  that it can be sent to GSL."
+  (let ((dimin (if (listp dimensions-in) dimensions-in (list dimensions-in)))
+	(dimout (if (listp dimensions-out) dimensions-out (list dimensions-out))))
+    `(progn
+       (defun ,name ,args ,@body)
+       ,@(if dimensions-in
+	     `((defmcallback ,(cbname-for-marrays name)
+		   :success-failure
+		 ((:double ,@dimin))
+		 ((:set :double ,@dimout))
+		 t
+		 ,name)
+	       (defmcallback ,(cbname-for-cvectors name)
+		   :success-failure
+		 ((:double ,@dimin))
+		 ((:set :double ,@dimout))
+		 nil
+		 ,name))
+	     `((defmcallback ,name :success-failure :pointer :pointer))))))
