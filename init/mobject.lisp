@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-02 11:26:12EST mobject.lisp>
+;; Time-stamp: <2009-02-03 22:31:14EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -19,11 +19,13 @@
   ((mpointer :initarg :mpointer :reader mpointer
 	     :documentation "A pointer to the GSL representation of the object.")))
 
+(defconstant +callback-argument-name+ 'callback)
+
 (defmacro defmobject
     (class prefix allocation-args description 
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
-     ;;callbacks
+     callback callback-array-type
      (superclasses '(mobject)))
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
@@ -37,14 +39,20 @@
 	 (maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
 	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
 	 (cl-initialize-args
-	  (variables-used-in-c-arguments initialize-args))
+	  (let ((vbls (variables-used-in-c-arguments initialize-args)))
+	    (if (and callback (member +callback-argument-name+ vbls))
+		(append
+		 (remove +callback-argument-name+ vbls)
+		 (loop for (fn nil) on (cddr callback) by #'cddr
+		    collect fn))
+		vbls)))
 	 (initializerp (or initialize-name initialize-suffix))
 	 (initargs ; arguments that are exclusively for reinitialize-instance
 	  (remove-if (lambda (s) (member s cl-alloc-args)) cl-initialize-args)))
     (if (have-at-least-gsl-version gsl-version)
 	`(progn
 	   (defclass ,class ,superclasses
-	     ()
+	     nil
 	     (:documentation
 	      ,(format nil "The GSL representation of the ~a." description)))
 
@@ -61,7 +69,8 @@
 	   ,@(when initializerp
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
-		    initialize-suffix initialize-args inputs))
+		    initialize-suffix initialize-args inputs
+		    callback callback-array-type))
 	   (export ',maker)
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
@@ -93,23 +102,48 @@
 
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
-     initialize-suffix initialize-args inputs)
-  `((defmfun reinitialize-instance
-	((object ,class) &key ,@cl-initialize-args)
-      ,(or initialize-name
-	   (format nil "~a_~a" prefix
-		   (if (listp initialize-suffix)
-		       (first initialize-suffix)
-		       initialize-suffix)))
-      (((mpointer object) :pointer) ,@initialize-args)
-      :definition :method
-      :qualifier :after
-      ,@(when (and initialize-suffix (listp initialize-suffix))
-	      `(:c-return ,(second initialize-suffix)))
-      :return (object)
-      ,@(when inputs `(:inputs ,inputs))
-      :export nil
-      :index (reinitialize-instance ,class))))
+     initialize-suffix initialize-args inputs
+     callback callback-array-type)
+  "Expand the reinitialize-instance form.  In the GSL arglist, the callback
+   structure pointer should be named the value of +callback-argument-name+."
+  (let ((cbstruct (make-symbol "CBSTRUCT")))
+    `((defmfun reinitialize-instance
+	  ((object ,class)
+	   &key
+	   ,@cl-initialize-args
+	   ,@(if
+	      callback
+	      `(&aux
+		(,cbstruct
+		 (make-cbstruct
+		  ',(first callback) ',(second callback)
+		  ,@(loop for (function slotname) on (cddr callback) by #'cddr
+		       append
+		       `((callback-function-name ,function ',callback-array-type)
+			 ',slotname)))))))
+	,(or initialize-name
+	     (format nil "~a_~a" prefix
+		     (if (listp initialize-suffix)
+			 (first initialize-suffix)
+			 initialize-suffix)))
+	(((mpointer object) :pointer)
+	 ,@(if callback
+	       (subst cbstruct +callback-argument-name+ initialize-args)
+	       initialize-args))
+	:definition :method
+	:qualifier :after
+	,@(when (and initialize-suffix (listp initialize-suffix))
+		`(:c-return ,(second initialize-suffix)))
+	:return (object)
+	,@(when inputs `(:inputs ,inputs))
+	,@(when callback
+		`(:after
+		  ((trivial-garbage:finalize 
+		    object
+		    (lambda ()
+		      (cffi:foreign-free ,cbstruct))))))
+	:export nil
+	:index (reinitialize-instance ,class)))))
 
 
 (defun mobject-maker

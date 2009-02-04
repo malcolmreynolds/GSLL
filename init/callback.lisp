@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-02 11:33:32EST callback.lisp>
+;; Time-stamp: <2009-02-03 22:34:25EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -200,6 +200,7 @@
 	   ;; to return a void pointer which is apparently meaningless.
 	   '((cffi:null-pointer)))))))
 
+;;; To be deprecated
 (defmacro defcbstruct
     (functions &optional (structure 'gsl-function) additional-slots)
   "Define a callback-related C struct used by GSL.
@@ -223,6 +224,16 @@
 	    `(set-structure-slot
 	      ,name ',structure ',(first slot) ,(second slot)))
        ,name)))
+
+(defun make-cbstruct (struct slots-values &rest function-slotnames)
+  (let ((cbstruct (cffi:foreign-alloc struct)))
+    (loop for (function slot-name) on function-slotnames by #'cddr
+       do (set-slot-function cbstruct struct slot-name function))
+    (set-parameters cbstruct struct)
+    (when slots-values
+      (loop for (slot-name value) on slots-values by #'cddr
+	 do (set-structure-slot cbstruct struct slot-name value)))
+    cbstruct))
 
 (defun undef-cbstruct (object)
   "Free foreign callback function.  It is not necessary to do this; think
@@ -276,8 +287,16 @@
 (defun cbname-for-cvectors (name)
   (intern (format nil "~a-~a" name "CVECTOR")))
 
+(defun callback-function-name (name callback-array-type)
+  (funcall
+   (case callback-array-type
+     (marray 'cbname-for-marrays)
+     (cvector 'cbname-for-cvectors)
+     (t 'identity))			     
+   name))
+
 (defmacro defun*
-    (name args (dimensions-in dimensions-out) &body body)
+    (name args (dimensions-in . dimensions-out) &body body)
   "Define a function as with a defun, and make a callback for it so
   that it can be sent to GSL."
   (let ((dimin (if (listp dimensions-in) dimensions-in (list dimensions-in)))
@@ -288,13 +307,46 @@
 	     `((defmcallback ,(cbname-for-marrays name)
 		   :success-failure
 		 ((:double ,@dimin))
-		 ((:set :double ,@dimout))
+		 ,(mapcar (lambda (dims) `(:set :double ,@dims)) dimout)
 		 t
 		 ,name)
 	       (defmcallback ,(cbname-for-cvectors name)
 		   :success-failure
 		 ((:double ,@dimin))
-		 ((:set :double ,@dimout))
+		 ,(mapcar (lambda (dims) `(:set :double ,@dims)) dimout)
 		 nil
 		 ,name))
 	     `((defmcallback ,name :success-failure :pointer :pointer))))))
+
+;;;;****************************************************************************
+;;;; PROPOSAL for including callback information
+;;;;****************************************************************************
+
+;;; Adding these slots would require a signficant modification to 
+
+(defclass callback-included (mobject)
+  ((cbstruct-name :initarg :cbstruct-name :reader cbstruct-name
+		  :documentation "The name of the GSL structure
+		  representing the callback(s).")
+   (array-type :initarg :array-type :reader array-type
+	       :documentation "A symbol 'marray or 'cvector.")
+   (functions :initarg :functions :reader functions
+	      :documentation "The names of the function(s) put into
+	      the callback.  These should be the same as the slot
+	      names in the struct.")
+   (dimensions :initarg dimensions :reader dimensions))
+  (:documentation
+   "A mobject that includes a callback function or functions to GSL."))
+
+
+(defmacro def-ci-subclass
+    (class-name documentation cbstruct-name array-type)
+  `(defclass ,class-name (callback-included)
+     ((cbstruct-name :initarg ',cbstruct-name :reader cbstruct-name
+		     :documentation "The name of the GSL structure
+		  representing the callback(s)."
+		     :allocation :class)
+      (array-type :initarg ',array-type :reader array-type
+		  :documentation "A symbol 'marray or 'cvector."
+		  :allocation :class))
+     (:documentation ,documentation)))

@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-02-02 11:27:16EST roots-multi.lisp>
+;;; Time-stamp: <2009-02-03 22:40:27EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -26,7 +26,10 @@
    set or reset an existing solver to use the function and the
    initial guess gsl-vector."
   :initialize-suffix "set"
-  :initialize-args ((function :pointer) ((mpointer initial) :pointer))
+  :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
+  :callback
+  (gsl-mfunction (dimensions 2) function function)
+  :callback-array-type marray
   :arglists-function
   (lambda (set)
     `((type &optional function-or-dimension (initial nil ,set))
@@ -47,6 +50,9 @@
   :initialize-suffix "set"
   :initialize-args
   ((function-derivative :pointer) ((mpointer initial) :pointer))
+  :callback
+  (gsl-mfunction (dimensions 2) function function df df fdf fdf)
+  :callback-array-type marray
   :arglists-function
   (lambda (set)
   `((type &optional function-or-dimension (initial nil ,set))
@@ -364,6 +370,7 @@
 (defparameter *solver-nodf-cb* 
   (make-solver-functions rosenbrock nil nil 2))
 
+;;; old way using macro make-solver-functions
 (defun roots-multi-example-no-derivative
     (&optional (method *hybrid-scaled*) (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
@@ -395,8 +402,35 @@
 			 (maref fnval 0)
 			 (maref fnval 1))))))
 
-(defun* rosenbrock-df (arg0 arg1)
-  (2 (2 2))
+;;; new way with make-multi-dimensional-root-solver-f making cbstruct
+(defun roots-multi-example-no-derivative
+    (&optional (method *hybrid-scaled*) (print-steps t))
+  "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
+  (let ((max-iter 1000)
+	(solver (make-multi-dimensional-root-solver-f 
+		 method 'rosenbrock #m(-10.0d0 -5.0d0))))
+    (loop for iter from 0
+       with fnval and argval
+       while (and (< iter max-iter)
+		  (not (multiroot-test-residual solver 1.0d-7)))
+       do
+       (iterate solver)
+       (setf fnval (function-value solver)
+	     argval (solution solver))
+       (when print-steps
+	 (format t "iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g~&"
+		 iter
+		 (maref argval 0)
+		 (maref argval 1)
+		 (maref fnval 0)
+		 (maref fnval 1)))
+       finally (return
+		 (values (maref argval 0)
+			 (maref argval 1)
+			 (maref fnval 0)
+			 (maref fnval 1))))))
+
+(defun* rosenbrock-df (arg0 arg1) (2 (2 2))
   "The partial derivatives of the Rosenbrock functions."
   (declare (ignore arg1))
   (values (- *rosenbrock-a*)
@@ -405,7 +439,7 @@
 	  *rosenbrock-b*))
 
 ;;; Why is it necessary to define a function that calls the two other functions?
-(defun rosenbrock-fdf (arg0 arg1)
+(defun* rosenbrock-fdf (arg0 arg1) (2 (2) (2 2))
   (multiple-value-bind (v0 v1)
       (rosenbrock arg0 arg1)
     (multiple-value-bind (j0 j1 j2 j3)
