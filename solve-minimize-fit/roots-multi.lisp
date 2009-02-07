@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-02-07 09:28:21EST roots-multi.lisp>
+;;; Time-stamp: <2009-02-07 11:25:46EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -33,13 +33,13 @@
   (lambda (set)
     `((type &optional function-or-dimension (initial nil ,set))
       (:type type
-	     :dimensions
-	     (if ,set (dimensions initial) (list function-or-dimension)))
+       :dimensions
+       (if ,set (dimensions initial) (list function-or-dimension)))
       (:functions (list function-or-dimension) :initial initial)))
   :inputs (initial))
 
 (defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
-  ((type :pointer) (dimension sizet))
+  ((type :pointer) ((first dimensions) sizet))
   "multi-dimensional root solver with function and derivative"
   :documentation			; FDL
   "Make an instance of a derivative solver of the type specified for
@@ -47,18 +47,17 @@
    set or reset an existing solver to use the function and derivative
    (fdf) and the initial guess."
   :initialize-suffix "set"
-  :initialize-args
-  ((function-derivative :pointer) ((mpointer initial) :pointer))
-  :callback
-  (gsl-mfunction (dimensions 2) function function df df fdf fdf)
-  :callback-array-type marray
+  :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
+  :superclasses (callback-included)
+  ;; (gsl-mfunction (dimensions 2) function function df df fdf fdf)
+  :ci-class-slots (gsl-mfunction-fdf marray (function df fdf))
   :arglists-function
   (lambda (set)
   `((type &optional function-or-dimension (initial nil ,set))
     (:type type
-     :dimension
-     (if ,set (dim0 initial) function-or-dimension))
-    (:function-derivative function-or-dimension :initial initial)))
+     :dimensions
+     (if ,set (dimensions initial) (list function-or-dimension)))
+    (:functions function-or-dimension :initial initial)))
   :inputs (initial))
 
 (defmfun name ((solver multi-dimensional-root-solver-f))
@@ -365,46 +364,6 @@
    (* *rosenbrock-a* (- 1 arg0))
    (* *rosenbrock-b* (- arg1 (expt arg0 2)))))
 
-(DEFMCALLBACK ROSENBROCK :SUCCESS-FAILURE ((:DOUBLE 2))
-               ((:SET :DOUBLE 2)) T ROSENBROCK)
-
-#+callback-toplevel-only
-(defparameter *solver-nodf-cb* 
-  (make-solver-functions rosenbrock nil nil 2))
-
-;;; old way using macro make-solver-functions
-(defun roots-multi-example-no-derivative
-    (&optional (method *hybrid-scaled*) (print-steps t))
-  "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
-  (let ((max-iter 1000)
-	(solver (make-multi-dimensional-root-solver-f
-		 method
-		 #-callback-toplevel-only
-		 (make-solver-functions rosenbrock nil nil 2)
-		 #+callback-toplevel-only *solver-nodf-cb* 
-		 #m(-10.0d0 -5.0d0))))
-    (loop for iter from 0
-       with fnval and argval
-       while (and (< iter max-iter)
-		  (not (multiroot-test-residual solver 1.0d-7)))
-       do
-       (iterate solver)
-       (setf fnval (function-value solver)
-	     argval (solution solver))
-       (when print-steps
-	 (format t "iter=~d~8tx0=~12,8g~24tx1=~12,8g~38tf0=~12,8g~52tf1=~12,8g~&"
-		 iter
-		 (maref argval 0)
-		 (maref argval 1)
-		 (maref fnval 0)
-		 (maref fnval 1)))
-       finally (return
-		 (values (maref argval 0)
-			 (maref argval 1)
-			 (maref fnval 0)
-			 (maref fnval 1))))))
-
-;;; new way with make-multi-dimensional-root-solver-f making cbstruct
 (defun roots-multi-example-no-derivative
     (&optional (method *hybrid-scaled*) (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
@@ -441,16 +400,12 @@
 	  *rosenbrock-b*))
 
 ;;; Why is it necessary to define a function that calls the two other functions?
-(defun* rosenbrock-fdf (arg0 arg1) (2 (2) (2 2))
+(defun* rosenbrock-fdf (arg0 arg1) (2 2 (2 2))
   (multiple-value-bind (v0 v1)
       (rosenbrock arg0 arg1)
     (multiple-value-bind (j0 j1 j2 j3)
 	(rosenbrock-df arg0 arg1)
       (values v0 v1 j0 j1 j2 j3))))
-
-#+callback-toplevel-only
-(defparameter *solver-df-cb* 
-  (make-solver-functions rosenbrock rosenbrock-df rosenbrock-fdf 2))
 
 (defun roots-multi-example-derivative
     (&optional (method *gnewton-mfdfsolver*) (print-steps t))
@@ -467,9 +422,7 @@
     (let ((max-iter 1000)
 	  (solver (make-multi-dimensional-root-solver-fdf
 		   method
-		   #-callback-toplevel-only
-		   (make-solver-functions rosenbrock rosenbrock-df rosenbrock-fdf 2)
-		   #+callback-toplevel-only *solver-df-cb* 
+		   '(rosenbrock rosenbrock-df rosenbrock-fdf)
 		   #m(-10.0d0 -5.0d0))))
       (loop for iter from 0
 	 with fnval = (function-value solver)

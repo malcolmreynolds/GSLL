@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-05 22:46:20EST callback.lisp>
+;; Time-stamp: <2009-02-07 10:38:20EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -281,20 +281,6 @@
 	  `((defcbstruct ,cbsymb ,structure
 	      ,(if dim `((dimensions ,dim))))))))))
 
-(defun cbname-for-marrays (name)
-  (intern (format nil "~a-~a" name "MARRAY")))
-
-(defun cbname-for-cvectors (name)
-  (intern (format nil "~a-~a" name "CVECTOR")))
-
-(defun callback-function-name (name callback-array-type)
-  (funcall
-   (case callback-array-type
-     (marray 'cbname-for-marrays)
-     (cvector 'cbname-for-cvectors)
-     (t 'identity))			     
-   name))
-
 (defmacro defun*
     (name args (dimensions-in . dimensions-out) &body body)
   "Define a function as with a defun, and make a callback for it so
@@ -304,25 +290,20 @@
     `(progn
        (defun ,name ,args ,@body)
        ,@(if dimensions-in
-	     `((defmcallback ,(cbname-for-marrays name)
+	     `((defmcallback ,name
 		   :success-failure
 		 ((:double ,@dimin))
-		 ,(mapcar (lambda (dims) `(:set :double ,@dims)) dimout)
+		 ,(mapcar
+		   (lambda (dims)
+		     `(:set :double ,@(if (listp dims) dims (list dims))))
+		   dimout)
 		 t
-		 ,name)
-	       (defmcallback ,(cbname-for-cvectors name)
-		   :success-failure
-		 ((:double ,@dimin))
-		 ,(mapcar (lambda (dims) `(:set :double ,@dims)) dimout)
-		 nil
 		 ,name))
 	     `((defmcallback ,name :success-failure :pointer :pointer))))))
 
 ;;;;****************************************************************************
-;;;; PROPOSAL for including callback information
+;;;; Classes that include callback information
 ;;;;****************************************************************************
-
-;;; Adding these slots would require a signficant modification to 
 
 (defclass callback-included (mobject)
   ((cbstruct-name
