@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-07 10:38:20EST callback.lisp>
+;; Time-stamp: <2009-02-07 17:19:18EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -257,6 +257,7 @@
       (length (second lambda-form))
       dimensions))
 
+;;; To be obsolete
 (defmacro make-single-function
     (name
      &optional (return-type :double) (argument-type :double)
@@ -280,26 +281,6 @@
 	  structure
 	  `((defcbstruct ,cbsymb ,structure
 	      ,(if dim `((dimensions ,dim))))))))))
-
-(defmacro defun*
-    (name args (dimensions-in . dimensions-out) &body body)
-  "Define a function as with a defun, and make a callback for it so
-  that it can be sent to GSL."
-  (let ((dimin (if (listp dimensions-in) dimensions-in (list dimensions-in)))
-	(dimout (if (listp dimensions-out) dimensions-out (list dimensions-out))))
-    `(progn
-       (defun ,name ,args ,@body)
-       ,@(if dimensions-in
-	     `((defmcallback ,name
-		   :success-failure
-		 ((:double ,@dimin))
-		 ,(mapcar
-		   (lambda (dims)
-		     `(:set :double ,@(if (listp dims) dims (list dims))))
-		   dimout)
-		 t
-		 ,name))
-	     `((defmcallback ,name :success-failure :pointer :pointer))))))
 
 ;;;;****************************************************************************
 ;;;; Classes that include callback information
@@ -326,9 +307,23 @@
    "A mobject that includes a callback function or functions to GSL."))
 
 (defmacro def-ci-subclass
-    (class-name documentation cbstruct-name array-type callback-labels)
+    (class-name documentation
+     cbstruct-name array-type callback-labels)
   `(defclass ,class-name (callback-included)
      ((cbstruct-name :initform ',cbstruct-name :allocation :class)
       (array-type :initform ',array-type :allocation :class)
       (callback-labels :initform ',callback-labels :allocation :class))
      (:documentation ,documentation)))
+
+(defgeneric make-callbacks-fn (class args)
+  (:documentation "Function to make forms that expand into defmcallback(s)."))
+
+(export 'make-callbacks)
+(defmacro make-callbacks (class &rest args)
+  "Make the callbacks for the named class.  The args are generally of the form
+     function [function...] dimension [dimension ...] scalars
+   If 'scalars is T, the functions will be called with scalars, and should
+   return answer as multiple values with #'values.  If it is NIL, it will
+   be called with two arguments; it should read the values from the first
+   array and write the answer in the second array."
+  (make-callbacks-fn class args))

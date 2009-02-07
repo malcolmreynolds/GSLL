@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-02-07 11:25:46EST roots-multi.lisp>
+;;; Time-stamp: <2009-02-07 17:17:58EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -33,10 +33,27 @@
   (lambda (set)
     `((type &optional function-or-dimension (initial nil ,set))
       (:type type
-       :dimensions
-       (if ,set (dimensions initial) (list function-or-dimension)))
+	     :dimensions
+	     (if ,set (dimensions initial) function-or-dimension))
       (:functions (list function-or-dimension) :initial initial)))
   :inputs (initial))
+
+(eval-when (:compile-toplevel :load-toplevel)
+(defmethod make-callbacks-fn
+    ((class (eql 'multi-dimensional-root-solver-f)) args)
+  (declare (ignore class))
+  (destructuring-bind (function dimension &optional (scalars t)) args
+    (if scalars
+	`(defmcallback ,function
+	     :success-failure
+	   ((:double ,dimension)) ((:set :double ,dimension))
+	   T
+	   ,function)
+	`(defmcallback ,function
+	     :success-failure
+	   (:pointer) (:pointer)
+	   T
+	   ,function)))))
 
 (defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
   ((type :pointer) ((first dimensions) sizet))
@@ -49,16 +66,38 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
   :superclasses (callback-included)
-  ;; (gsl-mfunction (dimensions 2) function function df df fdf fdf)
   :ci-class-slots (gsl-mfunction-fdf marray (function df fdf))
   :arglists-function
   (lambda (set)
-  `((type &optional function-or-dimension (initial nil ,set))
-    (:type type
-     :dimensions
-     (if ,set (dimensions initial) (list function-or-dimension)))
-    (:functions function-or-dimension :initial initial)))
+    `((type &optional function-or-dimension (initial nil ,set))
+      (:type type
+	     :dimensions
+	     (if ,set (dimensions initial) function-or-dimension))
+      (:functions function-or-dimension :initial initial)))
   :inputs (initial))
+
+(eval-when (:compile-toplevel :load-toplevel)
+(defmethod make-callbacks-fn
+    ((class (eql 'multi-dimensional-root-solver-fdf)) args)
+  (declare (ignore class))
+  (destructuring-bind (function df fdf dimension &optional (array t)) args
+    `(progn
+       (defmcallback ,function
+	   :success-failure
+	 ((:double ,dimension)) ((:set :double ,dimension))
+	 ,array
+	 ,function)
+       (defmcallback ,df
+	   :success-failure
+	 ((:double ,dimension)) ((:set :double ,dimension ,dimension))
+	 ,array
+	 ,df)
+       (defmcallback ,fdf
+	   :success-failure
+	 ((:double ,dimension))
+	 ((:set :double ,dimension) (:set :double ,dimension ,dimension))
+	 ,array
+	 ,fdf)))))
 
 (defmfun name ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_name"
@@ -358,11 +397,13 @@
 (defparameter *rosenbrock-a* 1.0d0)
 (defparameter *rosenbrock-b* 10.0d0)
 
-(defun* rosenbrock (arg0 arg1) (2 2)
+(defun rosenbrock (arg0 arg1)
   "Rosenbrock test function."
   (values
    (* *rosenbrock-a* (- 1 arg0))
    (* *rosenbrock-b* (- arg1 (expt arg0 2)))))
+
+(make-callbacks multi-dimensional-root-solver-f rosenbrock 2)
 
 (defun roots-multi-example-no-derivative
     (&optional (method *hybrid-scaled*) (print-steps t))
@@ -391,7 +432,7 @@
 			 (maref fnval 0)
 			 (maref fnval 1))))))
 
-(defun* rosenbrock-df (arg0 arg1) (2 (2 2))
+(defun rosenbrock-df (arg0 arg1)
   "The partial derivatives of the Rosenbrock functions."
   (declare (ignore arg1))
   (values (- *rosenbrock-a*)
@@ -400,12 +441,15 @@
 	  *rosenbrock-b*))
 
 ;;; Why is it necessary to define a function that calls the two other functions?
-(defun* rosenbrock-fdf (arg0 arg1) (2 2 (2 2))
+(defun rosenbrock-fdf (arg0 arg1)
   (multiple-value-bind (v0 v1)
       (rosenbrock arg0 arg1)
     (multiple-value-bind (j0 j1 j2 j3)
 	(rosenbrock-df arg0 arg1)
       (values v0 v1 j0 j1 j2 j3))))
+
+(make-callbacks multi-dimensional-root-solver-fdf
+		rosenbrock rosenbrock-df rosenbrock-fdf 2)
 
 (defun roots-multi-example-derivative
     (&optional (method *gnewton-mfdfsolver*) (print-steps t))

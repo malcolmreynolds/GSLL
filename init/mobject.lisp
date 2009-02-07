@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-07 09:24:56EST mobject.lisp>
+;; Time-stamp: <2009-02-07 14:34:59EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
