@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-03 22:34:25EST callback.lisp>
+;; Time-stamp: <2009-02-05 22:46:20EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -227,7 +227,7 @@
 
 (defun make-cbstruct (struct slots-values &rest function-slotnames)
   (let ((cbstruct (cffi:foreign-alloc struct)))
-    (loop for (function slot-name) on function-slotnames by #'cddr
+    (loop for (slot-name function) on function-slotnames by #'cddr
        do (set-slot-function cbstruct struct slot-name function))
     (set-parameters cbstruct struct)
     (when slots-values
@@ -325,28 +325,29 @@
 ;;; Adding these slots would require a signficant modification to 
 
 (defclass callback-included (mobject)
-  ((cbstruct-name :initarg :cbstruct-name :reader cbstruct-name
-		  :documentation "The name of the GSL structure
-		  representing the callback(s).")
-   (array-type :initarg :array-type :reader array-type
-	       :documentation "A symbol 'marray or 'cvector.")
-   (functions :initarg :functions :reader functions
-	      :documentation "The names of the function(s) put into
-	      the callback.  These should be the same as the slot
-	      names in the struct.")
-   (dimensions :initarg dimensions :reader dimensions))
+  ((cbstruct-name
+    :initarg :cbstruct-name :reader cbstruct-name
+    :documentation
+    "The name of the GSL structure representing the callback(s).")
+   (array-type
+    :initarg :array-type :reader array-type
+    :documentation "A symbol 'marray or 'cvector.")
+   (callback-labels
+    :initarg :callback-labels :reader callback-labels
+    :documentation "The labels in the GSL struct for each callback function.")
+   (functions
+    :initarg :functions :reader functions
+    :documentation "The names of the function(s) put into
+     the callback.  These should correspond in order to
+     callback-labels.")
+   (dimensions :initarg :dimensions :reader dimensions))
   (:documentation
    "A mobject that includes a callback function or functions to GSL."))
 
-
 (defmacro def-ci-subclass
-    (class-name documentation cbstruct-name array-type)
+    (class-name documentation cbstruct-name array-type callback-labels)
   `(defclass ,class-name (callback-included)
-     ((cbstruct-name :initarg ',cbstruct-name :reader cbstruct-name
-		     :documentation "The name of the GSL structure
-		  representing the callback(s)."
-		     :allocation :class)
-      (array-type :initarg ',array-type :reader array-type
-		  :documentation "A symbol 'marray or 'cvector."
-		  :allocation :class))
+     ((cbstruct-name :initform ',cbstruct-name :allocation :class)
+      (array-type :initform ',array-type :allocation :class)
+      (callback-labels :initform ',callback-labels :allocation :class))
      (:documentation ,documentation)))

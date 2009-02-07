@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-02-03 22:40:27EST roots-multi.lisp>
+;;; Time-stamp: <2009-02-07 09:28:21EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -18,7 +18,7 @@
 ;;;;****************************************************************************
 
 (defmobject multi-dimensional-root-solver-f "gsl_multiroot_fsolver"
-  ((type :pointer) (dimension sizet))
+  ((type :pointer) ((first dimensions) sizet))
   "multi-dimensional root solver with function only"
   :documentation			; FDL
   "Make an instance of a solver of the type specified for a system of
@@ -27,16 +27,15 @@
    initial guess gsl-vector."
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
-  :callback
-  (gsl-mfunction (dimensions 2) function function)
-  :callback-array-type marray
+  :superclasses (callback-included)
+  :ci-class-slots (gsl-mfunction marray (function))
   :arglists-function
   (lambda (set)
     `((type &optional function-or-dimension (initial nil ,set))
       (:type type
-	     :dimension
-	     (if ,set (dim0 initial) function-or-dimension))
-      (:function function-or-dimension :initial initial)))
+	     :dimensions
+	     (if ,set (dimensions initial) (list function-or-dimension)))
+      (:functions (list function-or-dimension) :initial initial)))
   :inputs (initial))
 
 (defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
@@ -365,6 +364,9 @@
   (values
    (* *rosenbrock-a* (- 1 arg0))
    (* *rosenbrock-b* (- arg1 (expt arg0 2)))))
+
+(DEFMCALLBACK ROSENBROCK :SUCCESS-FAILURE ((:DOUBLE 2))
+               ((:SET :DOUBLE 2)) T ROSENBROCK)
 
 #+callback-toplevel-only
 (defparameter *solver-nodf-cb* 

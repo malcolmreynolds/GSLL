@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-03 22:31:14EST mobject.lisp>
+;; Time-stamp: <2009-02-07 09:24:56EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -25,36 +25,36 @@
     (class prefix allocation-args description 
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
-     callback callback-array-type
-     (superclasses '(mobject)))
+     (superclasses '(mobject))
+     ci-class-slots)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   ;; Argument 'initialize-suffix: string appended to prefix to form
   ;; GSL function name or a list of such a string and the c-return
   ;; argument.
   (let* ((settingp (make-symbol "SETTINGP"))
+	 (callbackp (member 'callback-included superclasses))
 	 (arglists
 	  (when arglists-function
 	    (funcall (coerce arglists-function 'function) settingp)))
 	 (maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
 	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
 	 (cl-initialize-args
-	  (let ((vbls (variables-used-in-c-arguments initialize-args)))
-	    (if (and callback (member +callback-argument-name+ vbls))
-		(append
-		 (remove +callback-argument-name+ vbls)
-		 (loop for (fn nil) on (cddr callback) by #'cddr
-		    collect fn))
-		vbls)))
+	  (remove +callback-argument-name+
+		  (variables-used-in-c-arguments initialize-args)))
 	 (initializerp (or initialize-name initialize-suffix))
 	 (initargs ; arguments that are exclusively for reinitialize-instance
 	  (remove-if (lambda (s) (member s cl-alloc-args)) cl-initialize-args)))
     (if (have-at-least-gsl-version gsl-version)
 	`(progn
-	   (defclass ,class ,superclasses
-	     nil
-	     (:documentation
-	      ,(format nil "The GSL representation of the ~a." description)))
+	   ,(if callbackp
+		`(def-ci-subclass ,class
+		     ,(format nil "The GSL representation of the ~a." description)
+		   ,@ci-class-slots)
+		`(defclass ,class ,superclasses
+		   nil
+		   (:documentation
+		    ,(format nil "The GSL representation of the ~a." description))))
 
 	   (defmfun allocate ((object ,class) &key ,@cl-alloc-args)
 	     ,(or allocator (format nil "~a_alloc" prefix))
@@ -70,7 +70,7 @@
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
-		    callback callback-array-type))
+		    callbackp))
 	   (export ',maker)
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
@@ -103,7 +103,7 @@
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     callback callback-array-type)
+     callback)
   "Expand the reinitialize-instance form.  In the GSL arglist, the callback
    structure pointer should be named the value of +callback-argument-name+."
   (let ((cbstruct (make-symbol "CBSTRUCT")))
@@ -115,12 +115,10 @@
 	      callback
 	      `(&aux
 		(,cbstruct
-		 (make-cbstruct
-		  ',(first callback) ',(second callback)
-		  ,@(loop for (function slotname) on (cddr callback) by #'cddr
-		       append
-		       `((callback-function-name ,function ',callback-array-type)
-			 ',slotname)))))))
+		 (apply
+		  'make-cbstruct
+		  (cbstruct-name object) `(dimensions ,@(dimensions object))
+		  (mapcan 'list (callback-labels object) (functions object)))))))
 	,(or initialize-name
 	     (format nil "~a_~a" prefix
 		     (if (listp initialize-suffix)
