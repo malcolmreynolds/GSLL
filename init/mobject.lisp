@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-07 14:34:59EST mobject.lisp>
+;; Time-stamp: <2009-02-07 21:37:24EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -40,7 +40,7 @@
 	 (maker (intern (format nil "MAKE-~:@(~a~)" class) :gsl))
 	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
 	 (cl-initialize-args
-	  (remove +callback-argument-name+
+	  (subst 'functions +callback-argument-name+
 		  (variables-used-in-c-arguments initialize-args)))
 	 (initializerp (or initialize-name initialize-suffix))
 	 (initargs ; arguments that are exclusively for reinitialize-instance
@@ -70,7 +70,7 @@
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
-		    callbackp))
+		    callbackp (member 'dimensions cl-alloc-args)))
 	   (export ',maker)
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
@@ -103,7 +103,7 @@
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     callback)
+     callback dimensionsp)
   "Expand the reinitialize-instance form.  In the GSL arglist, the callback
    structure pointer should be named the value of +callback-argument-name+."
   (let ((cbstruct (make-symbol "CBSTRUCT")))
@@ -117,7 +117,8 @@
 		(,cbstruct
 		 (apply
 		  'make-cbstruct
-		  (cbstruct-name object) `(dimensions ,@(dimensions object))
+		  (cbstruct-name object)
+		  ,(when dimensionsp '`(dimensions ,@(dimensions object)))
 		  (mapcan 'list (callback-labels object) (functions object)))))))
 	,(or initialize-name
 	     (format nil "~a_~a" prefix
