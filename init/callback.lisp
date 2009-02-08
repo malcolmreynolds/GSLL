@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-07 17:19:18EST callback.lisp>
+;; Time-stamp: <2009-02-08 17:39:32EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -315,6 +315,16 @@
       (callback-labels :initform ',callback-labels :allocation :class))
      (:documentation ,documentation)))
 
+(defmacro def-ci-subclass-1d
+    (class-name documentation
+     cbstruct-name array-type callback-labels)
+  `(defclass ,class-name (callback-included)
+     ((cbstruct-name :initform ',cbstruct-name :allocation :class)
+      (array-type :initform ',array-type :allocation :class)
+      (callback-labels :initform ',callback-labels :allocation :class)
+      (dimensions :initform '(1) :allocation :class))
+     (:documentation ,documentation)))
+
 (defgeneric make-callbacks-fn (class args)
   (:documentation "Function to make forms that expand into defmcallback(s)."))
 
@@ -327,3 +337,10 @@
    be called with two arguments; it should read the values from the first
    array and write the answer in the second array."
   (make-callbacks-fn class args))
+
+(defmethod print-object ((object callback-included) stream)
+  (print-unreadable-object (object stream :type t :identity t)
+    (princ "for " stream)
+    (princ (first (functions object)) stream)
+    (princ ", dimensions " stream)
+    (princ (dimensions object) stream)))

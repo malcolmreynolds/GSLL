@@ -1,6 +1,6 @@
 ;; Generic functions for optimization
 ;; Liam Healy 2009-01-03 12:59:07EST generic.lisp
-;; Time-stamp: <2009-01-24 20:09:47EST generic.lisp>
+;; Time-stamp: <2009-02-08 15:15:15EST generic.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -59,6 +59,7 @@
   (fdf :pointer)
   (parameters :pointer))
 
+;;; To be obsolete
 (export 'make-solver-functions)
 (defmacro make-solver-functions (function &optional df fdf dimensions array)
   "Setup functions for solvers.

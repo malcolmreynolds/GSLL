@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-07 21:36:44EST roots-one.lisp>
+;; Time-stamp: <2009-02-08 18:35:44EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,7 +17,12 @@
   :superclasses (callback-included)
   :ci-class-slots (gsl-function nil (function))
   :initialize-suffix "set"
-  :initialize-args ((callback :pointer) (lower :double) (upper :double)))
+  :initialize-args ((callback :pointer) (lower :double) (upper :double))
+  :arglists-function
+  (lambda (set)
+    `((type &optional (function nil ,set) lower upper)
+      (:type type)
+      (:functions (list function) :lower lower :upper upper))))
 
 (eval-when (:compile-toplevel :load-toplevel)
 (defmethod make-callbacks-fn
@@ -34,8 +39,32 @@
 (defmobject one-dimensional-root-solver-fdf "gsl_root_fdfsolver"
   ((type :pointer))
   "one-dimensional root solver with function and derivative"
+  :superclasses (callback-included)
+  :ci-class-slots (gsl-function-fdf nil (function df fdf))
   :initialize-suffix "set"
-  :initialize-args ((function-derivative :pointer) (root-guess :double)))
+  :initialize-args ((callback :pointer) (root-guess :double)))
+
+(eval-when (:compile-toplevel :load-toplevel)
+(defmethod make-callbacks-fn
+    ((class (eql 'one-dimensional-root-solver-fdf)) args)
+  ;; This is "make-solver-functions"
+  (declare (ignore class))
+  (destructuring-bind (function df fdf) args
+    `(progn
+       (defmcallback ,function
+	   :double :double
+	   nil
+	   nil
+	   ,function)
+       (defmcallback ,df
+	   :double :double
+	   nil
+	   nil
+	   ,df)
+       (defmcallback ,fdf
+	   :void :double ((:set :double 1) (:set :double 1)) 
+	   nil
+	   ,fdf)))))
 
 (defmfun name ((solver one-dimensional-root-solver-f))
   "gsl_root_fsolver_name"
@@ -295,17 +324,15 @@
 	    (+ (* 2 a x) b))))
 
 (make-callbacks one-dimensional-root-solver-f quadratic)
-
-#+callback-toplevel-only
-(defparameter *roots-one-noderiv-cb*
-  (make-single-function quadratic))
+(make-callbacks one-dimensional-root-solver-fdf
+		quadratic quadratic-derivative quadratic-and-derivative)
 
 (defun roots-one-example-no-derivative
     (&optional (method *brent-fsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50)
 	(solver
-	 (make-one-dimensional-root-solver-f method '(quadratic) 0.0d0 5.0d0)))
+	 (make-one-dimensional-root-solver-f method 'quadratic 0.0d0 5.0d0)))
     (when print-steps
       (format t "iter ~6t   [lower ~24tupper] ~36troot ~44terr ~54terr(est)~&"))
     (loop for iter from 0
@@ -323,11 +350,6 @@
 		 (- upper lower)))
        finally (return root))))
 
-#+callback-toplevel-only
-(defparameter *roots-one-deriv-cb*
-  (make-solver-functions
-   quadratic quadratic-derivative quadratic-and-derivative))
-
 (defun roots-one-example-derivative
     (&optional (method *newton-fdfsolver*) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
@@ -335,11 +357,7 @@
 	 (initial 5.0d0)
 	 (solver (make-one-dimensional-root-solver-fdf
 		  method
-		  #-callback-toplevel-only
-		  (make-solver-functions
-		   quadratic quadratic-derivative quadratic-and-derivative)
-		  #+callback-toplevel-only
-		  *roots-one-deriv-cb*
+		  '(quadratic quadratic-derivative quadratic-and-derivative)
 		  initial)))
     (when print-steps
       (format t "iter ~6t ~8troot ~22terr ~34terr(est)~&"))

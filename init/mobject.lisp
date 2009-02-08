@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-07 21:37:24EST mobject.lisp>
+;; Time-stamp: <2009-02-08 18:36:40EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -48,7 +48,9 @@
     (if (have-at-least-gsl-version gsl-version)
 	`(progn
 	   ,(if callbackp
-		`(def-ci-subclass ,class
+		`(,(if (member 'dimensions cl-alloc-args)
+		       'def-ci-subclass 'def-ci-subclass-1d)
+		   ,class
 		     ,(format nil "The GSL representation of the ~a." description)
 		   ,@ci-class-slots)
 		`(defclass ,class ,superclasses
