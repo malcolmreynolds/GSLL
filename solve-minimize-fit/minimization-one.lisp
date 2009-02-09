@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-01-26 21:40:02EST minimization-one.lisp>
+;; Time-stamp: <2009-02-08 18:53:13EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,9 +20,28 @@
   "Make an instance of a minimizer of the given type.  Optionally
    set to use the function and the initial search interval [lower,
    upper], with a guess for the location of the minimum."
+  :superclasses (callback-included)
+  :ci-class-slots (gsl-function nil (function))
   :initialize-suffix "set"		; should use set_with_values?
   :initialize-args
-  ((function :pointer) (minimum :double) (lower :double) (upper :double)))
+  ((callback :pointer) (minimum :double) (lower :double) (upper :double))
+  :arglists-function
+  (lambda (set)
+    `((type &optional (function nil ,set) minimum lower upper)
+      (:type type)
+      (:functions (list function) :minimum minimum :lower lower :upper upper))))
+
+(eval-when (:compile-toplevel :load-toplevel)
+(defmethod make-callbacks-fn
+    ((class (eql 'one-dimensional-minimizer)) args)
+  ;; This is "make-single-function"
+  (declare (ignore class))
+  (destructuring-bind (function) args
+    `(defmcallback ,function
+       :double :double
+       nil
+       t
+       ,function))))
 
 (defmfun set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
@@ -180,6 +199,8 @@
 (defun minimization-one-fn (x)
   (1+ (cos x)))
 
+(make-callbacks one-dimensional-minimizer minimization-one-fn)
+
 #+callback-toplevel-only
 (defparameter *minone-cb* (make-single-function minimization-one-fn))
 
@@ -189,9 +210,7 @@
   (let ((max-iter 100)
 	(minimizer
 	 (make-one-dimensional-minimizer
-	  minimizer-type
-	  #-callback-toplevel-only (make-single-function minimization-one-fn)
-	  #+callback-toplevel-only *minone-cb*
+	  minimizer-type 'minimization-one-fn
 	  2.0d0 0.0d0 6.0d0)))
     (when print-steps
       (format
