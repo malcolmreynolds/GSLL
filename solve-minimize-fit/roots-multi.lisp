@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-02-07 17:17:58EST roots-multi.lisp>
+;;; Time-stamp: <2009-02-08 22:56:14EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -38,22 +38,19 @@
       (:functions (list function-or-dimension) :initial initial)))
   :inputs (initial))
 
-(eval-when (:compile-toplevel :load-toplevel)
-(defmethod make-callbacks-fn
-    ((class (eql 'multi-dimensional-root-solver-f)) args)
-  (declare (ignore class))
-  (destructuring-bind (function dimension &optional (scalars t)) args
-    (if scalars
-	`(defmcallback ,function
-	     :success-failure
-	   ((:double ,dimension)) ((:set :double ,dimension))
-	   T
-	   ,function)
-	`(defmcallback ,function
-	     :success-failure
-	   (:pointer) (:pointer)
-	   T
-	   ,function)))))
+(def-make-callbacks
+    multi-dimensional-root-solver-f (function dimension &optional (scalars t))
+  (if scalars
+      `(defmcallback ,function
+	   :success-failure
+	 ((:double ,dimension)) ((:set :double ,dimension))
+	 T
+	 ,function)
+      `(defmcallback ,function
+	   :success-failure
+	 (:pointer) (:pointer)
+	 T
+	 ,function)))
 
 (defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
   ((type :pointer) ((first dimensions) sizet))
@@ -76,28 +73,26 @@
       (:functions function-or-dimension :initial initial)))
   :inputs (initial))
 
-(eval-when (:compile-toplevel :load-toplevel)
-(defmethod make-callbacks-fn
-    ((class (eql 'multi-dimensional-root-solver-fdf)) args)
-  (declare (ignore class))
-  (destructuring-bind (function df fdf dimension &optional (array t)) args
-    `(progn
-       (defmcallback ,function
-	   :success-failure
-	 ((:double ,dimension)) ((:set :double ,dimension))
-	 ,array
-	 ,function)
-       (defmcallback ,df
-	   :success-failure
-	 ((:double ,dimension)) ((:set :double ,dimension ,dimension))
-	 ,array
-	 ,df)
-       (defmcallback ,fdf
-	   :success-failure
-	 ((:double ,dimension))
-	 ((:set :double ,dimension) (:set :double ,dimension ,dimension))
-	 ,array
-	 ,fdf)))))
+(def-make-callbacks
+    multi-dimensional-root-solver-fdf
+    (function df fdf dimension &optional (array t))
+  `(progn
+     (defmcallback ,function
+	 :success-failure
+       ((:double ,dimension)) ((:set :double ,dimension))
+       ,array
+       ,function)
+     (defmcallback ,df
+	 :success-failure
+       ((:double ,dimension)) ((:set :double ,dimension ,dimension))
+       ,array
+       ,df)
+     (defmcallback ,fdf
+	 :success-failure
+       ((:double ,dimension))
+       ((:set :double ,dimension) (:set :double ,dimension ,dimension))
+       ,array
+       ,fdf)))
 
 (defmfun name ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_name"

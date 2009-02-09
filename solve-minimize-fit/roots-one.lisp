@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-08 18:35:44EST roots-one.lisp>
+;; Time-stamp: <2009-02-08 22:18:24EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,17 +24,12 @@
       (:type type)
       (:functions (list function) :lower lower :upper upper))))
 
-(eval-when (:compile-toplevel :load-toplevel)
-(defmethod make-callbacks-fn
-    ((class (eql 'one-dimensional-root-solver-f)) args)
-  ;; This is "make-single-function"
-  (declare (ignore class))
-  (destructuring-bind (function) args
-    `(defmcallback ,function
+(def-make-callbacks one-dimensional-root-solver-f (function)
+  `(defmcallback ,function
        :double :double
        nil
        t
-       ,function))))
+       ,function))
 
 (defmobject one-dimensional-root-solver-fdf "gsl_root_fdfsolver"
   ((type :pointer))
@@ -44,27 +39,22 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) (root-guess :double)))
 
-(eval-when (:compile-toplevel :load-toplevel)
-(defmethod make-callbacks-fn
-    ((class (eql 'one-dimensional-root-solver-fdf)) args)
-  ;; This is "make-solver-functions"
-  (declare (ignore class))
-  (destructuring-bind (function df fdf) args
-    `(progn
-       (defmcallback ,function
-	   :double :double
-	   nil
-	   nil
-	   ,function)
-       (defmcallback ,df
-	   :double :double
-	   nil
-	   nil
-	   ,df)
-       (defmcallback ,fdf
-	   :void :double ((:set :double 1) (:set :double 1)) 
-	   nil
-	   ,fdf)))))
+(def-make-callbacks one-dimensional-root-solver-fdf (function df fdf)
+  `(progn
+     (defmcallback ,function
+	 :double :double
+	 nil
+	 nil
+	 ,function)
+     (defmcallback ,df
+	 :double :double
+	 nil
+	 nil
+	 ,df)
+     (defmcallback ,fdf
+	 :void :double ((:set :double 1) (:set :double 1)) 
+	 nil
+	 ,fdf)))
 
 (defmfun name ((solver one-dimensional-root-solver-f))
   "gsl_root_fsolver_name"

@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-02-08 18:53:13EST minimization-one.lisp>
+;; Time-stamp: <2009-02-08 22:20:42EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -31,17 +31,12 @@
       (:type type)
       (:functions (list function) :minimum minimum :lower lower :upper upper))))
 
-(eval-when (:compile-toplevel :load-toplevel)
-(defmethod make-callbacks-fn
-    ((class (eql 'one-dimensional-minimizer)) args)
-  ;; This is "make-single-function"
-  (declare (ignore class))
-  (destructuring-bind (function) args
-    `(defmcallback ,function
+(def-make-callbacks one-dimensional-minimizer (function)
+  `(defmcallback ,function
        :double :double
        nil
        t
-       ,function))))
+       ,function))
 
 (defmfun set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
