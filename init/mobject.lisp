@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-08 18:36:40EST mobject.lisp>
+;; Time-stamp: <2009-02-10 21:55:30EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -26,7 +26,7 @@
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
      (superclasses '(mobject))
-     ci-class-slots)
+     ci-class-slots singular)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   ;; Argument 'initialize-suffix: string appended to prefix to form
@@ -76,7 +76,8 @@
 	   (export ',maker)
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
-	     description documentation initialize-args initializerp settingp))
+	     description documentation initialize-args initializerp settingp
+	     singular))
 	`(progn
 	   (export ',maker)
 	   (defun ,maker (&rest args)
@@ -146,20 +147,22 @@
 	:export nil
 	:index (reinitialize-instance ,class)))))
 
-
 (defun mobject-maker
     (maker arglists initargs class cl-alloc-args cl-initialize-args
-     description documentation initialize-args initializerp settingp)
+     description documentation initialize-args initializerp settingp
+     singular)
   "Make the defun form that makes the mobject."
   `(defun ,maker
        ,(if arglists
 	    (first arglists)
-	    `(,@cl-alloc-args
-	      ,@(when initargs
-		      (append
-		       (list
-			'&optional (list (first initargs) nil settingp))
-		       (rest initargs)))))
+	    (singularize
+	     singular
+	     `(,@cl-alloc-args
+	       ,@(when initargs
+		       (append
+			(list
+			 '&optional (list (first initargs) nil settingp))
+			(rest initargs))))))
      ,(format
        nil "Create the GSL object representing a ~a (class ~a).~@[~&~a~]"
        description class documentation)
@@ -168,7 +171,7 @@
 	     ',class
 	     ,@(if arglists
 		   (second arglists)
-		   (symbol-keyword-symbol cl-alloc-args)))))
+		   (symbol-keyword-symbol cl-alloc-args singular)))))
        ;; There is an initialization step
        ,@(when initializerp
 	       (if initialize-args	; with arguments
@@ -178,21 +181,47 @@
 			    object
 			    ,@(if arglists
 				  (third arglists)
-				  (symbol-keyword-symbol cl-initialize-args)))))
+				  (symbol-keyword-symbol
+				   cl-initialize-args singular)))))
 		       `((reinitialize-instance
 			  object
 			  ,@(if arglists
 				(third arglists)
-				(symbol-keyword-symbol cl-initialize-args)))))
+				(symbol-keyword-symbol
+				 cl-initialize-args singular)))))
 		   '((reinitialize-instance object)))) ; without arguments
        object)))
 
+(defun plural-symbol (symbol)
+  "Make the plural form of this symbol."
+  (intern (format nil "~aS" (symbol-name symbol))
+	  (find-package :gsl)))
 
-(defun symbol-keyword-symbol (symbol)
+(defun singular-symbol (symbol)
+  "Make the singular form of this symbol."
+  (let ((string (symbol-name symbol)))
+    (if (eq #\S (aref string (1- (length string))))
+	(intern (subseq string 0 (1- (length string)))
+		(find-package :gsl)))))
+
+(defun singularize (symbols form)
+  "In the form, replace the plural symbol with the singular symbol
+   given."
+  (if symbols
+      (if (listp symbols)
+	  (singularize (first symbols) (singularize (rest symbols) form))
+	  (subst symbols (plural-symbol symbols) form))
+      form))
+
+(defun symbol-keyword-symbol (symbol &optional singular)
+  "Make a list of key symbol, listifying if singular."
   (if (listp symbol)
-      (mapcan #'symbol-keyword-symbol symbol)
-      (list (intern (symbol-name symbol) :keyword)
-	    symbol)))
+      (mapcan (lambda (s) (symbol-keyword-symbol s singular)) symbol)
+      (if (member (singular-symbol symbol) singular)
+	  (list (intern (symbol-name symbol) :keyword)
+		`(list ,(singular-symbol symbol)))
+	  (list (intern (symbol-name symbol) :keyword)
+		symbol))))
 
 ;;;;****************************************************************************
 ;;;; Generic functions

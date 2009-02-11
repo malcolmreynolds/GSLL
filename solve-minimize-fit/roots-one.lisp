@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-08 22:18:24EST roots-one.lisp>
+;; Time-stamp: <2009-02-10 21:53:03EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,11 +18,7 @@
   :ci-class-slots (gsl-function nil (function))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) (lower :double) (upper :double))
-  :arglists-function
-  (lambda (set)
-    `((type &optional (function nil ,set) lower upper)
-      (:type type)
-      (:functions (list function) :lower lower :upper upper))))
+  :singular (function))
 
 (def-make-callbacks one-dimensional-root-solver-f (function)
   `(defmcallback ,function

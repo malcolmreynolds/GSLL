@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-02-08 22:20:42EST minimization-one.lisp>
+;; Time-stamp: <2009-02-10 21:47:41EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,11 +25,7 @@
   :initialize-suffix "set"		; should use set_with_values?
   :initialize-args
   ((callback :pointer) (minimum :double) (lower :double) (upper :double))
-  :arglists-function
-  (lambda (set)
-    `((type &optional (function nil ,set) minimum lower upper)
-      (:type type)
-      (:functions (list function) :minimum minimum :lower lower :upper upper))))
+  :singular (function))
 
 (def-make-callbacks one-dimensional-minimizer (function)
   `(defmcallback ,function

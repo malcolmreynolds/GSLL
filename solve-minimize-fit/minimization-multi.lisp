@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-02-09 22:03:50EST minimization-multi.lisp>
+;; Time-stamp: <2009-02-10 21:51:38EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -43,11 +43,7 @@
   :initialize-args ;; Could have one fewer argument: dimension=(dim0 initial)
   ((callback :pointer) ((mpointer initial) :pointer)
    ((mpointer step-size) :pointer))
-  :arglists-function
-  (lambda (set)
-    `((type dimension &optional (function nil ,set) initial step-size)
-      (:type type :dimensions (list dimension))
-      (:functions (list function) :initial initial :step-size step-size))))
+  :singular (dimension function))
 
 (def-make-callbacks
     multi-dimensional-minimizer-f (function dimension &optional (scalars t))
@@ -84,13 +80,7 @@
   :initialize-args
   ((callback :pointer) ((mpointer initial) :pointer)
    (step-size :double) (tolerance :double))
-  :arglists-function
-  (lambda (set)
-    `((type dimension
-	    &optional (functions nil ,set) initial step-size tolerance)
-      (:type type :dimensions (list dimension))
-      (:functions functions :initial initial :step-size step-size
-		  :tolerance tolerance))))
+  :singular (dimension))
 
 (def-make-callbacks
     multi-dimensional-minimizer-fdf
