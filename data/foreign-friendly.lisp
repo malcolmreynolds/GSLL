@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2009-01-10 12:47:53EST foreign-friendly.lisp>
+;; Time-stamp: <2009-02-10 22:40:05EST foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -14,6 +14,7 @@
 ;;;; Make arrays for possible foreign use 
 ;;;;****************************************************************************
 
+(export 'make-ffa)
 (defun make-ffa
     (element-type
      &key dimensions (initial-element nil initial-element-p)

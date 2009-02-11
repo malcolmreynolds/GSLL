@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2008-12-28 18:54:20EST marray.lisp>
+;; Time-stamp: <2009-02-10 22:39:58EST marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -92,10 +92,11 @@
 
 (export 'make-marray)
 (defun make-marray
-    (element-type &rest keys &key dimensions initial-contents from-pointer
+    (element-type &rest keys &key dimensions initial-contents from-pointer cl-array
      &allow-other-keys)
   "Make a GSLL array with the given element type,
-   :dimensions, :initial-contents and/or :initial-element.
+   :dimensions, and :initial-contents, :initial-element or :cl-array.
+   If the :cl-array is supplied, it should be a CL array generated with #'make-ffa.
    If a pointer to a GSL object is given in :from-pointer, create
    an object with duplicate contents; if a matrix, :dimensions must be set to 2."
   ;; Some functions in solve-minimize-fit return a pointer to a GSL
@@ -116,7 +117,8 @@
 	      (if
 	       (or
 		(and dimensions (listp dimensions) (eql (length dimensions) 2))
-		(and initial-contents (listp (first initial-contents))))
+		(and initial-contents (listp (first initial-contents)))
+		(and cl-array (eql (length (array-dimensions cl-array)) 2)))
 	       'matrix 'vector)
 	      element-type)
 	     keys)))

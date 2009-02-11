@@ -1,6 +1,6 @@
 ;; Foreign arrays (usually in C)
 ;; Liam Healy 2008-12-28 10:44:22EST foreign-array.lisp
-;; Time-stamp: <2009-01-04 21:42:09EST foreign-array.lisp>
+;; Time-stamp: <2009-02-10 23:05:32EST foreign-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -12,12 +12,12 @@
 (export '(dimensions total-size element-type))
 
 (defclass foreign-array ()
-  ((cl-array :documentation "The Lisp array.")
+  ((cl-array :initarg :cl-array :documentation "The Lisp array.")
    #-native
    (c-pointer :accessor c-pointer :documentation "A pointer to the C array.")
    (dimensions :reader dimensions)
    (total-size :reader total-size)
-   (element-type :reader element-type)
+   (element-type :initarg :element-type :reader element-type)
    (original-array :reader original-array)
    (offset :reader offset)
    #-native
@@ -46,14 +46,14 @@
      &key dimensions initial-contents initial-element)
   (declare (ignore dimensions initial-contents initial-element))
   (with-slots (cl-array dimensions original-array offset total-size) object
-    (let ((ffa (apply #'make-ffa (element-type object) initargs)))
-      (setf cl-array ffa
-	    dimensions (array-dimensions ffa)
-	    total-size (array-total-size ffa)))
+    (unless (and (slot-boundp object 'cl-array) cl-array)
+      (setf cl-array (apply #'make-ffa (element-type object) initargs)))
+    (setf dimensions (array-dimensions cl-array)
+	  total-size (array-total-size cl-array))
     #-native
     (let ((cptr (cffi:foreign-alloc
-	   (cl-cffi (element-type object))
-	   :count (total-size object))))
+		 (cl-cffi (element-type object))
+		 :count (total-size object))))
       (setf (c-pointer object) cptr)
       (tg:finalize object (lambda () (cffi:foreign-free cptr))))
     #-native (setf (cl-invalid object) nil)
