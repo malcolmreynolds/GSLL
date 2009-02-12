@@ -1,6 +1,6 @@
 ;; Define examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2008-12-29 19:10:39EST generate-examples.lisp>
+;; Time-stamp: <2009-02-11 22:44:32EST generate-examples.lisp>
 ;; $Id: $
 
 ;;; Define examples that can be displayed by users with the function
@@ -163,7 +163,7 @@
        (declare (special default-element-type starting-element))
        (setf starting-element 0)
        (stupid-code-walk-eval-some
-	test
+	(subst det 'default-element-type test)
 	'(array-default scalar-default)))))
 
 (defmacro generate-all-array-tests (name element-types test)

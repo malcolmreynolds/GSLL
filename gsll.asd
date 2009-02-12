@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-28 21:05:10EST gsll.asd>
+;; Time-stamp: <2009-02-11 21:17:38EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -47,6 +47,7 @@
 	       (:file "matrix" :depends-on (marray vector))
 	       (:file "maref" :depends-on (marray vector matrix))
 	       (:file "both" :depends-on (marray vector matrix))
+	       (:file "copy-cl")
 	       (:file "array-tests" :depends-on (both))
 	       (:file "permutation" :depends-on (marray))
 	       (:file "combination" :depends-on (marray))))

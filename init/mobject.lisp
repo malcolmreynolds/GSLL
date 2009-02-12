@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-01-28 19:19:54EST mobject.lisp>
+;; Time-stamp: <2009-02-11 22:17:38EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -179,13 +179,11 @@
 ;;;;****************************************************************************
 
 (export 'copy)
-(defgeneric copy (object &optional destination)
-  (:documentation "Create a duplicate object.")
-  ;; This method is used for all GSL objects except arrays.
-  (:method ((object mobject) &optional destination)
-    (if destination
-	(copy-to-destination object destination)
-	(copy-making-destination object))))
+(defun copy (object &optional destination)
+  "Create a duplicate object."
+  (if destination
+      (copy-to-destination object destination)
+      (copy-making-destination object)))
 
 (defgeneric copy-to-destination (object destination)
   ;; This copies values into an existing object.  Methods are defined
@@ -198,19 +196,21 @@
 (defgeneric copy-making-destination (object)
   (:documentation "Create new duplicate object.")
   (:method :around ((object mobject))
-    (if (next-method-p)
-	;; The subclass method should only return the malloced
-	;; mpointer (as from a "_clone" function); it will be put into
-	;; the CL object here.  The initial-instance method for these
-	;; objects must be written to do nothing if the mpointer is
-	;; already defined.
-	;; Defined for
-	;; histogram, histogram2d, 
-	;; random-number-generator, quasi-random-number-generator,
-	(make-instance (class-of object) :mpointer (call-next-method))
-	;; The subclass does not supply a method, so this will be called
-	;; by default.  We can only try to make something from the load form.
-	(eval (make-load-form object)))))
+      (if (next-method-p)
+	  ;; The subclass method should only return the malloced
+	  ;; mpointer (as from a "_clone" function); it will be put into
+	  ;; the CL object here.  The initial-instance method for these
+	  ;; objects must be written to do nothing if the mpointer is
+	  ;; already defined.
+	  ;; Defined for
+	  ;; histogram, histogram2d, 
+	  ;; random-number-generator, quasi-random-number-generator,
+	  (if (typep object 'marray)
+	      (call-next-method)
+	      (make-instance (class-of object) :mpointer (call-next-method)))
+	  ;; The subclass does not supply a method, so this will be called
+	  ;; by default.  We can only try to make something from the load form.
+	  (eval (make-load-form object)))))
 
 ;;; Could be part of copy when the second argument is optional?
 (export 'clone)

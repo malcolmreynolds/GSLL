@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-01-28 20:59:16EST gsll-tests.asd>
+;; Time-stamp: <2009-02-11 22:15:11EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -91,6 +91,7 @@
 	     (:file "lu")
 	     (:file "mathematical")
 	     (:file "matrix-copy")
+	     (:file "matrix-copy-to-cl-and-back")
 	     (:file "matrix-div")
 	     (:file "matrix-max-index")
 	     (:file "matrix-max")
@@ -166,6 +167,7 @@
 	     (:file "transport")
 	     (:file "trigonometry")
 	     (:file "vector-copy")
+	     (:file "vector-copy-to-cl-and-back")
 	     (:file "vector-div")
 	     (:file "vector-max-index")
 	     (:file "vector-max")

@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-01-11 22:37:48EST both.lisp>
+;; Time-stamp: <2009-02-11 22:17:09EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -53,16 +53,24 @@
   :c-return :void
   :documentation "Set all elements to 0.")
 
-(defmfun copy
-    ((source both)
-     &optional
+(defmfun copy-to-destination
+    ((source both) (destination both))
+  ("gsl_" :category :type "_memcpy")
+  (((mpointer destination) :pointer) ((mpointer source) :pointer))
+  :definition :methods
+  :inputs (source)
+  :outputs (destination))
+
+(defmfun copy-making-destination
+    ((source both) &aux 
      (destination
       (make-marray element-type :dimensions (dimensions source))))
   ("gsl_" :category :type "_memcpy")
   (((mpointer destination) :pointer) ((mpointer source) :pointer))
   :definition :methods
   :inputs (source)
-  :outputs (destination))
+  :outputs (destination)
+  :return (destination))
 
 (defmfun swap ((a both) (b both))
   ("gsl_" :category :type "_swap")
