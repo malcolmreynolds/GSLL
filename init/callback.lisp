@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-08 22:21:59EST callback.lisp>
+;; Time-stamp: <2009-02-14 11:50:31EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -297,6 +297,9 @@
    (callback-labels
     :initarg :callback-labels :reader callback-labels
     :documentation "The labels in the GSL struct for each callback function.")
+   (dimension-names
+    :initarg :dimension-names :reader dimension-names
+    :documentation "The names in the GSL struct for dimensions.")
    (functions
     :initarg :functions :reader functions
     :documentation "The names of the function(s) put into
@@ -308,11 +311,13 @@
 
 (defmacro def-ci-subclass
     (class-name documentation
-     cbstruct-name array-type callback-labels)
+     cbstruct-name array-type callback-labels
+     &optional (dimension-names '(dimensions)))
   `(defclass ,class-name (callback-included)
      ((cbstruct-name :initform ',cbstruct-name :allocation :class)
       (array-type :initform ',array-type :allocation :class)
-      (callback-labels :initform ',callback-labels :allocation :class))
+      (callback-labels :initform ',callback-labels :allocation :class)
+      (dimension-names :initform ',dimension-names :allocation :class))
      (:documentation ,documentation)))
 
 (defmacro def-ci-subclass-1d
@@ -322,6 +327,7 @@
      ((cbstruct-name :initform ',cbstruct-name :allocation :class)
       (array-type :initform ',array-type :allocation :class)
       (callback-labels :initform ',callback-labels :allocation :class)
+      (dimension-names :initform nil :allocation :class)
       (dimensions :initform '(1) :allocation :class))
      (:documentation ,documentation)))
 

@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-01-26 21:43:22EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-02-14 12:22:00EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,16 +11,41 @@
 ;;;; Function-only solver object
 ;;;;****************************************************************************
 
-;;; Note that there are currently no derivative-free solvers provided,
-;;; so this is a bit pointless.
+;;; Note that GSL currently provides no derivative-free solvers,
+;;; so this is moot for now.
 
 (defmobject nonlinear-ffit "gsl_multifit_fsolver"
-  ((solver-type :pointer) (number-of-observations sizet) (number-of-parameters sizet))
+  ((solver-type :pointer)
+   ((first dimensions) sizet)		; number-of-observations
+   ((second dimensions) sizet))		; number-of-parameters
   "nonlinear least squares fit with function only"
   :documentation			; FDL
   "The number of observations must be greater than or equal to parameters."
+  :superclasses (callback-included)
+  :ci-class-slots
+  (gsl-ffit-function nil (function) (number-of-observations number-of-parameters))
   :initialize-suffix "set"
-  :initialize-args ((function :pointer) ((mpointer initial-guess) :pointer)))
+  :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer))
+  :singular (function))
+
+(cffi:defcstruct gsl-ffit-function
+  "The definition of a function for nonlinear least squares fitting in GSL."
+  ;; See gsl_multifit_function in /usr/include/gsl/gsl_multifit_nlin.h
+  (function :pointer)
+  (number-of-observations sizet)
+  (number-of-parameters sizet)
+  (parameters :pointer))
+
+(def-make-callbacks nonlinear-ffit
+    (function number-of-observations number-of-parameters &optional (scalars t))
+  (if scalars
+      `(defmcallback ,function
+	   :success-failure
+	 (:double ,number-of-parameters)
+	 ((:double ,number-of-observations))
+	 t ,function)
+      `(defmcallback ,function
+	   :success-failure :pointer :pointer nil ,function)))
 
 (defmfun name ((solver nonlinear-ffit))
   "gsl_multifit_fsolver_name"
@@ -35,22 +60,19 @@
 ;;;;****************************************************************************
 
 (defmobject nonlinear-fdffit "gsl_multifit_fdfsolver"
-  ((solver-type :pointer) (number-of-observations sizet)
-   (number-of-parameters sizet))
+  ((solver-type :pointer)
+   ((first dimensions) sizet)		; number-of-observations
+   ((second dimensions) sizet))		; number-of-parameters
   "nonlinear least squares fit with function and derivative"
   :documentation			; FDL
   "The number of observations must be greater than or
    equal to parameters."
+  :superclasses (callback-included)
+  :ci-class-slots
+  (gsl-fdffit-function marray (function df fdf)
+		       (number-of-observations number-of-parameters))
   :initialize-suffix "set"
-  :initialize-args ((function :pointer) ((mpointer initial-guess) :pointer)))
-
-(defmfun name ((solver nonlinear-fdffit))
-  "gsl_multifit_fdfsolver_name"
-  (((mpointer solver) :pointer))
-  :definition :method
-  :c-return :string
-  :documentation			; FDL
-  "The name of the solver type.")
+  :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer)))
 
 (cffi:defcstruct gsl-fdffit-solver
   ;; See /usr/include/gsl/gsl_multifit_nlin.h
@@ -64,20 +86,6 @@
   (dx :pointer)
   (state :pointer))
 
-;;;;****************************************************************************
-;;;; The function to be minimized
-;;;;****************************************************************************
-
-(cffi:defcstruct gsl-ffit-function
-  "The definition of a function for nonlinear least squares fitting in GSL."
-  ;; See gsl_multifit_function in /usr/include/gsl/gsl_multifit_nlin.h
-  ;; Note that this is moot because GSL currently does not have any
-  ;; derivative-free fitting functions.
-  (function :pointer)
-  (number-of-observations sizet)
-  (number-of-parameters sizet)
-  (parameters :pointer))
-
 (cffi:defcstruct gsl-fdffit-function
   "The definition of a function and its derivatives for nonlinear
    least squares fitting in GSL."
@@ -88,38 +96,41 @@
   (number-of-parameters sizet)
   (parameters :pointer))
 
-(export 'make-fitting-functions)
-(defmacro make-fitting-functions
-    (function number-of-parameters number-of-observations &optional df fdf)
-  "Create the GSL struct for nonlinear least squares fitting.
-   The CL functions name and derivative should be defined previously
-   with defuns."
-  ;; The number of observations defaults to 0 so that the value can be
-  ;; set separately and should be specified separately with the data.
-  (let ((numbers `((number-of-observations ,number-of-observations)
-		   (number-of-parameters ,number-of-parameters))))
-    (with-unique-names (solverfn solverdf solverfdf)
+(def-make-callbacks nonlinear-fdffit
+    (function df fdf &optional number-of-observations number-of-parameters)
+  (if number-of-observations
+      (cl-utilities:once-only (number-of-parameters number-of-observations)
+	`(progn
+	   (defmcallback ,function
+	       :success-failure
+	     (:double ,number-of-parameters)
+	     ((:double ,number-of-observations))
+	     t ,function)
+	   (defmcallback ,df
+	       :success-failure
+	     (:double ,number-of-parameters)
+	     ((:double ,number-of-observations ,number-of-parameters))
+	     t ,df)
+	   (defmcallback ,fdf
+	       :success-failure
+	     (:double ,number-of-parameters)
+	     ((:double ,number-of-observations)
+	      (:double ,number-of-observations ,number-of-parameters))
+	     t ,fdf)))
       `(progn
-	 (defmcallback ,solverfn :success-failure :pointer :pointer nil ,function)
-	 ,@(when
-	    df
-	    `((defmcallback ,solverdf :success-failure :pointer :pointer nil ,df)
-	      (defmcallback
-		  ,solverfdf
-		  :success-failure :pointer (:pointer :pointer) nil ,fdf)))
-	 ,(if df
-	      `(defcbstruct (,solverfn function ,solverdf df ,solverfdf fdf)
-		   gsl-fdffit-function ,numbers)
-	      `(defcbstruct (,function function)
-		   gsl-ffit-function ,numbers))))))
+	 (defmcallback ,function
+	     :success-failure :pointer :pointer nil ,function)
+	 (defmcallback ,df :success-failure :pointer :pointer nil ,df)
+	 (defmcallback
+	     ,fdf :success-failure :pointer (:pointer :pointer) nil ,fdf))))
 
-(export '(number-of-parameters number-of-observations))
-
-(defun number-of-parameters (pointer)
-  (cffi:foreign-slot-value pointer 'gsl-fdffit-function 'number-of-parameters))
-
-(defmacro number-of-observations (pointer)
-  `(cffi:foreign-slot-value ,pointer 'gsl-fdffit-function 'number-of-observations))
+(defmfun name ((solver nonlinear-fdffit))
+  "gsl_multifit_fdfsolver_name"
+  (((mpointer solver) :pointer))
+  :definition :method
+  :c-return :string
+  :documentation			; FDL
+  "The name of the solver type.")
 
 ;;;;****************************************************************************
 ;;;; Iteration
@@ -368,39 +379,31 @@
   (exponential-residual x f)
   (exponential-residual-derivative x jacobian))
 
+(make-callbacks
+ nonlinear-fdffit
+ exponential-residual exponential-residual-derivative
+ exponential-residual-fdf)
+
 (defun norm-f (fit)
   "Find the norm of the fit function f."
   (euclidean-norm (function-value fit)))
-
-#+callback-toplevel-only
-(defparameter *fitting-cb*
-  (make-fitting-functions
-   exponential-residual 3 40
-   exponential-residual-derivative exponential-residual-fdf))
 
 (defun nonlinear-least-squares-example
     (&optional (number-of-observations 40)
      (method *levenberg-marquardt*)
      (print-steps t))
-  (let ((*nlls-example-data* (generate-nlls-data number-of-observations))
-	(nlls-callback
-	 #-callback-toplevel-only
-	  (make-fitting-functions
-	   exponential-residual 3 number-of-observations
-	   exponential-residual-derivative exponential-residual-fdf)
-	  #+callback-toplevel-only *fitting-cb*))
-    (setf (number-of-observations nlls-callback) number-of-observations)
+  (let ((*nlls-example-data* (generate-nlls-data number-of-observations)))
     (let* ((init #m(1.0d0 0.0d0 0.0d0))
-	   (number-of-parameters (number-of-parameters nlls-callback))
+	   (number-of-parameters 3)
 	   (covariance
 	    (make-marray 'double-float
 			 :dimensions
 			 (list number-of-parameters number-of-parameters)))
 	   (fit (make-nonlinear-fdffit
 		 method
-		 number-of-observations
-		 number-of-parameters
-		 nlls-callback
+		 (list number-of-observations number-of-parameters)
+		 '(exponential-residual
+		   exponential-residual-derivative exponential-residual-fdf)
 		 init)))
       (macrolet ((fitx (i) `(maref (solution fit) ,i))
 		 (err (i) `(sqrt (maref covariance ,i ,i))))

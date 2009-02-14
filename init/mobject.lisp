@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-10 21:55:30EST mobject.lisp>
+;; Time-stamp: <2009-02-14 11:52:53EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -121,7 +121,9 @@
 		 (apply
 		  'make-cbstruct
 		  (cbstruct-name object)
-		  ,(when dimensionsp '`(dimensions ,@(dimensions object)))
+		  ,(when
+		    dimensionsp
+		    `(mapcan 'list (dimension-names object) (dimensions object)))
 		  (mapcan 'list (callback-labels object) (functions object)))))))
 	,(or initialize-name
 	     (format nil "~a_~a" prefix
