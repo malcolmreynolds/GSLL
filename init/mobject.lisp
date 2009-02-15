@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-14 18:48:19EST mobject.lisp>
+;; Time-stamp: <2009-02-15 09:52:41EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -107,15 +107,6 @@
 		     ,(or freer (format nil "~a_free" prefix))
 		     :pointer mpointer :void)))))
 
-(defun make-cbstruct-object (object)
-  "Make the callback structure based on the mobject definition."
-  (apply
-   'make-cbstruct
-   (cbstruct-name object)
-   (when (dimension-names object)
-     (mapcan 'list (dimension-names object) (dimensions object)))
-   (mapcan 'list (callback-labels object) (functions object))))
-
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
@@ -185,8 +176,10 @@
 		   (symbol-keyword-symbol cl-alloc-args singular)))))
        ;; There is callback slot variable
        ,@(when (member +callback-argument-name+ class-slots-instance)
-	       `((setf (slot-value object '#.+callback-argument-name+)
-		       (make-cbstruct-object object))))
+	       (with-unique-names (cbs)
+		 `((let ((,cbs (make-cbstruct-object object)))
+		     (setf (slot-value object '#.+callback-argument-name+) ,cbs)
+		     (tg:finalize object (lambda () (foreign-free ,cbs)))))))
        ;; There is an initialization step
        ,@(when initializerp
 	       (if initialize-args	; with arguments
