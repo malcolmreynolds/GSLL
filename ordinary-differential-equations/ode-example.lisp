@@ -1,6 +1,6 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
-;; Time-stamp: <2009-02-15 08:39:44EST ode-example.lisp>
+;; Time-stamp: <2009-02-15 09:09:55EST ode-example.lisp>
 ;; $Id$
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
@@ -41,7 +41,7 @@
       (loop
 	 (when (or (>= time max-time) (> iter *max-iter*))
 	   (return (values iter time dep0 dep1)))
-	 make-next-step
+	 (next-step)
 	 (incf iter)
 	 (when print-steps
 	   (format t "~12,6f~10t~12,6f~24t~12,6f~&" time dep0 dep1))))))

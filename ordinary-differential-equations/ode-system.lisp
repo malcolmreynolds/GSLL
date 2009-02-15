@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2009-02-15 08:42:48EST ode-system.lisp>
+;; Time-stamp: <2009-02-15 09:09:55EST ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,8 +36,8 @@
 	    (,step-size (maref ,cstep 0))
 	    ,@(loop for symb in dependent
 		 for i from 0
-		 collect `(,symb (maref ,dep ,i)))
-	    (make-next-step
-	     (apply-evolution
-	      evolve control stepperobj ,ctime ,max-time ,cstep ,dep)))
-	 ,@body))))
+		 collect `(,symb (maref ,dep ,i))))
+	 (flet ((next-step ()
+		  (apply-evolution
+		   evolve ,ctime ,dep ,cstep control stepperobj ,max-time)))
+	   ,@body)))))
