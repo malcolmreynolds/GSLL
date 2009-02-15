@@ -1,6 +1,6 @@
 ;; Numerical differentiation.                
 ;; Liam Healy Mon Nov 12 2007 - 22:07
-;; Time-stamp: <2009-01-24 14:57:26EST numerical-differentiation.lisp>
+;; Time-stamp: <2009-02-15 14:49:44EST numerical-differentiation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -12,7 +12,7 @@
 
 (defmfun central-derivative (function x step)
   "gsl_deriv_central"
-  ((function :pointer) (x :double) (step :double)
+  ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the numerical derivative of the function
@@ -32,7 +32,7 @@
 
 (defmfun forward-derivative (function x step)
   "gsl_deriv_forward"
-  ((function :pointer) (x :double) (step :double)
+  ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the numerical derivative of the function
@@ -54,7 +54,7 @@
 
 (defmfun backward-derivative (function x step)
   "gsl_deriv_backward"
-  ((function :pointer) (x :double) (step :double)
+  ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
   :documentation			; FDL
   "Compute the numerical derivative of the function at the point x
@@ -83,22 +83,29 @@
 (defun deriv-f6 (x) (/ x))
 (defun deriv-f6-d (x) (- (expt x -2)))
 
+(make-callbacks single-function deriv-f1)
+(make-callbacks single-function deriv-f2)
+(make-callbacks single-function deriv-f3)
+(make-callbacks single-function deriv-f4)
+(make-callbacks single-function deriv-f5)
+(make-callbacks single-function deriv-f6)
+
 (save-test numerical-differentiation
- (central-derivative (make-single-function deriv-f1) 1.0d0 1.0d-4)
- (forward-derivative (make-single-function deriv-f1) 1.0d0 1.0d-4)
- (backward-derivative (make-single-function deriv-f1) 1.0d0 1.0d-4)
- (central-derivative (make-single-function deriv-f2) 0.1d0 1.0d-4)
- (forward-derivative (make-single-function deriv-f2) 0.1d0 1.0d-4)
- (backward-derivative (make-single-function deriv-f2) 0.1d0 1.0d-4)
- (central-derivative (make-single-function deriv-f3) 0.45d0 1.0d-4)
- (forward-derivative (make-single-function deriv-f3) 0.45d0 1.0d-4)
- (backward-derivative (make-single-function deriv-f3) 0.45d0 1.0d-4)
- (central-derivative (make-single-function deriv-f4) 0.5d0 1.0d-4)
- (forward-derivative (make-single-function deriv-f4) 0.5d0 1.0d-4)
- (backward-derivative (make-single-function deriv-f4) 0.5d0 1.0d-4)
- (central-derivative (make-single-function deriv-f5) 0.0d0 1.0d-4)
- (forward-derivative (make-single-function deriv-f5) 0.0d0 1.0d-4)
- (backward-derivative (make-single-function deriv-f5) 0.0d0 1.0d-4)
- (central-derivative (make-single-function deriv-f6) 10.0d0 1.0d-4)
- (forward-derivative (make-single-function deriv-f6) 10.0d0 1.0d-4)
- (backward-derivative(make-single-function deriv-f6) 10.0d0 1.0d-4))
+ (central-derivative 'deriv-f1 1.0d0 1.0d-4)
+ (forward-derivative 'deriv-f1 1.0d0 1.0d-4)
+ (backward-derivative 'deriv-f1 1.0d0 1.0d-4)
+ (central-derivative 'deriv-f2 0.1d0 1.0d-4)
+ (forward-derivative 'deriv-f2 0.1d0 1.0d-4)
+ (backward-derivative 'deriv-f2 0.1d0 1.0d-4)
+ (central-derivative 'deriv-f3 0.45d0 1.0d-4)
+ (forward-derivative 'deriv-f3 0.45d0 1.0d-4)
+ (backward-derivative 'deriv-f3 0.45d0 1.0d-4)
+ (central-derivative 'deriv-f4 0.5d0 1.0d-4)
+ (forward-derivative 'deriv-f4 0.5d0 1.0d-4)
+ (backward-derivative 'deriv-f4 0.5d0 1.0d-4)
+ (central-derivative 'deriv-f5 0.0d0 1.0d-4)
+ (forward-derivative 'deriv-f5 0.0d0 1.0d-4)
+ (backward-derivative 'deriv-f5 0.0d0 1.0d-4)
+ (central-derivative 'deriv-f6 10.0d0 1.0d-4)
+ (forward-derivative 'deriv-f6 10.0d0 1.0d-4)
+ (backward-derivative 'deriv-f6 10.0d0 1.0d-4))
