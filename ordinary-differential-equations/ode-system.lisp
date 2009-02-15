@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2009-02-14 19:31:58EST ode-system.lisp>
+;; Time-stamp: <2009-02-15 08:42:48EST ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,9 +24,9 @@
   (let ((dep (make-symbol "DEP"))
 	(ctime (make-symbol "CTIME"))
 	(cstep (make-symbol "CSTEP")))
-    `(let ((stepperobj (make-ode-stepper ,stepper ,dimensions))
+    `(let ((stepperobj (make-ode-stepper ,stepper ,dimensions ',function))
 	   (control (make-y-control ,absolute-error ,relative-error))
-	   (evolve (make-ode-evolution ,dimensions ',function))
+	   (evolve (make-ode-evolution ,dimensions))
 	   (,dep
 	    (make-marray 'double-float :dimensions ,dimensions))
 	   (,ctime (make-marray 'double-float :dimensions 1))

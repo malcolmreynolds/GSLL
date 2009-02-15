@@ -1,12 +1,12 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2009-01-25 10:00:40EST stepping.lisp>
+;; Time-stamp: <2009-02-15 08:36:27EST stepping.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmobject ode-stepper "gsl_odeiv_step"
-  ((type :pointer) (dimensions sizet))
+  ((type :pointer) ((first dimensions) sizet))
   "stepper for ordinary differential equations"
   :documentation
   "Make a stepper for ordinary differential equations.  The type is
@@ -14,8 +14,39 @@
    dimensions is the number of dependent variables.  This instance
    should be reinitialized whenever the next use of it will not be a
    continuation of a previous step."
+  :superclasses (callback-included-cl)
+  :ci-class-slots (ode-system marray (function jacobian) (dimension))
+  :class-slots-instance (#.+callback-argument-name+)
   :initialize-suffix "reset"
-  :initialize-args nil)
+  :initialize-args nil
+  :singular (dimension))
+
+(def-make-callbacks ode-stepper
+    (function jacobian dimension &optional (scalars t))
+  (if scalars
+      `(progn
+	 (defmcallback ,function
+	     :success-failure
+	   (:double (:double ,dimension) (:set :double ,dimension))
+	   nil nil
+	   ,function)
+	 (defmcallback ,jacobian
+	     :success-failure
+	   (:double
+	    (:double ,dimension)
+	    (:set :double ,(expt dimension 2))
+	    (:set :double ,dimension))
+	   nil nil ,jacobian))
+      `(progn
+	 (defmcallback ,function
+	     :success-failure
+	   (:double :pointer :pointer)
+	   nil nil
+	   ,function)
+	 (defmcallback ,jacobian
+	     :success-failure
+	   (:double :pointer :pointer :pointer)
+	   nil nil ,jacobian))))
 
 (defmfun name ((object ode-stepper))
   "gsl_odeiv_step_name"
@@ -34,7 +65,7 @@
   step, which can vary if the stepping function itself is adaptive.")
 
 (defmfun step-apply
-    (stepper time step-size y yerr dydt-in dydt-out dydt)
+    (stepper time step-size y yerr dydt-in dydt-out)
   "gsl_odeiv_step_apply"
   (((mpointer stepper) :pointer)
    (time :double)
@@ -43,19 +74,19 @@
    (yerr :pointer)
    (dydt-in :pointer)
    (dydt-out :pointer)
-   (dydt :pointer))
+   ((callback-struct stepper) :pointer))
   :documentation			; FDL
-  "Apply the stepping function stepper to the system of
-   equations defined by dydt, using the step size step-size to advance
-   the system from time time and state y to time t+h.
-   The new state of the system is stored in y on output, with an
-   estimate of the absolute error in each component stored in yerr
-   If the argument dydt_in is not null it should point an array
-   containing the derivatives for the system at time t on input. This
-   is optional as the derivatives will be computed internally if they are
-   not provided, but allows the reuse of existing derivative information.
-   On output the new derivatives of the system at time t+h will
-   be stored in dydt-out if it is not null.
+  "Apply the stepping function stepper to the system of equations
+   defined by make-ode-stepper, using the step size step-size to
+   advance the system from time time and state y to time t+h.  The new
+   state of the system is stored in y on output, with an estimate of
+   the absolute error in each component stored in yerr If the argument
+   dydt-in is not null it should point an array containing the
+   derivatives for the system at time t on input. This is optional as
+   the derivatives will be computed internally if they are not
+   provided, but allows the reuse of existing derivative information.
+   On output the new derivatives of the system at time t+h will be
+   stored in dydt-out if it is not null.
 
    User-supplied functions defined in the system dydt
    should signal an error or return the correct value.")

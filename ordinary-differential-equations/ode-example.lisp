@@ -1,6 +1,6 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
-;; Time-stamp: <2009-02-14 18:17:29EST ode-example.lisp>
+;; Time-stamp: <2009-02-15 08:39:44EST ode-example.lisp>
 ;; $Id$
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
@@ -26,7 +26,7 @@
 
 (defparameter *max-iter* 2000)
 
-(make-callbacks ode-evolution vanderpol vanderpol-jacobian 2))
+(make-callbacks ode-stepper vanderpol vanderpol-jacobian 2)
 
 (defun integrate-vanderpol
     (max-time &optional (step-size 1.0d-6) (stepper *step-rk8pd*) (print-steps t))
