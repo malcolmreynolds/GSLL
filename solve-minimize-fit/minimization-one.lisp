@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-02-15 10:14:09EST minimization-one.lisp>
+;; Time-stamp: <2009-02-15 11:23:41EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,13 +26,6 @@
   :initialize-args
   ((callback :pointer) (minimum :double) (lower :double) (upper :double))
   :singular (function))
-
-(def-make-callbacks one-dimensional-minimizer (function)
-  `(defmcallback ,function
-       :double :double
-       nil
-       t
-       ,function))
 
 (defmfun set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
@@ -190,7 +183,7 @@
 (defun minimization-one-fn (x)
   (1+ (cos x)))
 
-(make-callbacks one-dimensional-minimizer minimization-one-fn)
+(make-callbacks single-function minimization-one-fn)
 
 (defun minimization-one-example
     (&optional (minimizer-type *brent-fminimizer*) (print-steps t))

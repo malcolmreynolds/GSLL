@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-15 10:43:05EST callback.lisp>
+;; Time-stamp: <2009-02-15 11:23:42EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -359,6 +359,13 @@
 	 (declare (ignore ,cls))
 	 (destructuring-bind ,arglist ,args
 	   ,@body)))))
+
+(def-make-callbacks single-function (function)
+  `(defmcallback ,function
+       :double :double
+       nil
+       t
+       ,function))
 
 (export 'make-callbacks)
 (defmacro make-callbacks (class &rest args)

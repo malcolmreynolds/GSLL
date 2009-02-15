@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-10 21:53:03EST roots-one.lisp>
+;; Time-stamp: <2009-02-15 11:27:34EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -19,13 +19,6 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) (lower :double) (upper :double))
   :singular (function))
-
-(def-make-callbacks one-dimensional-root-solver-f (function)
-  `(defmcallback ,function
-       :double :double
-       nil
-       t
-       ,function))
 
 (defmobject one-dimensional-root-solver-fdf "gsl_root_fdfsolver"
   ((type :pointer))
@@ -309,7 +302,7 @@
     (values (+ (* (+ (* a x) b) x) c)
 	    (+ (* 2 a x) b))))
 
-(make-callbacks one-dimensional-root-solver-f quadratic)
+(make-callbacks single-function quadratic)
 (make-callbacks one-dimensional-root-solver-fdf
 		quadratic quadratic-derivative quadratic-and-derivative)
 
