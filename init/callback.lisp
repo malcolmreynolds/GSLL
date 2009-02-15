@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-15 11:23:42EST callback.lisp>
+;; Time-stamp: <2009-02-15 18:42:55EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -225,15 +225,19 @@
 	      ,name ',structure ',(first slot) ,(second slot)))
        ,name)))
 
+(defun set-cbstruct (cbstruct struct slots-values function-slotnames)
+  "Make the slots in the foreign callback structure."
+  (loop for (slot-name function) on function-slotnames by #'cddr
+     do (set-slot-function cbstruct struct slot-name function))
+  (set-parameters cbstruct struct)
+  (when slots-values
+    (loop for (slot-name value) on slots-values by #'cddr
+       do (set-structure-slot cbstruct struct slot-name value))))
+
 (defun make-cbstruct (struct slots-values &rest function-slotnames)
   "Make the callback structure."
   (let ((cbstruct (cffi:foreign-alloc struct)))
-    (loop for (slot-name function) on function-slotnames by #'cddr
-       do (set-slot-function cbstruct struct slot-name function))
-    (set-parameters cbstruct struct)
-    (when slots-values
-      (loop for (slot-name value) on slots-values by #'cddr
-	 do (set-structure-slot cbstruct struct slot-name value)))
+    (set-cbstruct cbstruct struct slots-values function-slotnames)
     cbstruct))
 
 (defun make-cbstruct-object (object)
@@ -385,3 +389,26 @@
       (princ "," stream))
     (princ "dimensions " stream)
     (princ (dimensions object) stream)))
+
+;;;;****************************************************************************
+;;;; Using callback specification in function arugments
+;;;;****************************************************************************
+
+(defun callback-arg-p (arglist &optional key)
+  (member +callback-argument-name+ arglist :key key))
+
+(defun callback-replace-arg (replacement list)
+  (subst replacement +callback-argument-name+ list))
+
+(defun callback-remove-arg (list &optional key)
+  (remove +callback-argument-name+ list :key key))
+
+(defmacro callback-set-slots
+    (trigger-list struct-name function &optional dimension)
+  "If the callback argument is on trigger-list, then return a form
+    that sets the slots in the GSL callback structure."
+  `(when (callback-arg-p ,trigger-list)
+     `(set-cbstruct ,',+callback-argument-name+ ',',struct-name
+		    ,',(when dimension `('dimension ,dimension))
+		    (list 'function ,',function))))
+

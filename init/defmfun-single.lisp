@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-02-15 14:17:36EST defmfun-single.lisp>
+;; Time-stamp: <2009-02-15 17:41:07EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -100,8 +100,8 @@
 		(cons
 		 'values
 		 (append before after
-			 (when (member +callback-argument-name+
-				       (variables-used-in-c-arguments c-arguments))
+			 (when (callback-arg-p
+				(variables-used-in-c-arguments c-arguments))
 			   '(function))	; hardwired name to use for callback
 			 (let ((auxstart (position '&aux arglist)))
 			   ;; &aux bindings are checked
@@ -168,8 +168,7 @@
 	   (clret (or			; better as a symbol macro
 		   (substitute cret-name :c-return return)
 		   (mapcan #'cl-convert-form
-			   (remove +callback-argument-name+
-				   allocated-decl :key 'st-symbol))
+			   (callback-remove-arg allocated-decl 'st-symbol))
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
@@ -180,12 +179,7 @@
 	   (mapcar #'wfo-declare allocated-decl)
 	   'cffi:with-foreign-objects
 	   `(,@before
-	     ,@(when (member +callback-argument-name+ allocated)
-		     `((set-parameters
-			,+callback-argument-name+ 'gsl-function)
-		       (set-slot-function
-			,+callback-argument-name+
-			'gsl-function 'function function)))
+	     ,(callback-set-slots allocated gsl-function function)
 	     (let ((,cret-name
 		    (cffi:foreign-funcall
 		     ,gsl-name
