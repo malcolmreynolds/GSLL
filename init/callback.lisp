@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-14 19:22:53EST callback.lisp>
+;; Time-stamp: <2009-02-15 10:43:05EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -372,7 +372,9 @@
 
 (defmethod print-object ((object callback-included) stream)
   (print-unreadable-object (object stream :type t :identity t)
-    (princ "for " stream)
-    (princ (first (functions object)) stream)
-    (princ ", dimensions " stream)
+    (when (slot-boundp object 'functions)
+      (princ "for " stream)
+      (princ (first (functions object)) stream)
+      (princ "," stream))
+    (princ "dimensions " stream)
     (princ (dimensions object) stream)))
