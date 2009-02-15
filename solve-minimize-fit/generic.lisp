@@ -1,6 +1,6 @@
 ;; Generic functions for optimization
 ;; Liam Healy 2009-01-03 12:59:07EST generic.lisp
-;; Time-stamp: <2009-02-08 15:15:15EST generic.lisp>
+;; Time-stamp: <2009-02-14 12:25:14EST generic.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -58,42 +58,3 @@
   (df :pointer)
   (fdf :pointer)
   (parameters :pointer))
-
-;;; To be obsolete
-(export 'make-solver-functions)
-(defmacro make-solver-functions (function &optional df fdf dimensions array)
-  "Setup functions for solvers.
-   The CL functions can be specified as a previously-defined defun or
-   as a lambda.  If dimensions is non-nil (positive fixnum), set
-   multiroot solver functions.  If dimensions is a number, the
-   functions should expect dimensions scalar (double-float) arguments.
-   If df and fdf are non-nil, define for derivative solvers."
-  (if df
-      (let ((struct (if dimensions 'gsl-mfunction-fdf 'gsl-function-fdf))
-	    (argtype (if dimensions (if array :pointer `((:double ,dimensions))) :double))
-	    (rettype (if dimensions :success-failure :double))
-	    (vecrettype (if array '(:pointer) `((:set :double ,dimensions))))
-	    (matrettype
-	     (if array '(:pointer) `((:set :double ,dimensions ,dimensions)))))
-	(with-unique-names (solverfn solverdf solverfdf)
-	  `(progn
-	     (defmcallback
-		 ,solverfn ,rettype ,argtype ,(when dimensions vecrettype) ,dimensions
-		 ,function)
-	     (defmcallback
-		 ,solverdf ,rettype ,argtype
-		 ,(when dimensions matrettype)
-		 ,dimensions ,df)
-	     (defmcallback
-		 ,solverfdf
-		 ,(if dimensions :success-failure :void)
-	       ,argtype
-	       ,(if dimensions 
-		    (append vecrettype matrettype)
-		    '((:set :double 1) (:set :double 1)))
-	       ,dimensions ,fdf)
-	     (defcbstruct (,solverfn function ,solverdf df ,solverfdf fdf)
-		 ,struct
-	       ,(when dimensions `((dimensions ,dimensions)))))))
-      `(make-single-function ,function :success-failure :double gsl-mfunction
-			     ,dimensions)))

@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-14 11:50:31EST callback.lisp>
+;; Time-stamp: <2009-02-14 19:22:53EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -226,6 +226,7 @@
        ,name)))
 
 (defun make-cbstruct (struct slots-values &rest function-slotnames)
+  "Make the callback structure."
   (let ((cbstruct (cffi:foreign-alloc struct)))
     (loop for (slot-name function) on function-slotnames by #'cddr
        do (set-slot-function cbstruct struct slot-name function))
@@ -234,6 +235,15 @@
       (loop for (slot-name value) on slots-values by #'cddr
 	 do (set-structure-slot cbstruct struct slot-name value)))
     cbstruct))
+
+(defun make-cbstruct-object (object)
+  "Make the callback structure based on the mobject definition."
+  (apply
+   'make-cbstruct
+   (cbstruct-name object)
+   (when (dimension-names object)
+     (mapcan 'list (dimension-names object) (dimensions object)))
+   (mapcan 'list (callback-labels object) (functions object))))
 
 (defun undef-cbstruct (object)
   "Free foreign callback function.  It is not necessary to do this; think
@@ -309,11 +319,18 @@
   (:documentation
    "A mobject that includes a callback function or functions to GSL."))
 
+(defclass callback-included-cl (callback-included)
+  ((callback :initarg :callback :reader callback-struct))
+  (:documentation
+   "A mobject that includes a callback function or functions, which
+    the pointer to the callback structure is stored in a CL class
+    slot."))
+
 (defmacro def-ci-subclass
-    (class-name documentation
+    (class-name superclasses documentation
      cbstruct-name array-type callback-labels
      &optional (dimension-names '(dimensions)))
-  `(defclass ,class-name (callback-included)
+  `(defclass ,class-name ,superclasses
      ((cbstruct-name :initform ',cbstruct-name :allocation :class)
       (array-type :initform ',array-type :allocation :class)
       (callback-labels :initform ',callback-labels :allocation :class)
@@ -321,9 +338,9 @@
      (:documentation ,documentation)))
 
 (defmacro def-ci-subclass-1d
-    (class-name documentation
+    (class-name superclasses documentation
      cbstruct-name array-type callback-labels)
-  `(defclass ,class-name (callback-included)
+  `(defclass ,class-name ,superclasses
      ((cbstruct-name :initform ',cbstruct-name :allocation :class)
       (array-type :initform ',array-type :allocation :class)
       (callback-labels :initform ',callback-labels :allocation :class)

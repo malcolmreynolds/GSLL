@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-14 11:52:53EST mobject.lisp>
+;; Time-stamp: <2009-02-14 18:48:19EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -26,14 +26,15 @@
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
      (superclasses '(mobject))
-     ci-class-slots singular)
+     class-slots-instance ci-class-slots singular)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   ;; Argument 'initialize-suffix: string appended to prefix to form
   ;; GSL function name or a list of such a string and the c-return
   ;; argument.
   (let* ((settingp (make-symbol "SETTINGP"))
-	 (callbackp (member 'callback-included superclasses))
+	 (callbackp
+	  (member-if (lambda (cl) (subtypep cl 'callback-included)) superclasses))
 	 (arglists
 	  (when arglists-function
 	    (funcall (coerce arglists-function 'function) settingp)))
@@ -51,6 +52,7 @@
 		`(,(if (member 'dimensions cl-alloc-args)
 		       'def-ci-subclass 'def-ci-subclass-1d)
 		   ,class
+		   ,superclasses
 		     ,(format nil "The GSL representation of the ~a." description)
 		   ,@ci-class-slots)
 		`(defclass ,class ,superclasses
@@ -72,12 +74,14 @@
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
-		    callbackp (member 'dimensions cl-alloc-args)))
+		    (and callbackp
+			 (not (member +callback-argument-name+
+				      class-slots-instance)))))
 	   (export ',maker)
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
 	     description documentation initialize-args initializerp settingp
-	     singular))
+	     singular class-slots-instance))
 	`(progn
 	   (export ',maker)
 	   (defun ,maker (&rest args)
@@ -103,10 +107,19 @@
 		     ,(or freer (format nil "~a_free" prefix))
 		     :pointer mpointer :void)))))
 
+(defun make-cbstruct-object (object)
+  "Make the callback structure based on the mobject definition."
+  (apply
+   'make-cbstruct
+   (cbstruct-name object)
+   (when (dimension-names object)
+     (mapcan 'list (dimension-names object) (dimensions object)))
+   (mapcan 'list (callback-labels object) (functions object))))
+
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     callback dimensionsp)
+     callback)
   "Expand the reinitialize-instance form.  In the GSL arglist, the callback
    structure pointer should be named the value of +callback-argument-name+."
   (let ((cbstruct (make-symbol "CBSTRUCT")))
@@ -114,17 +127,8 @@
 	  ((object ,class)
 	   &key
 	   ,@cl-initialize-args
-	   ,@(if
-	      callback
-	      `(&aux
-		(,cbstruct
-		 (apply
-		  'make-cbstruct
-		  (cbstruct-name object)
-		  ,(when
-		    dimensionsp
-		    `(mapcan 'list (dimension-names object) (dimensions object)))
-		  (mapcan 'list (callback-labels object) (functions object)))))))
+	   ,@(when callback
+		   `(&aux (,cbstruct (make-cbstruct-object object)))))
 	,(or initialize-name
 	     (format nil "~a_~a" prefix
 		     (if (listp initialize-suffix)
@@ -152,7 +156,7 @@
 (defun mobject-maker
     (maker arglists initargs class cl-alloc-args cl-initialize-args
      description documentation initialize-args initializerp settingp
-     singular)
+     singular class-slots-instance)
   "Make the defun form that makes the mobject."
   `(defun ,maker
        ,(if arglists
@@ -160,6 +164,7 @@
 	    (singularize
 	     singular
 	     `(,@cl-alloc-args
+	       ,@(subst 'functions +callback-argument-name+ class-slots-instance)
 	       ,@(when initargs
 		       (append
 			(list
@@ -171,26 +176,28 @@
      (let ((object
 	    (make-instance
 	     ',class
+	     ,@(symbol-keyword-symbol
+		(remove +callback-argument-name+ class-slots-instance))
+	     ,@(when (member +callback-argument-name+ class-slots-instance)
+		     (symbol-keyword-symbol 'functions))
 	     ,@(if arglists
 		   (second arglists)
 		   (symbol-keyword-symbol cl-alloc-args singular)))))
+       ;; There is callback slot variable
+       ,@(when (member +callback-argument-name+ class-slots-instance)
+	       `((setf (slot-value object '#.+callback-argument-name+)
+		       (make-cbstruct-object object))))
        ;; There is an initialization step
        ,@(when initializerp
 	       (if initialize-args	; with arguments
-		   (if initargs
-		       `((when ,settingp
-			   (reinitialize-instance
+		   (let ((reii 
+			  `(reinitialize-instance
 			    object
 			    ,@(if arglists
 				  (third arglists)
 				  (symbol-keyword-symbol
 				   cl-initialize-args singular)))))
-		       `((reinitialize-instance
-			  object
-			  ,@(if arglists
-				(third arglists)
-				(symbol-keyword-symbol
-				 cl-initialize-args singular)))))
+		     (if initargs `((when ,settingp ,reii)) `(,reii)))
 		   '((reinitialize-instance object)))) ; without arguments
        object)))
 

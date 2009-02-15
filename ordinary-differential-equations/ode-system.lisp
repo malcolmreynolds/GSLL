@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2009-01-25 19:01:57EST ode-system.lisp>
+;; Time-stamp: <2009-02-14 19:31:58EST ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -13,33 +13,7 @@
   (dimension sizet)
   (parameters :pointer))
 
-(export '(make-ode-functions with-ode-integration))
-
-(defmacro make-ode-functions (name jacobian dimension)
-  "Setup functions for ODE integrators.  The variable name is used as the name of the 
-   The CL functions name and jacobian should be defined previously
-   with defuns.
-   The function and Jacobian arguments are the same: time and
-   dimension dependent variables as scalars.
-   The function returns dimension multiple values corresponding to
-   the derivatives of the dependent variables, f(t).
-   The Jacobian returns dimension^2 values corresponding to the
-   partial derivatives of each of the functions f with respect to each
-   of the dependent variables y, and dimension values corresponding to
-   the derivatives of f with respect to t."
-  ;; set return values
-  ;; Possible future improvements: take/set arrays easily, allow lambdas instead of named functions.
-  (with-unique-names (solverfn solverdf)
-    `(progn
-       (defmcallback
-	   ,solverfn :success-failure
-	 (:double (:double ,dimension) (:set :double ,dimension)) nil nil ,name)
-       (defmcallback
-	   ,solverdf :success-failure
-	 (:double (:double ,dimension) (:set :double ,(expt dimension 2))
-		  (:set :double ,dimension)) nil nil ,jacobian)
-       (defcbstruct (,solverfn function ,solverdf jacobian) ode-system
-	 ((dimension ,dimension))))))
+(export '(with-ode-integration))
 
 (defmacro with-ode-integration
     ((function time step-size max-time
@@ -52,7 +26,7 @@
 	(cstep (make-symbol "CSTEP")))
     `(let ((stepperobj (make-ode-stepper ,stepper ,dimensions))
 	   (control (make-y-control ,absolute-error ,relative-error))
-	   (evolve (make-ode-evolution ,dimensions))
+	   (evolve (make-ode-evolution ,dimensions ',function))
 	   (,dep
 	    (make-marray 'double-float :dimensions ,dimensions))
 	   (,ctime (make-marray 'double-float :dimensions 1))
@@ -65,7 +39,5 @@
 		 collect `(,symb (maref ,dep ,i)))
 	    (make-next-step
 	     (apply-evolution
-	      evolve control stepperobj
-	      ,function ,ctime
-	      ,max-time ,cstep ,dep)))
+	      evolve control stepperobj ,ctime ,max-time ,cstep ,dep)))
 	 ,@body))))

@@ -1,24 +1,55 @@
 ;; Evolution functions for ODE integration.
 ;; Liam Healy, Sun Sep 30 2007 - 14:31
-;; Time-stamp: <2009-01-26 21:25:15EST evolution.lisp>
+;; Time-stamp: <2009-02-14 19:29:21EST evolution.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmobject ode-evolution "gsl_odeiv_evolve"
-  ((dimensions sizet))
+  (((first dimensions) sizet))
   "evolution for ordinary differential equations"
   :documentation
   "Make an object to advance the ODE solution."
+  :superclasses (callback-included-cl)
+  :ci-class-slots (ode-system marray (function jacobian) (dimension))
+  :class-slots-instance (#.+callback-argument-name+)
   :initialize-suffix "reset"
-  :initialize-args nil)
+  :initialize-args nil
+  :singular (dimension))
+
+(def-make-callbacks ode-evolution
+    (function jacobian dimension &optional (scalars t))
+  (if scalars
+      `(progn
+	 (defmcallback ,function
+	     :success-failure
+	   (:double (:double ,dimension) (:set :double ,dimension))
+	   nil nil
+	   ,function)
+	 (defmcallback ,jacobian
+	     :success-failure
+	   (:double
+	    (:double ,dimension)
+	    (:set :double ,(expt dimension 2))
+	    (:set :double ,dimension))
+	   nil nil ,jacobian))
+      `(progn
+	 (defmcallback ,function
+	     :success-failure
+	   (:double :pointer :pointer)
+	   nil nil
+	   ,function)
+	 (defmcallback ,jacobian
+	     :success-failure
+	   (:double :pointer :pointer :pointer)
+	   nil nil ,jacobian))))
 
 (defmfun apply-evolution
-    (evolve control step dydt time max-time step-size y)
+    (evolve control step time max-time step-size y)
   "gsl_odeiv_evolve_apply"
   (((mpointer evolve) :pointer) ((mpointer control) :pointer)
    ((mpointer step) :pointer)
-   (dydt :pointer) ((c-pointer time) :pointer)
+   ((callback-struct evolve) :pointer) ((c-pointer time) :pointer)
    (max-time :double)
    ((c-pointer step-size) :pointer) ((c-pointer y) :pointer))
   :inputs (time step-size y)
