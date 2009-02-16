@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-15 22:56:09EST gsll.asd>
+;; Time-stamp: <2009-02-16 14:36:41EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -99,7 +99,13 @@
 	       (:file "cholesky")
 	       (:file "diagonal")
 	       (:file "householder")))
-     (:file "eigensystems" :depends-on (init data))
+     (:module eigensystems
+	      :depends-on (init data)
+	      :components
+	      ((:file "symmetric-hermitian")
+	       (:file "nonsymmetric")
+	       (:file "generalized")
+	       (:file "nonsymmetric-generalized")))
      ;; Skip fft for now, I'm not sure how it works in C
      (:module random
 	      :depends-on (init data)
