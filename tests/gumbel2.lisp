@@ -12,7 +12,7 @@
                                3.2461983686562204d0 6.640797807286079d0
                                7.285687897019733d0))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
                                  (GUMBEL2 RNG 1.0d0 2.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

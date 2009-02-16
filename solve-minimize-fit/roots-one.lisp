@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-15 11:27:34EST roots-one.lisp>
+;; Time-stamp: <2009-02-16 09:50:33EST roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -177,7 +177,7 @@
 ;;;; Root bracketing algorithms
 ;;;;****************************************************************************
 
-(defmpar *bisection-fsolver* "gsl_root_fsolver_bisection"
+(defmpar +bisection-fsolver+ "gsl_root_fsolver_bisection"
   ;; FDL
   "The bisection algorithm is the simplest method of bracketing the
    roots of a function.   It is the slowest algorithm provided by
@@ -193,7 +193,7 @@
    At any time the current estimate of the root is taken as the midpoint of
    the interval.")
 
-(defmpar *false-position-fsolver* "gsl_root_fsolver_falsepos"
+(defmpar +false-position-fsolver+ "gsl_root_fsolver_falsepos"
   ;; FDL
   "The false position algorithm is a method of finding roots based on
    linear interpolation.  Its convergence is linear, but it is usually
@@ -210,7 +210,7 @@
    The best estimate of the root is taken from the linear interpolation of
    the interval on the current iteration.")
 
-(defmpar *brent-fsolver* "gsl_root_fsolver_brent"
+(defmpar +brent-fsolver+ "gsl_root_fsolver_brent"
   ;; FDL
   "The Brent-Dekker method (referred to here as Brent's method)
    combines an interpolation strategy with the bisection algorithm.  This
@@ -234,7 +234,7 @@
 ;;;; Root finding algorithms using derivatives
 ;;;;****************************************************************************
 
-(defmpar *newton-fdfsolver* "gsl_root_fdfsolver_newton"
+(defmpar +newton-fdfsolver+ "gsl_root_fdfsolver_newton"
   ;; FDL
   "Newton's Method is the standard root-polishing algorithm.  The algorithm
    begins with an initial guess for the location of the root.  On each
@@ -245,7 +245,7 @@
    Newton's method converges quadratically for single roots, and linearly
    for multiple roots.")
 
-(defmpar *secant-fdfsolver* "gsl_root_fdfsolver_secant"
+(defmpar +secant-fdfsolver+ "gsl_root_fdfsolver_secant"
   ;; FDL
   "The secant method is a simplified version of Newton's method which does
    not require the computation of the derivative on every step.
@@ -270,7 +270,7 @@
    5)/2 (approximately 1.62).  It converges linearly for multiple
    roots.")
 
-(defmpar *steffenson-fdfsolver* "gsl_root_fdfsolver_steffenson"
+(defmpar +steffenson-fdfsolver+ "gsl_root_fdfsolver_steffenson"
   ;; FDL
   "The Steffenson method provides the fastest convergence of all the
    routines.  It combines the basic Newton algorithm with an Aitken
@@ -307,7 +307,7 @@
 		quadratic quadratic-derivative quadratic-and-derivative)
 
 (defun roots-one-example-no-derivative
-    (&optional (method *brent-fsolver*) (print-steps t))
+    (&optional (method +brent-fsolver+) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let ((max-iter 50)
 	(solver
@@ -330,7 +330,7 @@
        finally (return root))))
 
 (defun roots-one-example-derivative
-    (&optional (method *newton-fdfsolver*) (print-steps t))
+    (&optional (method +newton-fdfsolver+) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
   (let* ((max-iter 100)
 	 (initial 5.0d0)
@@ -354,9 +354,9 @@
 ;; To see step-by-step information as the solution progresses, make
 ;; the last argument T.
 (save-test roots-one
- (roots-one-example-no-derivative *bisection-fsolver* nil)
- (roots-one-example-no-derivative *false-position-fsolver* nil)
- (roots-one-example-no-derivative *brent-fsolver* nil)
- (roots-one-example-derivative *newton-fdfsolver* nil)
- (roots-one-example-derivative *secant-fdfsolver* nil)
- (roots-one-example-derivative *steffenson-fdfsolver* nil))
+ (roots-one-example-no-derivative +bisection-fsolver+ nil)
+ (roots-one-example-no-derivative +false-position-fsolver+ nil)
+ (roots-one-example-no-derivative +brent-fsolver+ nil)
+ (roots-one-example-derivative +newton-fdfsolver+ nil)
+ (roots-one-example-derivative +secant-fdfsolver+ nil)
+ (roots-one-example-derivative +steffenson-fdfsolver+ nil))

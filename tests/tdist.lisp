@@ -12,7 +12,7 @@
                                -0.6534666117199732d0 0.2035771324523077d0
                                1.77650300477611d0))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
                                  (TDIST RNG 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

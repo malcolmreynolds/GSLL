@@ -12,7 +12,7 @@
                                -0.14857899041035147d0 -1.9074885744364487d0
                                -2.086195213997167d0))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
                                  (LEVY RNG 1.0d0 2.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -24,7 +24,7 @@
                                -0.14857899041035158d0 -1.907488574436449d0
                                -2.086195213997167d0))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
                                  (LEVY-SKEW RNG 1.0d0 2.0d0 1.0d0))))))
 

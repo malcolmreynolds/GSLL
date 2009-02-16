@@ -1,6 +1,6 @@
 ;; Chi-squared distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2008-12-26 19:47:17EST chi-squared.lisp>
+;; Time-stamp: <2009-02-16 10:10:33EST chi-squared.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,7 +56,7 @@
 
 ;;; Examples and unit test
 (save-test chi-squared
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
 	    (chi-squared rng 10.0d0)))

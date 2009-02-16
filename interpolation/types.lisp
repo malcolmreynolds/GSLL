@@ -1,16 +1,16 @@
 ;; Interpolation types
 ;; Liam Healy, Sun Nov  4 2007 - 17:41
-;; Time-stamp: <2009-01-28 21:02:31EST types.lisp>
+;; Time-stamp: <2009-02-16 09:46:04EST types.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmpar *linear-interpolation* "gsl_interp_linear"
+(defmpar +linear-interpolation+ "gsl_interp_linear"
   ;; FDL
   "Linear interpolation.  This interpolation method does not require any
    additional memory.")
 
-(defmpar *polynomial-interpolation* "gsl_interp_polynomial"
+(defmpar +polynomial-interpolation+ "gsl_interp_polynomial"
   ;; FDL
   "Polynomial interpolation.  This method should only be used for
    interpolating small numbers of points because polynomial interpolation
@@ -18,14 +18,14 @@
    number of terms in the interpolating polynomial is equal to the number
    of points.")
 
-(defmpar *cubic-spline-interpolation* "gsl_interp_cspline"
+(defmpar +cubic-spline-interpolation+ "gsl_interp_cspline"
   ;; FDL
   "Cubic spline with natural boundary conditions.  The resulting curve is
    piecewise cubic on each interval, with matching first and second
    derivatives at the supplied data-points.  The second derivative is
    chosen to be zero at the first point and last point.")
 
-(defmpar *periodic-cubic-spline-interpolation* "gsl_interp_cspline_periodic"
+(defmpar +periodic-cubic-spline-interpolation+ "gsl_interp_cspline_periodic"
   ;; FDL
   "Cubic spline with periodic boundary conditions.  The resulting curve
    is piecewise cubic on each interval, with matching first and second
@@ -35,12 +35,12 @@
    resulting periodic interpolation will have a discontinuity at the
    boundary.")
 
-(defmpar *akima-interpolation* "gsl_interp_akima"
+(defmpar +akima-interpolation+ "gsl_interp_akima"
   ;; FDL
   "Non-rounded Akima spline with natural boundary conditions.  This method
    uses the non-rounded corner algorithm of Wodicka.")
 
-(defmpar *periodic-akima-interpolation* "gsl_interp_akima_periodic"
+(defmpar +periodic-akima-interpolation+ "gsl_interp_akima_periodic"
   ;; FDL
   "Non-rounded Akima spline with periodic boundary conditions.  This method
    uses the non-rounded corner algorithm of Wodicka.")

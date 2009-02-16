@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-02-14 12:22:00EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-02-16 10:16:06EST nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -228,7 +228,7 @@
 ;;;; Minimization using derivatives
 ;;;;****************************************************************************
 
-(defmpar *levenberg-marquardt* "gsl_multifit_fdfsolver_lmsder"
+(defmpar +levenberg-marquardt+ "gsl_multifit_fdfsolver_lmsder"
   ;; FDL
   "A robust and efficient version of the Levenberg-Marquardt
    algorithm as implemented in the scaled lmder routine in
@@ -271,7 +271,7 @@
    These errors indicate that further iterations would be unlikely to
    change the solution from its current value.")
 
-(defmpar *levenberg-marquardt-unscaled* "gsl_multifit_fdfsolver_lmder"
+(defmpar +levenberg-marquardt-unscaled+ "gsl_multifit_fdfsolver_lmder"
   ;; FDL
   "The unscaled version of *levenberg-marquardt*.  The elements of the
    diagonal scaling matrix D are set to 1.  This algorithm may be
@@ -334,7 +334,7 @@
    :n number-of-observations
    :y
    (let ((arr (make-marray 'double-float :dimensions number-of-observations))
-	 (rng (make-random-number-generator *mt19937* 0)))
+	 (rng (make-random-number-generator +mt19937+ 0)))
      (dotimes (i number-of-observations arr)
        (setf (maref arr i)
 	     (+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0)))))
@@ -390,7 +390,7 @@
 
 (defun nonlinear-least-squares-example
     (&optional (number-of-observations 40)
-     (method *levenberg-marquardt*)
+     (method +levenberg-marquardt+)
      (print-steps t))
   (let ((*nlls-example-data* (generate-nlls-data number-of-observations)))
     (let* ((init #m(1.0d0 0.0d0 0.0d0))
@@ -434,4 +434,4 @@
 	     (return (list (fitx 0) (fitx 1) (fitx 2)))))))))
 
 (save-test nonlinear-least-squares
-	   (nonlinear-least-squares-example 40 *levenberg-marquardt* nil))
+	   (nonlinear-least-squares-example 40 +levenberg-marquardt+ nil))

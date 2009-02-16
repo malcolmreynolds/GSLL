@@ -1,6 +1,6 @@
 ;; Spherical Vector distribution
 ;; Liam Healy, Sun Oct  22 2006
-;; Time-stamp: <2008-12-26 19:50:50EST spherical-vector.lisp>
+;; Time-stamp: <2009-02-16 10:10:32EST spherical-vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -59,15 +59,15 @@
 
 ;;; Examples and unit test
 (save-test spherical-vector
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 4
 	    append
 	    (multiple-value-list (direction-2d rng))))
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 4
 	    append
 	    (multiple-value-list (direction-2d-trig-method rng))))
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 2
 	    append
 	    (multiple-value-list (direction-3d rng)))))

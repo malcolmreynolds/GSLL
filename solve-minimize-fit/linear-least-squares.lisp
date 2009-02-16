@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2009-01-25 10:08:22EST linear-least-squares.lisp>
+;; Time-stamp: <2009-02-16 10:16:05EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -327,7 +327,7 @@
 (defun mv-linear-least-squares-data ()
   "Generate data for second example in Section 36.5 of the GSL
    manual."
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
     (loop for x from 1/10 below 2 by 1/10
 	  for xd = (coerce x 'double-float)
 	  for y0 = (exp xd)

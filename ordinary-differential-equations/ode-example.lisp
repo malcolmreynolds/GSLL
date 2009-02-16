@@ -1,6 +1,6 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
-;; Time-stamp: <2009-02-15 09:09:55EST ode-example.lisp>
+;; Time-stamp: <2009-02-16 10:18:29EST ode-example.lisp>
 ;; $Id$
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
@@ -29,7 +29,7 @@
 (make-callbacks ode-stepper vanderpol vanderpol-jacobian 2)
 
 (defun integrate-vanderpol
-    (max-time &optional (step-size 1.0d-6) (stepper *step-rk8pd*) (print-steps t))
+    (max-time &optional (step-size 1.0d-6) (stepper +step-rk8pd+) (print-steps t))
   "Integrate the van der Pol oscillator as given in Section 25.5 of the
    GSL manual.  To reproduce that example, (integrate-vanderpol 100.0d0)."
   (let ((mu 10.0d0) (initial-time 0.0d0) (iter 0))
@@ -48,14 +48,14 @@
 
 (save-test
  ode
- (integrate-vanderpol 1.0d0 1.d-4 *step-rk2* nil)
- (integrate-vanderpol 1.0d0 1.d-4 *step-rk4* nil)
- (integrate-vanderpol 1.0d0 1.d-4 *step-rkf45* nil)
- (integrate-vanderpol 1.0d0 1.d-4 *step-rkck* nil)
- (integrate-vanderpol 1.0d0 1.d-4 *step-rk8pd* nil)
- (integrate-vanderpol 1.0d0 1.d-4 *step-rk2imp* nil)
- (integrate-vanderpol 1.0d0 1.d-4 *step-rk4imp* nil)
- (integrate-vanderpol 1.0d0 1.d-4 *step-bsimp* nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-rk2+ nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-rk4+ nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-rkf45+ nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-rkck+ nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-rk8pd+ nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-rk2imp+ nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-rk4imp+ nil)
+ (integrate-vanderpol 1.0d0 1.d-4 +step-bsimp+ nil)
  (let ((*max-iter* 12000))
-   (integrate-vanderpol 1.0d0 1.d-4 *step-gear1* nil))
- (integrate-vanderpol 1.0d0 1.d-4 *step-gear2* nil))
+   (integrate-vanderpol 1.0d0 1.d-4 +step-gear1+ nil))
+ (integrate-vanderpol 1.0d0 1.d-4 +step-gear2+ nil))

@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-02-15 22:07:40EST monte-carlo.lisp>
+;; Time-stamp: <2009-02-16 10:16:43EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -247,21 +247,21 @@
   (let ((ws (make-monte-carlo-plain 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	(rng (make-random-number-generator *mt19937* 0)))
+	(rng (make-random-number-generator +mt19937+ 0)))
     (monte-carlo-integrate-plain 'mcrw lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-miser 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	(rng (make-random-number-generator *mt19937* 0)))
+	(rng (make-random-number-generator +mt19937+ 0)))
     (monte-carlo-integrate-miser 'mcrw lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-vegas 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	(rng (make-random-number-generator *mt19937* 0)))
+	(rng (make-random-number-generator +mt19937+ 0)))
     (monte-carlo-integrate-vegas 'mcrw lower upper nsamples rng ws)))
 
 (save-test monte-carlo

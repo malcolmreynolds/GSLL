@@ -1,6 +1,6 @@
 ;; Random number generation
 ;; Liam Healy, Tue Jul 11 2006 - 23:39
-;; Time-stamp: <2008-08-16 18:30:49EDT rng-types.lisp>
+;; Time-stamp: <2009-02-16 10:24:11EST rng-types.lisp>
 ;; $Id$
 
 ;;; Random number generator types and information functions.
@@ -42,13 +42,13 @@
   "Define the random number generator type."
   (let ((cname
 	 (or gsl-name
-	     (remove #\*
+	     (remove #\+
 		     (substitute
 		      #\_ #\- 
 		      (format nil "gsl_rng_~(~a~)" lisp-name))))))
     `(defmpar ,lisp-name ,cname ,documentation)))
 
-(def-rng-type *default-type*
+(def-rng-type +default-type+
     "The default random number generator type,
      set by environment variables GSL_RNG_TYPE and GSL_RNG_SEED"
   "gsl_rng_default")
@@ -65,7 +65,7 @@
 ;;;; Modern random number generators
 ;;;;****************************************************************************
 
-(def-rng-type *cmrg*			; FDL
+(def-rng-type +cmrg+			; FDL
     "Combined multiple recursive random number generator
      This is a combined multiple recursive generator by L'Ecuyer. 
      Its sequence is z_n = (x_n - y_n) mod m_1
@@ -82,7 +82,7 @@
      P. L'Ecuyer, ``Combined Multiple Recursive Random Number
      Generators'', Operations Research, 44, 5 (1996), 816--822.")
 
-(def-rng-type *gfsr4*			; FDL
+(def-rng-type +gfsr4+			; FDL
     "Four-tap Generalized Feedback Shift Register
     The *gfsr4* generator is like a lagged-Fibonacci generator, and 
     produces each number as an xor'd sum of four previous values.
@@ -119,7 +119,7 @@
     generators'', Computers in Physics, 12(4), Jul/Aug
     1998, pp 385--392.")
 
-(def-rng-type *mrg*			; FDL
+(def-rng-type +mrg+			; FDL
     "Multiple recursive random number generator
    This is a fifth-order multiple recursive generator by L'Ecuyer, Blouin
    and Coutre.  Its sequence is
@@ -132,7 +132,7 @@
     recursive random number generators'', ACM Transactions on Modeling and
     Computer Simulation 3, 87--98 (1993).")
 
-(def-rng-type *mt19937*			; FDL
+(def-rng-type +mt19937+			; FDL
     "The MT19937 generator of Makoto Matsumoto and Takuji Nishimura is a
     variant of the twisted generalized feedback shift-register algorithm,
     and is known as the ``Mersenne Twister'' generator.  It has a Mersenne
@@ -151,21 +151,21 @@
     original seeding procedures could cause spurious artifacts for some seed
     values. They are still available through the alternative generators")
 									 
-(def-rng-type *mt19937_1999*		; FDL
+(def-rng-type +mt19937-1999+		; FDL
     "Previous version of mt19937.")
 
-(def-rng-type *mt19937_1998*		; FDL
+(def-rng-type +mt19937-1998+		; FDL
     "Previous version of mt19937.")
 
-(def-rng-type *ran0*)
+(def-rng-type +ran0+)
 
-(def-rng-type *ran1*)
+(def-rng-type +ran1+)
 
-(def-rng-type *ran2*)
+(def-rng-type +ran2+)
 
-(def-rng-type *ran3*)
+(def-rng-type +ran3+)
 
-(def-rng-type *ranlux*			; FDL
+(def-rng-type +ranlux+			; FDL
     "The ranlux generator is an implementation of the original
     algorithm developed by Lüscher.  It uses a
     lagged-fibonacci-with-skipping algorithm to produce ``luxury random
@@ -189,9 +189,9 @@
     pseudo-random number generator of Lüscher'', Computer Physics
     Communications, 79 (1994) 111--114.")
 
-(def-rng-type *ranlux389*)
+(def-rng-type +ranlux389+)
 
-(def-rng-type *ranlxs0*
+(def-rng-type +ranlxs0+
     "This generator is a second-generation version of the
     *ranlux* algorithm of Lüscher, which produces ``luxury random
     numbers''.  This generator provides single precision output (24 bits) at
@@ -204,21 +204,21 @@
     The higher luxury levels provide increased decorrelation between samples
     as an additional safety margin.")
 
-(def-rng-type *ranlxs1*)
+(def-rng-type +ranlxs1+)
 
-(def-rng-type *ranlxs2*)
+(def-rng-type +ranlxs2+)
 
-(def-rng-type *ranlxd1*			; FDL
+(def-rng-type +ranlxd1+			; FDL
     "Produce double precision output (48 bits) from the
     *ranlxs* generator.  The library provides two luxury levels,
     *ranlxd1* and *ranlxd2*.")
 
-(def-rng-type *ranlxd2*			; FDL
+(def-rng-type +ranlxd2+			; FDL
     "Produce double precision output (48 bits) from the
     *ranlxs* generator.  The library provides two luxury levels,
     *ranlxd1* and *ranlxd2*.")
 
-(def-rng-type *taus*			; FDL
+(def-rng-type +taus+			; FDL
     "Tausworthe random number generator
      This is a maximally equidistributed combined Tausworthe generator by
      L'Ecuyer.  The sequence is x_n = (s^1_n \oplus s^2_n \oplus s^3_n) 
@@ -235,20 +235,20 @@
      P. L'Ecuyer, ``Maximally Equidistributed Combined Tausworthe
      Generators'', Mathematics of Computation, 65, 213 (1996), 203--213.")
 
-(def-rng-type *taus2*			; FDL
+(def-rng-type +taus2+			; FDL
     "The same algorithm as *taus* but with an improved seeding procedure
      described in the paper,
      P. L'Ecuyer, ``Tables of Maximally Equidistributed Combined LFSR
      Generators'', Mathematics of Computation, 68, 225 (1999), 261--269
      The generator *taus2* should now be used in preference to *taus*.")
 
-(def-rng-type *taus113*)
+(def-rng-type +taus113+)
 
 ;;;;****************************************************************************
 ;;;; UNIX random number generators
 ;;;;****************************************************************************
 
-(def-rng-type *rand*			; FDL
+(def-rng-type +rand+			; FDL
     "The BSD rand() generator.  Its sequence is
    x_{n+1} = (a x_n + c) mod m with a = 1103515245, 
    c = 12345 and m = 2^31.
@@ -256,7 +256,7 @@
    The period of this generator is 2^31, and it uses
    1 word of storage per generator.")
 
-(def-rng-type *rand48*			; FDL
+(def-rng-type +rand48+			; FDL
     "The Unix rand48 generator.  Its sequence is
      x_{n+1} = (a x_n + c) mod m
      defined on 48-bit unsigned integers with 
@@ -273,24 +273,24 @@
      contained a bug in mrand48 function which caused it to produce
      different results (only the lower 16-bits of the return value were set).")
 
-(def-rng-type *random128_bsd*)
-(def-rng-type *random128_glibc2*)
-(def-rng-type *random128_libc5*)
-(def-rng-type *random256_bsd*)
-(def-rng-type *random256_glibc2*)
-(def-rng-type *random256_libc5*)
-(def-rng-type *random32_bsd*)
-(def-rng-type *random32_glibc2*)
-(def-rng-type *random32_libc5*)
-(def-rng-type *random64_bsd*)
-(def-rng-type *random64_glibc2*)
-(def-rng-type *random64_libc5*)
-(def-rng-type *random8_bsd*)
-(def-rng-type *random8_glibc2*)
-(def-rng-type *random8_libc5*)
-(def-rng-type *random_bsd*)
-(def-rng-type *random_glibc2*)
-(def-rng-type *random_libc5*)
+(def-rng-type +random128_bsd+)
+(def-rng-type +random128_glibc2+)
+(def-rng-type +random128_libc5+)
+(def-rng-type +random256_bsd+)
+(def-rng-type +random256_glibc2+)
+(def-rng-type +random256_libc5+)
+(def-rng-type +random32_bsd+)
+(def-rng-type +random32_glibc2+)
+(def-rng-type +random32_libc5+)
+(def-rng-type +random64_bsd+)
+(def-rng-type +random64_glibc2+)
+(def-rng-type +random64_libc5+)
+(def-rng-type +random8_bsd+)
+(def-rng-type +random8_glibc2+)
+(def-rng-type +random8_libc5+)
+(def-rng-type +random_bsd+)
+(def-rng-type +random_glibc2+)
+(def-rng-type +random_libc5+)
 
 ;;;;****************************************************************************
 ;;;; Obsolete random number generators
@@ -316,13 +316,13 @@
 ;;; produce a random bitstream it is best to avoid using the least
 ;;; significant bits.
 
-(def-rng-type *ranf*			; FDL
+(def-rng-type +ranf+			; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *ranmar*			; FDL
+(def-rng-type +ranmar+			; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *r250*			; FDL
+(def-rng-type +r250+			; FDL
     "Obsolete, use only for compatibility.
      The shift-register generator of Kirkpatrick and Stoll.  The
      sequence is based on the recurrence
@@ -335,7 +335,7 @@
      number generator'', Journal of Computational Physics}, 40, 517--526
      (1981)")
 
-(def-rng-type *tt800*			; FDL
+(def-rng-type +tt800+			; FDL
     "Obsolete, use only for compatibility.
      An earlier version of the twisted generalized feedback
      shift-register generator, and has been superseded by the development of
@@ -352,16 +352,16 @@
 ;;; them.  These generators should not be used for real simulations since
 ;;; they have poor statistical properties by modern standards.
 
-(def-rng-type *vax*			; FDL
+(def-rng-type +vax+			; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *transputer*		; FDL
+(def-rng-type +transputer+		; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *randu*			; FDL
+(def-rng-type +randu+			; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *minstd*			;FDL
+(def-rng-type +minstd+			;FDL
     "Obsolete, use only for compatibility.
     Park and Miller's ``minimal standard'' minstd generator, a
     simple linear congruence which takes care to avoid the major pitfalls of
@@ -377,16 +377,16 @@
     Communications of the ACM, October 1988, Volume 31, No 10, pages
     1192--1201.")
 
-(def-rng-type *uni*			; FDL
+(def-rng-type +uni+			; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *uni32*			; FDL
+(def-rng-type +uni32+			; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *slatec* 			; FDL
+(def-rng-type +slatec+ 			; FDL
     "Obsolete, use only for compatibility.")
 
-(def-rng-type *zuf*			; FDL
+(def-rng-type +zuf+			; FDL
     "Obsolete, use only for compatibility.
     The ZUFALL lagged Fibonacci series generator of Peterson.  Its
     sequence is
@@ -397,7 +397,7 @@
     W. Petersen, ``Lagged Fibonacci Random Number Generators for the NEC
     SX-3'', International Journal of High Speed Computing (1994).")
 
-(def-rng-type *borosh13*		; FDL
+(def-rng-type +borosh13+		; FDL
     "Obsolete, use only for compatibility.
     The Borosh-Niederreiter random number generator. It is taken
     from Knuth's Seminumerical Algorithms, 3rd Ed., pages
@@ -405,14 +405,14 @@
     with a = 1812433253 and m = 2^32.
     The seed specifies the initial value, x_1.")
 
-(def-rng-type *coveyou*			; FDL
+(def-rng-type +coveyou+			; FDL
     "Obsolete, use only for compatibility.
      The Coveyou random number generator, taken from Knuth's
      Seminumerical Algorithms, 3rd Ed., Section 3.2.2. Its sequence
      is x_{n+1} = (x_n (x_n + 1)) mod m with m = 2^32.
      The seed specifies the initial value, x_1.")
 
-(def-rng-type *fishman18*		; FDL
+(def-rng-type +fishman18+		; FDL
     "Obsolete, use only for compatibility.
      The Fishman, Moore III random number generator. It is taken from
      Knuth's Seminumerical Algorithms, 3rd Ed., pages 106--108. Its
@@ -420,7 +420,7 @@
      m = 2^31 - 1.  The seed specifies the initial value, 
      x_1.")
 
-(def-rng-type *fishman20*		; FDL
+(def-rng-type +fishman20+		; FDL
     "Obsolete, use only for compatibility.
      The Fishman random number generator. It is taken from Knuth's
      Seminumerical Algorithms, 3rd Ed., page 108. Its sequence is
@@ -428,7 +428,7 @@
      m = 2^31 - 1.  The seed specifies the initial value, 
      x_1.")
 
-(def-rng-type *fishman2x*		; FDL
+(def-rng-type +fishman2x+		; FDL
     "Obsolete, use only for compatibility.
      The L'Ecuyer--Fishman random number generator. It is taken from
      Knuth's Seminumerical Algorithms, 3rd Ed., page 108.
@@ -437,13 +437,13 @@
      x_n and y_n are given by the fishman20 and lecuyer21 algorithms.
      The seed specifies the initial value, x_1.")
 
-(def-rng-type *knuthran*		; FDL
+(def-rng-type +knuthran+		; FDL
     "Obsolete, use only for compatibility.
     A second-order multiple recursive generator described by Knuth
     in Seminumerical Algorithms, 3rd Ed., Section 3.6.  Knuth
     provides its C code.")
 
-(def-rng-type *knuthran2*		; FDL
+(def-rng-type +knuthran2+		; FDL
     "Obsolete, use only for compatibility.
      A second-order multiple recursive generator described by Knuth
      in Seminumerical Algorithms, 3rd Ed., page 108.  Its sequence is
@@ -451,7 +451,7 @@
      with a_1 = 271828183, a_2 = 314159269, and 
      m = 2^31 - 1.")
 
-(def-rng-type *lecuyer21*		; FDL
+(def-rng-type +lecuyer21+		; FDL
     "Obsolete, use only for compatibility.
      The L'Ecuyer random number generator, taken from Knuth's
      Seminumerical Algorithms, 3rd Ed., page 106--108.
@@ -459,7 +459,7 @@
      with a = 40692 and m = 2^31 - 249.
      The seed specifies the initial value, x_1.")
 
-(def-rng-type *waterman14*		; FDL
+(def-rng-type +waterman14+		; FDL
     "Obsolete, use only for compatibility.
      The Waterman random number generator. It is taken from Knuth's
      Seminumerical Algorithms, 3rd Ed., page 106--108.

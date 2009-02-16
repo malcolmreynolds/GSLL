@@ -1,6 +1,6 @@
 ;; Gaussian tail distribution
 ;; Liam Healy, Mon Aug 21 2006 - 21:52
-;; Time-stamp: <2008-12-26 19:41:56EST gaussian-tail.lisp>
+;; Time-stamp: <2009-02-16 10:08:12EST gaussian-tail.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,12 +48,12 @@
 ;;; Examples and unit test
 (save-test
  gaussian-tail
- (let ((rng (make-random-number-generator *mt19937* 0)))
+ (let ((rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
 	 collect
 	 (gaussian-tail rng 50.0d0 10.0d0)))
  (gaussian-tail-pdf 52.0d0 50.0d0 10.0d0)
- (let ((rng (make-random-number-generator *mt19937* 0)))
+ (let ((rng (make-random-number-generator +mt19937+ 0)))
      (loop for i from 0 to 10
 	   collect
 	   (ugaussian-tail rng 5.0d0)))

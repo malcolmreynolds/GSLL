@@ -1,6 +1,6 @@
 ;; Lognormal distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-27 10:49:01EST lognormal.lisp>
+;; Time-stamp: <2009-02-16 10:08:15EST lognormal.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,7 +56,7 @@
 
 ;;; Examples and unit test
 (save-test lognormal
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
 	    (lognormal rng 1.0d0 2.0d0)))

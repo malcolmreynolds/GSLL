@@ -8,7 +8,7 @@
                          #(0.12448073544131681d0 0.19182353706734917d0
                            0.46054388544826397d0 0.22315184204307006d0))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0))
                                (ALPHA
                                 (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
                                              '(1.0d0 2.0d0 3.0d0 4.0d0)))

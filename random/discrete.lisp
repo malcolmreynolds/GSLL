@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2009-01-25 11:17:05EST discrete.lisp>
+;; Time-stamp: <2009-02-16 10:08:14EST discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -43,7 +43,7 @@
 (save-test discrete
  (let* ((probabilities #m(0.25d0 0.5d0 0.25d0))
 	(table (make-discrete-random probabilities))
-	(rng (make-random-number-generator *mt19937* 0)))
+	(rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
       collect
       (discrete rng table)))

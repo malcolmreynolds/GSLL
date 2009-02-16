@@ -7,7 +7,7 @@
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((RNG
                                                                   (MAKE-RANDOM-NUMBER-GENERATOR
-                                                                   *MT19937*
+                                                                   +MT19937+
                                                                    0))
                                                                  (P
                                                                   (MAKE-MARRAY

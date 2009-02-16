@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-02-10 21:51:38EST minimization-multi.lisp>
+;; Time-stamp: <2009-02-16 09:54:29EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -230,7 +230,7 @@
 ;;;; Algorithms
 ;;;;****************************************************************************
 
-(defmpar *conjugate-fletcher-reeves*
+(defmpar +conjugate-fletcher-reeves+
     "gsl_multimin_fdfminimizer_conjugate_fr"
   ;; FDL
   "The Fletcher-Reeves conjugate gradient algorithm. The conjugate
@@ -248,7 +248,7 @@
    and the line minimization is then repeated for the new search
    direction.")
 
-(defmpar *conjugate-polak-ribiere*
+(defmpar +conjugate-polak-ribiere+
     "gsl_multimin_fdfminimizer_conjugate_pr"
   ;; FDL
   "The Polak-Ribiere conjugate gradient algorithm.  It is similar to
@@ -257,7 +257,7 @@
    close enough to the minimum of the objective function that it is well
    approximated by a quadratic hypersurface.")
 
-(defmpar *vector-bfgs*
+(defmpar +vector-bfgs+
     "gsl_multimin_fdfminimizer_vector_bfgs"
   ;; FDL
   "The vector Broyden-Fletcher-Goldfarb-Shanno (BFGS) conjugate
@@ -268,7 +268,7 @@
    steps towards the function minimum, assuming quadratic behavior in
    that region.")
 
-(defmpar *simplex-nelder-mead*
+(defmpar +simplex-nelder-mead+
     "gsl_multimin_fminimizer_nmsimplex"
   ;; FDL
   "The Simplex algorithm of Nelder and Mead. It constructs 
@@ -319,7 +319,7 @@
 (make-callbacks multi-dimensional-minimizer-f parabaloid-scalar 2 t)
 
 (defun multimin-example-no-derivative
-    (&optional (method *simplex-nelder-mead*) (print-steps t))
+    (&optional (method +simplex-nelder-mead+) (print-steps t))
   (let ((step-size (make-marray 'double-float :dimensions 2)))
     (set-all step-size 1.0d0)
     (let ((minimizer
@@ -384,7 +384,7 @@
  parabaloid-vector parabaloid-derivative parabaloid-and-derivative 2 nil)
 
 (defun multimin-example-derivative
-    (&optional (method *conjugate-fletcher-reeves*) (print-steps t))
+    (&optional (method +conjugate-fletcher-reeves+) (print-steps t))
   (let* ((initial #m(5.0d0 7.0d0))
 	 (minimizer
 	  (make-multi-dimensional-minimizer-fdf
@@ -411,7 +411,7 @@
 	   (values (maref x 0) (maref x 1) (function-value minimizer)))))))
 
 (save-test minimization-multi
- (multimin-example-no-derivative *simplex-nelder-mead* nil)
- (multimin-example-derivative *conjugate-fletcher-reeves* nil)
- (multimin-example-derivative *conjugate-polak-ribiere* nil)
- (multimin-example-derivative *vector-bfgs* nil))
+ (multimin-example-no-derivative +simplex-nelder-mead+ nil)
+ (multimin-example-derivative +conjugate-fletcher-reeves+ nil)
+ (multimin-example-derivative +conjugate-polak-ribiere+ nil)
+ (multimin-example-derivative +vector-bfgs+ nil))

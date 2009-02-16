@@ -1,6 +1,6 @@
 ;; Example spline
 ;; Liam Healy, Sat Nov 10 2007 - 21:18
-;; Time-stamp: <2009-01-28 19:05:32EST spline-example.lisp>
+;; Time-stamp: <2009-02-16 09:46:57EST spline-example.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,7 +20,7 @@
 	   :initial-contents
 	   (loop for i from 0.0d0 below 10.0d0
 	      collect (+ i (cos (expt i 2))))))
-	 (spline (make-spline *cubic-spline-interpolation* xarr yarr)))
+	 (spline (make-spline +cubic-spline-interpolation+ xarr yarr)))
     (loop for xi from (maref xarr 0) below (maref xarr 9) by step
        collect (list xi (evaluate spline xi :acceleration acc)))))
 

@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-01-25 09:57:17EST generators.lisp>
+;; Time-stamp: <2009-02-16 10:10:32EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -33,7 +33,7 @@
 ;;;; Seed
 ;;;;****************************************************************************
 
-(defmpar *default-seed*
+(defmpar +default-seed+
     "gsl_rng_default_seed"
   "The default seed for random number generators."
   :ulong nil)
@@ -174,7 +174,7 @@
 ;;;;****************************************************************************
 
 (save-test random-number-generators
- (let ((rng (make-random-number-generator *mt19937* 0)))
+ (let ((rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
 	 collect
 	 (uniform-fixnum rng 1000)))

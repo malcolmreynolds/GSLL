@@ -1,6 +1,6 @@
 ;; Shuffling and sampling
 ;; Liam Healy, Sat Dec  2 2006 - 18:40
-;; Time-stamp: <2008-12-29 19:36:17EST shuffling-sampling.lisp>
+;; Time-stamp: <2009-02-16 10:10:30EST shuffling-sampling.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -60,16 +60,16 @@
 
 ;;; Examples and unit test
 (save-test shuffling-sampling
- (let ((rng (make-random-number-generator *mt19937* 0))
+ (let ((rng (make-random-number-generator +mt19937+ 0))
 	(v1 #31m(1 2 3 4 5 6 7 8)))
    (shuffle rng v1)
    (cl-array v1))
- (let ((rng (make-random-number-generator *mt19937* 0))
+ (let ((rng (make-random-number-generator +mt19937+ 0))
 	(v1 #31m(1 2 3 4 5 6 7 8))
 	(v2 (make-marray '(signed-byte 32) :dimensions 4)))
    (choose-random rng v2 v1)
    (cl-array v2))
- (let ((rng (make-random-number-generator *mt19937* 0))
+ (let ((rng (make-random-number-generator +mt19937+ 0))
 	(v1 #31m(1 2 3 4 5 6 7 8))
 	(v2 (make-marray '(signed-byte 32) :dimensions 10)))
    (random-sample rng v2 v1)

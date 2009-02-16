@@ -1,6 +1,6 @@
 ;; Geometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2008-12-26 19:37:47EST geometric.lisp>
+;; Time-stamp: <2009-02-16 10:08:14EST geometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -44,7 +44,7 @@
 
 ;;; Examples and unit test
 (save-test geometric
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
      (loop for i from 0 to 10
 	   collect
 	   (geometric rng 0.4d0)))

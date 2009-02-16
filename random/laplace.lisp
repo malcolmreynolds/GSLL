@@ -1,6 +1,6 @@
 ;; Exponential distribution
 ;; Liam Healy, Sun Sep 17 2006
-;; Time-stamp: <2008-12-26 19:40:32EST laplace.lisp>
+;; Time-stamp: <2009-02-16 10:08:15EST laplace.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,7 +56,7 @@
 
 ;;; Examples and unit test
 (save-test laplace
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
 	    (laplace rng 10.0d0)))

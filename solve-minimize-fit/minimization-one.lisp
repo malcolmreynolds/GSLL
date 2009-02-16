@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-02-15 11:23:41EST minimization-one.lisp>
+;; Time-stamp: <2009-02-16 09:55:06EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -142,7 +142,7 @@
 ;;;; Minimization algorithms
 ;;;;****************************************************************************
 
-(defmpar *golden-section-fminimizer* "gsl_min_fminimizer_goldensection"
+(defmpar +golden-section-fminimizer+ "gsl_min_fminimizer_goldensection"
   "The golden section algorithm is the simplest method of bracketing
    the minimum of a function.  It is the slowest algorithm provided by the
    library, with linear convergence.
@@ -158,7 +158,7 @@
    golden section as the bisection ratio can be shown to provide the
    fastest convergence for this type of algorithm.")
 
-(defmpar *brent-fminimizer* "gsl_min_fminimizer_brent"
+(defmpar +brent-fminimizer+ "gsl_min_fminimizer_brent"
   "The Brent minimization algorithm combines a parabolic
    interpolation with the golden section algorithm.  This produces a fast
    algorithm which is still robust.
@@ -186,7 +186,7 @@
 (make-callbacks single-function minimization-one-fn)
 
 (defun minimization-one-example
-    (&optional (minimizer-type *brent-fminimizer*) (print-steps t))
+    (&optional (minimizer-type +brent-fminimizer+) (print-steps t))
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
   (let ((max-iter 100)
 	(minimizer
@@ -215,5 +215,5 @@
        (return (values iter lower upper min (- min pi) (- upper lower))))))
 
 (save-test minimization-one
- (minimization-one-example *brent-fminimizer* nil)
- (minimization-one-example *golden-section-fminimizer* nil))
+ (minimization-one-example +brent-fminimizer+ nil)
+ (minimization-one-example +golden-section-fminimizer+ nil))

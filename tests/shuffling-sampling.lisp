@@ -6,7 +6,7 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(4 3 6 1 5 7 2 8))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0))
                                (V1
                                 (MAKE-MARRAY '(SIGNED-BYTE 32)
                                              :INITIAL-CONTENTS
@@ -17,7 +17,7 @@
                                                           (MULTIPLE-VALUE-LIST
                                                            (LET ((RNG
                                                                   (MAKE-RANDOM-NUMBER-GENERATOR
-                                                                   *MT19937*
+                                                                   +MT19937+
                                                                    0))
                                                                  (V1
                                                                   (MAKE-MARRAY
@@ -39,7 +39,7 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST #(8 2 3 8 2 4 8 6 5 6))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0))
                                (V1
                                 (MAKE-MARRAY '(SIGNED-BYTE 32)
                                              :INITIAL-CONTENTS

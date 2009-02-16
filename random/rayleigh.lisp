@@ -1,6 +1,6 @@
 ;; Rayleigh distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2008-12-26 19:34:41EST rayleigh.lisp>
+;; Time-stamp: <2009-02-16 10:05:57EST rayleigh.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -59,7 +59,7 @@
 
 ;;; Examples and unit test
 (save-test rayleigh
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
 	    (rayleigh rng 10.0d0)))

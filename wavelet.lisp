@@ -1,6 +1,6 @@
 ;; Wavelet transforms.
 ;; Liam Healy, Mon Nov 26 2007 - 20:43
-;; Time-stamp: <2009-01-25 09:58:21EST wavelet.lisp>
+;; Time-stamp: <2009-02-16 09:59:18EST wavelet.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,35 +30,35 @@
    family.  A memory-allocation-failure error indicates either
    lack of memory or an unsupported member requested.")
 
-(defmpar *daubechies-wavelet* "gsl_wavelet_daubechies"
+(defmpar +daubechies-wavelet+ "gsl_wavelet_daubechies"
   ;; FDL
   "The Daubechies wavelet family of maximum phase with member/2
    vanishing moments.  The implemented wavelets are 
    member=4, 6,..., 20, with member even.")
 
-(defmpar *daubechies-wavelet-centered* "gsl_wavelet_daubechies_centered"
+(defmpar +daubechies-wavelet-centered+ "gsl_wavelet_daubechies_centered"
   ;; FDL
   "The Daubechies wavelet family of maximum phase with member/2
    vanishing moments.  The implemented wavelets are 
    member=4, 6,..., 20, with member even.")
 
-(defmpar *haar-wavelet* "gsl_wavelet_haar"
+(defmpar +haar-wavelet+ "gsl_wavelet_haar"
   ;; FDL
   "The Haar wavelet.  The only valid choice for member for the
    Haar wavelet is member=2.")
 
-(defmpar *haar-wavelet-centered* "gsl_wavelet_haar_centered"
+(defmpar +haar-wavelet-centered+ "gsl_wavelet_haar_centered"
   ;; FDL
   "The Haar wavelet.  The only valid choice for member for the
    Haar wavelet is member=2.")
 
-(defmpar *bspline-wavelet* "gsl_wavelet_bspline"
+(defmpar +bspline-wavelet+ "gsl_wavelet_bspline"
   ;; FDL
   "The biorthogonal B-spline wavelet family of order (i,j).  
    The implemented values of member = 100*i + j are 103, 105, 202, 204,
    206, 208, 301, 303, 305 307, 309.")
 
-(defmpar *bspline-wavelet-centered* "gsl_wavelet_bspline_centered"
+(defmpar +bspline-wavelet-centered+ "gsl_wavelet_bspline_centered"
   ;; FDL
   "The biorthogonal B-spline wavelet family of order (i,j).  
    The implemented values of member = 100*i + j are 103, 105, 202, 204,
@@ -367,7 +367,7 @@
    setting the others to zero.  See GSL manual Section 30.4."
   (let* ((n (length cl-data))
 	 (vector cl-data)
-	 (wavelet (make-wavelet *daubechies-wavelet* 4))
+	 (wavelet (make-wavelet +daubechies-wavelet+ 4))
 	 (workspace (make-wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
     (let ((absvector (make-marray 'double-float :dimensions n))
@@ -387,7 +387,7 @@
   "Simpler example, with only a Daubechies wavelet forward transformation."
   (let* ((n (length cl-data))
 	 (vector cl-data)
-	 (wavelet (make-wavelet *daubechies-wavelet* 4))
+	 (wavelet (make-wavelet +daubechies-wavelet+ 4))
 	 (workspace (make-wavelet-workspace n)))
     (wavelet-transform-forward wavelet vector 1 workspace)
     (cl-array vector)))

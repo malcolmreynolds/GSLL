@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-02-08 22:56:14EST roots-multi.lisp>
+;;; Time-stamp: <2009-02-16 09:56:43EST roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -242,7 +242,7 @@
 ;;;; Algorithms using derivatives
 ;;;;****************************************************************************
 
-(defmpar *powells-hybrid* "gsl_multiroot_fdfsolver_hybridsj"
+(defmpar +powells-hybrid+ "gsl_multiroot_fdfsolver_hybridsj"
   ;; FDL
   "This is a modified version of Powell's Hybrid method as implemented in
    the hybrj algorithm in minpack.  Minpack was written by Jorge
@@ -288,14 +288,14 @@
    re-evaluations of the Jacobian indicate that the iteration is not
    making any progress, preventing the algorithm from continuing.")
 
-(defmpar *powells-hybrid-unscaled* "gsl_multiroot_fdfsolver_hybridj"
+(defmpar +powells-hybrid-unscaled+ "gsl_multiroot_fdfsolver_hybridj"
   ;; FDL
   "This algorithm is an unscaled version of *powells-hybrid*.  The steps are
    controlled by a spherical trust region |x' - x| < \delta, instead
    of a generalized region.  This can be useful if the generalized region
    estimated by *powells-hybrid* is inappropriate.")
 
-(defmpar *newton-mfdfsolver* "gsl_multiroot_fdfsolver_newton"
+(defmpar +newton-mfdfsolver+ "gsl_multiroot_fdfsolver_newton"
   ;; FDL
   "Newton's Method is the standard root-polishing algorithm.  The algorithm
    begins with an initial guess for the location of the solution.  On each
@@ -309,7 +309,7 @@
    J dx = - f(x)
    using LU decomposition.")
 
-(defmpar *gnewton-mfdfsolver* "gsl_multiroot_fdfsolver_gnewton"
+(defmpar +gnewton-mfdfsolver+ "gsl_multiroot_fdfsolver_gnewton"
   ;; FDL
   "A modified version of Newton's method which attempts to improve
    global convergence by requiring every step to reduce the Euclidean norm
@@ -324,7 +324,7 @@
 ;;;; Algorithms without derivatives
 ;;;;****************************************************************************
 
-(defmpar *hybrid-scaled* "gsl_multiroot_fsolver_hybrids"
+(defmpar +hybrid-scaled+ "gsl_multiroot_fsolver_hybrids"
   ;; FDL
   "This is a version of the Hybrid algorithm which replaces calls to the
      Jacobian function by its finite difference approximation.  The finite
@@ -333,12 +333,12 @@
 ;; Where is this function and parameter?  Only thing that shows in the
 ;; library is gsl_multiroot_fdjacobian.
  
-(defmpar *hybrid-unscaled* "gsl_multiroot_fsolver_hybrid"
+(defmpar +hybrid-unscaled+ "gsl_multiroot_fsolver_hybrid"
   ;; FDL
   "A finite difference version of the Hybrid algorithm without
    internal scaling.")
 
-(defmpar *discrete-newton* "gsl_multiroot_fsolver_dnewton"
+(defmpar +discrete-newton+ "gsl_multiroot_fsolver_dnewton"
   ;; FDL
   "The discrete Newton algorithm is the simplest method of solving a
    multidimensional system.  It uses the Newton iteration
@@ -355,7 +355,7 @@
    iteration.  The algorithm may become unstable if the finite differences
    are not a good approximation to the true derivatives.")
 
-(defmpar *broyden* "gsl_multiroot_fsolver_broyden"
+(defmpar +broyden+ "gsl_multiroot_fsolver_broyden"
   ;; FDL
   "The Broyden algorithm is a version of the discrete Newton
    algorithm which attempts to avoids the expensive update of the Jacobian
@@ -401,7 +401,7 @@
 (make-callbacks multi-dimensional-root-solver-f rosenbrock 2)
 
 (defun roots-multi-example-no-derivative
-    (&optional (method *hybrid-scaled*) (print-steps t))
+    (&optional (method +hybrid-scaled+) (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
   (let ((max-iter 1000)
 	(solver (make-multi-dimensional-root-solver-f 
@@ -447,7 +447,7 @@
 		rosenbrock rosenbrock-df rosenbrock-fdf 2)
 
 (defun roots-multi-example-derivative
-    (&optional (method *gnewton-mfdfsolver*) (print-steps t))
+    (&optional (method +gnewton-mfdfsolver+) (print-steps t))
   "Solving Rosenbrock with derivatives, the example given in Sec. 34.8
    of the GSL manual."
   (flet ((print-state (iter argval fnval)
@@ -483,11 +483,11 @@
 ;; To see step-by-step information as the solution progresses, make
 ;; the last argument T.
 (save-test roots-multi
- (roots-multi-example-no-derivative *hybrid-unscaled* nil)
- (roots-multi-example-no-derivative *hybrid-scaled* nil)
- (roots-multi-example-no-derivative *discrete-newton* nil)
- (roots-multi-example-no-derivative *broyden* nil)
- (roots-multi-example-derivative *newton-mfdfsolver* nil)
- (roots-multi-example-derivative *gnewton-mfdfsolver* nil)
- (roots-multi-example-derivative *powells-hybrid* nil)
- (roots-multi-example-derivative *powells-hybrid-unscaled* nil))
+ (roots-multi-example-no-derivative +hybrid-unscaled+ nil)
+ (roots-multi-example-no-derivative +hybrid-scaled+ nil)
+ (roots-multi-example-no-derivative +discrete-newton+ nil)
+ (roots-multi-example-no-derivative +broyden+ nil)
+ (roots-multi-example-derivative +newton-mfdfsolver+ nil)
+ (roots-multi-example-derivative +gnewton-mfdfsolver+ nil)
+ (roots-multi-example-derivative +powells-hybrid+ nil)
+ (roots-multi-example-derivative +powells-hybrid-unscaled+ nil))

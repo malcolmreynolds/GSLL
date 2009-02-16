@@ -6,7 +6,7 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST (LIST 15 21 19 15 8 18 23 18 33 16 10))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
                                  (NEGATIVE-BINOMIAL RNG 0.4d0 12.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
@@ -24,7 +24,7 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST (LIST 15 21 19 15 8 18 23 18 33 16 10))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
                                  (PASCAL RNG 0.4d0 12)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

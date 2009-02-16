@@ -1,6 +1,6 @@
 ;; The Gumbel type 2 random number distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-12-26 19:43:32EST gumbel2.lisp>
+;; Time-stamp: <2009-02-16 10:08:12EST gumbel2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,7 +58,7 @@
 
 ;;; Examples and unit test
 (save-test gumbel2
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
 	    (gumbel2 rng 1.0d0 2.0d0)))

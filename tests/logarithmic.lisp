@@ -6,7 +6,7 @@
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST (LIST 1 3 1 4 1 1 2 1 1 5 2))
                         (MULTIPLE-VALUE-LIST
-                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR *MT19937* 0)))
+                         (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
                                  (LOGARITHMIC RNG 0.9d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL

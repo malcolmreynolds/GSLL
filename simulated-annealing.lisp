@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-01-12 22:48:38EST simulated-annealing.lisp>
+;; Time-stamp: <2009-02-16 10:16:44EST simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -181,7 +181,7 @@
       (with-simulated-annealing-parameters
 	  (params 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6)
 	(simulated-annealing
-	 (make-random-number-generator *mt19937* 0) initial
+	 (make-random-number-generator +mt19937+ 0) initial
 	 'E2 'S2 'M2 'P2
 	 (cffi:foreign-type-size :double)
 	 params)))))

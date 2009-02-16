@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2009-01-28 20:55:57EST basis-splines.lisp>
+;; Time-stamp: <2009-02-16 10:16:44EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -95,7 +95,7 @@
 	 (nbreak (+ ncoeffs 2 (- order)))
 	 (bw (make-basis-spline order nbreak))
 	 (mw (make-fit-workspace ndata ncoeffs))
-	 (rng (make-random-number-generator *mt19937* 0))
+	 (rng (make-random-number-generator +mt19937+ 0))
 	 (B (make-marray 'double-float :dimensions ncoeffs))
 	 (c (make-marray 'double-float :dimensions ncoeffs))
 	 (cov (make-marray 'double-float :dimensions (list ncoeffs ncoeffs)))

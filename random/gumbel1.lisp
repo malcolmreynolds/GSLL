@@ -1,6 +1,6 @@
 ;; The Gumbel type 1 random number distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2008-12-26 19:50:48EST gumbel1.lisp>
+;; Time-stamp: <2009-02-16 10:10:30EST gumbel1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -60,7 +60,7 @@
 
 ;;; Examples and unit test
 (save-test gumbel1
-  (let ((rng (make-random-number-generator *mt19937* 0)))
+  (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect (gumbel1 rng 1.0d0 2.0d0)))
   (gumbel1-pdf 0.1d0 1.0d0 2.0d0)
