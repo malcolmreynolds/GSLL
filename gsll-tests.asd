@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-11 22:15:11EST gsll-tests.asd>
+;; Time-stamp: <2009-02-16 17:57:09EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -90,6 +90,7 @@
 	     (:file "lognormal")
 	     (:file "lu")
 	     (:file "mathematical")
+	     (:file "mathieu")
 	     (:file "matrix-copy")
 	     (:file "matrix-copy-to-cl-and-back")
 	     (:file "matrix-div")

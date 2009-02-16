@@ -1,6 +1,6 @@
 ;; Structures returned by special functions.
 ;; Liam Healy, Mon Jan  1 2007 - 11:35
-;; Time-stamp: <2009-01-10 17:21:24EST return-structures.lisp>
+;; Time-stamp: <2009-02-16 16:49:45EST return-structures.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -51,3 +51,9 @@
   (if (integerp size-or-array)
       (make-marray 'double-float :dimensions size-or-array)
       size-or-array))
+
+(defun vdf-size (size-or-array)
+  "Make or take a vector-double-float."
+  (if (integerp size-or-array)
+      size-or-array
+      (total-size size-or-array)))

@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-16 14:36:41EST gsll.asd>
+;; Time-stamp: <2009-02-16 17:15:57EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -78,6 +78,7 @@
 	       (:file "lambert" :depends-on (return-structures))
 	       (:file "legendre" :depends-on (return-structures))
 	       (:file "logarithm" :depends-on (return-structures))
+	       (:file "mathieu" :depends-on (return-structures))
 	       (:file "power" :depends-on (return-structures))
 	       (:file "psi" :depends-on (return-structures))
 	       (:file "synchrotron" :depends-on (return-structures))

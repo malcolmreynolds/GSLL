@@ -52,3 +52,8 @@ Is this intentional?
 Wed Jan 28 2009:
 What are the _e functions in interpolation for, how are the results to
 be interpreted?
+
+=== SBCL problems? ===
+Mon Feb 16 2009
+(copy (mathieu-ce-array 0.0d0 (/ PI 2) 6) 'array)
+gives an error

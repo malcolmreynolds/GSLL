@@ -11,8 +11,6 @@ to GSLL:
 
 GSL 1.9
 http://lists.gnu.org/archive/html/info-gsl/2007-02/msg00000.html
-** Added support for nonsymmetric eigensystems (Patrick Alken)
-** Added Mathieu functions (Lowell Johnson)
 ** Added a new BFGS2 minimisation method, requires substantially fewer
 function and gradient evaluations that the existing BFGS minimiser.
 ** Added updated Knuth generator, gsl_rng_knuthran2002, from 9th
@@ -25,7 +23,6 @@ gsl_matrix_isneg.
 
 GSL 1.10
 http://lists.gnu.org/archive/html/info-gsl/2007-09/msg00000.html
-** Added support for generalized eigensystems (Patrick Alken)
 ** Extended Cholesky routines to complex matrices (Patrick Alken)
 ** Added functions gsl_matrix_subrow and gsl_matrix_subcolumn
 ** Added function gsl_stats_correlation to compute Pearson correlation
