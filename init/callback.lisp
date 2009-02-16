@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-15 18:42:55EST callback.lisp>
+;; Time-stamp: <2009-02-15 22:39:08EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,8 +30,6 @@
 ;;; functions with scalars as input and output.  However, it may be
 ;;; desirable to read and set marrays, in which case :pointer is the
 ;;; right specification.
-
-(export '(make-single-function undef-cbstruct))
 
 ;;;;****************************************************************************
 ;;;; Setting slots
@@ -200,31 +198,6 @@
 	   ;; to return a void pointer which is apparently meaningless.
 	   '((cffi:null-pointer)))))))
 
-;;; To be deprecated
-(defmacro defcbstruct
-    (functions &optional (structure 'gsl-function) additional-slots)
-  "Define a callback-related C struct used by GSL.
-   This struct is bound to a CL special with the specified name.
-   This macro can be used whenever a callback is defined and
-   placed in a struct that has no other functions defined."
-  (let ((name (make-symbol "CBSTRUCT"))
-	(fnlist
-	 ;; Make a list of (function slot-name ...) for each function.
-	 (if (listp functions) functions (list `,functions 'function))))
-    `(let ((,name (cffi:foreign-alloc ',structure)))
-       ;; Create the C structure and bind CL variable to it.
-       ;; Set all the function slots.
-       ,@(loop for (fn slot-name) on fnlist by #'cddr collect
-	      `(set-slot-function ,name ',structure ',slot-name ',fn))
-       ;; Set the parameters.
-       (set-parameters ,name ',structure)
-       ;; Set any additional slots.
-       ,@(loop for slot in additional-slots
-	    collect
-	    `(set-structure-slot
-	      ,name ',structure ',(first slot) ,(second slot)))
-       ,name)))
-
 (defun set-cbstruct (cbstruct struct slots-values function-slotnames)
   "Make the slots in the foreign callback structure."
   (loop for (slot-name function) on function-slotnames by #'cddr
@@ -249,12 +222,6 @@
      (mapcan 'list (dimension-names object) (dimensions object)))
    (mapcan 'list (callback-labels object) (functions object))))
 
-(defun undef-cbstruct (object)
-  "Free foreign callback function.  It is not necessary to do this; think
-   of the memory taken by an unused foreign function as much
-   less than that used by an unused defun."
-  (cffi:foreign-free object))
-
 (defmacro with-computed-dimensions
     (dimensions-spec dimensions-used lambda-form &body body)
   (cl-utilities:once-only (lambda-form)
@@ -270,31 +237,6 @@
   (if (and (listp lambda-form) (eq (first lambda-form) 'lambda))
       (length (second lambda-form))
       dimensions))
-
-;;; To be obsolete
-(defmacro make-single-function
-    (name
-     &optional (return-type :double) (argument-type :double)
-     (structure 'gsl-function)
-     dimensions
-     (dimensions-return dimensions)
-     (marray t))
-  "Define a callback and optionally a related C struct used by GSL.
-   This struct is bound to a CL special with the specified name.
-   This macro can be used whenever a callback is defined and
-   placed in a struct that has no other functions defined."
-  ;; I don't think structure=nil is ever used, but it is permissible
-  (with-unique-names (cbsymb)
-    (let ((dim (dimensions-from-lambda name dimensions)))
-    `(progn
-       (defmcallback ,cbsymb ,return-type
-	 ,(if dim `((,argument-type ,dim)) argument-type)
-	 ,(if dimensions-return `((:set ,argument-type ,dimensions-return)))
-	 ,marray ,name)
-       ,@(when
-	  structure
-	  `((defcbstruct ,cbsymb ,structure
-	      ,(if dim `((dimensions ,dim))))))))))
 
 ;;;;****************************************************************************
 ;;;; Classes that include callback information
@@ -355,14 +297,13 @@
 (defgeneric make-callbacks-fn (class args)
   (:documentation "Function to make forms that expand into defmcallback(s)."))
 
+(eval-when (:compile-toplevel :load-toplevel)
+  (defvar *callback-table* (make-hash-table :size 20)))
+
 (defmacro def-make-callbacks (class arglist &body body)
-  (with-unique-names (cls args)
-    `(eval-when (:compile-toplevel :load-toplevel)
-       (defmethod make-callbacks-fn
-	   ((,cls (eql ',class)) ,args)
-	 (declare (ignore ,cls))
-	 (destructuring-bind ,arglist ,args
-	   ,@body)))))
+  `(eval-when (:compile-toplevel :load-toplevel)
+     (setf (gethash ',class *callback-table*)
+	   (lambda ,arglist ,@body))))
 
 (def-make-callbacks single-function (function)
   `(defmcallback ,function
@@ -379,7 +320,7 @@
    return answer as multiple values with #'values.  If it is NIL, it will
    be called with two arguments; it should read the values from the first
    array and write the answer in the second array."
-  (make-callbacks-fn class args))
+  (apply (gethash class *callback-table*) args))
 
 (defmethod print-object ((object callback-included) stream)
   (print-unreadable-object (object stream :type t :identity t)
@@ -403,12 +344,51 @@
 (defun callback-remove-arg (list &optional key)
   (remove +callback-argument-name+ list :key key))
 
+;;; From CLOCC:port, with addition of openmcl
+(defun arglist (fn)
+  "Return the signature of the function."
+  #+allegro (excl:arglist fn)
+  #+clisp (sys::arglist fn)
+  #+(or cmu scl)
+  (let ((f (coerce fn 'function)))
+    (typecase f
+      (STANDARD-GENERIC-FUNCTION (pcl:generic-function-lambda-list f))
+      (EVAL:INTERPRETED-FUNCTION (eval:interpreted-function-arglist f))
+      (FUNCTION (values (read-from-string (kernel:%function-arglist f))))))
+  #+cormanlisp (ccl:function-lambda-list
+                (typecase fn (symbol (fdefinition fn)) (t fn)))
+  #+gcl (let ((fn (etypecase fn
+                    (symbol fn)
+                    (function (si:compiled-function-name fn)))))
+          (get fn 'si:debug))
+  #+lispworks (lw:function-lambda-list fn)
+  #+lucid (lcl:arglist fn)
+  #+sbcl (progn (require :sb-introspect)
+		(let ((fun (find-symbol (symbol-name 'function-arglist) 'sb-introspect)))
+		  (when fun
+		    (funcall fun fn))))
+  #+openmcl (ccl:arglist fn)
+  #-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbcl scl openmcl)
+  (error "No arglist function known."))
+
 (defmacro callback-set-slots
-    (trigger-list struct-name function &optional dimension)
+    (trigger-list struct-name function)
   "If the callback argument is on trigger-list, then return a form
     that sets the slots in the GSL callback structure."
-  `(when (callback-arg-p ,trigger-list)
-     `(set-cbstruct ,',+callback-argument-name+ ',',struct-name
-		    ,',(when dimension `('dimension ,dimension))
-		    (list 'function ,',function))))
+  (let ((setdim (not (eq function 'gsl-function))))
+    `(when (callback-arg-p ,trigger-list)
+       `(set-cbstruct ,',+callback-argument-name+ ',,struct-name
+		      ,',(when setdim
+			      '(list 'dimensions (length (arglist function))))
+		      (list 'function ,',function)))))
 
+(defmacro callback-set-slots
+    (trigger-list struct-name function)
+  "If the callback argument is on trigger-list, then return a form
+    that sets the slots in the GSL callback structure."
+  `(let ((setdim (not (eq ,struct-name 'gsl-function))))
+    (when (callback-arg-p ,trigger-list)
+       `(set-cbstruct ,',+callback-argument-name+ ',,struct-name
+		      ,,'(when setdim
+			      '(list 'dimensions (length (arglist function))))
+		      (list 'function ,',function)))))

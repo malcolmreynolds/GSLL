@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-15 17:06:23EST mobject.lisp>
+;; Time-stamp: <2009-02-15 21:53:46EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -174,7 +174,7 @@
        ,@(when (callback-arg-p class-slots-instance)
 	       (with-unique-names (cbs)
 		 `((let ((,cbs (make-cbstruct-object object)))
-		     (setf (slot-value object '#.+callback-argument-name+) ,cbs)
+		     (setf (slot-value object ',+callback-argument-name+) ,cbs)
 		     (tg:finalize object (lambda () (foreign-free ,cbs)))))))
        ;; There is an initialization step
        ,@(when initializerp

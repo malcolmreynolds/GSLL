@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-01-25 10:21:38EST monte-carlo.lisp>
+;; Time-stamp: <2009-02-15 22:07:40EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,13 +30,14 @@
 (defmfun monte-carlo-integrate-plain
     (function lower-limits upper-limits calls generator state)
   "gsl_monte_plain_integrate"
-  ((function :pointer)
+  ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
    ((dim0 lower-limits) sizet) (calls sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
+  :callback-struct monte-function
   :documentation			; FDL
   "Uses the plain Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -105,13 +106,14 @@
 (defmfun monte-carlo-integrate-miser
     (function lower-limits upper-limits calls generator state)
   "gsl_monte_miser_integrate"
-  ((function :pointer)
+  ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
    ((dim0 lower-limits) sizet) (calls sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
+  :callback-struct monte-function
   :documentation			; FDL
   "Uses the miser Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -190,13 +192,14 @@
 (defmfun monte-carlo-integrate-vegas
     (function lower-limits upper-limits calls generator state)
   "gsl_monte_vegas_integrate"
-  ((function :pointer)
+  ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
    ((dim0 lower-limits) sizet) (calls sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
+  :callback-struct monte-function
   :documentation			; FDL
   "Uses the vegas Monte Carlo algorithm to integrate the
    function f over the dim-dimensional hypercubic region
@@ -220,48 +223,46 @@
   (dimensions sizet)
   (parameters :pointer))
 
-(export 'make-monte-carlo-function)
-(defmacro make-monte-carlo-function (name-or-lambda &optional (dimensions 1))
-  "Define the function for use in the Monte Carlo functions.  The function
-   should be specified with either the name of a CL function already defined,
-   or as a lambda form.  In the latter case, the number of dimensions need
-   not be specified, they will be computed."
-  `(make-single-function ,name-or-lambda :double :double monte-function
-			 ,dimensions nil nil))
+(def-make-callbacks monte-carlo (function dimension)
+  `(defmcallback ,function
+       :double ((:double ,dimension))
+       nil
+       nil
+       ,function))
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
 ;;; Example from Sec. 23.5
-;;; This is a function that occurs in random walk studies.
 
-(defparameter *monte-carlo-cb*
-  (make-monte-carlo-function
-   (lambda (x y z)
-     (* (/ (expt pi 3))
-	(/ (- 1 (* (cos x) (cos y) (cos z))))))))
+(defun mcrw (x y z)
+  "Example function for Monte Carlo used in random walk studies."
+  (* (/ (expt pi 3))
+     (/ (- 1 (* (cos x) (cos y) (cos z))))))
+
+(make-callbacks monte-carlo mcrw 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-plain 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-plain *monte-carlo-cb* lower upper nsamples rng ws)))
+    (monte-carlo-integrate-plain 'mcrw lower upper nsamples rng ws)))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-miser 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-miser *monte-carlo-cb* lower upper nsamples rng ws)))
+    (monte-carlo-integrate-miser 'mcrw lower upper nsamples rng ws)))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-vegas 3))
 	(lower #m(0.0d0 0.0d0 0.0d0))
 	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
 	(rng (make-random-number-generator *mt19937* 0)))
-    (monte-carlo-integrate-vegas *monte-carlo-cb* lower upper nsamples rng ws)))
+    (monte-carlo-integrate-vegas 'mcrw lower upper nsamples rng ws)))
 
 (save-test monte-carlo
   (random-walk-plain-example)
