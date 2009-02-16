@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-01-28 19:05:30EST chebyshev.lisp>
+;; Time-stamp: <2009-02-15 11:23:40EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,9 +16,12 @@
   "Chebyshev series"
   :documentation			; FDL
   "Make a Chebyshev series of specified order."
+  :superclasses (callback-included)
+  :ci-class-slots (gsl-function nil (function))
   :initialize-suffix "init"
   :initialize-args
-  ((function :pointer) (lower-limit :double) (upper-limit :double)))
+  ((callback :pointer) (lower-limit :double) (upper-limit :double))
+  :singular (function))
 
 ;;;;****************************************************************************
 ;;;; Chebyshev series evaluation
@@ -55,7 +58,7 @@
 
 (defmfun derivative-chebyshev (derivative chebyshev)
   "gsl_cheb_calc_deriv"
-  ((derivative :pointer) ((mpointer chebyshev) :pointer))
+  (((mpointer derivative) :pointer) ((mpointer chebyshev) :pointer))
   :documentation			; FDL
   "Compute the derivative of the Chebyshev series, storing
    the derivative coefficients in the previously allocated series.
@@ -63,7 +66,7 @@
 
 (defmfun integral-chebyshev (integral chebyshev)
   "gsl_cheb_calc_integ"
-  ((integral :pointer) ((mpointer chebyshev) :pointer))
+  (((mpointer integral) :pointer) ((mpointer chebyshev) :pointer))
   :documentation			; FDL
   "Compute the integral of the Chebyshev series, storing
    the integral coefficients in the previously allocated series.
@@ -80,11 +83,11 @@
 
 (defun chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
 
+(make-callbacks single-function chebyshev-step)
+
 (defun chebyshev-table-example ()
   (let ((steps 100))
-    (let ((cheb
-	   (make-chebyshev
-	    40 (make-single-function chebyshev-step) 0.0d0 1.0d0)))
+    (let ((cheb (make-chebyshev 40 'chebyshev-step 0.0d0 1.0d0)))
       (dotimes (i steps)
 	(let ((x (coerce (/ i steps) 'double-float)))
 	  (format t "~&~a ~a ~a ~a"
@@ -95,8 +98,7 @@
 
 (defun chebyshev-point-example (x)
   (check-type x double-float)
-  (let ((cheb (make-chebyshev
-	       40 (make-single-function chebyshev-step) 0.0d0 1.0d0))
+  (let ((cheb (make-chebyshev 40 'chebyshev-step 0.0d0 1.0d0))
 	(deriv (make-chebyshev 40))
 	(integ (make-chebyshev 40)))
     (derivative-chebyshev deriv cheb)

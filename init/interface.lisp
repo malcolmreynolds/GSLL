@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-01-25 10:30:39EST interface.lisp>
+;; Time-stamp: <2009-02-15 12:45:17EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -61,9 +61,11 @@
 
 (defun wfo-declare (d)
   `(,(st-symbol d)
-    ,@(if (st-arrayp d)
-	  `(',(st-eltype d) ,(st-dim d))
-	  `(',(st-type d)))))
+     ,@(if (st-arrayp d)
+	   `(',(st-eltype d) ,(st-dim d))
+	   (if (eq (st-symbol d) +callback-argument-name+)
+	       '('gsl-function)
+	       `(',(st-type d))))))
 
 ;;;;****************************************************************************
 ;;;; Checking results from GSL functions

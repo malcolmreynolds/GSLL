@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-01-31 21:19:28EST defmfun-single.lisp>
+;; Time-stamp: <2009-02-15 18:56:52EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -100,6 +100,9 @@
 		(cons
 		 'values
 		 (append before after
+			 (when (callback-arg-p
+				(variables-used-in-c-arguments c-arguments))
+			   '(function))	; hardwired name to use for callback
 			 (let ((auxstart (position '&aux arglist)))
 			   ;; &aux bindings are checked
 			   (when auxstart
@@ -108,7 +111,7 @@
 			      (mapcar 'rest (subseq arglist (1+ auxstart))))))))))))
 	   ,@(when documentation (list documentation))
 	   ,(funcall body-maker name arglist gsl-name c-arguments key-args))
-        `(,definition
+	`(,definition
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))
 	     ,@(when qualifier (list qualifier))
@@ -164,7 +167,8 @@
 	     allocated))
 	   (clret (or			; better as a symbol macro
 		   (substitute cret-name :c-return return)
-		   (mapcan #'cl-convert-form allocated-decl)
+		   (mapcan #'cl-convert-form
+			   (callback-remove-arg allocated-decl 'st-symbol))
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
@@ -175,6 +179,7 @@
 	   (mapcar #'wfo-declare allocated-decl)
 	   'cffi:with-foreign-objects
 	   `(,@before
+	     ,(callback-set-slots allocated callback-struct function)
 	     (let ((,cret-name
 		    (cffi:foreign-funcall
 		     ,gsl-name
@@ -208,7 +213,8 @@
 	       ,@after
 	       (values
 		,@(defmfun-return
-		   c-return cret-name clret allocated return return-supplied-p
+		   c-return cret-name clret allocated
+		   return return-supplied-p
 		   enumeration outputs)))))))))
 
 (defun defmfun-return

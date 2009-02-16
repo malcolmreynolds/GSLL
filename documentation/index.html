@@ -299,29 +299,23 @@ area of memory.</p>
  <h3>Passing functions</h3>
  <p>
  Functions that are passed to GSL functions (known as <i>callbacks</i>
- in C) are defined with one of the following macros in GSLL, depending
- on the application:
- <ul>
-   <li><code>make-single-function</code>, used by numerical
-   integration, numerical differentiation, Chebyshev, one-dimensional
-   root solver without derivatives, one-dimensional minimizer;</li>
-   <li><code>make-monte-carlo-function</code>, used by Monte Carlo;</li>
-   <li><code>make-solver-functions</code>, used by the root
-   solvers;</li>
-   <li><code>make-fitting-functions</code>, used by nonlinear least squares;</li>
-   <li><code>make-minimization-functions</code>, used by
-   the multi-dimensional minimizer;</li> 
-   <li><code>make-ode-functions</code>, used by ordinary differential
-   equation solvers;</li>
- </ul>
+ in C) are defined by writing an ordinary CL function or functions and
+ then calling <code>make-callbacks</code> with arguments that
+ depend on the application.  Functions or objects that require a
+ callback will accept the symbol representing the first or only function
+ defined in the <code>make-callbacks</code>.  For example, after
+ defining an ordinary CL function <code>mcrw</code>,
+ <pre>
+   (make-callbacks monte-carlo mcrw 3)
+   (monte-carlo-integrate-plain 'mcrw lower upper nsamples rng ws)
+ </pre>
  <p>
- The function may be specified as the name of a CL function, or as a
- lambda form.  If the latter, the dimensions need not be specified in
- <code>make-single-function</code>, <code>make-monte-carlo-function</code>,
- or <code>make-solver-functions</code> for derivative-free solvers;
- they will be computed from the arglist.  Each of these macros will
- return a foreign pointer that can be passed to the appropriate GSL
- function that requires a function.
+ In some cases, the CL function can be written to accept and return
+ either scalars or arrays.  See examples for numerical
+   integration, numerical differentiation, Chebyshev, root solvers,
+    minimizers, Monte Carlo, nonlinear least squares, and ordinary
+    differential equation solvers.
+ </p>
 
  <h3>GSL objects</h3>
 <p>
@@ -388,7 +382,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-01-25 21:38:05EST index.html>
+Time-stamp: <2009-02-15 22:17:52EST index.html>
 </small>
 <!-- hhmts end -->
  </div>

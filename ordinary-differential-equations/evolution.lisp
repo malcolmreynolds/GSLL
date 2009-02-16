@@ -1,6 +1,6 @@
 ;; Evolution functions for ODE integration.
 ;; Liam Healy, Sun Sep 30 2007 - 14:31
-;; Time-stamp: <2009-01-26 21:25:15EST evolution.lisp>
+;; Time-stamp: <2009-02-15 08:58:47EST evolution.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,17 +8,16 @@
 (defmobject ode-evolution "gsl_odeiv_evolve"
   ((dimensions sizet))
   "evolution for ordinary differential equations"
-  :documentation
-  "Make an object to advance the ODE solution."
+  :documentation "Make an object to advance the ODE solution."
   :initialize-suffix "reset"
   :initialize-args nil)
 
 (defmfun apply-evolution
-    (evolve control step dydt time max-time step-size y)
+    (evolution time y step-size control stepper max-time)
   "gsl_odeiv_evolve_apply"
-  (((mpointer evolve) :pointer) ((mpointer control) :pointer)
-   ((mpointer step) :pointer)
-   (dydt :pointer) ((c-pointer time) :pointer)
+  (((mpointer evolution) :pointer) ((mpointer control) :pointer)
+   ((mpointer stepper) :pointer)
+   ((callback-struct stepper) :pointer) ((c-pointer time) :pointer)
    (max-time :double)
    ((c-pointer step-size) :pointer) ((c-pointer y) :pointer))
   :inputs (time step-size y)

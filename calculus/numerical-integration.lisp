@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-01-25 10:16:31EST numerical-integration.lisp>
+;; Time-stamp: <2009-02-15 14:43:39EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -19,7 +19,7 @@
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
   "gsl_integration_qng"
-  ((function :pointer)
+  ((callback :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
    (result :double) (abserr :double) (neval sizet))
@@ -50,13 +50,14 @@
   :gauss41 :gauss51 :gauss61)
 
 (defmfun integration-QAG
-    (function a b method limit workspace
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function a b method limit 
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
+	      (workspace (make-integration-workspace limit)))
   ;; Set absolute-error and relative-error to 1 because it apparently doesn't matter
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
   "gsl_integration_qag"
-  ((function :pointer)
+  ((callback :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
    (limit sizet) (method integrate-method) ((mpointer workspace) :pointer)
@@ -77,7 +78,7 @@
   On each iteration the adaptive integration strategy bisects the interval
   with the largest error estimate.  The subintervals and their results are
   stored in the memory provided by workspace.  The maximum number of
-  subintervals is given by limit, which may not exceed the allocated
+  subintervals is given by 'limit, which may not exceed the allocated
   size of the workspace.")
 
 ;;;;****************************************************************************
@@ -85,10 +86,11 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAGS
-    (function a b limit workspace
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function a b limit
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
+	      (workspace (make-integration-workspace limit)))
   "gsl_integration_qags"
-  ((function :pointer)
+  ((callback :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
@@ -111,9 +113,11 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAGP
-    (function points limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function points limit
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
+	      (workspace (make-integration-workspace limit)))
   "gsl_integration_qagp"
-  ((function :pointer)
+  ((callback :pointer)
    ((mpointer points) :pointer) ((dim0 points) sizet)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
@@ -135,9 +139,11 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAGi
-    (function limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function limit
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
+	      (workspace (make-integration-workspace limit)))
   "gsl_integration_qagi"
-  ((function :pointer)
+  ((callback :pointer)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
@@ -152,9 +158,11 @@
    this case a lower-order rule is more efficient.")
 
 (defmfun integration-QAGiu
-    (function a limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function a limit
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
+	      (workspace (make-integration-workspace limit)))
   "gsl_integration_qagiu"
-  ((function :pointer) (a :double)
+  ((callback :pointer) (a :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
@@ -165,9 +173,11 @@
    and then integrated using the QAGS algorithm.")
 
 (defmfun integration-QAGil
-    (function b limit workspace &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function b limit
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
+	      (workspace (make-integration-workspace limit)))
   "gsl_integration_qagil"
-  ((function :pointer) (b :double)
+  ((callback :pointer) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :documentation			; FDL
@@ -182,10 +192,11 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAWC
-    (function a b c limit workspace
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function a b c limit
+	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
+	      (workspace (make-integration-workspace limit)))
   "gsl_integration_qawc"
-  ((function :pointer)
+  ((callback :pointer)
    (a :double) (b :double) (c :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
@@ -202,17 +213,14 @@
    the singularity.  Further away from the singularity the algorithm
    uses an ordinary 15-point Gauss-Kronrod integration rule.")
 
-
 ;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
 (defun one-sine (x) (sin x))
-(defparameter *one-sine* (make-single-function one-sine))
+(make-callbacks single-function one-sine)
 
 (save-test numerical-integration
-  (integration-qng *one-sine* 0.0d0 pi)
-  (let ((ws (make-integration-workspace 20)))
-     (integration-QAG *one-sine* 0.0d0 pi :gauss15 20 ws))
-  (let ((ws (make-integration-workspace 20)))
-     (integration-QAG *one-sine* 0.0d0 pi :gauss15 50 ws)))
+  (integration-qng 'one-sine 0.0d0 pi)
+  (integration-QAG 'one-sine 0.0d0 pi :gauss15 20)
+  (integration-QAG 'one-sine 0.0d0 pi :gauss21 40))

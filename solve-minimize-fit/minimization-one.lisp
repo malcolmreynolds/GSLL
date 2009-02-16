@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-01-26 21:40:02EST minimization-one.lisp>
+;; Time-stamp: <2009-02-15 11:23:41EST minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,9 +20,12 @@
   "Make an instance of a minimizer of the given type.  Optionally
    set to use the function and the initial search interval [lower,
    upper], with a guess for the location of the minimum."
+  :superclasses (callback-included)
+  :ci-class-slots (gsl-function nil (function))
   :initialize-suffix "set"		; should use set_with_values?
   :initialize-args
-  ((function :pointer) (minimum :double) (lower :double) (upper :double)))
+  ((callback :pointer) (minimum :double) (lower :double) (upper :double))
+  :singular (function))
 
 (defmfun set-fminimizer-with-values
     (minimizer function x-minimum x-lower x-upper
@@ -180,8 +183,7 @@
 (defun minimization-one-fn (x)
   (1+ (cos x)))
 
-#+callback-toplevel-only
-(defparameter *minone-cb* (make-single-function minimization-one-fn))
+(make-callbacks single-function minimization-one-fn)
 
 (defun minimization-one-example
     (&optional (minimizer-type *brent-fminimizer*) (print-steps t))
@@ -189,9 +191,7 @@
   (let ((max-iter 100)
 	(minimizer
 	 (make-one-dimensional-minimizer
-	  minimizer-type
-	  #-callback-toplevel-only (make-single-function minimization-one-fn)
-	  #+callback-toplevel-only *minone-cb*
+	  minimizer-type 'minimization-one-fn
 	  2.0d0 0.0d0 6.0d0)))
     (when print-steps
       (format
