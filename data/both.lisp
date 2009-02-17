@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-02-11 22:17:09EST both.lisp>
+;; Time-stamp: <2009-02-16 18:59:47EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -320,3 +320,33 @@
   :c-return :boolean
   :documentation			; FDL
   "All elements of a are zero.")
+
+(defmfun mplusp ((a both))
+  ("gsl_" :category :type "_ispos")
+  (((mpointer a) :pointer))
+  :definition :generic
+  :gsl-version (1 9)
+  :inputs (a)
+  :c-return :boolean
+  :documentation			; FDL
+  "All elements of a are positive.")
+
+(defmfun mminusp ((a both))
+  ("gsl_" :category :type "_isneg")
+  (((mpointer a) :pointer))
+  :definition :generic
+  :gsl-version (1 9)
+  :inputs (a)
+  :c-return :boolean
+  :documentation			; FDL
+  "All elements of a are negative.")
+
+(defmfun non-negative-p ((a both))
+  ("gsl_" :category :type "_isnonneg")
+  (((mpointer a) :pointer))
+  :definition :generic
+  :gsl-version (1 10)
+  :inputs (a)
+  :c-return :boolean
+  :documentation			; FDL
+  "All elements of a are non-negative.")

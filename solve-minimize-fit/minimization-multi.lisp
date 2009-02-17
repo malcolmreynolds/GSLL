@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-02-16 09:54:29EST minimization-multi.lisp>
+;; Time-stamp: <2009-02-16 18:58:26EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -268,6 +268,27 @@
    steps towards the function minimum, assuming quadratic behavior in
    that region.")
 
+(defmpar +vector-bfgs2+
+    "gsl_multimin_fdfminimizer_vector_bfgs2"
+  ;; FDL
+  "The vector Broyden-Fletcher-Goldfarb-Shanno (BFGS) conjugate
+   gradient algorithm.  It is a quasi-Newton method which builds up an
+   approximation to the second derivatives of the function using the
+   difference between successive gradient vectors.  By combining the
+   first and second derivatives the algorithm is able to take Newton-type
+   steps towards the function minimum, assuming quadratic behavior in
+   that region.
+
+   This version is the most efficient version available, and is a
+   faithful implementation of the line minimization scheme described
+   in Fletcher's Practical Methods of Optimization, Algorithms 2.6.2
+   and 2.6.4. It supercedes the original bfgs routine and requires
+   substantially fewer function and gradient evaluations. The
+   user-supplied tolerance tol corresponds to the parameter \sigma
+   used by Fletcher. A value of 0.1 is recommended for typical
+   use (larger values correspond to less accurate line searches)."
+  :gsl-version (1 9))
+
 (defmpar +simplex-nelder-mead+
     "gsl_multimin_fminimizer_nmsimplex"
   ;; FDL
@@ -414,4 +435,5 @@
  (multimin-example-no-derivative +simplex-nelder-mead+ nil)
  (multimin-example-derivative +conjugate-fletcher-reeves+ nil)
  (multimin-example-derivative +conjugate-polak-ribiere+ nil)
- (multimin-example-derivative +vector-bfgs+ nil))
+ (multimin-example-derivative +vector-bfgs+ nil)
+ (multimin-example-derivative +vector-bfgs2+ nil))

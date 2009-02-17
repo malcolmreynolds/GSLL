@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-02-16 10:10:32EST generators.lisp>
+;; Time-stamp: <2009-02-16 18:43:36EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,7 +36,7 @@
 (defmpar +default-seed+
     "gsl_rng_default_seed"
   "The default seed for random number generators."
-  :ulong nil)
+  :c-type :ulong :read-only nil)
 
 ;;;;****************************************************************************
 ;;;; Sampling

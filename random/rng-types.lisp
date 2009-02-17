@@ -1,6 +1,6 @@
 ;; Random number generation
 ;; Liam Healy, Tue Jul 11 2006 - 23:39
-;; Time-stamp: <2009-02-16 10:24:11EST rng-types.lisp>
+;; Time-stamp: <2009-02-16 18:49:40EST rng-types.lisp>
 ;; $Id$
 
 ;;; Random number generator types and information functions.
@@ -38,7 +38,7 @@
 ;;;; Defining RNGs and default
 ;;;;****************************************************************************
 
-(defmacro def-rng-type (lisp-name &optional documentation gsl-name)
+(defmacro def-rng-type (lisp-name &optional documentation gsl-name gsl-version)
   "Define the random number generator type."
   (let ((cname
 	 (or gsl-name
@@ -46,7 +46,7 @@
 		     (substitute
 		      #\_ #\- 
 		      (format nil "gsl_rng_~(~a~)" lisp-name))))))
-    `(defmpar ,lisp-name ,cname ,documentation)))
+    `(defmpar ,lisp-name ,cname ,documentation :gsl-version ,gsl-version)))
 
 (def-rng-type +default-type+
     "The default random number generator type,
@@ -442,6 +442,14 @@
     A second-order multiple recursive generator described by Knuth
     in Seminumerical Algorithms, 3rd Ed., Section 3.6.  Knuth
     provides its C code.")
+
+(def-rng-type +knuthran2002+		; FDL
+    "Obsolete, use only for compatibility.
+    A second-order multiple recursive generator described by Knuth
+    in Seminumerical Algorithms, 3rd Ed., Section 3.6.  Knuth
+    provides its C code.  From the revised 9th printing and corrects
+    some weaknesses in the earlier version, which is implemented as
+    +knuthran+." "gsl_rng_knuthran2002" (1 9))
 
 (def-rng-type +knuthran2+		; FDL
     "Obsolete, use only for compatibility.

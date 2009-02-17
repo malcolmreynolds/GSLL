@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-15 12:45:17EST interface.lisp>
+;; Time-stamp: <2009-02-16 18:39:59EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -128,13 +128,22 @@
 ;;;;****************************************************************************
 
 (defmacro defmpar
-    (cl-symbol gsl-symbol documentation &optional (c-type :pointer) (read-only t))
+    (cl-symbol gsl-symbol documentation
+     &key (c-type :pointer) (read-only t) gsl-version)
   "Define a library variable pointer."
-  `(progn
-    (cffi:defcvar (,gsl-symbol ,cl-symbol :read-only ,read-only) ,c-type
-      ,documentation)
-    (map-name ',cl-symbol ,gsl-symbol)
-    (export ',cl-symbol)))
+  (if (have-at-least-gsl-version gsl-version)
+      `(progn
+	 (cffi:defcvar (,gsl-symbol ,cl-symbol :read-only ,read-only) ,c-type
+	   ,documentation)
+	 (map-name ',cl-symbol ,gsl-symbol)
+	 (export ',cl-symbol))
+      ;; Insufficient version number handled by binding a special of
+      ;; the same name to the condition.  It would be nice to signal
+      ;; the error, but it least this will provide some information.
+      `(defparameter ,cl-symbol
+	 (make-condition
+	  'obsolete-gsl-version :name ',cl-symbol :gsl-name
+	  ,gsl-symbol :gsl-version ',gsl-version ))))
 
 ;;;;****************************************************************************
 ;;;; GSL library version
