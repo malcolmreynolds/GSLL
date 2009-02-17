@@ -1,6 +1,6 @@
 ;; Exponential integrals
 ;; Liam Healy, Tue Mar 21 2006 - 17:37
-;; Time-stamp: <2008-11-16 12:07:43EST exponential-integrals.lisp>
+;; Time-stamp: <2009-02-16 23:04:00EST exponential-integrals.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,23 +9,31 @@
 ;;;; Exponential Integral
 ;;;;****************************************************************************
 
-(defmfun expint-E1 (x)
+(defmfun exponential-integral-E1 (x)
   "gsl_sf_expint_E1_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The exponential integral
    E_1(x)}, E_1(x) := \Re \int_1^\infty dt \exp(-xt)/t..")
 
-(defmfun expint-E2 (x)
+(defmfun exponential-integral-E2 (x)
   "gsl_sf_expint_E2_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The second-order exponential integral
    E_2(x)}, E_2(x) := \Re \int_1^\infty dt \exp(-xt)/t^2.")
 
+(defmfun exponential-integral-En (n x)
+  "gsl_sf_expint_En_e" ((n :int) (x :double) (ret sf-result))
+  :gsl-version (1 10)
+  :documentation			; FDL
+  "The exponential integral E_n(x) of order n,
+          E_n(x) := \Re \int_1^\infty dt \exp(-xt)/t^n.")
+
+
 ;;;;****************************************************************************
 ;;;; Ei
 ;;;;****************************************************************************
 
-(defmfun expint-Ei (x)
+(defmfun exponential-integral-Ei (x)
     "gsl_sf_expint_Ei_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The exponential integral Ei(x),
@@ -51,7 +59,7 @@
 ;;;; Ei-3
 ;;;;****************************************************************************
 
-(defmfun expint-3 (x)
+(defmfun exponential-integral-3 (x)
   "gsl_sf_expint_3_e" ((x :double) (ret sf-result))
   :documentation			; FDL
   "The third-order exponential integral Ei_3(x) = \int_0^xdt \exp(-t^3)
@@ -87,12 +95,13 @@
 ;;;;****************************************************************************
 
 (save-test exponential-integrals
-  (expint-E1 0.0d0)
-  (expint-E1 1.0d0)
-  (expint-Ei 2.0d0)
+  (exponential-integral-E1 0.0d0)
+  (exponential-integral-E1 1.0d0)
+  (exponential-integral-Ei 2.0d0)
+  (exponential-integral-En 2 1.0d0)
   (Shi 1.25d0)
   (Chi 1.25d0)
-  (expint-3 1.25d0)
+  (exponential-integral-3 1.25d0)
   (si 1.25d0)
   (ci 1.25d0)
   (atanint 1.25d0))

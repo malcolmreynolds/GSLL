@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-15 22:39:08EST callback.lisp>
+;; Time-stamp: <2009-02-16 22:24:39EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -388,7 +388,7 @@
     that sets the slots in the GSL callback structure."
   `(let ((setdim (not (eq ,struct-name 'gsl-function))))
     (when (callback-arg-p ,trigger-list)
-       `(set-cbstruct ,',+callback-argument-name+ ',,struct-name
+       `((set-cbstruct ,',+callback-argument-name+ ',,struct-name
 		      ,,'(when setdim
 			      '(list 'dimensions (length (arglist function))))
-		      (list 'function ,',function)))))
+		      (list 'function ,',function))))))

@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-16 17:57:09EST gsll-tests.asd>
+;; Time-stamp: <2009-02-16 22:48:51EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -40,6 +40,7 @@
 	     (:file "combination")
 	     (:file "coulomb")
 	     (:file "coupling")
+	     (:file "correlation")
 	     (:file "covariance")
 	     (:file "dawson")
 	     (:file "debye")

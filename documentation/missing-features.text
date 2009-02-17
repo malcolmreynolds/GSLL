@@ -6,20 +6,8 @@ All file input and output (fread, fwrite) functions.
 All submatrix functions and views.
 Stride is always set to 1 in GSL functions that take a stride.
 
-Some things that have been added to GSL since 1.9 that should be added
-to GSLL:
-
-GSL 1.10
-http://lists.gnu.org/archive/html/info-gsl/2007-09/msg00000.html
-** Extended Cholesky routines to complex matrices (Patrick Alken)
-** Added functions gsl_matrix_subrow and gsl_matrix_subcolumn
-** Added function gsl_stats_correlation to compute Pearson correlation
-of two datasets
-** Added the new function gsl_sf_expint(n,x) for computing the n-th
-order exponential integral.
-** Added support in gsl_ieee_set_mode for controlling SSE exceptions
-and rounding through the MXCSR control word on x86 processors.
-[Modify existing GSLL function.]
+Some things that have been added to GSL since version 1.10 that should
+be added to GSLL:
 
 GSL 1.11
 http://lists.gnu.org/archive/html/info-gsl/2008-03/msg00000.html
@@ -44,4 +32,5 @@ Wishlist
 Be able to set the real and imaginary parts of an array to a real
 array. 
 
-
+Mon Feb 16 2009
+#'cholesky-solve default optional argument and switching.
