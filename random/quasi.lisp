@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2009-01-25 09:57:03EST quasi.lisp>
+;; Time-stamp: <2009-02-17 21:14:50EST quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -66,24 +66,42 @@
   :c-return :pointer
   :index copy)
 
-(def-rng-type *niederreiter2*
+(def-rng-type +niederreiter2+
     ;; FDL
     "Described in Bratley, Fox, Niederreiter,
      ACM Trans. Model. Comp. Sim. 2, 195 (1992). It is
      valid up to 12 dimensions."
   "gsl_qrng_niederreiter_2")
 
-(def-rng-type *sobol*
+(def-rng-type +sobol+
     ;; FDL
     "This generator uses the Sobol sequence described in Antonov, Saleev,
     USSR Comput. Maths. Math. Phys. 19, 252 (1980). It is valid up to
     40 dimensions."
   "gsl_qrng_sobol")
 
+(def-rng-type +halton+ 
+    ;; FDL
+    "The Halton sequence described in J.H. Halton, Numerische
+     Mathematik 2, 84-90 (1960) and B. Vandewoestyne and R. Cools
+     Computational and Applied Mathematics 189, 1&2, 341-361 (2006). They
+     are valid up to 1229 dimensions. "
+  "gsl_qrng_halton"
+  (1 11))
+
+(def-rng-type +reverse-halton+ 
+    ;; FDL
+    "The reverse Halton sequence described in J.H. Halton, Numerische
+     Mathematik 2, 84-90 (1960) and B. Vandewoestyne and R. Cools
+     Computational and Applied Mathematics 189, 1&2, 341-361 (2006). They
+     are valid up to 1229 dimensions. "
+  "gsl_qrng_reversehalton"
+  (1 11))
+
 ;;; Examples and unit test
 (save-test quasi-random-number-generators
   ;; This example is given in the GSL documentation
-  (let ((gen (make-quasi-random-number-generator *sobol* 2))
+  (let ((gen (make-quasi-random-number-generator +sobol+ 2))
 	  (vec (make-marray 'double-float :dimensions 2)))
      (loop repeat 5
 	   do (qrng-get gen vec)

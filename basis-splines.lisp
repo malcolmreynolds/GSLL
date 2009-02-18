@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2009-02-16 10:16:44EST basis-splines.lisp>
+;; Time-stamp: <2009-02-17 22:21:59EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -122,7 +122,7 @@
       (dotimes (j ncoeffs)
 	(setf (maref Xmatrix i j) (maref B j))))
     ;; Do the fit
-    (weighted-linear-mfit Xmatrix w y c cov mw)
+    (linear-mfit Xmatrix y c w cov mw)
     ;; Return the smoothed curve
     (loop for xi from 0.0d0 to 15.0d0 by 0.1d0
        with yval and yerr

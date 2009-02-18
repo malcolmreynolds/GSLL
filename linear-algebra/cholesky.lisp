@@ -1,6 +1,6 @@
 ;; Cholesky Decomposition
 ;; Liam Healy, Wed May  3 2006 - 16:38
-;; Time-stamp: <2009-02-16 23:18:32EST cholesky.lisp>
+;; Time-stamp: <2009-02-17 21:08:51EST cholesky.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,7 +36,11 @@
   returning the error input-domain.")
 
 (defmfun cholesky-solve
-    ((A matrix) (b vector) &optional x)
+    ((A matrix) (b vector) &optional x-spec
+     &aux
+     (x (if (eq x-spec t)
+	    (make-marray element-type :dimensions (dimensions b))
+	    x-spec)))
   (("gsl_linalg" :complex "_cholesky_svx")
    ("gsl_linalg" :complex "_cholesky_solve"))
   ((((mpointer A) :pointer) ((mpointer b) :pointer))
@@ -46,8 +50,11 @@
   :element-types :doubles
   :inputs (A b)
   :outputs (x)
+  :return ((or x b))
   :documentation			; FDL
   "Solve the system A x = b using the Cholesky
   decomposition of A into the matrix given by
-  #'cholesky-decomposition.  If x is not specified, the solution
-  will replace b.")
+  #'cholesky-decomposition.  If x-spec is NIL (default), the solution
+  will replace b.  If x-spec is T, then an array will be created and the
+  solution returned in it.  If x-spec is a marray, the solution will
+  be returned in it.")

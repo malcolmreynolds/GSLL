@@ -1,6 +1,6 @@
 ;; Helpers for defining GSL functions on arrays
 ;; Liam Healy 2009-01-07 22:01:16EST defmfun-array.lisp
-;; Time-stamp: <2009-01-08 22:02:50EST defmfun-array.lisp>
+;; Time-stamp: <2009-02-17 21:10:22EST defmfun-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -48,7 +48,10 @@
   (with-defmfun-key-args key-args
     (multiple-value-bind (noclass-arglist categories)
 	(arglist-plain-and-categories arglist)
-      `(defgeneric ,name ,noclass-arglist
+      `(defgeneric ,name
+	   ;; Remove &aux from the arglist, it is not allowed in
+	   ;; defgeneric arglists.
+	   ,(subseq noclass-arglist 0 (position '&aux noclass-arglist))
 	 (:documentation ,documentation)
 	 ,@(expand-defmfun-arrays
 	    :method name arglist gsl-name c-arguments categories key-args)))))

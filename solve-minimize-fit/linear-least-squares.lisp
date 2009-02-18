@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2009-02-16 10:16:05EST linear-least-squares.lisp>
+;; Time-stamp: <2009-02-17 22:15:55EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,51 +17,36 @@
 ;;; of "cov00" etc.  Last arg to gsl_fit_wmul is labelled sumsq but
 ;;; referred to as chisq.
 
-(defmfun linear-fit (x y &optional (x-stride 1) (y-stride 1))
-  "gsl_fit_linear"
-  (((c-pointer x) :pointer) (x-stride sizet)
+(defmfun linear-fit
+    (x y &optional weight (x-stride 1) (y-stride 1) (weight-stride 1))
+  ("gsl_fit_linear" "gsl_fit_wlinear")
+  ((((c-pointer x) :pointer) (x-stride sizet)
    ((c-pointer y) :pointer) (y-stride sizet)
    ((dim0 x) sizet) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
    (sumsq :double))
-  :inputs (x y)
-  :documentation			; FDL
-  "Determine the best-fit linear regression coefficients
-   and returns as the first two values c0,c1
-   of the model Y = c_0 + c_1 X for the dataset
-   (x,y), two vectors of equal length with strides
-   x-stride and y-stride.  The errors on y are assumed unknown so 
-   the variance-covariance matrix for the
-   parameters (c0, c1) is estimated from the scatter of the
-   points around the best-fit line and returned as the third, fourth
-   and fifth values cov00, cov01, cov11.   
-   The sum of squares of the residuals from the best-fit line is returned
-   as the final value.")
-
-(defmfun weighted-linear-fit
-    (x weight y &optional (x-stride 1) (weight-stride 1) (y-stride 1))
-  "gsl_fit_wlinear"
-  (((c-pointer x) :pointer) (x-stride sizet)
+   (((c-pointer x) :pointer) (x-stride sizet)
    ((c-pointer weight) :pointer) (weight-stride sizet)
    ((c-pointer y) :pointer) (y-stride sizet)
    ((dim0 x) sizet) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
-   (chisq :double))
+   (chisq :double)))
   :inputs (x weight y)
+  :switch (weight weight-stride)
   :documentation			; FDL
   "Compute the best-fit linear regression coefficients
-   c0, c1 of the model Y = c_0 + c_1 X for the weighted
+   c0, c1 of the model Y = c_0 + c_1 X for the weighted or unweighted
    dataset (x, y), two vectors of equal length with strides
    x-stride and y-stride, and return as the first two values.
-   The vector weight, of the same length
+   The vector weight if given, of the same length
    and stride w-stride, specifies the weight of each datapoint. The
    weight is the reciprocal of the variance for each datapoint in y.
 
    The covariance matrix for the parameters (c0, c1) is
    computed using the weights and returned via the parameters
-   (cov00, cov01, c0v01) as the next three values.  The weighted sum
-   of squares of the residuals from the best-fit line, \chi^2, is
-   returned in as the last value.")
+   (cov00, cov01, c0v01) as the next three values.  The weighted or
+   unweighted sum of squares of the residuals from the best-fit line,
+   \chi^2, is returned in as the last value.")
 
 (defmfun linear-estimate (x c0 c1 cov00 cov01 cov11)
   "gsl_fit_linear_est"
@@ -79,34 +64,23 @@
 ;;;; Linear fitting without a constant term
 ;;;;****************************************************************************
 
-(defmfun multiplier-fit (x y &optional (x-stride 1) (y-stride 1))
-  "gsl_fit_mul"
-  (((c-pointer x) :pointer) (x-stride sizet)
-   ((c-pointer y) :pointer) (y-stride sizet)
-   ((dim0 x) sizet) (c1 :double) (cov11 :double)
-   (sumsq :double))
-  :inputs (x y)
-  :documentation			; FDL
-  "The best-fit linear regression coefficient c1 of the model Y = c_1
-   X for the datasets (x, y) two vectors of equal length with strides x-stride
-   and y-stride.  The errors on y are assumed unknown so the variance of
-   the parameter c1 is estimated from the scatter of the points around
-   the best-fit line and returned as the the second value.  The sum of
-   squares of the residuals from the best-fit line is returned as the
-   last value.")
-
-(defmfun weighted-multiplier-fit
-    (x weight y &optional (x-stride 1) (weight-stride 1) (y-stride 1))
-  "gsl_fit_wmul"
-  (((c-pointer x) :pointer) (x-stride sizet)
-   ((c-pointer weight) :pointer) (weight-stride sizet)
-   ((c-pointer y) :pointer) (y-stride sizet)
-   ((dim0 x) sizet) (c1 :double) (cov11 :double)
-   (chisq :double))
-  :inputs (x weight y)
+(defmfun multiplier-fit
+    (x y &optional weight (x-stride 1) (y-stride 1) (weight-stride 1))
+  ("gsl_fit_mul" "gsl_fit_wmul")
+  ((((c-pointer x) :pointer) (x-stride sizet)
+    ((c-pointer y) :pointer) (y-stride sizet)
+    ((dim0 x) sizet) (c1 :double) (cov11 :double)
+    (sumsq :double))
+   (((c-pointer x) :pointer) (x-stride sizet)
+    ((c-pointer weight) :pointer) (weight-stride sizet)
+    ((c-pointer y) :pointer) (y-stride sizet)
+    ((dim0 x) sizet) (c1 :double) (cov11 :double)
+    (chisq :double)))
+  :inputs (x y weight)
+  :switch (weight weight-stride)
   :documentation			; FDL
   "Compute the best-fit linear regression coefficient
-   c1 of the model Y = c_1 X for the weighted datasets
+   c1 of the model Y = c_1 X for the weighted or unweighted datasets
    (x, y), two vectors of equal length with strides
    x-stride and y-stride.  The vector weight of the same length
    and of stride w-stide specifies the weight of each datapoint. The
@@ -154,127 +128,83 @@
    (dim0 observations) (size-array parameters-or-size)))
 
 (defmfun linear-mfit
-    (model observations parameters-or-size tolerance
+    (model observations parameters-or-size
 	   &optional
-	   (covariance (default-covariance parameters-or-size))
-	   (workspace (default-lls-workspace observations parameters-or-size))
-	   &aux (parameters (vdf parameters-or-size)))
-  "gsl_multifit_linear"
-  (((mpointer model) :pointer) ((mpointer observations) :pointer)
-   (tolerance :double)
-   ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
-   ((mpointer workspace) :pointer))
-  :inputs (model observations)
-  :outputs (parameters covariance)
-  :documentation			; FDL
-  "Compute the best-fit parameters c of the model
-   y = X c for the observations y and the matrix of predictor
-   variables X.  The variance-covariance matrix of the model
-   parameters cov is estimated from the scatter of the observations
-   about the best-fit.  The sum of squares of the residuals from the
-   best-fit, chi^2, is returned.
-
-   The best-fit is found by singular value decomposition of the matrix
-   X using the preallocated workspace provided. The
-   modified Golub-Reinsch SVD algorithm is used, with column scaling to
-   improve the accuracy of the singular values. Any components which have
-   zero singular value (to machine precision) are discarded from the fit.")
-
-(defmfun linear-mfit-svd
-    (model observations parameters-or-size tolerance
-	   &optional
-	   (covariance (default-covariance parameters-or-size))
-	   (workspace (default-lls-workspace observations parameters-or-size))
-	   &aux (parameters (vdf parameters-or-size)))
-  "gsl_multifit_linear_svd"
-  (((mpointer model) :pointer) ((mpointer observations) :pointer)
-   (tolerance :double)
-   (rank sizet)
-   ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
-   ((mpointer workspace) :pointer))
-  :inputs (model observations)
-  :outputs (parameters covariance)
-  :return ((dcref chisq) (scref rank))
-  :documentation			; FDL
-  "Compute the best-fit parameters c of the model
-   y = X c for the observations y and the matrix of predictor
-   variables X.  The variance-covariance matrix of the model
-   parameters cov is estimated from the scatter of the observations
-   about the best-fit.  The sum of squares of the residuals
-   from the best-fit chi^2, and rank are returned.
-
-   The best-fit is found by singular value decomposition of the matrix
-   X using the preallocated workspace provided. The
-   modified Golub-Reinsch SVD algorithm is used, with column scaling to
-   improve the accuracy of the singular values. Any components which have
-   zero singular value (to machine precision) are discarded from the fit.
-   In the this form of the function the components are discarded if the
-   ratio of singular values s_i/s_0 falls below the user-specified
-   tolerance tolerance, and the effective rank is returned as the
-   second value.")
-
-(defmfun weighted-linear-mfit
-    (model weight observations parameters-or-size
-	   &optional
+	   weight
 	   (covariance (default-covariance parameters-or-size))
 	   (workspace (default-lls-workspace observations parameters-or-size))
 	   &aux
 	   (parameters (vdf parameters-or-size)))
-  "gsl_multifit_wlinear"
-  (((mpointer model) :pointer)
-   ((mpointer weight) :pointer)
-   ((mpointer observations) :pointer)
-   ((mpointer parameters) :pointer)
-   ((mpointer covariance) :pointer) (chisq :double)
-   ((mpointer workspace) :pointer))
+  ("gsl_multifit_linear" "gsl_multifit_wlinear")
+  ((((mpointer model) :pointer) ((mpointer observations) :pointer)
+    (tolerance :double)
+    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
+    ((mpointer workspace) :pointer))
+   (((mpointer model) :pointer)
+    ((mpointer weight) :pointer)
+    ((mpointer observations) :pointer)
+    ((mpointer parameters) :pointer)
+    ((mpointer covariance) :pointer) (chisq :double)
+    ((mpointer workspace) :pointer)))
   :inputs (model observations)
   :outputs (parameters covariance)
+  :switch (weight)
   :return (parameters covariance (dcref chisq))
   :documentation			; FDL
-  "Compute the best-fit parameters c of the weighted
-   model y = X c for the observations y and weights
+  "Compute the best-fit parameters c of the weighted or unweighted
+   model y = X c for the observations y and optional weights
    and the model matrix X.  The covariance matrix of
    the model parameters is computed with the given weights.  The
    weighted sum of squares of the residuals from the best-fit,
    chi^2, is returned as the last value.
 
    The best-fit is found by singular value decomposition of the matrix
-   model using the preallocated workspace provided. Any
-   components which have zero singular value (to machine precision) are
-   discarded from the fit.")
+   model using the preallocated workspace provided. The modified
+   Golub-Reinsch SVD algorithm is used for the unweighted solution,
+   with column scaling to improve the accuracy of the singular values.
+   Any components which have zero singular value (to machine
+   precision) are discarded from the fit.")
 
-(defmfun weighted-linear-mfit-svd
-    (model weight observations parameters-or-size tolerance
-	   &optional
+(defmfun linear-mfit-svd
+    (model observations parameters-or-size tolerance
+	   &optional weight
 	   (covariance (default-covariance parameters-or-size))
 	   (workspace (default-lls-workspace observations parameters-or-size))
 	   &aux (parameters (vdf parameters-or-size)))
-  "gsl_multifit_wlinear_svd"
-  (((mpointer model) :pointer)
-   ((mpointer weight) :pointer)
-   ((mpointer observations) :pointer)
-   (tolerance :double)
-   (rank sizet)
-   ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
-   ((mpointer workspace) :pointer))
+  ("gsl_multifit_linear_svd" "gsl_multifit_wlinear_svd")
+  ((((mpointer model) :pointer) ((mpointer observations) :pointer)
+    (tolerance :double)
+    (rank sizet)
+    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
+    ((mpointer workspace) :pointer))
+   (((mpointer model) :pointer)
+    ((mpointer weight) :pointer)
+    ((mpointer observations) :pointer)
+    (tolerance :double)
+    (rank sizet)
+    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
+    ((mpointer workspace) :pointer)))
   :inputs (model weight observations)
   :outputs (parameters covariance)
+  :switch (weight)
   :return ((dcref chisq) (scref rank))
   :documentation			; FDL
-  "Compute the best-fit parameters c of the weighted
-   model y = X c for the observations y and weights
-   and the model matrix X.  The covariance matrix of
-   the model parameters is computed with the given weights.  
-   The weighted sum of squares of the residuals from the best-fit,
-   chi^2, is returned as the first value.
+  "Compute the best-fit parameters c of the weighted or unweighted
+   model y = X c for the observations y and weights and the model
+   matrix X.  The covariance matrix of the model parameters is
+   computed with the given weights.  The weighted or unweighted sum of
+   squares of the residuals from the best-fit, chi^2, is returned as
+   the first value.
 
    The best-fit is found by singular value decomposition of the matrix
-   model using the preallocated workspace provided. Any
-   components which have zero singular value (to machine precision) are
-   discarded from the fit.  In the second form of the function the
-   components are discarded if the ratio of singular values s_i/s_0
-   falls below the user-specified tolerance, and the effective
-   rank is returned as the second value.")
+   model using the preallocated workspace provided.  The modified
+   Golub-Reinsch SVD algorithm is used, with column scaling to improve
+   the accuracy of the singular values (unweighted).  Any components
+   which have zero singular value (to machine precision) are discarded
+   from the fit.  In the second form of the function the components
+   are discarded if the ratio of singular values s_i/s_0 falls below
+   the user-specified tolerance, and the effective rank is returned as
+   the second value.")
 
 (defmfun multi-linear-estimate (x coefficients covariance)
   "gsl_multifit_linear_est"
@@ -287,6 +217,21 @@
    y and its standard deviation for the model y = x.c
    at the point x.")
 
+(defmfun multi-linear-residuals
+    (x observations coefficients
+       &optional
+       (residuals
+	(make-marray 'double-float :dimensions (dimensions observations))))
+  "gsl_multifit_linear_residuals"
+  (((mpointer x) :pointer) ((mpointer observations) :pointer)
+   ((mpointer coefficients) :pointer) ((mpointer residuals) :pointer))
+  :inputs (x observations coefficients)
+  :outputs (residuals)
+  :gsl-version (1 11)
+  :documentation			; FDL
+  "Compute the vector of residuals r = y - X c for the observations y,
+  coefficients c and matrix of predictor variables X.")
+
 ;;;;****************************************************************************
 ;;;; Examples
 ;;;;****************************************************************************
@@ -298,7 +243,7 @@
 	(y #m(12.0d0 11.0d0 14.0d0 13.0d0))
 	(w #m(0.1d0 0.2d0 0.3d0 0.4d0)))
     (multiple-value-bind (c0 c1 cov00 cov01 cov11 chisq)
-	(weighted-linear-fit x w y)
+	(linear-fit x y w)
       (when print-steps
 	(format t "Best fit: Y = ~8,5f + ~8,5f X~&" c0 c1)
 	(format t "Covariance matrix:~&[~12,5f ~12,5f~&~12,5f ~12,5f]~&"
@@ -351,7 +296,7 @@
 	     (maref y i) (second row)
 	     (maref w i) (/ (expt (third row) 2))))
     (multiple-value-bind (parameters cov chisq)
-	(weighted-linear-mfit X w y 3)
+	(linear-mfit X y 3 w)
       (when print-details
 	(format t "Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2~&"
 		(maref parameters 0) (maref parameters 1) (maref parameters 2))

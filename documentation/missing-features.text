@@ -6,16 +6,8 @@ All file input and output (fread, fwrite) functions.
 All submatrix functions and views.
 Stride is always set to 1 in GSL functions that take a stride.
 
-Some things that have been added to GSL since version 1.10 that should
+Some things that have been added to GSL since version 1.11 that should
 be added to GSLL:
-
-GSL 1.11
-http://lists.gnu.org/archive/html/info-gsl/2008-03/msg00000.html
-** Added new quasi random generators gsl_qrng_halton and
-   gsl_qrng_reversehalton which support dimensions up to 1229.
-** Added function gsl_multifit_linear_residuals for computing the
-   residuals of the fit
-** Added functions for evaluating complex polynomials
 
 GSL 1.12
 http://lists.gnu.org/archive/html/info-gsl/2008-12/msg00001.html
@@ -31,6 +23,3 @@ http://lists.gnu.org/archive/html/info-gsl/2008-12/msg00001.html
 Wishlist
 Be able to set the real and imaginary parts of an array to a real
 array. 
-
-Mon Feb 16 2009
-#'cholesky-solve default optional argument and switching.
