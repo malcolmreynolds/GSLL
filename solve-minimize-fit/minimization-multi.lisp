@@ -1,13 +1,13 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-02-16 18:58:26EST minimization-multi.lisp>
+;; Time-stamp: <2009-02-18 18:18:13EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_multimin.h
 
-;;; In the parabaloid example, I notice that the consruct 
+;;; In the paraboloid example, I notice that the consruct 
 ;;; (min-test-gradient (mfdfminimizer-gradient minimizer) 1.0d-3)
 ;;; is constructing a CL vector-double-float (in mfdfminimizer-gradient) and
 ;;; then immediately pulling out the pointer (in min-test-gradient).  It
@@ -289,7 +289,7 @@
    use (larger values correspond to less accurate line searches)."
   :gsl-version (1 9))
 
-(defmpar +simplex-nelder-mead+
+(defmpar +simplex-nelder-mead-on2+
     "gsl_multimin_fminimizer_nmsimplex"
   ;; FDL
   "The Simplex algorithm of Nelder and Mead. It constructs 
@@ -316,7 +316,43 @@
    average distance from the geometrical center of the simplex to all its
    vertices.  This size can be used as a stopping criteria, as the simplex
    contracts itself near the minimum. The size is returned by the function
-   #'mfminimizer-size.")
+   #'mfminimizer-size.
+
+   This version is O(n^2).")
+
+(defmpar +simplex-nelder-mead+
+    "gsl_multimin_fminimizer_nmsimplex2"
+  ;; FDL
+  "The Simplex algorithm of Nelder and Mead. It constructs 
+   n vectors p_i from the
+   starting vector initial and the vector step-size as follows:
+   p_0 = (x_0, x_1, ... , x_n) 
+   p_1 = (x_0 + step_size_0, x_1, ... , x_n) 
+   p_2 = (x_0, x_1 + step_size_1, ... , x_n) 
+   ... = ...
+   p_n = (x_0, x_1, ... , x_n+step_size_n)
+   These vectors form the n+1 vertices of a simplex in n
+   dimensions.  On each iteration the algorithm tries to improve
+   the parameter vector p_i corresponding to the highest
+   function value by simple geometrical transformations.  These
+   are reflection, reflection followed by expansion, contraction and multiple
+   contraction. Using these transformations the simplex moves through 
+   the parameter space towards the minimum, where it contracts itself.  
+
+   After each iteration, the best vertex is returned.  Note, that due to
+   the nature of the algorithm not every step improves the current
+   best parameter vector.  Usually several iterations are required.
+
+   The routine calculates the minimizer specific characteristic size as the
+   average distance from the geometrical center of the simplex to all its
+   vertices.  This size can be used as a stopping criteria, as the simplex
+   contracts itself near the minimum. The size is returned by the function
+   #'mfminimizer-size.
+
+   This version is O(n); calculates the size of simplex as the rms
+   distance of each vertex from the center rather than the mean
+   distance, which has the advantage of allowing a linear update."
+  :gsl-version (1 12))
 
 ;;;;****************************************************************************
 ;;;; Examples
@@ -324,28 +360,28 @@
 
 ;;; Examples from Sec. 35.8.
 
-(defparameter *parabaloid-center* #(1.0d0 2.0d0))
+(defparameter *paraboloid-center* #(1.0d0 2.0d0))
 
 ;;; Example without derivatives taking scalars.
 
-(defun parabaloid-scalar (x y)
-  "A parabaloid function of two arguments, given in GSL manual Sec. 35.4.
+(defun paraboloid-scalar (x y)
+  "A paraboloid function of two arguments, given in GSL manual Sec. 35.4.
    This version takes scalar arguments."
-  (let ((dp0 (aref *parabaloid-center* 0))
-	(dp1 (aref *parabaloid-center* 1)))
+  (let ((dp0 (aref *paraboloid-center* 0))
+	(dp1 (aref *paraboloid-center* 1)))
     (+ (* 10 (expt (- x dp0) 2))
        (* 20 (expt (- y dp1) 2))
        30)))
 
-(make-callbacks multi-dimensional-minimizer-f parabaloid-scalar 2 t)
+(make-callbacks multi-dimensional-minimizer-f paraboloid-scalar 2 t)
 
 (defun multimin-example-no-derivative
-    (&optional (method +simplex-nelder-mead+) (print-steps t))
+    (&optional (method +simplex-nelder-mead-on2+) (print-steps t))
   (let ((step-size (make-marray 'double-float :dimensions 2)))
     (set-all step-size 1.0d0)
     (let ((minimizer
 	   (make-multi-dimensional-minimizer-f
-	    method 2 'parabaloid-scalar
+	    method 2 'paraboloid-scalar
 	    #m(5.0d0 7.0d0) step-size)))
       (loop with status = T and size
 	 for iter from 0 below 100
@@ -372,37 +408,37 @@
 ;;; accept the correct number of scalar double-floats, in which case
 ;;; the last argument to the make-callbacks form would be t.
 
-(defun parabaloid-vector (gsl-vector)
-  "A parabaloid function of two arguments, given in GSL manual Sec. 35.4.
+(defun paraboloid-vector (gsl-vector)
+  "A paraboloid function of two arguments, given in GSL manual Sec. 35.4.
    This version takes a vector-double-float argument."
   (let ((x (maref gsl-vector 0))
 	(y (maref gsl-vector 1))
-	(dp0 (aref *parabaloid-center* 0))
-	(dp1 (aref *parabaloid-center* 1)))
+	(dp0 (aref *paraboloid-center* 0))
+	(dp1 (aref *paraboloid-center* 1)))
     (+ (* 10 (expt (- x dp0) 2))
        (* 20 (expt (- y dp1) 2))
        30)))
 
-(defun parabaloid-derivative
+(defun paraboloid-derivative
     (arguments-gv-pointer derivative-gv-pointer)
   (let ((x (maref arguments-gv-pointer 0))
 	(y (maref arguments-gv-pointer 1))
-	(dp0 (aref *parabaloid-center* 0))
-	(dp1 (aref *parabaloid-center* 1)))
+	(dp0 (aref *paraboloid-center* 0))
+	(dp1 (aref *paraboloid-center* 1)))
     (setf (maref derivative-gv-pointer 0)
 	  (* 20 (- x dp0))
 	  (maref derivative-gv-pointer 1)
 	  (* 40 (- y dp1)))))
 
-(defun parabaloid-and-derivative (arguments-gv-pointer derivative-gv-pointer)
+(defun paraboloid-and-derivative (arguments-gv-pointer derivative-gv-pointer)
   (prog1
-      (parabaloid-vector arguments-gv-pointer)
-    (parabaloid-derivative
+      (paraboloid-vector arguments-gv-pointer)
+    (paraboloid-derivative
      arguments-gv-pointer derivative-gv-pointer)))
 
 (make-callbacks
  multi-dimensional-minimizer-fdf
- parabaloid-vector parabaloid-derivative parabaloid-and-derivative 2 nil)
+ paraboloid-vector paraboloid-derivative paraboloid-and-derivative 2 nil)
 
 (defun multimin-example-derivative
     (&optional (method +conjugate-fletcher-reeves+) (print-steps t))
@@ -410,7 +446,7 @@
 	 (minimizer
 	  (make-multi-dimensional-minimizer-fdf
 	   method 2
-	   '(parabaloid-vector parabaloid-derivative parabaloid-and-derivative)
+	   '(paraboloid-vector paraboloid-derivative paraboloid-and-derivative)
 	   initial 0.01d0 1.0d-4)))
     (loop with status = T
        for iter from 0 below 100
@@ -432,7 +468,7 @@
 	   (values (maref x 0) (maref x 1) (function-value minimizer)))))))
 
 (save-test minimization-multi
- (multimin-example-no-derivative +simplex-nelder-mead+ nil)
+ (multimin-example-no-derivative +simplex-nelder-mead-on2+ nil)
  (multimin-example-derivative +conjugate-fletcher-reeves+ nil)
  (multimin-example-derivative +conjugate-polak-ribiere+ nil)
  (multimin-example-derivative +vector-bfgs+ nil)

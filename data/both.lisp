@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-02-16 18:59:47EST both.lisp>
+;; Time-stamp: <2009-02-18 19:00:55EST both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -125,7 +125,7 @@
   ("gsl_" :category :type "_add")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex
+  :element-types #.(if (have-at-least-gsl-version '(1 12)) t :no-complex)
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -137,7 +137,7 @@
   ("gsl_" :category :type "_add_constant")
   (((mpointer a) :pointer) (x :double))
   :definition :methods
-  :element-types :no-complex
+  :element-types #.(if (have-at-least-gsl-version '(1 12)) t :no-complex)
   :inputs (a)
   :outputs (a)
   :return (a)
@@ -151,7 +151,7 @@
   ("gsl_" :category :type "_sub")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex
+  :element-types #.(if (have-at-least-gsl-version '(1 12)) t :no-complex)
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -163,7 +163,7 @@
   ("gsl_" :category :type "_mul")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex
+  :element-types #.(if (have-at-least-gsl-version '(1 12)) t :no-complex)
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -184,7 +184,7 @@
   ("gsl_" :category :type "_div")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
   :definition :generic
-  :element-types :no-complex
+  :element-types #.(if (have-at-least-gsl-version '(1 12)) t :no-complex)
   :inputs (a b)
   :outputs (a)
   :return (a)
@@ -205,7 +205,7 @@
   ("gsl_" :category :type "_scale")
   (((mpointer a) :pointer) (x :double))
   :definition :methods
-  :element-types :no-complex
+  :element-types #.(if (have-at-least-gsl-version '(1 12)) t :no-complex)
   :inputs (a)
   :outputs (a)
   :return (a)

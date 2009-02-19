@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-16 16:24:42EST mobject.lisp>
+;; Time-stamp: <2009-02-17 22:48:40EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -258,6 +258,10 @@
 (defmethod mpointer ((object #.+foreign-pointer-class+))
   (check-type object #.+foreign-pointer-type+)
   object)
+
+(export 'order)
+(defgeneric order (object)
+  (:documentation "The order of the GSL object."))
 
 ;;;;****************************************************************************
 ;;;; Making objects from existing objects

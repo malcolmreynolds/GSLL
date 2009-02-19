@@ -7,7 +7,7 @@
                         (LIST 0.9920430849306285d0 1.9969168063253164d0
                               30.000823246638923d0)
                         (MULTIPLE-VALUE-LIST
-                         (MULTIMIN-EXAMPLE-NO-DERIVATIVE +SIMPLEX-NELDER-MEAD+
+                         (MULTIMIN-EXAMPLE-NO-DERIVATIVE +SIMPLEX-NELDER-MEAD-on2+
                                                          NIL)))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.9999999999999997d0 2.0d0 30.0d0)

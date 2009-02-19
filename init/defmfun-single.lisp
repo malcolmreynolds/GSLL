@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-02-16 22:24:39EST defmfun-single.lisp>
+;; Time-stamp: <2009-02-18 18:33:05EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -61,7 +61,7 @@
    (lambda (condition stream)
      (apply 'format stream
 	    "Function ~a (~a) is not available in the ~
-               ~%currently loaded releases ~a of GSL; it was introduced in release ~d.~d."
+               ~%currently loaded release ~a of GSL; it was introduced in release ~d.~d."
 	    (name condition)
 	    (gsl-name condition)
 	    *gsl-version*
@@ -115,8 +115,8 @@
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))
 	     ,@(when qualifier (list qualifier))
-	   (&rest args)
-	   (declare (ignore args))
+	   ,arglist
+	   (declare (ignore ,@(arglist-plain-and-categories arglist)))
 	   (error 'obsolete-gsl-version
 		  :name ',name :gsl-name ,gsl-name :gsl-version ',gsl-version)))))
 

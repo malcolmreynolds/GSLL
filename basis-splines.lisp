@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2009-02-17 22:21:59EST basis-splines.lisp>
+;; Time-stamp: <2009-02-17 22:45:41EST basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -67,9 +67,10 @@
   :c-return sizet
   :gsl-version (1 9))
 
-(defmfun order (bspline)
+(defmfun order ((bspline basis-spline))
   "gsl_bspline_order"
   (((mpointer bspline) :pointer))
+  :definition :method
   :c-return sizet
   :gsl-version (1 9))
 

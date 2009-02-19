@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-02-15 11:23:40EST chebyshev.lisp>
+;; Time-stamp: <2009-02-17 22:52:51EST chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,6 +22,25 @@
   :initialize-args
   ((callback :pointer) (lower-limit :double) (upper-limit :double))
   :singular (function))
+
+(defmfun order ((object chebyshev))
+  "gsl_cheb_order"
+  (((mpointer object) :pointer))
+  :definition :method
+  :c-return sizet
+  :gsl-version (1 12))
+
+(defmfun size (chebyshev)
+  "gsl_cheb_size"
+  (((mpointer chebyshev) :pointer))
+  :c-return sizet
+  :gsl-version (1 12))
+
+(defmfun coefficients (chebyshev)
+  "gsl_cheb_coeffs"
+  (((mpointer chebyshev) :pointer))
+  :c-return sizet
+  :gsl-version (1 12))
 
 ;;;;****************************************************************************
 ;;;; Chebyshev series evaluation
