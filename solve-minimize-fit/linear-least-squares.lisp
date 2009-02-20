@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2009-02-17 22:15:55EST linear-least-squares.lisp>
+;; Time-stamp: <2009-02-19 21:58:24EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -127,7 +127,37 @@
   (make-fit-workspace
    (dim0 observations) (size-array parameters-or-size)))
 
-(defmfun linear-mfit
+(export 'linear-mfit)
+(defun linear-mfit
+    (model observations parameters-or-size
+     &optional tolerance weight
+     (covariance (default-covariance parameters-or-size))
+     (workspace (default-lls-workspace observations parameters-or-size)))
+  "Compute the best-fit parameters c of the weighted or unweighted
+   model y = X c for the observations y and optional weights
+   and the model matrix X.  The covariance matrix of
+   the model parameters is computed with the given weights.  The
+   weighted sum of squares of the residuals from the best-fit,
+   chi^2, is returned as the last value.
+
+   The best-fit is found by singular value decomposition of the matrix
+   model using the preallocated workspace provided. The modified
+   Golub-Reinsch SVD algorithm is used for the unweighted solution,
+   with column scaling to improve the accuracy of the singular values.
+   Any components which have zero singular value (to machine
+   precision) are discarded from the fit.
+
+   If tolerance is a double-float, the SVD algorithm is used.
+   If it is nil the non-svd algorithm is used."
+  (if tolerance
+      (linear-mfit-svd
+       model observations parameters-or-size
+       tolerance weight covariance workspace)
+      (linear-mfit-nosvd
+       model observations parameters-or-size
+       weight covariance workspace)))
+
+(defmfun linear-mfit-nosvd
     (model observations parameters-or-size
 	   &optional
 	   weight
@@ -150,6 +180,8 @@
   :outputs (parameters covariance)
   :switch (weight)
   :return (parameters covariance (dcref chisq))
+  :export nil
+  :index linear-mfit
   :documentation			; FDL
   "Compute the best-fit parameters c of the weighted or unweighted
    model y = X c for the observations y and optional weights
@@ -188,6 +220,8 @@
   :outputs (parameters covariance)
   :switch (weight)
   :return ((dcref chisq) (scref rank))
+  :export nil
+  :index linear-mfit
   :documentation			; FDL
   "Compute the best-fit parameters c of the weighted or unweighted
    model y = X c for the observations y and weights and the model
@@ -296,7 +330,7 @@
 	     (maref y i) (second row)
 	     (maref w i) (/ (expt (third row) 2))))
     (multiple-value-bind (parameters cov chisq)
-	(linear-mfit X y 3 w)
+	(linear-mfit X y 3 nil w)
       (when print-details
 	(format t "Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2~&"
 		(maref parameters 0) (maref parameters 1) (maref parameters 2))
