@@ -1,6 +1,6 @@
 ;; Generic functions for optimization
 ;; Liam Healy 2009-01-03 12:59:07EST generic.lisp
-;; Time-stamp: <2009-02-14 12:25:14EST generic.lisp>
+;; Time-stamp: <2009-02-21 16:47:51EST generic.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -8,6 +8,8 @@
 ;;;;****************************************************************************
 ;;;; Generic functions for solve-minimize-fit objects
 ;;;;****************************************************************************
+
+(export '(iterate solution function-value last-step))
 
 (defgeneric iterate (object)
   (:documentation "Take the next iteration step for this object."))

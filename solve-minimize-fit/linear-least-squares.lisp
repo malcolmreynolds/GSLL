@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2009-02-19 21:58:24EST linear-least-squares.lisp>
+;; Time-stamp: <2009-02-21 16:46:32EST linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -130,7 +130,7 @@
 (export 'linear-mfit)
 (defun linear-mfit
     (model observations parameters-or-size
-     &optional tolerance weight
+     &optional weight tolerance
      (covariance (default-covariance parameters-or-size))
      (workspace (default-lls-workspace observations parameters-or-size)))
   "Compute the best-fit parameters c of the weighted or unweighted
@@ -330,7 +330,7 @@
 	     (maref y i) (second row)
 	     (maref w i) (/ (expt (third row) 2))))
     (multiple-value-bind (parameters cov chisq)
-	(linear-mfit X y 3 nil w)
+	(linear-mfit X y 3 w)
       (when print-details
 	(format t "Best fit: Y = ~10,8f + ~10,8f X + ~10,8f X^2~&"
 		(maref parameters 0) (maref parameters 1) (maref parameters 2))

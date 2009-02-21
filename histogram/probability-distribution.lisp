@@ -1,6 +1,6 @@
 ;; Histogram probability distribution.
 ;; Liam Healy, Mon Jan  1 2007 - 17:51
-;; Time-stamp: <2009-01-25 10:04:23EST probability-distribution.lisp>
+;; Time-stamp: <2009-02-21 17:12:56EST probability-distribution.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -40,8 +40,8 @@
    'pdf.  The algorithm used to compute the sample s is given by
    s = range[i] + delta * (range[i+1] - range[i])
    where i is the index which satisfies 
-   sum[i] <=  r < sum[i+1] and delta is 
-   (r - sum[i])/(sum[i+1] - sum[i])."))
+   sum[i] <=  value < sum[i+1] and delta is 
+   (value - sum[i])/(sum[i+1] - sum[i])."))
 
 (defmfun sample ((pdf histogram-pdf) value)
   "gsl_histogram_pdf_sample"

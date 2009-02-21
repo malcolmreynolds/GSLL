@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-02-16 18:43:36EST generators.lisp>
+;; Time-stamp: <2009-02-21 17:23:26EST generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -59,7 +59,7 @@
   "A double precision floating point number uniformly
    distributed in the range [0,1).  The range includes 0.0 but excludes 1.0.
    The value is typically obtained by dividing the result of
-   #'rng-get by (+ (rng-max generator) 1.0) in double
+   #'get-random-number by (+ (rng-max generator) 1.0) in double
    precision.  Some generators compute this ratio internally so that they
    can provide floating point numbers with more than 32 bits of randomness
    (the maximum number of bits that can be portably represented in a single
