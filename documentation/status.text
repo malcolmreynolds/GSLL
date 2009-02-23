@@ -57,3 +57,6 @@ be interpreted?
 Mon Feb 16 2009
 (copy (mathieu-ce-array 0.0d0 (/ PI 2) 6) 'array)
 gives an error
+
+The two LU tests that remultiply to check the result fail in both SBCL
+and CCL; the problem is in the matrix-product-triangular. 2/23/09.

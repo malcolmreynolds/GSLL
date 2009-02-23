@@ -1,17 +1,18 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2009-01-08 12:15:52EST lu.lisp>
+;; Time-stamp: <2009-02-23 13:50:29EST lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun LU-decomposition ((A matrix) p)
+(defmfun LU-decomposition
+    ((A matrix) &optional (permutation (make-permutation (dim0 A))))
   ("gsl_linalg" :complex "_LU_decomp")
-  (((mpointer A) :pointer) ((mpointer p) :pointer) (signum :int))
+  (((mpointer A) :pointer) ((mpointer permutation) :pointer) (signum :int))
   :definition :generic
   :inputs (A)
-  :outputs (A p)
-  :return (A signum)
+  :outputs (A permutation)
+  :return (A permutation signum)
   :element-types :doubles
   :documentation			; FDL
   "Factorize the square matrix A into the LU decomposition PA = LU,
@@ -21,42 +22,42 @@
   diagonal) contains L.  The diagonal elements of L are unity, and are
   not stored.
 
-  The permutation matrix P is encoded in the permutation p.  The j-th
+  The permutation matrix P is encoded in the permutation supplied as
+  the second argument and returned as the second value.  The j-th
   column of the matrix P is given by the k-th column of the identity
   matrix, where k = p_j the j-th element of the permutation
-  vector. The sign of the permutation is returned as the second
-  value; it is the value (-1)^n, where n is the number of
-  interchanges in the permutation.
+  vector. The sign of the permutation is returned as the second value;
+  it is the value (-1)^n, where n is the number of interchanges in the
+  permutation.
 
   The algorithm used in the decomposition is Gaussian Elimination with
   partial pivoting (Golub & Van Loan, Matrix Computations,
   Algorithm 3.4.1).")
 
-(defmfun LU-solve ((LU matrix) p (b vector) (x vector))
-  ("gsl_linalg" :complex "_LU_solve")
-  (((mpointer LU) :pointer) ((mpointer p) :pointer)
-   ((mpointer b) :pointer) ((mpointer x) :pointer))
+(defmfun LU-solve
+    ((A matrix) (b vector) permutation &optional x-spec
+     &aux
+     (x (if (eq x-spec t)
+	    (make-marray element-type :dimensions (dimensions b))
+	    x-spec)))
+  (("gsl_linalg" :complex "_LU_svx")
+   ("gsl_linalg" :complex "_LU_solve"))
+  ((((mpointer A) :pointer)
+    ((mpointer permutation) :pointer) ((mpointer b) :pointer))
+   (((mpointer A) :pointer)
+    ((mpointer permutation) :pointer) ((mpointer b) :pointer)
+    ((mpointer x) :pointer)))
   :definition :generic
-  :inputs (LU p b)
-  :outputs (x)
   :element-types :doubles
+  :inputs (A b permutation)
+  :outputs (x b)		  ; depends on switch; both to be sure
+  :return ((or x b))
   :documentation			; FDL
   "Solve the square system A x = b using the LU
-  decomposition of A into (LU, p) given by LU-decomp.")
-
-(defmfun LU-solvex ((LU matrix) p (x vector))
-  ("gsl_linalg" :complex "_LU_svx")
-  (((mpointer LU) :pointer) ((mpointer p) :pointer)
-   ((mpointer x) :pointer))
-  :definition :generic
-  :inputs (LU p)
-  :outputs (x)
-  :element-types :doubles
-  :documentation			; FDL
-  "Solve the square system A x = b in-place
-   using the LU decomposition of A into
-   (LU, p). On input x should contain the right-hand
-   side b, which is replaced by the solution on output.")
+  decomposition of A into (LU, p) given by LU-decomp.
+  If x-spec is nil, the solution will be computed in-place replacing b,
+  if it is T, an appropriate vector will be created and the solution
+  will be computed there.  Otherwise it should be a supplied vector.")
 
 (defmfun LU-refine ((A matrix) LU p (b vector) (x vector) residual)
   ("gsl_linalg" :complex "_LU_refine")
@@ -145,3 +146,15 @@
    (make-marray 'double-float
 		:dimensions  '(2 2)
 		:initial-contents '(1.0d0 2.0d0 3.0d0 4.0d0)))))
+
+(generate-all-array-tests lu :doubles
+ (let ((mat (array-default '(3 3)))
+       (vec (array-default '3)))
+   (multiple-value-bind (matrix perm) (lu-decomposition mat)
+     (let ((x (lu-solve matrix vec perm)))
+       (cl-array
+	(matrix-product-triangular
+	 matrix
+	 (matrix-product-triangular
+	  matrix x 1 :Upper :NoTrans :NonUnit)
+	 1 :Lower :NoTrans :Unit))))))

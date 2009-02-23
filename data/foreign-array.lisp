@@ -1,6 +1,6 @@
 ;; Foreign arrays (usually in C)
 ;; Liam Healy 2008-12-28 10:44:22EST foreign-array.lisp
-;; Time-stamp: <2009-02-10 23:05:32EST foreign-array.lisp>
+;; Time-stamp: <2009-02-23 15:18:04EST foreign-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -10,6 +10,14 @@
 ;;;;****************************************************************************
 
 (export '(dimensions total-size element-type))
+
+#-native
+(defgeneric (setf cl-invalid) (value object) ; do nothing 
+  (:method (value (object t)) value))
+
+#-native
+(defgeneric (setf c-invalid) (value object) ; do nothing 
+  (:method (value (object t)) value))
 
 (defclass foreign-array ()
   ((cl-array :initarg :cl-array :documentation "The Lisp array.")
@@ -100,7 +108,7 @@
 #-native
 (defun copy-cl-to-c (object)
   "Copy the CL array to the C array."
-  (when (c-invalid object)
+  (when (and (typep object 'mobject) (c-invalid object))
     (copy-array-to-pointer
      (slot-value object 'cl-array)
      (c-pointer object)
@@ -113,7 +121,7 @@
 #-native
 (defun copy-c-to-cl (object)
   "Copy the C array to the CL array."
-  (when (cl-invalid object)
+  (when (and (typep object 'mobject) (cl-invalid object))
     (copy-array-from-pointer
      (slot-value object 'cl-array)
      (c-pointer object)
