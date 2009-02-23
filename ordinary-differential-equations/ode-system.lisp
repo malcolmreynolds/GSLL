@@ -1,6 +1,6 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2009-02-15 09:09:55EST ode-system.lisp>
+;; Time-stamp: <2009-02-23 09:35:27EST ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,7 +17,7 @@
 
 (defmacro with-ode-integration
     ((function time step-size max-time
-	       dependent dimensions &optional (stepper '*step-rk8pd*)
+	       dependent dimensions &optional (stepper '+step-rk8pd+)
 	       (absolute-error 1.0d-6) (relative-error 0.0d0))
      &body body)
   "Environment for integration of ordinary differential equations."
