@@ -1,6 +1,6 @@
 ;; Singular Value Decomposition
 ;; Liam Healy, Tue May  2 2006 - 12:15
-;; Time-stamp: <2008-12-07 18:33:23EST svd.lisp>
+;; Time-stamp: <2009-02-23 20:52:59EST svd.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -25,12 +25,14 @@
 ;;; precision. Small singular values should be edited by choosing a suitable
 ;;; tolerance.
 
-(defmfun SV-decomposition (A S V work)
+(defmfun SV-decomposition
+    (A S V &optional (work (make-marray 'double-float :dimensions (dim1 A))))
   "gsl_linalg_SV_decomp"
   (((mpointer A) :pointer) ((mpointer V) :pointer)
    ((mpointer S) :pointer) ((mpointer work) :pointer))
   :inputs (A)
   :outputs (A S V)
+  :return (A S V)
   :documentation			; FDL
   "Factorize the M-by-N matrix A into
   the singular value decomposition A = U S V^T for M >= N.
@@ -43,14 +45,18 @@
   transpose of V.  A workspace of length N is required in work.
   This routine uses the Golub-Reinsch SVD algorithm.")
 
-(defmfun SV-modified-decomposition (A S V X work)
+(defmfun SV-modified-decomposition
+    (A S V
+       &optional (X (make-marray 'double-float :dimensions (list (dim1 A) (dim1 A))))
+       (work (make-marray 'double-float :dimensions (dim1 A))))
   "gsl_linalg_SV_decomp_mod"
   (((mpointer A) :pointer) ((mpointer X) :pointer)
    ((mpointer V) :pointer)
    ((mpointer S) :pointer) ((mpointer work) :pointer))
   :inputs (A)
   :outputs (A S V)
-  :documentation			; FDL
+  :return (S V)			    ; is A modified by this algorithm?
+  :documentation		    ; FDL
   "The SVD using the modified Golub-Reinsch algorithm, which is
    faster for M >> N.  It requires the vector work of length N and the
    N-by-N matrix X as additional working space.")
@@ -61,22 +67,25 @@
    ((mpointer S) :pointer))
   :inputs (A)
   :outputs (A S V)
-  :documentation			; FDL
+  :return (S V)			    ; is A modified by this algorithm?
+  :documentation		    ; FDL
   "The SVD of the M-by-N matrix A using one-sided Jacobi
    orthogonalization for M >= N.  The Jacobi method can compute singular
    values to higher relative accuracy than Golub-Reinsch algorithms (see
    references for details).")
 
-(defmfun SV-solve (U S V b x)
+(defmfun SV-solve
+    (U S V b &optional (x (make-marray 'double-float :dimensions (dim0 U))))
   "gsl_linalg_SV_solve"
   (((mpointer U) :pointer) ((mpointer V) :pointer)
    ((mpointer S) :pointer)
    ((mpointer b) :pointer) ((mpointer x) :pointer))
   :inputs (U S V b)
   :outputs (x)
+  :return (x)
   :documentation			; FDL
   "Solve the system A x = b using the singular value
-   decomposition (U, S, V) of A given by #'SV-decomp.
+   decomposition (U, S, V) of A given by #'SV-decomposition.
 
    Only non-zero singular values are used in computing the solution. The
    parts of the solution corresponding to singular values of zero are

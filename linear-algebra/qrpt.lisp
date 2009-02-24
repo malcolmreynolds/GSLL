@@ -1,15 +1,16 @@
 ;; QR with column pivoting
 ;; Liam Healy, Fri Apr 28 2006 - 16:53
-;; Time-stamp: <2008-12-07 18:33:01EST qrpt.lisp>
+;; Time-stamp: <2009-02-23 22:11:10EST qrpt.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun QRPT-decomposition (A tau p signum norm)
+(defmfun QRPT-decomposition
+    (A tau p &optional (norm (make-marray 'double-float :dimensions (dim1 A))))
   "gsl_linalg_QRPT_decomp"
   (((mpointer A) :pointer) ((mpointer tau) :pointer)
    ((mpointer p) :pointer)
-   (signum :pointer) ((mpointer norm) :pointer))
+   (signum :int) ((mpointer norm) :pointer))
   :inputs (A)
   :outputs (A tau p norm)
   :return (A tau signum p)
@@ -34,11 +35,12 @@
    column pivoting (Golub & Van Loan, Matrix Computations, Algorithm
    5.4.1).")
 
-(defmfun QRPT-decomposition* (A q r tau p signum norm)
+(defmfun QRPT-decomposition*
+    (A q r tau p &optional (norm (make-marray 'double-float :dimensions (dim1 A))))
   "gsl_linalg_QRPT_decomp2"
   (((mpointer A) :pointer) ((mpointer q) :pointer)
    ((mpointer r) :pointer) ((mpointer tau) :pointer)
-   ((mpointer p) :pointer) (signum :pointer)
+   ((mpointer p) :pointer) (signum :int)
    ((mpointer norm) :pointer))
   :inputs (A)
   :outputs (q r norm)
@@ -48,29 +50,31 @@
   A = Q R P^T without modifying A itself and storing the
   output in the separate matrices q and r.")
 
-(defmfun QRPT-solve (QR tau p b x)
-  "gsl_linalg_QRPT_solve"
-  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
-   ((mpointer p) :pointer)
-   ((mpointer b) :pointer) ((mpointer x) :pointer))
-  :inputs (QR tau p b)
+(defmfun QRPT-solve
+    (QR tau p b &optional x-spec
+       &aux
+       (x (if (eq x-spec t)
+	      (make-marray 'double-float :dimensions (dimensions b))
+	      x-spec)))
+  ("gsl_linalg_QRPT_svx" "gsl_linalg_QRPT_solve")
+  ((((mpointer QR) :pointer) ((mpointer tau) :pointer) ((mpointer p) :pointer)
+    ((mpointer b) :pointer))
+   (((mpointer QR) :pointer) ((mpointer tau) :pointer) ((mpointer p) :pointer)
+    ((mpointer b) :pointer) ((mpointer x) :pointer)))
+  :inputs (QR tau p b x)
   :outputs (x)
-  :documentation 			; FDL
-  "Solve the square system A x = b using the QRP^T
-   decomposition of A into (QR, tau, p) given by #'QRPT-decomposition.")
-
-(defmfun QRPT-solvex (QR tau p x)
-  "gsl_linalg_QRPT_svx"
-  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
-   ((mpointer p) :pointer) ((mpointer x) :pointer))
-  :inputs (QR tau p x)
-  :outputs (x)
+  :return ((or x b))
   :documentation			; FDL
-  "Solve the square system A x = b in-place using the
-   QRP^T decomposition of A into (QR, tau, p). On input x should contain the
-   right-hand side b, which is replaced by the solution on output.")
+  "Solve the square system A x = b using the QRP^T decomposition of A
+   into (QR, tau, p) given by #'QRPT-decomposition.  If x-spec is
+   NIL (default), the solution will replace b.  If x-spec is T, then
+   an array will be created and the solution returned in it.  If
+   x-spec is a marray, the solution will be returned in it.  If x-spec
+   is non-NIL, on output the solution is stored in x and b is not
+   modified.  The solution is returned from the function call.")
 
-(defmfun QRPT-QRsolve (QR p b x)
+(defmfun QRPT-QRsolve
+    (QR p b &optional (x (make-marray 'double-float :dimensions (dimensions b))))
   "gsl_linalg_QRPT_QRsolve"
   (((mpointer QR) :pointer) ((mpointer p) :pointer)
    ((mpointer b) :pointer) ((mpointer x) :pointer))
@@ -96,24 +100,25 @@
    R' are also orthogonal and right triangular. Note that w is
    destroyed by the update. The permutation p is not changed.")
 
-(defmfun QRPT-Rsolve (QR p b x)
-  "gsl_linalg_QRPT_Rsolve"
-  (((mpointer QR) :pointer) ((mpointer p) :pointer)
-   ((mpointer b) :pointer) ((mpointer x) :pointer))
-  :inputs (QR p b)
-  :outputs (x)
+(defmfun QRPT-Rsolve
+    (QR p b &optional x-spec
+       &aux
+       (x (if (eq x-spec t)
+	      (make-marray 'double-float :dimensions (dimensions b))
+	      x-spec)))
+  ("gsl_linalg_QRPT_Rsvx" "gsl_linalg_QRPT_Rsolve")
+  ((((mpointer QR) :pointer) ((mpointer p) :pointer) ((mpointer b) :pointer))
+   (((mpointer QR) :pointer) ((mpointer p) :pointer)
+    ((mpointer b) :pointer) ((mpointer x) :pointer)))
+  :inputs (QR p b x)
+  :outputs (x b)
+  :return ((or x b))
   :documentation			; FDL
-  "Solve the triangular system R P^T x = b for the
-   N-by-N matrix R contained in QR.")
-
-(defmfun QRPT-Rsolvex (QR p x)
-  "gsl_linalg_QRPT_Rsvx"
-  (((mpointer QR) :pointer) ((mpointer p) :pointer)
-   ((mpointer x) :pointer))
-  :inputs (QR p x)
-  :outputs (x)
-  :documentation			; FDL
-  "Solve the triangular system R P^T x = b in-place
-  for the N-by-N matrix R contained in QR. On
-  input x should contain the right-hand side b, which is
-  replaced by the solution on output.")
+  "Solve the triangular system R P^T x = b in-place for the N-by-N
+  matrix R contained in QR. On input x should contain the right-hand
+  side b, which is replaced by the solution on output.  If x-spec is
+  NIL (default), the solution will replace b.  If x-spec is T, then an
+  array will be created and the solution returned in it.  If x-spec is
+  a marray, the solution will be returned in it.  If x-spec is
+  non-NIL, on output the solution is stored in x and b is not
+  modified.  The solution is returned from the function call.")

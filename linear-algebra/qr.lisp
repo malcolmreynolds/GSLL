@@ -1,6 +1,6 @@
 ;; QR decomposition
 ;; Liam Healy 2008-02-17 11:05:20EST qr.lisp
-;; Time-stamp: <2008-12-07 18:32:41EST qr.lisp>
+;; Time-stamp: <2009-02-23 21:42:14EST qr.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,31 +39,33 @@
    The algorithm used to perform the decomposition is Householder QR (Golub
    & Van Loan, Matrix Computations, Algorithm 5.2.1).")
 
-(defmfun QR-solve (QR tau b x)
-    "gsl_linalg_QR_solve"
-  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
-   ((mpointer b) :pointer) ((mpointer x) :pointer))
-  :inputs (QR tau b)
+(defmfun QR-solve
+    (QR tau b &optional x-spec
+       &aux
+       (x (if (eq x-spec t)
+	      (make-marray 'double-float :dimensions (dimensions b))
+	      x-spec)))
+  ("gsl_linalg_QR_svx" "gsl_linalg_QR_solve")
+  ((((mpointer QR) :pointer) ((mpointer tau) :pointer)
+    ((mpointer b) :pointer))
+   (((mpointer QR) :pointer) ((mpointer tau) :pointer)
+    ((mpointer b) :pointer) ((mpointer x) :pointer)))
+  :inputs (QR tau b x)
   :outputs (x)
+  :return ((or x b))
   :documentation			; FDL
-  "Solve the square system A x = b using the QR
-   decomposition of A into (QR, tau) given by
-   QR-decomp. The least-squares solution for rectangular systems can
-   be found using QR-lssolve.")
+  "Solve the square system A x = b using the QR decomposition of A
+   into (QR, tau) given by QR-decomp. The least-squares solution for
+   rectangular systems can be found using QR-lssolve.  If x-spec is
+   NIL (default), the solution will replace b.  If x-spec is T, then
+   an array will be created and the solution returned in it.  If
+   x-spec is a marray, the solution will be returned in it.  If x-spec
+   is non-NIL, on output the solution is stored in x and b is not
+   modified.  The solution is returned from the function call.")
 
-(defmfun QR-solvex (QR tau x)
-  "gsl_linalg_QR_svx"
-  (((mpointer QR) :pointer) ((mpointer tau) :pointer)
-   ((mpointer x) :pointer))
-  :inputs (QR tau x)
-  :outputs (x)
-  :documentation			; FDL
-  "Solves the square system A x = b in-place using the
-  QR decomposition of A into (QR, tau) given by
-  QR-decomp.  On input x should contain the
-  right-hand side b, which is replaced by the solution on output.")
-
-(defmfun QR-solve-least-squares (QR tau b x residual)
+(defmfun QR-solve-least-squares
+    (QR tau b x
+	&optional (residual (make-marray 'double-float :dimensions (dimensions b))))
   "gsl_linalg_QR_lssolve"
   (((mpointer QR) :pointer) ((mpointer tau) :pointer)
    ((mpointer b) :pointer) ((mpointer x) :pointer)
@@ -104,26 +106,26 @@
    the encoding of the Householder vectors without needing to form the full
    matrix Q.")
 
-(defmfun QR-Rsolve (QR b x)
-  "gsl_linalg_QR_Rsolve"
-  (((mpointer QR) :pointer) ((mpointer b) :pointer)
-   ((mpointer x) :pointer))
-  :inputs (QR b)
-  :outputs (x)
+(defmfun QR-Rsolve
+    (QR b &optional x-spec
+       &aux
+       (x (if (eq x-spec t)
+	      (make-marray 'double-float :dimensions (dimensions b))
+	      x-spec)))
+  ("gsl_linalg_QR_Rsvx" "gsl_linalg_QR_Rsolve")
+  ((((mpointer QR) :pointer) ((mpointer b) :pointer))
+   (((mpointer QR) :pointer) ((mpointer b) :pointer) ((mpointer x) :pointer)))
+  :inputs (QR b x)
+  :outputs (b x)
+  :return ((or x b))
   :documentation			; FDL
   "Solve the triangular system R x = b for x.  It may be useful if the
-   product b' = Q^T b has already been computed using QR-QTvec}.")
-
-(defmfun QR-Rsolvex (QR x)
-  "gsl_linalg_QR_Rsvx"
-  (((mpointer QR) :pointer) ((mpointer x) :pointer))
-  :inputs (QR x)
-  :outputs (x)
-  :documentation			; FDL
-  "Solve the triangular system R x = b for x in-place. On input x
-  should contain the right-hand side b and is replaced by the solution
-  on output. This function may be useful if the product b' = Q^T b has
-  already been computed using QR-QTvec}.")
+   product b' = Q^T b has already been computed using QR-QTvec.  If
+   x-spec is NIL (default), the solution will replace b.  If x-spec is
+   T, then an array will be created and the solution returned in it.
+   If x-spec is a marray, the solution will be returned in it.  If
+   x-spec is non-NIL, on output the solution is stored in x and b is
+   not modified.  The solution is returned from the function call.")
 
 (defmfun QR-unpack (QR tau Q R)
   "gsl_linalg_QR_unpack"
@@ -161,21 +163,24 @@
   orthogonal and right triangular. Note that w is destroyed by the
   update.")
 
-(defmfun R-solve (R b x)
-  "gsl_linalg_R_solve"
-  (((mpointer R) :pointer) ((mpointer b) :pointer)
-   ((mpointer x) :pointer))
-  :inputs (R b)
+(defmfun R-solve
+    (R b &optional x-spec
+       &aux
+       (x (if (eq x-spec t)
+	      (make-marray 'double-float :dimensions (dimensions b))
+	      x-spec)))
+  ("gsl_linalg_R_svx" "gsl_linalg_R_solve")
+  ((((mpointer R) :pointer) ((mpointer b) :pointer))
+   (((mpointer R) :pointer) ((mpointer b) :pointer) ((mpointer x) :pointer)))
+  :inputs (R b x)
   :outputs (x)
+  :return ((or x b))
   :documentation			; FDL
-  "Solves the triangular system R x = b for the N-by-N matrix R.")
-
-(defmfun R-solvex (R x)
-  "gsl_linalg_R_svx"
-  (((mpointer R) :pointer) ((mpointer x) :pointer))
-  :inputs (R x)
-  :outputs (x)
-  :documentation			; FDL
-  "Solve the triangular system R x = b in-place. On
-  input x should contain the right-hand side b, which is
-  replaced by the solution on output.")
+  "Solve the triangular system R x = b in-place. On input x should
+  contain the right-hand side b, which is replaced by the solution on
+  output.  If x-spec is NIL (default), the solution will replace b.
+  If x-spec is T, then an array will be created and the solution
+  returned in it.  If x-spec is a marray, the solution will be
+  returned in it.  If x-spec is non-NIL, on output the solution is
+  stored in x and b is not modified.  The solution is returned from
+  the function call.")

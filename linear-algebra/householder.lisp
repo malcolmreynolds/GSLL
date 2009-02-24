@@ -1,6 +1,6 @@
 ;; Householder Transformations
 ;; Liam Healy, Wed May 10 2006 - 10:03
-;; Time-stamp: <2008-12-07 18:31:26EST householder.lisp>
+;; Time-stamp: <2009-02-23 21:09:50EST householder.lisp>
 ;; $Id$
 
 ;;; For householder-transform, it would be nice to be able to pick the
@@ -69,27 +69,25 @@
 ;;;; Householder solver for linear systems
 ;;;;****************************************************************************
 
-(defmfun householder-solve (A b x)
-  "gsl_linalg_HH_solve"
-  (((mpointer A) :pointer) ((mpointer b) :pointer)
-   ((mpointer x) :pointer))
-  :inputs (A b x)
-  :outputs (x A)
-  :return (x)
+(defmfun householder-solve
+    (A b &optional x-spec
+       &aux
+       (x (if (eq x-spec t)
+	      (make-marray 'double-float :dimensions (dimensions b))
+	      x-spec)))
+  ("gsl_linalg_HH_svx" "gsl_linalg_HH_solve")
+  ((((mpointer A) :pointer) ((mpointer b) :pointer))
+   (((mpointer A) :pointer) ((mpointer b) :pointer)
+    ((mpointer x) :pointer)))
+  :inputs (A b)
+  :outputs (x)
+  :return ((or x b))
   :documentation			; FDL
-  "Solve the system A x = b directly using
-   Householder transformations. On output the solution is stored in x
-   and b is not modified. The matrix A is destroyed by the
-   Householder transformations.")
-
-(defmfun householder-svx (A x)
-  "gsl_linalg_HH_svx"
-  (((mpointer A) :pointer) ((mpointer x) :pointer))
-  :inputs (A x)
-  :outputs (x A)
-  :return (x)
-  :documentation			; FDL
-  "Solve the system A x = b in-place using
-  Householder transformations.  On input x should contain the
-  right-hand side b, which is replaced by the solution on output.  The
-  matrix A is destroyed by the Householder transformations.")
+  "Solve the system A x = b directly using Householder
+   transformations. If x-spec is NIL (default), the solution will
+   replace b.  If x-spec is T, then an array will be created and the
+   solution returned in it.  If x-spec is a marray, the solution will
+   be returned in it.  If x-spec is non-NIL, on output the solution is
+   stored in x and b is not modified.  The matrix A is destroyed by
+   the Householder transformations.  The solution is returned from the
+   function call.")
