@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-16 22:48:51EST gsll-tests.asd>
+;; Time-stamp: <2009-02-24 15:06:55EST gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -71,6 +71,7 @@
 	     (:file "givens")
 	     (:file "gumbel1")
 	     (:file "gumbel2")
+	     (:file "hankel")
 	     (:file "higher-moments")
 	     (:file "histogram")
 	     (:file "hypergeometric")
