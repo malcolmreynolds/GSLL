@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-17 22:48:40EST mobject.lisp>
+;; Time-stamp: <2009-02-24 15:36:40EST mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -76,7 +76,7 @@
 		    initialize-suffix initialize-args inputs
 		    (and callbackp
 			 (not (callback-arg-p class-slots-instance)))))
-	   (export ',maker)
+	   (export '(,maker ,class))
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
 	     description documentation initialize-args initializerp settingp
