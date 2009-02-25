@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-02-23 22:06:29EST defmfun-single.lisp>
+;; Time-stamp: <2009-02-25 09:39:03EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -116,9 +116,9 @@
 		     (list name))
 	     ,@(when qualifier (list qualifier))
 	   ,arglist
-	   (declare (ignore ,@(arglist-plain-and-categories arglist)))
+	   (declare (ignorable ,@(arglist-plain-and-categories arglist nil)))
 	   (error 'obsolete-gsl-version
-		  :name ',name :gsl-name ,gsl-name :gsl-version ',gsl-version)))))
+		  :name ',name :gsl-name ',gsl-name :gsl-version ',gsl-version)))))
 
 (defun wrap-letlike (when binding wrapping body)
   (if when
