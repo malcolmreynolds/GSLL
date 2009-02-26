@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-16 22:24:39EST callback.lisp>
+;; Time-stamp: <2009-02-25 21:23:42EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -370,17 +370,6 @@
   #+openmcl (ccl:arglist fn)
   #-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbcl scl openmcl)
   (error "No arglist function known."))
-
-(defmacro callback-set-slots
-    (trigger-list struct-name function)
-  "If the callback argument is on trigger-list, then return a form
-    that sets the slots in the GSL callback structure."
-  (let ((setdim (not (eq function 'gsl-function))))
-    `(when (callback-arg-p ,trigger-list)
-       `(set-cbstruct ,',+callback-argument-name+ ',,struct-name
-		      ,',(when setdim
-			      '(list 'dimensions (length (arglist function))))
-		      (list 'function ,',function)))))
 
 (defmacro callback-set-slots
     (trigger-list struct-name function)
