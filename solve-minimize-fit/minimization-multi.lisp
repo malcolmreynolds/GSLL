@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-02-18 18:18:13EST minimization-multi.lisp>
+;; Time-stamp: <2009-02-26 13:55:22EST minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -54,7 +54,7 @@
 	 nil t
 	 ,function)
       `(defmcallback ,function
-	   :success-failure
+	   :double
 	 (:pointer) 
 	 nil t
 	 ,function)))
