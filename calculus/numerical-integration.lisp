@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-02-15 14:43:39EST numerical-integration.lisp>
+;; Time-stamp: <2009-02-26 22:52:43EST numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -23,6 +23,7 @@
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
    (result :double) (abserr :double) (neval sizet))
+  :callbacks (function function)
   :documentation			; FDL
   "Apply the Gauss-Kronrod 10-point, 21-point, 43-point and
    87-point integration rules in succession until an estimate of the

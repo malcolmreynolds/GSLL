@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-02-15 18:51:03EST defmfun.lisp>
+;; Time-stamp: <2009-02-26 22:54:59EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -74,13 +74,13 @@
      (definition :function)
      (export (not (member definition (list :method :methods))))
      documentation inputs outputs before after enumeration qualifier
-     gsl-version switch (callback-struct 'gsl-function))
+     gsl-version switch callbacks (callback-struct 'gsl-function))
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export documentation inputs outputs
       before after enumeration qualifier
-      gsl-version switch callback-struct)
-     (special indexed-functions))
+      gsl-version switch callbacks callback-struct)
+     (special indexed-functions callback-gensyms))
     ,@body))
 
 (defparameter *defmfun-llk* '(&optional &key &aux)
@@ -99,9 +99,9 @@
 	(listp (first gsl-name)))))
 
 (defun expand-defmfun-wrap (name arglist gsl-name c-arguments key-args)
-  (let (indexed-functions)
+  (let (indexed-functions callback-gensyms)
     ;; workaround for compiler errors that don't see 'indexed-function is used
-    (declare (ignorable indexed-functions))
+    (declare (ignorable indexed-functions callback-gensyms))
     (with-defmfun-key-args key-args
       (setf indexed-functions (list))
       (wrap-index-export
@@ -118,29 +118,31 @@
 	  (complete-definition 'cl:defun name arglist gsl-name c-arguments key-args)))
        name gsl-name key-args))))
 
-(defun wrap-index-export (definition name gsl-name key-args)
-  "Wrap the definition with index and export if requested.
+(defun wrap-index-export (expanded-body name gsl-name key-args)
+  "Wrap the expanded-body with index and export if requested.
    Use a progn if needed."
-  (let ((index-export
-	 (with-defmfun-key-args key-args
-	   (if (eq index t)
-	       (setf index name))
-	   (flet ((mapnfn (gslnm) `(map-name ',index ,gslnm)))
-	     (append
-	      (when index
-		(if indexed-functions
-		    (mapcar #'mapnfn indexed-functions)
-		    (if (listp gsl-name)
-			(mapcar #'mapnfn gsl-name)
-			(list (mapnfn gsl-name)))))
-	      (when export `((export ',name))))))))
-    (if index-export
-	(if (symbolp (first definition))
-	    `(progn ,definition ,@index-export)
-	    `(progn ,@definition ,@index-export))
-	(if (symbolp (first definition))
-	    definition
-	    `(progn ,definition ,@index-export)))))
+  (with-defmfun-key-args key-args
+    (setf callback-gensyms
+	  (when callbacks
+	    (let ((num-callbacks (floor (length callbacks) 2)))
+	      (list
+	       (loop repeat num-callbacks collect (gensym "DYNFN"))
+	       (loop repeat num-callbacks collect (gensym "CBFN"))))))
+    (let ((index-export
+	   (progn
+	     (if (eq index t) (setf index name))
+	     (flet ((mapnfn (gslnm) `(map-name ',index ,gslnm)))
+	       (append
+		(when index
+		  (if indexed-functions
+		      (mapcar #'mapnfn indexed-functions)
+		      (if (listp gsl-name)
+			  (mapcar #'mapnfn gsl-name)
+			  (list (mapnfn gsl-name)))))
+		(when export `((export ',name))))))))
+      `(progn
+	 ,@(if (symbolp (first expanded-body)) (list expanded-body) expanded-body)
+	 ,@index-export))))
 
 ;;;;****************************************************************************
 ;;;; A method for a generic function, on any class
