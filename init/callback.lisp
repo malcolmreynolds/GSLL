@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-25 21:23:42EST callback.lisp>
+;; Time-stamp: <2009-02-28 15:20:30EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -156,7 +156,7 @@
 
 (defmacro defmcallback
     (name &optional (return-type :double) (argument-types :double)
-     additional-argument-types marray (function-name-or-lambda name))
+     additional-argument-types marray function-variable)
   "Define a callback function used by GSL; the GSL function will call
    it with an additional `parameters' argument that is ignored.  the
    argument-types is a single type or list of types of the argument(s)
@@ -178,12 +178,12 @@
 	 (,@cbargs (params :pointer) ,@cbaddl)
        ;; Parameters as C argument are always ignored, because we have
        ;; CL specials to do the same job.
-       (declare (ignore params))
+       (declare (ignore params) (special ,function-variable))
        ,(callback-set-mvb
-	 `(,function-name-or-lambda
-	   ,@(append
-	      (embedded-clfunc-args atl cbargs marray)
-	      (embedded-clfunc-args aatl cbaddl marray)))
+	 `(funcall ,function-variable
+		   ,@(append
+		      (embedded-clfunc-args atl cbargs marray)
+		      (embedded-clfunc-args aatl cbaddl marray)))
 	 (append atl aatl)
 	 (append cbargs cbaddl)
 	 marray)
@@ -372,7 +372,7 @@
   (error "No arglist function known."))
 
 (defmacro callback-set-slots
-    (trigger-list struct-name function)
+    (trigger-list struct-name slot-name function)
   "If the callback argument is on trigger-list, then return a form
     that sets the slots in the GSL callback structure."
   `(let ((setdim (not (eq ,struct-name 'gsl-function))))
@@ -380,4 +380,4 @@
        `((set-cbstruct ,',+callback-argument-name+ ',,struct-name
 		      ,,'(when setdim
 			      '(list 'dimensions (length (arglist function))))
-		      (list 'function ,',function))))))
+		      (list ',,slot-name ',,function))))))

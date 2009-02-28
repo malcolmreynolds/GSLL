@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-16 18:39:59EST interface.lisp>
+;; Time-stamp: <2009-02-28 14:51:00EST interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -108,12 +108,13 @@
 	(when (and cl-type (member (st-symbol sd) (cl-symbols cl-arguments)))
 	  (list (list (st-symbol sd) cl-type)))))
 
-(defun declaration-form (cl-argument-types &optional ignores)
+(defun declaration-form (cl-argument-types &optional ignores specials)
   (cons 'declare
 	(append
 	 (mapcar (lambda (v) (cons 'type (reverse v)))
 		 cl-argument-types)
-	 (when ignores (list (cons 'ignore ignores))))))
+	 (when ignores (list (cons 'ignore ignores)))
+	 (when specials (list (cons 'special specials))))))
 
 ;;;;****************************************************************************
 ;;;; Returns

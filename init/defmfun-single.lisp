@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-02-25 09:39:03EST defmfun-single.lisp>
+;; Time-stamp: <2009-02-28 15:07:40EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -71,17 +71,14 @@
     does not have the function defined."))
 
 (defun complete-definition
-    (definition name arglist gsl-name c-arguments key-args
+    (defn name arglist gsl-name c-arguments key-args
      &optional
      (body-maker 'body-no-optional-arg)
      (mapdown (eq body-maker 'body-optional-arg)))
   "A complete definition form, starting with defun, :method, or defmethod."
-  (destructuring-bind
-	(&key documentation before after
-	      qualifier gsl-version &allow-other-keys)
-      key-args
+  (with-defmfun-key-args key-args
     (if (have-at-least-gsl-version gsl-version)
-	`(,definition
+	`(,defn
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))
 	     ,@(when qualifier (list qualifier))
@@ -108,10 +105,11 @@
 			   (when auxstart
 			     (apply
 			      'append
-			      (mapcar 'rest (subseq arglist (1+ auxstart))))))))))))
+			      (mapcar 'rest (subseq arglist (1+ auxstart)))))))))))
+	     (first callback-gensyms))
 	   ,@(when documentation (list documentation))
 	   ,(funcall body-maker name arglist gsl-name c-arguments key-args))
-	`(,definition
+	`(,defn
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))
 	     ,@(when qualifier (list qualifier))
@@ -185,44 +183,47 @@
 	   allocated-decl
 	   (mapcar #'wfo-declare allocated-decl)
 	   'cffi:with-foreign-objects
-	   `(,@before
-	     ,@(callback-set-slots allocated callback-struct function)
-	     (let ((,cret-name
-		    (cffi:foreign-funcall
-		     ,gsl-name
-		     ,@(mapcan
-			(lambda (arg)
-			  (let ((cfind	; variable is complex
-				 (find (st-symbol arg) complex-args :key 'first)))
-			    (if cfind	; make two successive scalars
-				(passing-complex-by-value cfind)
-				;; otherwise use without conversion
-				(list (if (member (st-symbol arg) allocated)
-					  :pointer
-					  (st-type arg))
-				      (st-symbol arg)))))
-			c-arguments)
-		     ,cret-type)))
-	       ,@(case c-return
-		       (:void `((declare (ignore ,cret-name))))
-		       (:error-code	; fill in arguments
-			`((check-gsl-status ,cret-name
-					    ',(or (defgeneric-method-p name) name)))))
-	       #-native
-	       ,@(when outputs
-		       (mapcar
-			(lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
-			outputs))
-	       ,@(when (eq cret-type :pointer)
-		       `((check-null-pointer
-			  ,cret-name
-			  ,@'('memory-allocation-failure "No memory allocated."))))
-	       ,@after
-	       (values
-		,@(defmfun-return
-		   c-return cret-name clret allocated
-		   return return-supplied-p
-		   enumeration outputs)))))))))
+	   `(,@(append `((setf ,(caar callback-gensyms) ,(first callbacks)))
+		       before)
+	       ,@(callback-set-slots
+		  allocated callback-struct
+		  (first callbacks) (first (second callback-gensyms)))
+	       (let ((,cret-name
+		      (cffi:foreign-funcall
+		       ,gsl-name
+		       ,@(mapcan
+			  (lambda (arg)
+			    (let ((cfind ; variable is complex
+				   (find (st-symbol arg) complex-args :key 'first)))
+			      (if cfind	; make two successive scalars
+				  (passing-complex-by-value cfind)
+				  ;; otherwise use without conversion
+				  (list (if (member (st-symbol arg) allocated)
+					    :pointer
+					    (st-type arg))
+					(st-symbol arg)))))
+			  c-arguments)
+		       ,cret-type)))
+		 ,@(case c-return
+			 (:void `((declare (ignore ,cret-name))))
+			 (:error-code	; fill in arguments
+			  `((check-gsl-status ,cret-name
+					      ',(or (defgeneric-method-p name) name)))))
+		 #-native
+		 ,@(when outputs
+			 (mapcar
+			  (lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
+			  outputs))
+		 ,@(when (eq cret-type :pointer)
+			 `((check-null-pointer
+			    ,cret-name
+			    ,@'('memory-allocation-failure "No memory allocated."))))
+		 ,@after
+		 (values
+		  ,@(defmfun-return
+		     c-return cret-name clret allocated
+		     return return-supplied-p
+		     enumeration outputs)))))))))
 
 (defun defmfun-return
     (c-return cret-name clret allocated return return-supplied-p enumeration outputs)

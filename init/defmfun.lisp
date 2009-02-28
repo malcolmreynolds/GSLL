@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-02-26 22:54:59EST defmfun.lisp>
+;; Time-stamp: <2009-02-28 15:05:52EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -103,7 +103,14 @@
     ;; workaround for compiler errors that don't see 'indexed-function is used
     (declare (ignorable indexed-functions callback-gensyms))
     (with-defmfun-key-args key-args
-      (setf indexed-functions (list))
+      (setf indexed-functions (list)
+	    callback-gensyms
+	    ;; A list of variable names, and a list of callback names
+	    (when callbacks
+	      (let ((num-callbacks (floor (length callbacks) 2)))
+		(list
+		 (loop repeat num-callbacks collect (gensym "DYNFN"))
+		 (loop repeat num-callbacks collect (gensym "CBFN"))))))
       (wrap-index-export
        (cond
 	 ((eq definition :generic)
@@ -122,12 +129,6 @@
   "Wrap the expanded-body with index and export if requested.
    Use a progn if needed."
   (with-defmfun-key-args key-args
-    (setf callback-gensyms
-	  (when callbacks
-	    (let ((num-callbacks (floor (length callbacks) 2)))
-	      (list
-	       (loop repeat num-callbacks collect (gensym "DYNFN"))
-	       (loop repeat num-callbacks collect (gensym "CBFN"))))))
     (let ((index-export
 	   (progn
 	     (if (eq index t) (setf index name))
@@ -142,6 +143,12 @@
 		(when export `((export ',name))))))))
       `(progn
 	 ,@(if (symbolp (first expanded-body)) (list expanded-body) expanded-body)
+	 ,@(when callbacks
+		 (mapcar
+		  (lambda (vbl sym)
+		    `(defmcallback ,sym :double :double nil t ,vbl))
+		  (first callback-gensyms)
+		  (second callback-gensyms)))
 	 ,@index-export))))
 
 ;;;;****************************************************************************
