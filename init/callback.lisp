@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-28 15:20:30EST callback.lisp>
+;; Time-stamp: <2009-02-28 19:04:57EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -335,12 +335,15 @@
 ;;;; Using callback specification in function arugments
 ;;;;****************************************************************************
 
+;;; to be obsolete?
 (defun callback-arg-p (arglist &optional key)
   (member +callback-argument-name+ arglist :key key))
 
+;;; to be obsolete?
 (defun callback-replace-arg (replacement list)
   (subst replacement +callback-argument-name+ list))
 
+;;; to be obsolete?
 (defun callback-remove-arg (list &optional key)
   (remove +callback-argument-name+ list :key key))
 
@@ -371,13 +374,42 @@
   #-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbcl scl openmcl)
   (error "No arglist function known."))
 
-(defmacro callback-set-slots
-    (trigger-list struct-name slot-name function)
-  "If the callback argument is on trigger-list, then return a form
-    that sets the slots in the GSL callback structure."
-  `(let ((setdim (not (eq ,struct-name 'gsl-function))))
-    (when (callback-arg-p ,trigger-list)
-       `((set-cbstruct ,',+callback-argument-name+ ',,struct-name
-		      ,,'(when setdim
-			      '(list 'dimensions (length (arglist function))))
-		      (list ',,slot-name ',,function))))))
+;;;; Dynamic callbacks
+;;; The :callbacks argument is a list that starts with:
+;;; 1) The foreign argument that will have the callback structure.
+;;; 2) Name of callback structure type.
+;;; Then the following pairs are repeated for as many
+;;; functions need be specified:
+;;; 3) Name of slot in callback structure for this function
+;;; 4) CL argument that has this function.
+
+(defun callback-carg (list)
+  "The argument to the foreign function arglist that should be a
+   pointer to a cbstruct."
+  (first list))
+
+(defun callback-structure-type (list)
+  "The name of the foreign structure for callbacks."
+  (second list))
+
+(defun callback-slots-fns (list)
+  "A list of (slot-name function ...)."
+  (cddr list))
+
+(defun callback-symbol-set (callbacks symbols)
+  `((setf
+     ,@(loop for symb in symbols
+	  for (nil fn) on (callback-slots-fns callbacks) by #'cddr
+	  append (list symb fn)))))
+
+(defun callback-set-slots (callbacks symbols)
+  `((set-cbstruct
+     ,(callback-carg callbacks)
+     ',(callback-structure-type callbacks)
+     nil 				; will have dimensions
+     ,(cons
+       'list
+       (loop for symb in symbols
+	  for (slotnm fn) on (callback-slots-fns callbacks) by #'cddr
+	  append `(',slotnm ',symb))))))
+

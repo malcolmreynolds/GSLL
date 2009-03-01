@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-02-28 15:05:52EST defmfun.lisp>
+;; Time-stamp: <2009-02-28 19:02:06EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,6 +58,7 @@
 ;;; enumeration  The name of the enumeration return.
 ;;; gsl-version  The GSL version at which this function was introduced.
 ;;; switch     Switch only the listed optional/key variables (default all of them)
+;;; callbacks  A list that specifies the callback function(s); see callback.lisp
 
 (defmacro defmfun (name arglist gsl-name c-arguments &rest key-args)
   "Definition of a GSL function."
@@ -107,7 +108,7 @@
 	    callback-gensyms
 	    ;; A list of variable names, and a list of callback names
 	    (when callbacks
-	      (let ((num-callbacks (floor (length callbacks) 2)))
+	      (let ((num-callbacks (floor (length (callback-slots-fns callbacks)) 2)))
 		(list
 		 (loop repeat num-callbacks collect (gensym "DYNFN"))
 		 (loop repeat num-callbacks collect (gensym "CBFN"))))))

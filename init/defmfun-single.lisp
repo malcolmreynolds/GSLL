@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-02-28 15:07:40EST defmfun-single.lisp>
+;; Time-stamp: <2009-02-28 19:00:44EST defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -183,11 +183,9 @@
 	   allocated-decl
 	   (mapcar #'wfo-declare allocated-decl)
 	   'cffi:with-foreign-objects
-	   `(,@(append `((setf ,(caar callback-gensyms) ,(first callbacks)))
+	   `(,@(append (callback-symbol-set callbacks (first callback-gensyms))
 		       before)
-	       ,@(callback-set-slots
-		  allocated callback-struct
-		  (first callbacks) (first (second callback-gensyms)))
+	       ,@(callback-set-slots callbacks (second callback-gensyms))
 	       (let ((,cret-name
 		      (cffi:foreign-funcall
 		       ,gsl-name
