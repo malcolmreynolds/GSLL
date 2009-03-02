@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-28 19:04:57EST callback.lisp>
+;; Time-stamp: <2009-03-01 21:57:54EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -60,7 +60,7 @@
   (parameters :pointer))
 
 ;;;;****************************************************************************
-;;;; Macros for defining a callback to wrap a CL function
+;;;; Macro defmcallback OBSOLETE
 ;;;;****************************************************************************
 
 ;;; Callback functions are defined using demcallback by passing the
@@ -154,7 +154,7 @@
 			for setvbl in setvbls
 			append (list setvbl mvbvbl))))))))
 
-(defmacro defmcallback
+(defmacro defmcallback-old
     (name &optional (return-type :double) (argument-types :double)
      additional-argument-types marray function-variable)
   "Define a callback function used by GSL; the GSL function will call
@@ -198,6 +198,10 @@
 	   ;; to return a void pointer which is apparently meaningless.
 	   '((cffi:null-pointer)))))))
 
+;;;;****************************************************************************
+;;;; Definitions for making cbstruct
+;;;;****************************************************************************
+
 (defun set-cbstruct (cbstruct struct slots-values function-slotnames)
   "Make the slots in the foreign callback structure."
   (loop for (slot-name function) on function-slotnames by #'cddr
@@ -221,22 +225,6 @@
    (when (dimension-names object)
      (mapcan 'list (dimension-names object) (dimensions object)))
    (mapcan 'list (callback-labels object) (functions object))))
-
-(defmacro with-computed-dimensions
-    (dimensions-spec dimensions-used lambda-form &body body)
-  (cl-utilities:once-only (lambda-form)
-    `(let ((,dimensions-used
-	    (if (and (listp ,lambda-form) (eq (first ,lambda-form) 'lambda))
-		(length (second ,lambda-form))
-		,dimensions-spec)))
-       ,@body)))
-
-(defun dimensions-from-lambda (lambda-form dimensions)
-  "Determine the number of dimensions from the lambda form,
-   or return the value specified in 'dimensions."
-  (if (and (listp lambda-form) (eq (first lambda-form) 'lambda))
-      (length (second lambda-form))
-      dimensions))
 
 ;;;;****************************************************************************
 ;;;; Classes that include callback information
@@ -332,7 +320,7 @@
     (princ (dimensions object) stream)))
 
 ;;;;****************************************************************************
-;;;; Using callback specification in function arugments
+;;;; TO BE OBSOLETE Using callback specification in function arugments
 ;;;;****************************************************************************
 
 ;;; to be obsolete?
@@ -374,42 +362,148 @@
   #-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbcl scl openmcl)
   (error "No arglist function known."))
 
-;;;; Dynamic callbacks
-;;; The :callbacks argument is a list that starts with:
-;;; 1) The foreign argument that will have the callback structure.
-;;; 2) Name of callback structure type.
-;;; Then the following pairs are repeated for as many
-;;; functions need be specified:
-;;; 3) Name of slot in callback structure for this function
-;;; 4) CL argument that has this function.
+;;;;****************************************************************************
+;;;; Parsing :callback argument specification
+;;;;****************************************************************************
 
-(defun callback-carg (list)
-  "The argument to the foreign function arglist that should be a
-   pointer to a cbstruct."
-  (first list))
+;;; The :callbacks argument is a list of the form:
+;;; (foreign-argument callback-structure-type scalars function ...)
+;;; where each function is of the form 
+;;; (structure-slot-name cl-argument
+;;;   &optional (return-spec 'double-float) (argument-spec 'double-float)
+;;;             set1-spec set2-spec marray)
 
-(defun callback-structure-type (list)
-  "The name of the foreign structure for callbacks."
-  (second list))
+(defparameter *callback-argument-components*
+  '(foreign-argument callback-structure-type scalars &rest functions))
 
-(defun callback-slots-fns (list)
-  "A list of (slot-name function ...)."
-  (cddr list))
+(defparameter *callback-argument-function-components*
+  '(structure-slot-name cl-argument
+   &optional
+    (return-spec :double)
+    (argument-spec :double)
+    set1-spec set2-spec marray))
+
+(defmacro parse-arglist (template arglist component)
+  `(destructuring-bind ,template ,arglist
+     (declare
+      (ignorable
+       ,@(remove-if
+	  (lambda (sym) (member sym lambda-list-keywords))
+	  (arglist-plain-and-categories template))))
+     ,component))
+
+(defmacro callback-argument-component (arglist component)
+  `(parse-arglist ,*callback-argument-components* ,arglist ,component))
+
+(defmacro callback-argument-function-component (arglist component)
+  `(parse-arglist ,*callback-argument-function-components* ,arglist ,component))
+
+(defun callback-argument-function-argspec (expr component)
+  (case component
+    (type (if (listp expr) (first expr) expr))
+    (array-type (when (listp expr) (string-equal (second expr) :marray)))
+    (dimensions (when (listp expr)
+		  (let ((cddr (cddr expr)))
+		    (if (rest cddr)
+			(cons 'list cddr) 
+			(first cddr)))))))
+
+;;; (callback-argument-component '(foo bar baz (bof 1 2 2)) callback-structure-type)
+;;; (callback-argument-function-component '(foo bar) argument-spec)
+
+;;;;****************************************************************************
+;;;; Form generation
+;;;;****************************************************************************
 
 (defun callback-symbol-set (callbacks symbols)
   `((setf
      ,@(loop for symb in symbols
-	  for (nil fn) on (callback-slots-fns callbacks) by #'cddr
-	  append (list symb fn)))))
+	  for fn in (callback-argument-component callbacks functions)
+	  append
+	  (list
+	   symb
+	   `(list
+	     ,(callback-argument-function-component fn cl-argument)
+	     ,(callback-argument-component callbacks scalars)
+	     ,(callback-argument-function-argspec
+	       (callback-argument-function-component fn argument-spec)
+	       'dimensions)
+	     ,(callback-argument-function-argspec
+	      (callback-argument-function-component fn set1-spec)
+	      'dimensions)
+	     ,(callback-argument-function-argspec
+	      (callback-argument-function-component fn set2-spec)
+	      'dimensions)))))))
 
 (defun callback-set-slots (callbacks symbols)
   `((set-cbstruct
-     ,(callback-carg callbacks)
-     ',(callback-structure-type callbacks)
+     ,(callback-argument-component callbacks foreign-argument)
+     ',(callback-argument-component callbacks callback-structure-type)
      nil 				; will have dimensions
      ,(cons
        'list
        (loop for symb in symbols
-	  for (slotnm fn) on (callback-slots-fns callbacks) by #'cddr
-	  append `(',slotnm ',symb))))))
+	  for fn
+	  in (callback-argument-component callbacks functions)
+	  append
+	  `(',(callback-argument-function-component fn structure-slot-name)
+	      ',symb))))))
 
+(defun defmcallback-form-generation
+    (callback-name variable-name callback-arg function-spec)
+  `(defmcallback
+     ,callback-name
+     ,variable-name
+     ,(callback-argument-function-component function-spec return-spec)
+     ,(callback-argument-function-component function-spec argument-spec)
+     nil
+     ,(when (eq (callback-argument-component callback-arg scalars) :marray))))
+
+;;;;****************************************************************************
+;;;; Macro defmcallback NEW
+;;;;****************************************************************************
+
+(defmacro defmcallback
+    (name dynamic-variable
+     &optional (return-type :double) (argument-type :double)
+     (set1-type nil) (set2-type nil))
+  (let* ((atc (callback-args  (list argument-type)))
+	 (s1tc (callback-args (if set1-type (list set1-type))))
+	 (s2tc (callback-args (if set2-type (list set2-type)))))
+    `(cffi:defcallback ,name
+	 ,(if (eq return-type :success-failure) :int return-type)
+	 (,@atc
+	  (params :pointer)
+	  ,@(when set1-type s1tc)
+	  ,@(when set1-type s2tc))
+       ;; Parameters as C argument are always ignored, because we have
+       ;; CL specials to do the same job.
+       (declare (ignore params) (special ,dynamic-variable))
+       (maybe-scalar-call
+	(first ,dynamic-variable)
+	,(cons 'list (mapcar 'first (append atc s1tc s2tc)))
+	(second ,dynamic-variable)	; scalars
+	(cddr ,dynamic-variable)	; dimensions for each argument
+	,(callback-argument-function-argspec argument-type 'array-type))
+       ,@(case
+	  return-type
+	  (:success-failure
+	   ;; We always return success, because if there was a
+	   ;; problem, a CL error would be signalled.
+	   '(success))
+	  (:pointer
+	   ;; For unclear reasons, some GSL functions want callbacks
+	   ;; to return a void pointer which is apparently meaningless.
+	   '((cffi:null-pointer)))))))
+
+(defun array-to-list (pointer length marray)
+  (if marray
+      (loop for i below length collect (maref pointer i))
+      (loop for i below length collect (dcref pointer i)))))
+
+(defun maybe-scalar-call (function arguments scalars dimensions marray)
+  "If scalars is a number, pass the function that many scalar arguments."
+  (if scalars
+      (apply
+       function (array-to-list (first arguments) (first dimensions) marray))
+      (apply function arguments)))

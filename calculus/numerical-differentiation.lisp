@@ -1,6 +1,6 @@
 ;; Numerical differentiation.                
 ;; Liam Healy Mon Nov 12 2007 - 22:07
-;; Time-stamp: <2009-02-15 14:49:44EST numerical-differentiation.lisp>
+;; Time-stamp: <2009-03-01 21:55:33EST numerical-differentiation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,6 +14,7 @@
   "gsl_deriv_central"
   ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
+  :callbacks (callback gsl-function nil (function function))
   :documentation			; FDL
   "Compute the numerical derivative of the function
    at the point x using an adaptive central difference algorithm with
@@ -34,6 +35,7 @@
   "gsl_deriv_forward"
   ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
+  :callbacks (callback gsl-function nil (function function))
   :documentation			; FDL
   "Compute the numerical derivative of the function
    at the point x using an adaptive forward difference algorithm with
@@ -56,6 +58,7 @@
   "gsl_deriv_backward"
   ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
+  :callbacks (callback gsl-function nil (function function))
   :documentation			; FDL
   "Compute the numerical derivative of the function at the point x
    using an adaptive backward difference algorithm with a step-size of
@@ -70,7 +73,6 @@
 
 ;;; Examples from gsl-1.11/deriv/test.c
 
-(defun deriv-f1 (x) (exp x))
 (defun deriv-f1-d (x) (exp x))
 (defun deriv-f2 (x) (if (not (minusp x)) (expt x 3/2) 0.0d0))
 (defun deriv-f2-d (x) (if (not (minusp x)) (* 3/2 (sqrt x)) 0.0d0))
@@ -80,20 +82,12 @@
 (defun deriv-f4-d (x) (* -2 x (exp (- (expt x 2)))))
 (defun deriv-f5 (x) (expt x 2))
 (defun deriv-f5-d (x) (* 2 x))
-(defun deriv-f6 (x) (/ x))
 (defun deriv-f6-d (x) (- (expt x -2)))
 
-(make-callbacks single-function deriv-f1)
-(make-callbacks single-function deriv-f2)
-(make-callbacks single-function deriv-f3)
-(make-callbacks single-function deriv-f4)
-(make-callbacks single-function deriv-f5)
-(make-callbacks single-function deriv-f6)
-
 (save-test numerical-differentiation
- (central-derivative 'deriv-f1 1.0d0 1.0d-4)
- (forward-derivative 'deriv-f1 1.0d0 1.0d-4)
- (backward-derivative 'deriv-f1 1.0d0 1.0d-4)
+ (central-derivative 'exp 1.0d0 1.0d-4)
+ (forward-derivative 'exp 1.0d0 1.0d-4)
+ (backward-derivative 'exp 1.0d0 1.0d-4)
  (central-derivative 'deriv-f2 0.1d0 1.0d-4)
  (forward-derivative 'deriv-f2 0.1d0 1.0d-4)
  (backward-derivative 'deriv-f2 0.1d0 1.0d-4)
@@ -106,6 +100,6 @@
  (central-derivative 'deriv-f5 0.0d0 1.0d-4)
  (forward-derivative 'deriv-f5 0.0d0 1.0d-4)
  (backward-derivative 'deriv-f5 0.0d0 1.0d-4)
- (central-derivative 'deriv-f6 10.0d0 1.0d-4)
- (forward-derivative 'deriv-f6 10.0d0 1.0d-4)
- (backward-derivative 'deriv-f6 10.0d0 1.0d-4))
+ (central-derivative '/ 10.0d0 1.0d-4)
+ (forward-derivative '/ 10.0d0 1.0d-4)
+ (backward-derivative '/ 10.0d0 1.0d-4))

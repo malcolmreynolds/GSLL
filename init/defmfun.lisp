@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-02-28 19:02:06EST defmfun.lisp>
+;; Time-stamp: <2009-03-01 12:27:57EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -75,12 +75,12 @@
      (definition :function)
      (export (not (member definition (list :method :methods))))
      documentation inputs outputs before after enumeration qualifier
-     gsl-version switch callbacks (callback-struct 'gsl-function))
+     gsl-version switch callbacks)
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export documentation inputs outputs
       before after enumeration qualifier
-      gsl-version switch callbacks callback-struct)
+      gsl-version switch callbacks)
      (special indexed-functions callback-gensyms))
     ,@body))
 
@@ -108,7 +108,8 @@
 	    callback-gensyms
 	    ;; A list of variable names, and a list of callback names
 	    (when callbacks
-	      (let ((num-callbacks (floor (length (callback-slots-fns callbacks)) 2)))
+	      (let ((num-callbacks
+		     (length (callback-argument-component callbacks functions))))
 		(list
 		 (loop repeat num-callbacks collect (gensym "DYNFN"))
 		 (loop repeat num-callbacks collect (gensym "CBFN"))))))
@@ -146,10 +147,11 @@
 	 ,@(if (symbolp (first expanded-body)) (list expanded-body) expanded-body)
 	 ,@(when callbacks
 		 (mapcar
-		  (lambda (vbl sym)
-		    `(defmcallback ,sym :double :double nil t ,vbl))
+		  (lambda (vbl cb fspec)
+		    (defmcallback-form-generation cb vbl callbacks fspec))
 		  (first callback-gensyms)
-		  (second callback-gensyms)))
+		  (second callback-gensyms)
+		  (callback-argument-component callbacks functions)))
 	 ,@index-export))))
 
 ;;;;****************************************************************************

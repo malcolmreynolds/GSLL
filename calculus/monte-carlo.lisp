@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-02-16 10:16:43EST monte-carlo.lisp>
+;; Time-stamp: <2009-03-01 21:40:55EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,7 +28,8 @@
   (x :pointer))
 
 (defmfun monte-carlo-integrate-plain
-    (function lower-limits upper-limits calls generator state)
+    (function lower-limits upper-limits calls generator state
+	      &optional (scalars t))
   "gsl_monte_plain_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
@@ -37,7 +38,10 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callback-struct monte-function
+  :callbacks
+  (callback monte-function scalars
+	    (function function :double
+		      (:double :cvector (dim0 lower-limits))))
   :documentation			; FDL
   "Uses the plain Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -104,7 +108,8 @@
  `(foreign-slot-value ,workspace 'miser-state ',parameter))
 
 (defmfun monte-carlo-integrate-miser
-    (function lower-limits upper-limits calls generator state)
+    (function lower-limits upper-limits calls generator state
+	      &optional (scalars t))
   "gsl_monte_miser_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
@@ -113,7 +118,10 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callback-struct monte-function
+  :callbacks
+  (callback monte-function scalars
+	    (function function :double
+		      (:double :cvector (dim0 lower-limits))))
   :documentation			; FDL
   "Uses the miser Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -190,7 +198,8 @@
  `(foreign-slot-value ,workspace 'vegas-state ',parameter))
 
 (defmfun monte-carlo-integrate-vegas
-    (function lower-limits upper-limits calls generator state)
+    (function lower-limits upper-limits calls generator state
+	      &optional (scalars t))
   "gsl_monte_vegas_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
@@ -199,7 +208,10 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callback-struct monte-function
+  :callbacks
+  (callback monte-function scalars
+	    (function function :double
+		      (:double :cvector (dim0 lower-limits))))
   :documentation			; FDL
   "Uses the vegas Monte Carlo algorithm to integrate the
    function f over the dim-dimensional hypercubic region
