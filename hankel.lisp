@@ -1,6 +1,6 @@
 ;; Discrete Hankel Transforms.
 ;; Liam Healy, Sat Dec  8 2007 - 16:50
-;; Time-stamp: <2009-02-24 15:26:06EST hankel.lisp>
+;; Time-stamp: <2009-03-02 16:22:06EST hankel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -41,7 +41,7 @@
   :c-return :double
   :documentation			; FDL
   "The value of the n-th sample point in the unit
-  interval, (j_{\nu,n+1}/j_{\nu,M}) X, which is assumed to be the
+  interval, (j_{\nu,n+1}/j_{\nu,M}) X, which are the
   points where the function f(t) is assumed to be sampled.")
 
 (defmfun sample-k-hankel (hankel n)

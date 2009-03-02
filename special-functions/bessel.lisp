@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2009-01-10 19:25:39EST bessel.lisp>
+;; Time-stamp: <2009-03-02 17:28:54EST bessel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,12 +20,16 @@
   :documentation			; FDL
   "The regular cylindrical Bessel function of first order, J_1(x).")
 
-(defmfun cylindrical-bessel-Jn (n x)
-  "gsl_sf_bessel_Jn_e" ((n :int) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The regular cylindrical Bessel function of order n, J_n(x).")
+(export 'cylindrical-bessel-J)
+(defgeneric cylindrical-bessel-J (order x)
+  (:documentation			; FDL
+   "The regular cylindrical Bessel function of order n, J_n(x)."))
 
-(defmfun cylindrical-bessel-Jn-array
+(defmfun cylindrical-bessel-J ((n integer) x)
+  "gsl_sf_bessel_Jn_e" ((n :int) (x :double) (ret sf-result))
+  :definition :method)
+
+(defmfun cylindrical-bessel-J-array-order
     (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
        &aux (array (vdf size-or-array)))
   "gsl_sf_bessel_Jn_array"
@@ -37,6 +41,24 @@
    for n from nmin to nmin+length(array)-1 inclusive.
    The values are computed using recurrence relations for efficiency,
    and therefore may differ slightly from the exact values.")
+
+;;; Fractional order
+
+(defmfun cylindrical-bessel-J ((nu float) x)
+  "gsl_sf_bessel_Jnu_e" ((nu :double) (x :double) (ret sf-result))
+  :definition :method)
+
+(defmfun cylindrical-bessel-J-array-x (nu v &optional (mode :double))
+  "gsl_sf_bessel_sequence_Jnu_e"
+  ((nu :double) (mode sf-mode) ((dim0 v) :int) ((c-pointer v) :pointer))
+  :inputs (v)
+  :outputs (v)
+  :documentation			; FDL
+  "The regular cylindrical Bessel function of
+  fractional order \nu, J_\nu(x), evaluated at a series of
+  x values.  The array v contains the x values.
+  They are assumed to be strictly ordered and positive.
+  The array is over-written with the values of J_\nu(x_i).")
 
 ;;;;****************************************************************************
 ;;;; Irregular Cylindrical Bessel Functions
@@ -52,9 +74,15 @@
   :documentation			; FDL
   "The irregular cylindrical Bessel function of first order, Y_1(x).")
 
-(defmfun cylindrical-bessel-Yn (n x)
+(export 'cylindrical-bessel-Y)
+(defgeneric cylindrical-bessel-Y (order x)
+  (:documentation			; FDL
+   "The irregular cylindrical Bessel function of order n, Y_n(x)."))
+
+(defmfun cylindrical-bessel-Y ((n integer) x)
   "gsl_sf_bessel_Yn_e"
   ((n :int) (x :double) (ret sf-result))
+    :definition :method
   :documentation			; FDL
   "The irregular cylindrical Bessel function of order n, Y_n(x).")
 
@@ -71,6 +99,12 @@
    nmin+length(array)-1 inclusive.  The values are computed using
    recurrence relations for efficiency, and therefore may differ slightly
    from the exact values.")
+
+;;; Irregular Bessel Function - Fractional Order
+
+(defmfun cylindrical-bessel-Y ((nu float) x)
+  "gsl_sf_bessel_Ynu_e" ((nu :double) (x :double) (ret sf-result))
+  :definition :method)
 
 ;;;;****************************************************************************
 ;;;; Regular Modified Cylindrical Bessel Functions
@@ -378,38 +412,6 @@
   from the exact values.")
 
 ;;;;****************************************************************************
-;;;; Regular Bessel Function - Fractional Order
-;;;;****************************************************************************
-
-(defmfun bessel-Jnu (nu x)
-  "gsl_sf_bessel_Jnu_e" ((nu :double) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The regular cylindrical Bessel function of fractional order
-  \nu, J_\nu(x).")
-
-(defmfun spherical-Jnu-array (nu v &optional (mode :double))
-  "gsl_sf_bessel_sequence_Jnu_e"
-  ((nu :double) (mode sf-mode) ((dim0 v) :int) ((c-pointer v) :pointer))
-  :inputs (v)
-  :outputs (v)
-  :documentation			; FDL
-  "The regular cylindrical Bessel function of
-  fractional order \nu, J_\nu(x), evaluated at a series of
-  x values.  The array v contains the x values.
-  They are assumed to be strictly ordered and positive.
-  The array is over-written with the values of J_\nu(x_i).")
-
-;;;;****************************************************************************
-;;;; Irregular Bessel Function - Fractional Order
-;;;;****************************************************************************
-
-(defmfun bessel-Ynu (nu x)
-  "gsl_sf_bessel_Ynu_e" ((nu :double) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The irregular cylindrical Bessel function of fractional order
-  \nu, Y_\nu(x).")
-
-;;;;****************************************************************************
 ;;;; Regular Modified Bessel Functions - Fractional Order
 ;;;;****************************************************************************
 
@@ -474,21 +476,14 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-;; This bizarrely causes a division-by-zero error 
-;;	    (bessel-jnu 3.0d0 4.0d0)
-;; in macroexpansion the form from within SLIME using SBCL (expands
-;; fine from shell)
-
 (save-test bessel
 	   (cylindrical-bessel-J0 4.0d0)
 	   (cylindrical-bessel-J1 4.0d0)
-	   (cylindrical-bessel-Jn 2 4.0d0)
-	   (let ((besarr (make-marray 'double-float :dimensions 4)))
-	     (cylindrical-bessel-Jn-array 2.0d0 besarr 2)
-	     (cl-array besarr))
+	   (cylindrical-bessel-J 2 4.0d0)
+	   (cl-array (cylindrical-bessel-J-array-order 2.0d0 4 2))
 	   (cylindrical-bessel-Y0 4.0d0)
 	   (cylindrical-bessel-Y1 4.0d0)
-	   (cylindrical-bessel-Yn 3 4.0d0)
+	   (cylindrical-bessel-Y 3 4.0d0)
 	   (let ((besarr (make-marray 'double-float :dimensions 4)))
 	     (cylindrical-bessel-Yn-array 2.0d0 besarr 2)
 	     (cl-array besarr))
@@ -548,11 +543,9 @@
 	   (let ((besarr (make-marray 'double-float :dimensions 4)))
 	     (spherical-bessel-kl-scaled-array 4.0d0 besarr)
 	     (cl-array besarr))
-	   (bessel-jnu 3.0d0 4.0d0)
-	   (let ((besarr #m(1.0d0 2.0d0 3.0d0)))
-	     (spherical-Jnu-array 0.5d0 besarr)
-	     (cl-array besarr))
-	   (bessel-Ynu 3.0d0 4.0d0)
+	   (cylindrical-bessel-J 3.0d0 4.0d0)
+	   (cl-array (cylindrical-bessel-J-array-x 0.5d0 #m(1.0d0 2.0d0 3.0d0)))
+	   (cylindrical-bessel-Y 3.0d0 4.0d0)
 	   (bessel-Inu 3.0d0 4.0d0)
 	   (bessel-Inu-scaled 3.0d0 4.0d0)
 	   (bessel-Knu 3.0d0 4.0d0)
