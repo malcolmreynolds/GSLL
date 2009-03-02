@@ -1,6 +1,6 @@
 ;; Numerical differentiation.                
 ;; Liam Healy Mon Nov 12 2007 - 22:07
-;; Time-stamp: <2009-03-01 21:55:33EST numerical-differentiation.lisp>
+;; Time-stamp: <2009-03-02 09:25:00EST numerical-differentiation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,7 +14,8 @@
   "gsl_deriv_central"
   ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function function))
+  :callbacks (callback gsl-function (function))
+  :callback-dynamic ((function))
   :documentation			; FDL
   "Compute the numerical derivative of the function
    at the point x using an adaptive central difference algorithm with
@@ -35,7 +36,8 @@
   "gsl_deriv_forward"
   ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function function))
+  :callbacks (callback gsl-function (function))
+  :callback-dynamic ((function))
   :documentation			; FDL
   "Compute the numerical derivative of the function
    at the point x using an adaptive forward difference algorithm with
@@ -58,7 +60,8 @@
   "gsl_deriv_backward"
   ((callback :pointer) (x :double) (step :double)
    (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function function))
+  :callbacks (callback gsl-function (function))
+  :callback-dynamic ((function))
   :documentation			; FDL
   "Compute the numerical derivative of the function at the point x
    using an adaptive backward difference algorithm with a step-size of

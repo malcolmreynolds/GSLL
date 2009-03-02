@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-01 21:57:54EST callback.lisp>
+;; Time-stamp: <2009-03-02 10:04:35EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -335,49 +335,28 @@
 (defun callback-remove-arg (list &optional key)
   (remove +callback-argument-name+ list :key key))
 
-;;; From CLOCC:port, with addition of openmcl
-(defun arglist (fn)
-  "Return the signature of the function."
-  #+allegro (excl:arglist fn)
-  #+clisp (sys::arglist fn)
-  #+(or cmu scl)
-  (let ((f (coerce fn 'function)))
-    (typecase f
-      (STANDARD-GENERIC-FUNCTION (pcl:generic-function-lambda-list f))
-      (EVAL:INTERPRETED-FUNCTION (eval:interpreted-function-arglist f))
-      (FUNCTION (values (read-from-string (kernel:%function-arglist f))))))
-  #+cormanlisp (ccl:function-lambda-list
-                (typecase fn (symbol (fdefinition fn)) (t fn)))
-  #+gcl (let ((fn (etypecase fn
-                    (symbol fn)
-                    (function (si:compiled-function-name fn)))))
-          (get fn 'si:debug))
-  #+lispworks (lw:function-lambda-list fn)
-  #+lucid (lcl:arglist fn)
-  #+sbcl (progn (require :sb-introspect)
-		(let ((fun (find-symbol (symbol-name 'function-arglist) 'sb-introspect)))
-		  (when fun
-		    (funcall fun fn))))
-  #+openmcl (ccl:arglist fn)
-  #-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbcl scl openmcl)
-  (error "No arglist function known."))
-
 ;;;;****************************************************************************
 ;;;; Parsing :callback argument specification
 ;;;;****************************************************************************
 
 ;;; The :callbacks argument is a list of the form:
-;;; (foreign-argument callback-structure-type scalars function ...)
+;;; (foreign-argument callback-structure-type function ...)
 ;;; where each function is of the form 
-;;; (structure-slot-name cl-argument
+;;; (structure-slot-name
 ;;;   &optional (return-spec 'double-float) (argument-spec 'double-float)
 ;;;             set1-spec set2-spec marray)
+;;; The :callback-dynamic is a list of functions corresponding in
+;;; order to the cddr of the :callbacks argument (function... ) in which
+;;; each element is a list of (function scalarsp dimensions...) where
+;;; function = function designator, 
+;;; scalarsp = flag determining whether to pass/accept scalars or arrays
+;;; dimensions = dimension of the problem
 
 (defparameter *callback-argument-components*
-  '(foreign-argument callback-structure-type scalars &rest functions))
+  '(foreign-argument callback-structure-type &rest functions))
 
 (defparameter *callback-argument-function-components*
-  '(structure-slot-name cl-argument
+  '(structure-slot-name
    &optional
     (return-spec :double)
     (argument-spec :double)
@@ -416,24 +395,13 @@
 ;;;;****************************************************************************
 
 (defun callback-symbol-set (callbacks symbols)
+  "Generate the form to set each of the dynamic (special) variables
+   to (function scalarsp dimensions...) in the body of the demfun for
+   each of the callback functions."
   `((setf
      ,@(loop for symb in symbols
-	  for fn in (callback-argument-component callbacks functions)
-	  append
-	  (list
-	   symb
-	   `(list
-	     ,(callback-argument-function-component fn cl-argument)
-	     ,(callback-argument-component callbacks scalars)
-	     ,(callback-argument-function-argspec
-	       (callback-argument-function-component fn argument-spec)
-	       'dimensions)
-	     ,(callback-argument-function-argspec
-	      (callback-argument-function-component fn set1-spec)
-	      'dimensions)
-	     ,(callback-argument-function-argspec
-	      (callback-argument-function-component fn set2-spec)
-	      'dimensions)))))))
+	  for list in callbacks
+	  append (list symb (cons 'list list))))))
 
 (defun callback-set-slots (callbacks symbols)
   `((set-cbstruct
@@ -456,8 +424,8 @@
      ,variable-name
      ,(callback-argument-function-component function-spec return-spec)
      ,(callback-argument-function-component function-spec argument-spec)
-     nil
-     ,(when (eq (callback-argument-component callback-arg scalars) :marray))))
+     nil			       
+     ,(when (eq nil :marray))))		; to be FIXED for dynamic scalarsp
 
 ;;;;****************************************************************************
 ;;;; Macro defmcallback NEW
