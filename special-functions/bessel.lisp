@@ -1,6 +1,6 @@
 ;; Bessel functions
 ;; Liam Healy, Fri Mar 17 2006 - 18:42
-;; Time-stamp: <2009-03-02 17:28:54EST bessel.lisp>
+;; Time-stamp: <2009-03-04 09:14:53EST bessel.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -82,7 +82,7 @@
 (defmfun cylindrical-bessel-Y ((n integer) x)
   "gsl_sf_bessel_Yn_e"
   ((n :int) (x :double) (ret sf-result))
-    :definition :method
+  :definition :method
   :documentation			; FDL
   "The irregular cylindrical Bessel function of order n, Y_n(x).")
 
@@ -120,10 +120,15 @@
   :documentation			; FDL
   "The regular modified cylindrical Bessel function of first order, I_1(x).")
 
-(defmfun cylindrical-bessel-In (n x)
-  "gsl_sf_bessel_In_e" ((n :int) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The regular modified cylindrical Bessel function of order n, I_n(x).")
+(export 'cylindrical-bessel-I)
+(defgeneric cylindrical-bessel-I (order x)
+  (:documentation			; FDL
+   "The regular modified cylindrical Bessel function of order n, I_n(x)."))
+
+(defmfun cylindrical-bessel-I ((n integer) x)
+  "gsl_sf_bessel_In_e"
+  ((n :int) (x :double) (ret sf-result))
+  :definition :method)
 
 (defmfun cylindrical-bessel-In-array
     (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
@@ -150,8 +155,15 @@
   "The scaled regular modified cylindrical Bessel function of first order,
   \exp(-|x|) I_1(x).")
 
-(defmfun cylindrical-bessel-In-scaled (n x)
+(export 'cylindrical-bessel-I-scaled)
+(defgeneric cylindrical-bessel-I-scaled (order x)
+  (:documentation			; FDL
+   "The scaled regular modified cylindrical Bessel function of order n,
+  \exp(-|x|) I_n(x)}."))
+
+(defmfun cylindrical-bessel-I-scaled ((n integer) x)
   "gsl_sf_bessel_In_scaled_e" ((n :int) (x :double) (ret sf-result))
+  :definition :method
   :documentation			; FDL
   "The scaled regular modified cylindrical Bessel function of order n,
   \exp(-|x|) I_n(x)}.")
@@ -171,6 +183,22 @@
   relations for efficiency, and therefore may differ slightly from the
   exact values.")
 
+;;; Regular Modified Bessel Functions - Fractional Order
+
+(defmfun cylindrical-bessel-I ((nu float) x)
+  "gsl_sf_bessel_Inu_e" ((nu :double) (x :double) (ret sf-result))
+  :definition :method
+  :documentation			; FDL
+  "The regular modified Bessel function of fractional order
+  \nu, I_\nu(x) for x>0, \nu>0.")
+
+(defmfun cylindrical-bessel-I-scaled ((nu float) x)
+  "gsl_sf_bessel_Inu_scaled_e" ((nu :double) (x :double) (ret sf-result))
+  :definition :method
+  :documentation			; FDL
+  "The scaled regular modified Bessel function of fractional order
+  \nu, \exp(-|x|)I_\nu(x) for x>0, \nu>0.")
+
 ;;;;****************************************************************************
 ;;;; Irregular Modified Cylindrical Bessel Functions
 ;;;;****************************************************************************
@@ -186,10 +214,14 @@
   :documentation			; FDL
   "The irregular modified cylindrical Bessel function of first order, K_1(x).")
 
-(defmfun cylindrical-bessel-Kn (n x)
+(export 'cylindrical-bessel-K)
+(defgeneric cylindrical-bessel-K (order x)
+  (:documentation			; FDL
+   "The irregular modified cylindrical Bessel function of order n, K_n(x)."))
+
+(defmfun cylindrical-bessel-K ((n integer) x)
   "gsl_sf_bessel_Kn_e" ((n :int) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The irregular modified cylindrical Bessel function of order n, K_n(x).")
+  :definition :method)
 
 (defmfun cylindrical-bessel-Kn-array
     (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
@@ -216,11 +248,15 @@
   "The scaled irregular modified cylindrical Bessel function of first order,
    \exp(-|x|) K_1(x).")
 
-(defmfun cylindrical-bessel-Kn-scaled (n x)
+(export 'cylindrical-bessel-K-scaled)
+(defgeneric cylindrical-bessel-K-scaled (order x)
+  (:documentation			; FDL
+   "The scaled irregular modified cylindrical Bessel function of order n,
+  \exp(-|x|) K_n(x)."))
+
+(defmfun cylindrical-bessel-K-scaled ((n integer) x)
   "gsl_sf_bessel_Kn_scaled_e" ((n :int) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The scaled irregular modified cylindrical Bessel function of order n,
-  \exp(-|x|) K_n(x).")
+  :definition :method)
 
 (defmfun cylindrical-bessel-Kn-scaled-array
     (x &optional (size-or-array *default-sf-array-size*) (nmin 0)
@@ -237,6 +273,28 @@
    or zero.  The domain of the function is x>0. The values are
    computed using recurrence relations for efficiency, and therefore
    may differ slightly from the exact values.")
+
+;;; Irregular Modified Bessel Functions - Fractional Order
+
+(defmfun cylindrical-bessel-K ((nu float) x)
+  "gsl_sf_bessel_Knu_e" ((nu :double) (x :double) (ret sf-result))
+  :definition :method
+  :documentation			; FDL
+  "The irregular modified Bessel function of fractional order \nu,
+   K_\nu(x) for x>0, \nu>0.")
+
+(defmfun bessel-lnKnu (nu x)
+  "gsl_sf_bessel_lnKnu_e" ((nu :double) (x :double) (ret sf-result))
+  :documentation			; FDL
+  "The logarithm of the irregular modified Bessel function of fractional
+   order \nu, \ln(K_\nu(x)) for x>0, \nu>0.")
+
+(defmfun cylindrical-bessel-K-scaled ((nu float) x)
+  "gsl_sf_bessel_Knu_scaled_e" ((nu :double) (x :double) (ret sf-result))
+  :definition :method
+  :documentation			; FDL
+  "The scaled irregular modified Bessel function of fractional order
+   \nu, \exp(+|x|) K_\nu(x) for x>0, \nu>0.")
 
 ;;;;****************************************************************************
 ;;;; Regular Spherical Bessel Functions
@@ -412,44 +470,6 @@
   from the exact values.")
 
 ;;;;****************************************************************************
-;;;; Regular Modified Bessel Functions - Fractional Order
-;;;;****************************************************************************
-
-(defmfun bessel-Inu (nu x)
-  "gsl_sf_bessel_Inu_e" ((nu :double) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The regular modified Bessel function of fractional order
-  \nu, I_\nu(x) for x>0, \nu>0.")
-
-(defmfun bessel-Inu-scaled (nu x)
-  "gsl_sf_bessel_Inu_scaled_e" ((nu :double) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The scaled regular modified Bessel function of fractional order
-  \nu, \exp(-|x|)I_\nu(x) for x>0, \nu>0.")
-
-;;;;****************************************************************************
-;;;; Irregular Modified Bessel Functions - Fractional Order
-;;;;****************************************************************************
-
-(defmfun bessel-Knu (nu x)
-  "gsl_sf_bessel_Knu_e" ((nu :double) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The irregular modified Bessel function of fractional order \nu,
-   K_\nu(x) for x>0, \nu>0.")
-
-(defmfun bessel-lnKnu (nu x)
-  "gsl_sf_bessel_lnKnu_e" ((nu :double) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The logarithm of the irregular modified Bessel function of fractional
-   order \nu, \ln(K_\nu(x)) for x>0, \nu>0.")
-
-(defmfun bessel-Knu-scaled (nu x)
-  "gsl_sf_bessel_Knu_scaled_e" ((nu :double) (x :double) (ret sf-result))
-  :documentation			; FDL
-  "The scaled irregular modified Bessel function of fractional order
-   \nu, \exp(+|x|) K_\nu(x) for x>0, \nu>0.")
-
-;;;;****************************************************************************
 ;;;; Zeros of Regular Bessel Functions
 ;;;;****************************************************************************
 
@@ -489,25 +509,29 @@
 	     (cl-array besarr))
 	   (cylindrical-bessel-I0 4.0d0)
 	   (cylindrical-bessel-I1 4.0d0)
-	   (cylindrical-bessel-In 3 4.0d0)
+	   (cylindrical-bessel-I 3 4.0d0)
+	   (cylindrical-bessel-I 3.0d0 4.0d0)
 	   (let ((besarr (make-marray 'double-float :dimensions 4)))
 	     (cylindrical-bessel-In-array 2.0d0 besarr 2)
 	     (cl-array besarr))
 	   (cylindrical-bessel-I0-scaled 4.0d0)
 	   (cylindrical-bessel-I1-scaled 4.0d0)
-	   (cylindrical-bessel-In-scaled 3 4.0d0)
+	   (cylindrical-bessel-I-scaled 3 4.0d0)
+	   (cylindrical-bessel-I-scaled 3.0d0 4.0d0)
 	   (let ((besarr (make-marray 'double-float :dimensions 4)))
 	     (cylindrical-bessel-In-scaled-array 2.0d0 besarr 2)
 	     (cl-array besarr))
 	   (cylindrical-bessel-K0 4.0d0)
 	   (cylindrical-bessel-K1 4.0d0)
-	   (cylindrical-bessel-Kn 2 4.0d0)
+	   (cylindrical-bessel-K 2 4.0d0)
+	   (cylindrical-bessel-K 3.0d0 4.0d0)
 	   (let ((besarr (make-marray 'double-float :dimensions 4)))
 	     (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
 	     (cl-array besarr))
 	   (cylindrical-bessel-K0-scaled 4.0d0)
 	   (cylindrical-bessel-K1-scaled 4.0d0)
-	   (cylindrical-bessel-Kn-scaled 2 4.0d0)
+	   (cylindrical-bessel-K-scaled 2 4.0d0)
+	   (cylindrical-bessel-K-scaled 3.0d0 4.0d0)
 	   (let ((besarr (make-marray 'double-float :dimensions 4)))
 	     (cylindrical-bessel-Kn-array 2.0d0 besarr 2)
 	     (cl-array besarr))
@@ -546,11 +570,7 @@
 	   (cylindrical-bessel-J 3.0d0 4.0d0)
 	   (cl-array (cylindrical-bessel-J-array-x 0.5d0 #m(1.0d0 2.0d0 3.0d0)))
 	   (cylindrical-bessel-Y 3.0d0 4.0d0)
-	   (bessel-Inu 3.0d0 4.0d0)
-	   (bessel-Inu-scaled 3.0d0 4.0d0)
-	   (bessel-Knu 3.0d0 4.0d0)
 	   (bessel-lnKnu 3.0d0 4.0d0)
-	   (bessel-Knu-scaled 3.0d0 4.0d0)
 	   (bessel-zero-J0 5)
 	   (bessel-zero-J1 5)
 	   (bessel-zero-Jnu 2.0d0 5))
