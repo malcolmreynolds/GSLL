@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-02 10:04:35EST callback.lisp>
+;; Time-stamp: <2009-03-05 22:48:19EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -89,16 +89,6 @@
 
 ;;; (callback-args '(:double (:double 2) (:set :double 2)))
 ;;; ((#:ARG1193 :DOUBLE) (#:ARG1194 :POINTER) (#:ARG1195 :POINTER))
-
-(defun callback-args (types)
-  "The arguments passed by GSL to the callback function."
-  (mapcar (lambda (type)
-	    (let ((symbol (gensym "ARG")))
-	      (list symbol
-		    (if (listp type)	; like (:double 3)
-			:pointer	; C array
-			type))))
-	  (if (listp types) types (list types))))
 
 ;;; (embedded-clfunc-args '(:double (:double 2) (:set :double 2)) (callback-args '(:double (:double 2) (:set :double 2))))
 ;;; (#:ARG1244 (MEM-AREF #:ARG1245 ':DOUBLE 0) (MEM-AREF #:ARG1245 ':DOUBLE 1))
@@ -417,42 +407,51 @@
 	  `(',(callback-argument-function-component fn structure-slot-name)
 	      ',symb))))))
 
-(defun defmcallback-form-generation
-    (callback-name variable-name callback-arg function-spec)
-  `(defmcallback
-     ,callback-name
-     ,variable-name
-     ,(callback-argument-function-component function-spec return-spec)
-     ,(callback-argument-function-component function-spec argument-spec)
-     nil			       
-     ,(when (eq nil :marray))))		; to be FIXED for dynamic scalarsp
+(defun callback-args (types)
+  "The arguments passed by GSL to the callback function."
+  (mapcar (lambda (type)
+	    (let ((symbol (gensym "ARG")))
+	      (list symbol
+		    (if (listp type)	; like (:double 3)
+			:pointer	; C array
+			type))))
+	  (if (listp types) types (list types))))
 
 ;;;;****************************************************************************
 ;;;; Macro defmcallback NEW
 ;;;;****************************************************************************
 
-(defmacro defmcallback
-    (name dynamic-variable
-     &optional (return-type :double) (argument-type :double)
-     (set1-type nil) (set2-type nil))
-  (let* ((atc (callback-args  (list argument-type)))
-	 (s1tc (callback-args (if set1-type (list set1-type))))
-	 (s2tc (callback-args (if set2-type (list set2-type)))))
+(defmacro defmcallback (name dynamic-variable function-spec)
+  (let* ((args (callback-args
+		(list
+		 (callback-argument-function-component function-spec argument-spec)
+		 (callback-argument-function-component function-spec set1-spec)
+		 (callback-argument-function-component function-spec set2-spec))))
+	 (return-type 
+	  (callback-argument-function-component function-spec return-spec)))
     `(cffi:defcallback ,name
 	 ,(if (eq return-type :success-failure) :int return-type)
-	 (,@atc
-	  (params :pointer)
-	  ,@(when set1-type s1tc)
-	  ,@(when set1-type s2tc))
+	 (,(first args)
+	   (params :pointer)
+	   ,@(list (second args) (third args)))
        ;; Parameters as C argument are always ignored, because we have
        ;; CL specials to do the same job.
        (declare (ignore params) (special ,dynamic-variable))
-       (maybe-scalar-call
+       (call-maybe-scalar
 	(first ,dynamic-variable)
-	,(cons 'list (mapcar 'first (append atc s1tc s2tc)))
+	,(cons 'list (mapcar 'first args))
 	(second ,dynamic-variable)	; scalars
 	(cddr ,dynamic-variable)	; dimensions for each argument
-	,(callback-argument-function-argspec argument-type 'array-type))
+	(list		       ; which are marrays, which are cvectors
+	 ,(callback-argument-function-argspec
+	   (callback-argument-function-component function-spec argument-spec)
+	   'array-type)
+	 ,(callback-argument-function-argspec
+	   (callback-argument-function-component function-spec set1-spec)
+	   'array-type)
+	 ,(callback-argument-function-argspec
+	   (callback-argument-function-component function-spec set2-spec)
+	   'array-type)))
        ,@(case
 	  return-type
 	  (:success-failure
@@ -469,9 +468,11 @@
       (loop for i below length collect (maref pointer i))
       (loop for i below length collect (dcref pointer i)))))
 
-(defun maybe-scalar-call (function arguments scalars dimensions marray)
-  "If scalars is a number, pass the function that many scalar arguments."
+(defun call-maybe-scalar (function arguments scalars dimensions marrays)
+  "If scalars is a true, pass the function scalar arguments and set
+   set1 and set2 to the scalar results."
   (if scalars
       (apply
-       function (array-to-list (first arguments) (first dimensions) marray))
+       function (array-to-list (first arguments) (first dimensions) (first marrays)))
       (apply function arguments)))
+

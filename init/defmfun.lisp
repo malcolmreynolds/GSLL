@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-03-02 10:01:46EST defmfun.lisp>
+;; Time-stamp: <2009-03-05 21:11:49EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -149,8 +149,7 @@
 	 ,@(if (symbolp (first expanded-body)) (list expanded-body) expanded-body)
 	 ,@(when callbacks
 		 (mapcar
-		  (lambda (vbl cb fspec)
-		    (defmcallback-form-generation cb vbl callbacks fspec))
+		  (lambda (vbl cb fspec) `(defmcallback ,cb ,vbl ,fspec))
 		  (first callback-gensyms)
 		  (second callback-gensyms)
 		  (callback-argument-component callbacks functions)))
