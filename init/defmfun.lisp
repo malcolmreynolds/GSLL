@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-03-05 21:11:49EST defmfun.lisp>
+;; Time-stamp: <2009-03-07 15:52:28EST defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -85,12 +85,6 @@
       gsl-version switch callbacks callback-dynamic)
      (special indexed-functions callback-gensyms))
     ,@body))
-
-(defparameter *defmfun-llk* '(&optional &key &aux)
-  "Possible lambda-list keywords.")
-
-(defparameter *defmfun-optk* '(&optional &key)
-  "Possible optional-argument keywords.")
 
 (defun optional-args-to-switch-gsl-functions (arglist gsl-name)
   "The presence/absence of optional arguments will switch between the

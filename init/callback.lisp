@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-05 22:48:19EST callback.lisp>
+;; Time-stamp: <2009-03-07 22:59:50EST callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -342,6 +342,7 @@
 ;;; scalarsp = flag determining whether to pass/accept scalars or arrays
 ;;; dimensions = dimension of the problem
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
 (defparameter *callback-argument-components*
   '(foreign-argument callback-structure-type &rest functions))
 
@@ -351,6 +352,7 @@
     (return-spec :double)
     (argument-spec :double)
     set1-spec set2-spec marray))
+)
 
 (defmacro parse-arglist (template arglist component)
   `(destructuring-bind ,template ,arglist
@@ -394,6 +396,7 @@
 	  append (list symb (cons 'list list))))))
 
 (defun callback-set-slots (callbacks symbols)
+  (when callbacks
   `((set-cbstruct
      ,(callback-argument-component callbacks foreign-argument)
      ',(callback-argument-component callbacks callback-structure-type)
@@ -405,7 +408,7 @@
 	  in (callback-argument-component callbacks functions)
 	  append
 	  `(',(callback-argument-function-component fn structure-slot-name)
-	      ',symb))))))
+	      ',symb)))))))
 
 (defun callback-args (types)
   "The arguments passed by GSL to the callback function."
@@ -423,56 +426,101 @@
 
 (defmacro defmcallback (name dynamic-variable function-spec)
   (let* ((args (callback-args
-		(list
-		 (callback-argument-function-component function-spec argument-spec)
-		 (callback-argument-function-component function-spec set1-spec)
-		 (callback-argument-function-component function-spec set2-spec))))
+		(remove		; remove unused arguments in list tail
+		 nil
+		 (list
+		  (callback-argument-function-component function-spec argument-spec)
+		  (callback-argument-function-component function-spec set1-spec)
+		  (callback-argument-function-component function-spec set2-spec)))))
+	 (arg-component
+	  (callback-argument-function-component function-spec argument-spec))
+	 (set1-component
+	  (callback-argument-function-component function-spec set1-spec))
+	 (set2-component
+	  (callback-argument-function-component function-spec set2-spec))
 	 (return-type 
 	  (callback-argument-function-component function-spec return-spec)))
-    `(cffi:defcallback ,name
-	 ,(if (eq return-type :success-failure) :int return-type)
-	 (,(first args)
-	   (params :pointer)
-	   ,@(list (second args) (third args)))
-       ;; Parameters as C argument are always ignored, because we have
-       ;; CL specials to do the same job.
-       (declare (ignore params) (special ,dynamic-variable))
-       (call-maybe-scalar
-	(first ,dynamic-variable)
-	,(cons 'list (mapcar 'first args))
-	(second ,dynamic-variable)	; scalars
-	(cddr ,dynamic-variable)	; dimensions for each argument
-	(list		       ; which are marrays, which are cvectors
-	 ,(callback-argument-function-argspec
-	   (callback-argument-function-component function-spec argument-spec)
-	   'array-type)
-	 ,(callback-argument-function-argspec
-	   (callback-argument-function-component function-spec set1-spec)
-	   'array-type)
-	 ,(callback-argument-function-argspec
-	   (callback-argument-function-component function-spec set2-spec)
-	   'array-type)))
-       ,@(case
-	  return-type
-	  (:success-failure
-	   ;; We always return success, because if there was a
-	   ;; problem, a CL error would be signalled.
-	   '(success))
-	  (:pointer
-	   ;; For unclear reasons, some GSL functions want callbacks
-	   ;; to return a void pointer which is apparently meaningless.
-	   '((cffi:null-pointer)))))))
+    (print (list arg-component set1-component set2-component))
+    (flet ((dimargs (component)
+	     (sublis `((dim0 . (third ,dynamic-variable))
+		       (dim1 . (fourth ,dynamic-variable)))
+		     (callback-argument-function-argspec component 'dimensions))))
+      `(cffi:defcallback ,name
+	   ,(if (eq return-type :success-failure) :int return-type)
+	   (,(first args)
+	     (params :pointer)
+	     ,@(rest args))
+	 ;; Parameters as C argument are always ignored, because we have
+	 ;; CL specials to do the same job.
+	 (declare (ignore params) (special ,dynamic-variable))
+	 ,(if (or (listp arg-component) set1-component set2-component)
+	      `(call-maybe-scalar
+		(first ,dynamic-variable)
+		,(cons 'list (mapcar 'first args))
+		(second ,dynamic-variable) ; scalars
+		(list 
+		 ,(dimargs arg-component)
+		 ,(dimargs set1-component)
+		 ,(dimargs set2-component))
+		(list	       ; which are marrays, which are cvectors
+		 ,(callback-argument-function-argspec arg-component 'array-type)
+		 ,(callback-argument-function-argspec set1-component 'array-type)
+		 ,(callback-argument-function-argspec set2-component 'array-type)))
+	      ;; Function with scalar argument and scalar return
+	      `(funcall (first ,dynamic-variable) ,(caar args)))
+	 ,@(case
+	    return-type
+	    (:success-failure
+	     ;; We always return success, because if there was a
+	     ;; problem, a CL error would be signalled.
+	     '(success))
+	    (:pointer
+	     ;; For unclear reasons, some GSL functions want callbacks
+	     ;; to return a void pointer which is apparently meaningless.
+	     '((cffi:null-pointer))))))))
 
-(defun array-to-list (pointer length marray)
-  (if marray
+(defun array-to-list (pointer length marrayp)
+  (if marrayp
       (loop for i below length collect (maref pointer i))
-      (loop for i below length collect (dcref pointer i)))))
+      (loop for i below length collect (dcref pointer i))))
+
+(defun list-to-array (list pointer dimensions marrayp)
+  "From the list of values, set the foreign array at pointer."
+  (if (= (length dimensions) 2)
+      (loop for i below (first dimensions)
+	 with indl = -1
+	 do
+	 (loop for j below (second dimensions)
+	    do
+	    (incf indl)
+	    (if marrayp
+		(setf (maref pointer i j) (nth indl list))
+		(setf (dcref pointer indl) (nth indl list)))))
+      (if marrayp
+	  (loop for i below (first dimensions)
+	     do (setf (maref pointer i) (nth i list)))
+	  (loop for i below (first dimensions)
+	     do (setf (dcref pointer i) (nth i list))))))
 
 (defun call-maybe-scalar (function arguments scalars dimensions marrays)
-  "If scalars is a true, pass the function scalar arguments and set
-   set1 and set2 to the scalar results."
-  (if scalars
-      (apply
-       function (array-to-list (first arguments) (first dimensions) (first marrays)))
+  "Call the function on the arguments.  If scalars is true, pass the
+   function scalar arguments and set set1 and set2 to the scalar
+   results.  In that case, the stated dimensions and whether the
+   arrays are marrays or cvectors will be used."
+  ;; function: a function designator
+  ;; arguments: list of 1-3 symbols
+  ;; scalars: T or NIL
+  ;; dimensions: list of 1-3 lists of 1-2 expressions using dim0/dim1
+  ;; marrays: list of 1-3 boolean
+  (if scalars				; should be nil also for scalar functions
+      (let ((user-fn-return
+	     (multiple-value-list 
+	      (apply function
+		     ;; input should be checked to be array
+		     (array-to-list
+		      (first arguments) (first dimensions) (first marrays))))))
+	(if (rest arguments)
+	    (list-to-array
+	     user-fn-return (second arguments) (second dimensions) (second marrays))
+	    (first user-fn-return)))
       (apply function arguments)))
-

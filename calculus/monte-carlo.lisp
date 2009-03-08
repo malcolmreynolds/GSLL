@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-03-02 09:25:45EST monte-carlo.lisp>
+;; Time-stamp: <2009-03-07 16:39:34EST monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -247,7 +247,7 @@
   (* (/ (expt pi 3))
      (/ (- 1 (* (cos x) (cos y) (cos z))))))
 
-(make-callbacks monte-carlo mcrw 3)
+;;(make-callbacks monte-carlo mcrw 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-plain 3))

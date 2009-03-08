@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-16 17:15:57EST gsll.asd>
+;; Time-stamp: <2009-03-07 22:31:35EST gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -14,16 +14,17 @@
     ((:module init
 	      :components
 	      ((:file "init")
+	       (:file "forms")
 	       (:file "conditions" :depends-on (init))
+	       (:file "number-conversion" :depends-on (init))
 	       (:file "mobject" :depends-on (init))
-	       (:file "callback" :depends-on (init mobject))
+	       (:file "callback" :depends-on (init forms number-conversion mobject))
 	       (:file "types" :depends-on (init))
 	       (:file "complex-types" :depends-on (types))
 	       (:file "element-types" :depends-on (init complex-types))
-	       (:file "number-conversion" :depends-on (init))
 	       (:file "interface"
 		      :depends-on (init conditions element-types number-conversion))
-	       (:file "defmfun" :depends-on (init element-types interface))
+	       (:file "defmfun" :depends-on (init forms element-types interface))
 	       (:file "defmfun-array" :depends-on (defmfun))
 	       (:file "defmfun-single" :depends-on (defmfun mobject callback))
 	       (:file "generate-examples" :depends-on (init))))
@@ -174,6 +175,7 @@
 	      ((:file "numerical-integration")
 	       (:file "monte-carlo")
 	       (:file "numerical-differentiation")))
+     #+(or)
      (:module ordinary-differential-equations
 	      :depends-on (init)
 	      :components
@@ -190,10 +192,11 @@
 	       (:file "lookup")
 	       (:file "evaluation")
 	       (:file "spline-example" :depends-on (types))))
-     (:file "chebyshev" :depends-on (init))
+     ;(:file "chebyshev" :depends-on (init))
      (:file "series-acceleration" :depends-on (init))
      (:file "wavelet" :depends-on (init data))
      (:file "hankel" :depends-on (init data))
+     #+(or)
      (:module solve-minimize-fit
 	      :depends-on (init data random)
 	      :components
