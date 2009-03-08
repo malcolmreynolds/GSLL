@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-24 15:06:55EST gsll-tests.asd>
+;; Time-stamp: <2009-03-08 17:47:07EDT gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -15,7 +15,8 @@
 	    :components
 	    ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
 	    ((:file "lisp-unit")
-	     (:file "additional-definitions" :depends-on (lisp-unit))))
+	     ;;(:file "additional-definitions" :depends-on (lisp-unit))
+	     (:file "floating-point-assertions" :depends-on (lisp-unit))))
    (:module tests
 	    :depends-on (test-unit)
 	    :components
