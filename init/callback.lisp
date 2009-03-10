@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-07 22:59:50EST callback.lisp>
+;; Time-stamp: <2009-03-09 22:56:13EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -379,6 +379,9 @@
 			(cons 'list cddr) 
 			(first cddr)))))))
 
+(defun number-of-callbacks (callbacks)
+  (length (callback-argument-component callbacks functions)))
+
 ;;; (callback-argument-component '(foo bar baz (bof 1 2 2)) callback-structure-type)
 ;;; (callback-argument-function-component '(foo bar) argument-spec)
 
@@ -390,10 +393,11 @@
   "Generate the form to set each of the dynamic (special) variables
    to (function scalarsp dimensions...) in the body of the demfun for
    each of the callback functions."
-  `((setf
-     ,@(loop for symb in symbols
-	  for list in callbacks
-	  append (list symb (cons 'list list))))))
+  (when callbacks
+    `((setf
+       ,@(loop for symb in symbols
+	    for list in callbacks
+	    append (list symb (cons 'list list)))))))
 
 (defun callback-set-slots (callbacks symbols)
   (when callbacks
@@ -424,23 +428,26 @@
 ;;;; Macro defmcallback NEW
 ;;;;****************************************************************************
 
+(defun make-defmcallbacks (callbacks callback-names function-names)
+  (when callbacks
+    (mapcar
+     (lambda (cb vbl fspec) `(defmcallback ,cb ,vbl ,fspec))
+     callback-names function-names
+     (callback-argument-component callbacks functions))))
+
 (defmacro defmcallback (name dynamic-variable function-spec)
-  (let* ((args (callback-args
-		(remove		; remove unused arguments in list tail
-		 nil
-		 (list
-		  (callback-argument-function-component function-spec argument-spec)
-		  (callback-argument-function-component function-spec set1-spec)
-		  (callback-argument-function-component function-spec set2-spec)))))
-	 (arg-component
+  (let* ((arg-component
 	  (callback-argument-function-component function-spec argument-spec))
 	 (set1-component
 	  (callback-argument-function-component function-spec set1-spec))
 	 (set2-component
 	  (callback-argument-function-component function-spec set2-spec))
 	 (return-type 
-	  (callback-argument-function-component function-spec return-spec)))
-    (print (list arg-component set1-component set2-component))
+	  (callback-argument-function-component function-spec return-spec))
+	 (args (callback-args
+		(remove		; remove unused arguments in list tail
+		 nil
+		 (list arg-component set1-component set2-component)))))
     (flet ((dimargs (component)
 	     (sublis `((dim0 . (third ,dynamic-variable))
 		       (dim1 . (fourth ,dynamic-variable)))
@@ -524,3 +531,20 @@
 	     user-fn-return (second arguments) (second dimensions) (second marrays))
 	    (first user-fn-return)))
       (apply function arguments)))
+
+;;;;****************************************************************************
+;;;; For making mobjects
+;;;;****************************************************************************
+
+#|
+(defun ci-subclass-cdddr-args (callbacks)
+  "Make the list
+     cbstruct-name array-type callback-labels
+     &optional (dimension-names '(dimensions)
+   for def-ci-subclass and def-ci-subclass-1d."
+  (list
+   (callback-argument-component callbacks callback-structure-type)
+   (callback-argument-function-argspec  'array-type))
+  
+  )
+|#

@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-03-07 15:52:28EST defmfun.lisp>
+;; Time-stamp: <2009-03-09 22:34:54EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -104,8 +104,7 @@
 	    callback-gensyms
 	    ;; A list of variable names, and a list of callback names
 	    (when callbacks
-	      (let ((num-callbacks
-		     (length (callback-argument-component callbacks functions))))
+	      (let ((num-callbacks (number-of-callbacks callbacks)))
 		(list
 		 (loop repeat num-callbacks collect (gensym "DYNFN"))
 		 (loop repeat num-callbacks collect (gensym "CBFN"))))))
@@ -141,12 +140,8 @@
 		(when export `((export ',name))))))))
       `(progn
 	 ,@(if (symbolp (first expanded-body)) (list expanded-body) expanded-body)
-	 ,@(when callbacks
-		 (mapcar
-		  (lambda (vbl cb fspec) `(defmcallback ,cb ,vbl ,fspec))
-		  (first callback-gensyms)
-		  (second callback-gensyms)
-		  (callback-argument-component callbacks functions)))
+	 ,@(make-defmcallbacks
+	    callbacks (second callback-gensyms) (first callback-gensyms))
 	 ,@index-export))))
 
 ;;;;****************************************************************************

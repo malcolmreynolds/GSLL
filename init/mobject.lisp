@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-24 15:36:40EST mobject.lisp>
+;; Time-stamp: <2009-03-09 22:52:54EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -26,7 +26,7 @@
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
      (superclasses '(mobject))
-     class-slots-instance ci-class-slots singular)
+     class-slots-instance ci-class-slots callbacks singular)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   ;; Argument 'initialize-suffix: string appended to prefix to form
@@ -77,6 +77,12 @@
 		    (and callbackp
 			 (not (callback-arg-p class-slots-instance)))))
 	   (export '(,maker ,class))
+	   ,@(when callbacks
+		   (let ((numcb (number-of-callbacks callbacks)))
+		     (make-defmcallbacks
+		      callbacks
+		      (mobject-cbvnames class numcb)
+		      (mobject-fnvnames class numcb))))
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
 	     description documentation initialize-args initializerp settingp
@@ -220,6 +226,29 @@
 		`(list ,(singular-symbol symbol)))
 	  (list (intern (symbol-name symbol) :keyword)
 		symbol))))
+
+;;;;****************************************************************************
+;;;; Symbol makers
+;;;;****************************************************************************
+
+;;; These functions make interned symbols that will be bound to
+;;; dynamic variables.
+
+(defun mobject-variable-name (class-name suffix &optional count)
+  (intern (format nil "~:@(~a~)-~:@(~a~)~@[~d~]" class-name suffix count)
+	  :gsll))
+
+(defun mobject-cbvname (class-name &optional count)
+  (mobject-variable-name class-name 'cbfn count))
+
+(defun mobject-cbvnames (class-name &optional count)
+  (loop for i from 0 below count collect (mobject-cbvname class-name i)))
+
+(defun mobject-fnvname (class-name &optional count)
+  (mobject-variable-name class-name 'dynfn count))
+
+(defun mobject-fnvnames (class-name &optional count)
+  (loop for i from 0 below count collect (mobject-fnvname class-name i)))
 
 ;;;;****************************************************************************
 ;;;; Generic functions
