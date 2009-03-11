@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-03-08 17:47:07EDT gsll-tests.asd>
+;; Time-stamp: <2009-03-10 20:43:47EDT gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -9,16 +9,9 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "LLGPL v3, FDL"
-  :depends-on (gsll)
+  :depends-on (gsll lisp-unit)
   :components
-  ((:module test-unit
-	    :components
-	    ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
-	    ((:file "lisp-unit")
-	     ;;(:file "additional-definitions" :depends-on (lisp-unit))
-	     (:file "floating-point-assertions" :depends-on (lisp-unit))))
-   (:module tests
-	    :depends-on (test-unit)
+  ((:module tests
 	    :components
 	    ((:file "absolute-deviation")
 	     (:file "absolute-sum")
