@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-09 22:56:13EDT callback.lisp>
+;; Time-stamp: <2009-03-14 10:28:25EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -60,135 +60,6 @@
   (parameters :pointer))
 
 ;;;;****************************************************************************
-;;;; Macro defmcallback OBSOLETE
-;;;;****************************************************************************
-
-;;; Callback functions are defined using demcallback by passing the
-;;; name of the function and the argument list of types.  Arrays can
-;;; be handled in one of two ways.  If they are declared :pointer, the
-;;; CL function will be passed a C pointer, and it is responsible for
-;;; reading or setting the array, with #'dcref or #'maref.  If they
-;;; are declared (type size) then size scalars will be passed as
-;;; arguments to the CL function, and if they are declared (:set type
-;;; size), the CL function return size values, to which the array
-;;; elements will be set.
-
-;;; Usage example for scalar function (e.g. numerical-integration,
-;;; numerical-differentiation, chebyshev, ntuple).  
-;;; (defmcallback myfn :double :double)
-;;; Usage example for vector function (e.g. roots-multi)
-;;; (defmcallback myfn :pointer :int (:pointer))
-;;; Usage example for function and derivative
-;;; (defmcallback fdf :pointer :double (:pointer :pointer))
-;;; (defmcallback fdf :success-failure :int (:pointer :pointer))
-;;; Usage example for def-ode-functions
-;;; (defmcallback vanderpol :success-failure (:double (:double 2) (:set :double 2)))
-;;; or
-;;; (defmcallback vanderpol :success-failure (:double :pointer :pointer))
-;;; to read and set within the CL function with #'dcref.
-
-;;; (callback-args '(:double (:double 2) (:set :double 2)))
-;;; ((#:ARG1193 :DOUBLE) (#:ARG1194 :POINTER) (#:ARG1195 :POINTER))
-
-;;; (embedded-clfunc-args '(:double (:double 2) (:set :double 2)) (callback-args '(:double (:double 2) (:set :double 2))))
-;;; (#:ARG1244 (MEM-AREF #:ARG1245 ':DOUBLE 0) (MEM-AREF #:ARG1245 ':DOUBLE 1))
-
-(defvar *setting-spec* '(:set))
-(defun embedded-clfunc-args (types callback-args &optional marray)
-  "The arguments passed to the CL function call embedded in the callback.
-   If 'marray is T, then reference GSL arrays; otherwise reference raw
-   C vectors.  A specification (:set ...) means that the CL function
-   will define the array as multiple values; if the size is negative,
-   then the opposite value will be used for marray."
-  (loop for spec in types
-     for (symbol nil) in callback-args
-     append
-     (unless (and (listp spec) (member (first spec) *setting-spec*))
-       (if (listp spec)
-	   (if (third spec)
-	       ;; matrix, marrays only
-	       (loop for i from 0 below (second spec)
-		  append
-		  (loop for j from 0 below (third spec)
-		     collect
-		     `(maref ,symbol ,i ,j ',(cffi-cl (first spec)))))
-	       ;; vector, marray or C array
-	       (loop for ind from 0 below (abs (second spec))
-		  collect (if (if (minusp (second spec)) (not marray) marray)
-			      `(maref ,symbol ,ind nil ',(cffi-cl (first spec)))
-			      `(cffi:mem-aref ,symbol ',(first spec) ,ind))))
-	   (list symbol)))))
-
-(defun callback-set-mvb (form types callback-args &optional marray)
-  "Create the multiple-value-bind form in the callback to set the return C arrays."
-  (multiple-value-bind (settype setcba)
-      (loop for cba in callback-args
-	 for type in types
-	 for setting = (and (listp type) (member (first type) *setting-spec*))
-	 when setting
-	 collect cba into setcba
-	 when setting
-	 collect type into settype
-	 finally (return (values (mapcar 'rest settype) setcba)))
-    (let* ((setvbls (embedded-clfunc-args settype setcba marray))
-	   (count
-	    (apply
-	     '+
-	     (mapcar (lambda (inds) (abs (apply '* (rest inds)))) settype)))
-	   (mvbvbls (loop repeat count collect (gensym "SETCB"))))
-      (if (zerop count)
-	  form
-	  `(multiple-value-bind ,mvbvbls
-	       ,form
-	     (setf ,@(loop for mvbvbl in mvbvbls
-			for setvbl in setvbls
-			append (list setvbl mvbvbl))))))))
-
-(defmacro defmcallback-old
-    (name &optional (return-type :double) (argument-types :double)
-     additional-argument-types marray function-variable)
-  "Define a callback function used by GSL; the GSL function will call
-   it with an additional `parameters' argument that is ignored.  the
-   argument-types is a single type or list of types of the argument(s)
-   that appear before parameters, and the additional-argument-types
-   (default none) is a single type or list of types of the argument(s)
-   that appear after parameters.  The argument types are C types or
-   a list of a C type and a length, indicating a C array of that type
-   for which each element will be passed as a separate argument.
-   The return-type is the type that should be returned to GSL.
-   If :success-failure, a GSL_SUCCESS code (0) is always returned;
-   if :pointer, a null pointer is returned."
-  (let* ((atl (if (listp argument-types) argument-types (list argument-types)))
-	 (aatl (if (listp additional-argument-types) additional-argument-types
-		   (list additional-argument-types)))
-	 (cbargs (callback-args atl))
-	 (cbaddl (callback-args aatl)))
-    `(cffi:defcallback ,name
-	 ,(if (eq return-type :success-failure) :int return-type)
-	 (,@cbargs (params :pointer) ,@cbaddl)
-       ;; Parameters as C argument are always ignored, because we have
-       ;; CL specials to do the same job.
-       (declare (ignore params) (special ,function-variable))
-       ,(callback-set-mvb
-	 `(funcall ,function-variable
-		   ,@(append
-		      (embedded-clfunc-args atl cbargs marray)
-		      (embedded-clfunc-args aatl cbaddl marray)))
-	 (append atl aatl)
-	 (append cbargs cbaddl)
-	 marray)
-       ,@(case
-	  return-type
-	  (:success-failure
-	   ;; We always return success, because if there was a
-	   ;; problem, a CL error would be signalled.
-	   '(success))
-	  (:pointer
-	   ;; For unclear reasons, some GSL functions want callbacks
-	   ;; to return a void pointer which is apparently meaningless.
-	   '((cffi:null-pointer)))))))
-
-;;;;****************************************************************************
 ;;;; Definitions for making cbstruct
 ;;;;****************************************************************************
 
@@ -246,7 +117,7 @@
 (defclass callback-included-cl (callback-included)
   ((callback :initarg :callback :reader callback-struct))
   (:documentation
-   "A mobject that includes a callback function or functions, which
+   "A mobject that includes a callback function or functions, in which
     the pointer to the callback structure is stored in a CL class
     slot."))
 
@@ -334,7 +205,8 @@
 ;;; where each function is of the form 
 ;;; (structure-slot-name
 ;;;   &optional (return-spec 'double-float) (argument-spec 'double-float)
-;;;             set1-spec set2-spec marray)
+;;;             set1-spec set2-spec)
+;;; and each of the *-spec are (type array-type &rest dimensions).
 ;;; The :callback-dynamic is a list of functions corresponding in
 ;;; order to the cddr of the :callbacks argument (function... ) in which
 ;;; each element is a list of (function scalarsp dimensions...) where
@@ -342,48 +214,68 @@
 ;;; scalarsp = flag determining whether to pass/accept scalars or arrays
 ;;; dimensions = dimension of the problem
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-(defparameter *callback-argument-components*
-  '(foreign-argument callback-structure-type &rest functions))
-
-(defparameter *callback-argument-function-components*
-  '(structure-slot-name
-   &optional
-    (return-spec :double)
-    (argument-spec :double)
-    set1-spec set2-spec marray))
-)
-
-(defmacro parse-arglist (template arglist component)
-  `(destructuring-bind ,template ,arglist
-     (declare
-      (ignorable
-       ,@(remove-if
-	  (lambda (sym) (member sym lambda-list-keywords))
-	  (arglist-plain-and-categories template))))
-     ,component))
-
-(defmacro callback-argument-component (arglist component)
-  `(parse-arglist ,*callback-argument-components* ,arglist ,component))
-
-(defmacro callback-argument-function-component (arglist component)
-  `(parse-arglist ,*callback-argument-function-components* ,arglist ,component))
-
-(defun callback-argument-function-argspec (expr component)
+(defun parse-callback-static (callbacks component &optional fn-num arg-component)
+  "Get the information component from the callbacks list.  Where
+  specific to a particular function, get the information for function
+  n (0, 1, 2)."
   (case component
-    (type (if (listp expr) (first expr) expr))
-    (array-type (when (listp expr) (string-equal (second expr) :marray)))
-    (dimensions (when (listp expr)
-		  (let ((cddr (cddr expr)))
-		    (if (rest cddr)
-			(cons 'list cddr) 
-			(first cddr)))))))
+    (foreign-argument (first callbacks))
+    (callback-structure-type (second callbacks))
+    (functions (cddr callbacks))
+    (t
+     (let* ((fn (nth fn-num (cddr callbacks)))
+	    (comp
+	     (case component
+	       (function fn)
+	       (structure-slot-name (first fn))
+	       (return-spec (or (second fn) :double))
+	       (argument-spec (or (third fn) :double))
+	       (set1-spec (fourth fn))
+	       (set2-spec (fifth fn)))))
+       (case arg-component
+	 (element-type (first comp)) ; but it's always :double when this is a list
+	 (array-type (second comp))
+	 (dimensions (cddr comp))
+	 (t comp))))))		   ; just the element-type as a symbol
 
 (defun number-of-callbacks (callbacks)
-  (length (callback-argument-component callbacks functions)))
+  (length (parse-callback-static callbacks 'functions)))
 
-;;; (callback-argument-component '(foo bar baz (bof 1 2 2)) callback-structure-type)
-;;; (callback-argument-function-component '(foo bar) argument-spec)
+(defun parse-callback-fnspec (fnspec component)
+  "From the :callbacks argument, parse a single function specification."
+  (ecase component
+    (structure-slot-name (first fnspec))
+    (return-spec (or (second fnspec) :double))
+    (argument-spec (or (third fnspec) :double))
+    (set1-spec (fourth fnspec))
+    (set2-spec (fifth fnspec))))
+
+(defun parse-callback-argspec (argspec component)
+  "From the :callbacks argument, parse a single argument of a single
+  function specification."
+  (ecase component
+    (element-type (first argspec)) ; but it's always :double when this is a list
+    (array-type (second argspec))
+    (dimensions (cddr argspec))))
+
+#|
+(defparameter *cblist*
+  '(callback monte-function (function :double (:double :cvector dim0))))
+(parse-callback-static *cblist* 'foreign-argument)
+CALLBACK
+(parse-callback-static *cblist* 'callback-structure-type)
+MONTE-FUNCTION
+(parse-callback-static *cblist* 'structure-slot-name 0)
+FUNCTION
+(parse-callback-static *cblist* 'return-spec 0)
+:DOUBLE
+(parse-callback-static *cblist* 'argument-spec 0)
+(:DOUBLE :CVECTOR DIM0)
+(parse-callback-static *cblist* 'argument-spec 0 'array-type)
+:CVECTOR
+(parse-callback-static *cblist* 'argument-spec 0 'dimensions)
+(DIM0)
+|#
 
 ;;;;****************************************************************************
 ;;;; Form generation
@@ -402,16 +294,15 @@
 (defun callback-set-slots (callbacks symbols)
   (when callbacks
   `((set-cbstruct
-     ,(callback-argument-component callbacks foreign-argument)
-     ',(callback-argument-component callbacks callback-structure-type)
+     ,(parse-callback-static callbacks 'foreign-argument)
+     ',(parse-callback-static callbacks 'callback-structure-type)
      nil 				; will have dimensions
      ,(cons
        'list
        (loop for symb in symbols
-	  for fn
-	  in (callback-argument-component callbacks functions)
+	  for fnnum from 0
 	  append
-	  `(',(callback-argument-function-component fn structure-slot-name)
+	  `(',(parse-callback-static fn 'structure-slot-name)
 	      ',symb)))))))
 
 (defun callback-args (types)
@@ -425,7 +316,7 @@
 	  (if (listp types) types (list types))))
 
 ;;;;****************************************************************************
-;;;; Macro defmcallback NEW
+;;;; Macro defmcallback
 ;;;;****************************************************************************
 
 (defun make-defmcallbacks (callbacks callback-names function-names)
@@ -433,17 +324,13 @@
     (mapcar
      (lambda (cb vbl fspec) `(defmcallback ,cb ,vbl ,fspec))
      callback-names function-names
-     (callback-argument-component callbacks functions))))
+     (parse-callback-static callbacks 'functions))))
 
 (defmacro defmcallback (name dynamic-variable function-spec)
-  (let* ((arg-component
-	  (callback-argument-function-component function-spec argument-spec))
-	 (set1-component
-	  (callback-argument-function-component function-spec set1-spec))
-	 (set2-component
-	  (callback-argument-function-component function-spec set2-spec))
-	 (return-type 
-	  (callback-argument-function-component function-spec return-spec))
+  (let* ((arg-component (parse-callback-fnspec function-spec 'argument-spec))
+	 (set1-component (parse-callback-fnspec function-spec 'set1-spec))
+	 (set2-component (parse-callback-fnspec function-spec 'set2-spec))
+	 (return-type (parse-callback-fnspec function-spec 'return-spec))
 	 (args (callback-args
 		(remove		; remove unused arguments in list tail
 		 nil
@@ -451,7 +338,8 @@
     (flet ((dimargs (component)
 	     (sublis `((dim0 . (third ,dynamic-variable))
 		       (dim1 . (fourth ,dynamic-variable)))
-		     (callback-argument-function-argspec component 'dimensions))))
+		     (cons 'cl:list
+			   (parse-callback-argspec component 'dimensions)))))
       `(cffi:defcallback ,name
 	   ,(if (eq return-type :success-failure) :int return-type)
 	   (,(first args)
@@ -470,9 +358,9 @@
 		 ,(dimargs set1-component)
 		 ,(dimargs set2-component))
 		(list	       ; which are marrays, which are cvectors
-		 ,(callback-argument-function-argspec arg-component 'array-type)
-		 ,(callback-argument-function-argspec set1-component 'array-type)
-		 ,(callback-argument-function-argspec set2-component 'array-type)))
+		 ,(parse-callback-argspec arg-component 'array-type)
+		 ,(parse-callback-argspec set1-component 'array-type)
+		 ,(parse-callback-argspec set2-component 'array-type)))
 	      ;; Function with scalar argument and scalar return
 	      `(funcall (first ,dynamic-variable) ,(caar args)))
 	 ,@(case
@@ -486,10 +374,11 @@
 	     ;; to return a void pointer which is apparently meaningless.
 	     '((cffi:null-pointer))))))))
 
-(defun array-to-list (pointer length marrayp)
+(defun array-to-list (pointer dimensions marrayp)
+  (assert (null (rest dimensions)))	; a vector only
   (if marrayp
-      (loop for i below length collect (maref pointer i))
-      (loop for i below length collect (dcref pointer i))))
+      (loop for i below (first dimensions) collect (maref pointer i))
+      (loop for i below (first dimensions) collect (dcref pointer i))))
 
 (defun list-to-array (list pointer dimensions marrayp)
   "From the list of values, set the foreign array at pointer."
@@ -525,7 +414,9 @@
 	      (apply function
 		     ;; input should be checked to be array
 		     (array-to-list
-		      (first arguments) (first dimensions) (first marrays))))))
+		      (first arguments)
+		      (first dimensions)
+		      (eq :marray (first marrays)))))))
 	(if (rest arguments)
 	    (list-to-array
 	     user-fn-return (second arguments) (second dimensions) (second marrays))
@@ -543,7 +434,7 @@
      &optional (dimension-names '(dimensions)
    for def-ci-subclass and def-ci-subclass-1d."
   (list
-   (callback-argument-component callbacks callback-structure-type)
+   (parse-callback-static callbacks 'callback-structure-type)
    (callback-argument-function-argspec  'array-type))
   
   )
