@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-03-07 22:31:35EST gsll.asd>
+;; Time-stamp: <2009-03-14 11:27:10EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -18,7 +18,8 @@
 	       (:file "conditions" :depends-on (init))
 	       (:file "number-conversion" :depends-on (init))
 	       (:file "mobject" :depends-on (init))
-	       (:file "callback" :depends-on (init forms number-conversion mobject))
+	       (:file "callback" :depends-on (init forms number-conversion))
+	       (:file "callback-included" :depends-on (mobject))
 	       (:file "types" :depends-on (init))
 	       (:file "complex-types" :depends-on (types))
 	       (:file "element-types" :depends-on (init complex-types))
