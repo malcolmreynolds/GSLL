@@ -1,6 +1,6 @@
 ;; Lisp forms
 ;; Liam Healy 2009-03-07 15:49:25EST forms.lisp
-;; Time-stamp: <2009-03-07 15:52:27EST forms.lisp>
+;; Time-stamp: <2009-03-14 18:44:04EDT forms.lisp>
 
 (in-package :gsl)
 
@@ -31,3 +31,11 @@
      (if (listp arg) (first arg) arg)
      into noclass-arglist
      finally (return (values noclass-arglist categories))))
+
+(defun category-for-argument (arglist symbol)
+  "Find the category (class) for the given argument."
+  (multiple-value-bind (plain cats)
+      (arglist-plain-and-categories arglist)
+    (let ((pos (position symbol plain)))
+      (when pos
+	(nth pos cats)))))

@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-03-09 22:34:54EDT defmfun.lisp>
+;; Time-stamp: <2009-03-14 21:54:00EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -61,6 +61,7 @@
 ;;; callbacks  A list that specifies the callback structure and function(s); see callback.lisp
 ;;; callback-dynamic Values for callback function(s) set at runtime.  The order matches
 ;;;            the functions listed in :callbacks.  See callback.lisp for contents.
+;;; callback-object  Name of the object has callbacks.
 
 (defmacro defmfun (name arglist gsl-name c-arguments &rest key-args)
   "Definition of a GSL function."
@@ -77,13 +78,13 @@
      (definition :function)
      (export (not (member definition (list :method :methods))))
      documentation inputs outputs before after enumeration qualifier
-     gsl-version switch callbacks callback-dynamic)
+     gsl-version switch callbacks callback-dynamic callback-object)
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export documentation inputs outputs
       before after enumeration qualifier
-      gsl-version switch callbacks callback-dynamic)
-     (special indexed-functions callback-gensyms))
+      gsl-version switch callbacks callback-dynamic callback-object)
+     (special indexed-functions callback-dynamic-variables))
     ,@body))
 
 (defun optional-args-to-switch-gsl-functions (arglist gsl-name)
@@ -96,18 +97,24 @@
 	(listp (first gsl-name)))))
 
 (defun expand-defmfun-wrap (name arglist gsl-name c-arguments key-args)
-  (let (indexed-functions callback-gensyms)
+  (let (indexed-functions callback-dynamic-variables)
     ;; workaround for compiler errors that don't see 'indexed-function is used
-    (declare (ignorable indexed-functions callback-gensyms))
+    (declare (ignorable indexed-functions callback-dynamic-variables))
     (with-defmfun-key-args key-args
       (setf indexed-functions (list)
-	    callback-gensyms
+	    callback-dynamic-variables
 	    ;; A list of variable names, and a list of callback names
-	    (when callbacks
-	      (let ((num-callbacks (number-of-callbacks callbacks)))
-		(list
-		 (loop repeat num-callbacks collect (gensym "DYNFN"))
-		 (loop repeat num-callbacks collect (gensym "CBFN"))))))
+	    (when (or callbacks callback-object)
+	      (if callback-object
+		  (let ((class (category-for-argument arglist callback-object)))
+		    (list (mobject-fnvnames
+			   class
+			   (number-of-callbacks (get-callbacks-for-class class)))
+			  nil))
+		  (let ((num-callbacks (number-of-callbacks callbacks)))
+		    (list
+		     (loop repeat num-callbacks collect (gensym "DYNFN"))
+		     (loop repeat num-callbacks collect (gensym "CBFN")))))))
       (wrap-index-export
        (cond
 	 ((eq definition :generic)
@@ -141,7 +148,9 @@
       `(progn
 	 ,@(if (symbolp (first expanded-body)) (list expanded-body) expanded-body)
 	 ,@(make-defmcallbacks
-	    callbacks (second callback-gensyms) (first callback-gensyms))
+	    callbacks
+	    (second callback-dynamic-variables)
+	    (first callback-dynamic-variables))
 	 ,@index-export))))
 
 ;;;;****************************************************************************

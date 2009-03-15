@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-09 22:52:54EDT mobject.lisp>
+;; Time-stamp: <2009-03-14 21:39:48EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -25,16 +25,15 @@
     (class prefix allocation-args description 
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
-     (superclasses '(mobject))
-     class-slots-instance ci-class-slots callbacks singular)
+     class-slots-instance ci-class-slots callbacks callback-dynamic
+     (superclasses (if callbacks '(callback-included) '(mobject)))
+     singular)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   ;; Argument 'initialize-suffix: string appended to prefix to form
   ;; GSL function name or a list of such a string and the c-return
   ;; argument.
   (let* ((settingp (make-symbol "SETTINGP"))
-	 (callbackp
-	  (member-if (lambda (cl) (subtypep cl 'callback-included)) superclasses))
 	 (arglists
 	  (when arglists-function
 	    (funcall (coerce arglists-function 'function) settingp)))
@@ -48,7 +47,7 @@
 	  (remove-if (lambda (s) (member s cl-alloc-args)) cl-initialize-args)))
     (if (have-at-least-gsl-version gsl-version)
 	`(progn
-	   ,(if callbackp
+	   ,(if callbacks
 		`(,(if (member 'dimensions cl-alloc-args)
 		       'def-ci-subclass 'def-ci-subclass-1d)
 		   ,class
@@ -74,19 +73,15 @@
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
-		    (and callbackp
+		    (and callbacks
 			 (not (callback-arg-p class-slots-instance)))))
 	   (export '(,maker ,class))
-	   ,@(when callbacks
-		   (let ((numcb (number-of-callbacks callbacks)))
-		     (make-defmcallbacks
-		      callbacks
-		      (mobject-cbvnames class numcb)
-		      (mobject-fnvnames class numcb))))
+	   ,@(when callbacks `((record-callbacks-for-class ',class ',callbacks)))
+	   ,@(when callbacks (make-mobject-defmcallbacks callbacks class))
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
 	     description documentation initialize-args initializerp settingp
-	     singular class-slots-instance))
+	     singular class-slots-instance callbacks callback-dynamic))
 	`(progn
 	   (export ',maker)
 	   (defun ,maker (&rest args)
@@ -124,7 +119,7 @@
 	   &key
 	   ,@cl-initialize-args
 	   ,@(when callback
-		   `(&aux (,cbstruct (make-cbstruct-object object)))))
+		   `(&aux (,cbstruct ,(make-cbstruct-object class)))))
 	,(or initialize-name
 	     (format nil "~a_~a" prefix
 		     (if (listp initialize-suffix)
@@ -133,6 +128,7 @@
 	(((mpointer object) :pointer)
 	 ,@(callback-replace-arg cbstruct initialize-args))
 	:definition :method
+	,@(when callback '(:callback-object object))
 	:qualifier :after
 	,@(when (and initialize-suffix (listp initialize-suffix))
 		`(:c-return ,(second initialize-suffix)))
@@ -150,7 +146,7 @@
 (defun mobject-maker
     (maker arglists initargs class cl-alloc-args cl-initialize-args
      description documentation initialize-args initializerp settingp
-     singular class-slots-instance)
+     singular class-slots-instance callbacks callback-dynamic)
   "Make the defun form that makes the mobject."
   `(defun ,maker
        ,(if arglists
@@ -170,6 +166,12 @@
      (let ((object
 	    (make-instance
 	     ',class
+	     ,@(when
+		callbacks
+		`(:callbacks
+		  ',callbacks
+		  :callback-dynamic
+		  ,(cons 'cl:list(callback-dynamic-lister callback-dynamic))))
 	     ,@(symbol-keyword-symbol (callback-remove-arg class-slots-instance))
 	     ,@(when (callback-arg-p class-slots-instance)
 		     (symbol-keyword-symbol 'functions))
@@ -226,29 +228,6 @@
 		`(list ,(singular-symbol symbol)))
 	  (list (intern (symbol-name symbol) :keyword)
 		symbol))))
-
-;;;;****************************************************************************
-;;;; Symbol makers
-;;;;****************************************************************************
-
-;;; These functions make interned symbols that will be bound to
-;;; dynamic variables.
-
-(defun mobject-variable-name (class-name suffix &optional count)
-  (intern (format nil "~:@(~a~)-~:@(~a~)~@[~d~]" class-name suffix count)
-	  :gsll))
-
-(defun mobject-cbvname (class-name &optional count)
-  (mobject-variable-name class-name 'cbfn count))
-
-(defun mobject-cbvnames (class-name &optional count)
-  (loop for i from 0 below count collect (mobject-cbvname class-name i)))
-
-(defun mobject-fnvname (class-name &optional count)
-  (mobject-variable-name class-name 'dynfn count))
-
-(defun mobject-fnvnames (class-name &optional count)
-  (loop for i from 0 below count collect (mobject-fnvname class-name i)))
 
 ;;;;****************************************************************************
 ;;;; Generic functions

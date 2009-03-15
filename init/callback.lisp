@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-14 11:29:47EDT callback.lisp>
+;; Time-stamp: <2009-03-14 21:29:17EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -78,14 +78,23 @@
     (set-cbstruct cbstruct struct slots-values function-slotnames)
     cbstruct))
 
-(defun make-cbstruct-object (object)
+;; old dimensions
+;;   (when (dimension-names object)
+;;     (mapcan 'list (dimension-names object) (dimensions object)))
+
+(defun make-cbstruct-object (class)
   "Make the callback structure based on the mobject definition."
-  (apply
-   'make-cbstruct
-   (cbstruct-name object)
-   (when (dimension-names object)
-     (mapcan 'list (dimension-names object) (dimensions object)))
-   (mapcan 'list (callback-labels object) (functions object))))
+  (let ((cbs (get-callbacks-for-class class)))
+    `(make-cbstruct
+      ',(parse-callback-static cbs 'callback-structure-type)
+      nil			    ; dimensions eventually, see above
+      ,@(mapcan
+	 'list
+	 (mapcar
+	  (lambda (fn) `',(parse-callback-fnspec fn 'structure-slot-name))
+	  (parse-callback-static cbs 'functions))
+	 (mapcar (lambda (nm) `',nm)
+		 (mobject-cbvnames class (number-of-callbacks cbs)))))))
 
 ;;;;****************************************************************************
 ;;;; to be obsolete make-callbacks
@@ -157,7 +166,8 @@
 ;;; and each of the *-spec are (type array-type &rest dimensions).
 ;;; The :callback-dynamic is a list of functions corresponding in
 ;;; order to the cddr of the :callbacks argument (function... ) in which
-;;; each element is a list of (function scalarsp dimensions...) where
+;;; each element is a list of (function scalarsp dimensions &rest dimensions)
+;;; where
 ;;; function = function designator, 
 ;;; scalarsp = flag determining whether to pass/accept scalars or arrays
 ;;; dimensions = dimension of the problem
@@ -170,6 +180,7 @@
     (foreign-argument (first callbacks))
     (callback-structure-type (second callbacks))
     (functions (cddr callbacks))
+    ;; The parts below are obsolete?
     (t
      (let* ((fn (nth fn-num (cddr callbacks)))
 	    (comp
@@ -229,6 +240,9 @@ FUNCTION
 ;;;; Form generation
 ;;;;****************************************************************************
 
+(defun callback-dynamic-lister (callback-dynamic)
+  (mapcar (lambda (l) (cons 'list l)) callback-dynamic))
+
 (defun callback-symbol-set (callbacks symbols)
   "Generate the form to set each of the dynamic (special) variables
    to (function scalarsp dimensions...) in the body of the demfun for
@@ -236,22 +250,22 @@ FUNCTION
   (when callbacks
     `((setf
        ,@(loop for symb in symbols
-	    for list in callbacks
-	    append (list symb (cons 'list list)))))))
+	    for list in (callback-dynamic-lister callbacks)
+	    append (list symb list))))))
 
 (defun callback-set-slots (callbacks symbols)
   (when callbacks
-  `((set-cbstruct
-     ,(parse-callback-static callbacks 'foreign-argument)
-     ',(parse-callback-static callbacks 'callback-structure-type)
-     nil 				; will have dimensions
-     ,(cons
-       'list
-       (loop for symb in symbols
-	  for fnnum from 0
-	  append
-	  `(',(parse-callback-static fn 'structure-slot-name)
-	      ',symb)))))))
+    `((set-cbstruct
+       ,(parse-callback-static callbacks 'foreign-argument)
+       ',(parse-callback-static callbacks 'callback-structure-type)
+       nil 				; will have dimensions
+       ,(cons
+	 'list
+	 (loop for symb in symbols
+	    for fn in (parse-callback-static callbacks 'functions)
+	    append
+	    `(',(parse-callback-fnspec fn 'structure-slot-name)
+		',symb)))))))
 
 (defun callback-args (types)
   "The arguments passed by GSL to the callback function."

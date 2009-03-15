@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-03-02 08:45:41EST defmfun-single.lisp>
+;; Time-stamp: <2009-03-14 21:52:22EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -87,7 +87,7 @@
 	     (cl-argument-types arglist c-arguments)
 	     (set-difference	       ; find all the unused variables
 	      (arglist-plain-and-categories arglist nil)
-	      (union
+	      (remove-duplicates (union
 	       (if mapdown
 		   (apply 'union
 			  (mapcar 'variables-used-in-c-arguments c-arguments))
@@ -97,14 +97,14 @@
 		(cons
 		 'values
 		 (append before after 
-			 (callback-symbol-set callback-dynamic (first callback-gensyms))
+			 (callback-symbol-set callback-dynamic (first callback-dynamic-variables))
 			 (let ((auxstart (position '&aux arglist)))
 			   ;; &aux bindings are checked
 			   (when auxstart
 			     (apply
 			      'append
-			      (mapcar 'rest (subseq arglist (1+ auxstart)))))))))))
-	     (first callback-gensyms))
+			      (mapcar 'rest (subseq arglist (1+ auxstart))))))))))))
+	     (first callback-dynamic-variables))
 	   ,@(when documentation (list documentation))
 	   ,(funcall body-maker name arglist gsl-name c-arguments key-args))
 	`(,defn
@@ -181,9 +181,12 @@
 	   allocated-decl
 	   (mapcar #'wfo-declare allocated-decl)
 	   'cffi:with-foreign-objects
-	   `(,@(append (callback-symbol-set callback-dynamic (first callback-gensyms))
-		       before)
-	       ,@(callback-set-slots callbacks (second callback-gensyms))
+	   `(,@(append
+		(callback-symbol-set
+		 callback-dynamic (first callback-dynamic-variables))
+		(when callback-object (callback-set-dynamic callback-object arglist))
+		before)
+	       ,@(callback-set-slots callbacks (second callback-dynamic-variables))
 	       (let ((,cret-name
 		      (cffi:foreign-funcall
 		       ,gsl-name
