@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-16 09:50:33EST roots-one.lisp>
+;; Time-stamp: <2009-03-15 12:39:02EDT roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,19 +14,28 @@
 (defmobject one-dimensional-root-solver-f "gsl_root_fsolver"
   ((type :pointer))
   "one-dimensional root solver with function only"
-  :superclasses (callback-included)
-  :ci-class-slots (gsl-function nil (function))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) (lower :double) (upper :double))
+  :callbacks (callback gsl-function (function))
+  :callback-dynamic ((function))
   :singular (function))
 
 (defmobject one-dimensional-root-solver-fdf "gsl_root_fdfsolver"
   ((type :pointer))
   "one-dimensional root solver with function and derivative"
-  :superclasses (callback-included)
-  :ci-class-slots (gsl-function-fdf nil (function df fdf))
   :initialize-suffix "set"
-  :initialize-args ((callback :pointer) (root-guess :double)))
+  :initialize-args ((callback :pointer) (root-guess :double))
+  :callbacks
+  (callback gsl-function-fdf
+	    (function)
+	    (df)
+	    (fdf :void :double (:double :cvector 1) (:double :cvector 1)))
+  :callback-dynamic ((function) (df) (fdf t))
+  :arglists-function
+  (lambda (set)
+    `((type &optional (function nil ,set) df fdf root-guess)
+      (:type type)
+      (:functions (list function df fdf) :root-guess root-guess))))
 
 (def-make-callbacks one-dimensional-root-solver-fdf (function df fdf)
   `(progn
@@ -70,6 +79,7 @@
   "gsl_root_fsolver_iterate"
   (((mpointer solver) :pointer))
   :definition :method
+  :callback-object solver
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -82,6 +92,7 @@
   "gsl_root_fdfsolver_iterate"
   (((mpointer solver) :pointer))
   :definition :method
+  :callback-object solver
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -302,9 +313,9 @@
     (values (+ (* (+ (* a x) b) x) c)
 	    (+ (* 2 a x) b))))
 
-(make-callbacks single-function quadratic)
-(make-callbacks one-dimensional-root-solver-fdf
-		quadratic quadratic-derivative quadratic-and-derivative)
+;; (make-callbacks single-function quadratic)
+;; (make-callbacks one-dimensional-root-solver-fdf
+;;		quadratic quadratic-derivative quadratic-and-derivative)
 
 (defun roots-one-example-no-derivative
     (&optional (method +brent-fsolver+) (print-steps t))
@@ -336,7 +347,7 @@
 	 (initial 5.0d0)
 	 (solver (make-one-dimensional-root-solver-fdf
 		  method
-		  '(quadratic quadratic-derivative quadratic-and-derivative)
+		  'quadratic 'quadratic-derivative 'quadratic-and-derivative
 		  initial)))
     (when print-steps
       (format t "iter ~6t ~8troot ~22terr ~34terr(est)~&"))

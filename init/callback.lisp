@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-14 21:29:17EDT callback.lisp>
+;; Time-stamp: <2009-03-15 14:28:59EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -74,27 +74,10 @@
 
 (defun make-cbstruct (struct slots-values &rest function-slotnames)
   "Make the callback structure."
+  (assert struct (struct) "Structure must be supplied.")
   (let ((cbstruct (cffi:foreign-alloc struct)))
     (set-cbstruct cbstruct struct slots-values function-slotnames)
     cbstruct))
-
-;; old dimensions
-;;   (when (dimension-names object)
-;;     (mapcan 'list (dimension-names object) (dimensions object)))
-
-(defun make-cbstruct-object (class)
-  "Make the callback structure based on the mobject definition."
-  (let ((cbs (get-callbacks-for-class class)))
-    `(make-cbstruct
-      ',(parse-callback-static cbs 'callback-structure-type)
-      nil			    ; dimensions eventually, see above
-      ,@(mapcan
-	 'list
-	 (mapcar
-	  (lambda (fn) `',(parse-callback-fnspec fn 'structure-slot-name))
-	  (parse-callback-static cbs 'functions))
-	 (mapcar (lambda (nm) `',nm)
-		 (mobject-cbvnames class (number-of-callbacks cbs)))))))
 
 ;;;;****************************************************************************
 ;;;; to be obsolete make-callbacks
@@ -166,7 +149,7 @@
 ;;; and each of the *-spec are (type array-type &rest dimensions).
 ;;; The :callback-dynamic is a list of functions corresponding in
 ;;; order to the cddr of the :callbacks argument (function... ) in which
-;;; each element is a list of (function scalarsp dimensions &rest dimensions)
+;;; each element is a list of (function scalarsp &rest dimensions)
 ;;; where
 ;;; function = function designator, 
 ;;; scalarsp = flag determining whether to pass/accept scalars or arrays
@@ -213,9 +196,10 @@
   "From the :callbacks argument, parse a single argument of a single
   function specification."
   (ecase component
-    (element-type (first argspec)) ; but it's always :double when this is a list
-    (array-type (second argspec))
-    (dimensions (cddr argspec))))
+    (element-type
+     (if (listp argspec) (first argspec) argspec)) ; but it's always :double when this is a list
+    (array-type (when (listp argspec) (second argspec)))
+    (dimensions (when (listp argspec) (cddr argspec)))))
 
 #|
 (defparameter *cblist*
@@ -331,34 +315,49 @@ FUNCTION
 	     ;; We always return success, because if there was a
 	     ;; problem, a CL error would be signalled.
 	     '(success))
-	    (:pointer
+	    ((:void :pointer)
 	     ;; For unclear reasons, some GSL functions want callbacks
 	     ;; to return a void pointer which is apparently meaningless.
 	     '((cffi:null-pointer))))))))
 
 (defun array-to-list (pointer dimensions marrayp)
   (assert (null (rest dimensions)))	; a vector only
-  (if marrayp
-      (loop for i below (first dimensions) collect (maref pointer i))
-      (loop for i below (first dimensions) collect (dcref pointer i))))
+  (if dimensions
+      (if marrayp
+	  (loop for i below (first dimensions) collect (maref pointer i))
+	  (loop for i below (first dimensions) collect (dcref pointer i)))
+      ;; a scalar, not an array
+      (list pointer)))
 
-(defun list-to-array (list pointer dimensions marrayp)
-  "From the list of values, set the foreign array at pointer."
+(defun list-to-array (list pointer dimensions marrayp &optional (start 0))
+  "From the list of values starting at index start, set the foreign
+   array at pointer.  Return the index in the list of the next element
+   not processed."
   (if (= (length dimensions) 2)
       (loop for i below (first dimensions)
-	 with indl = -1
+	 with indl = (1- start)
 	 do
 	 (loop for j below (second dimensions)
 	    do
 	    (incf indl)
 	    (if marrayp
 		(setf (maref pointer i j) (nth indl list))
-		(setf (dcref pointer indl) (nth indl list)))))
+		(setf (dcref pointer indl) (nth indl list))))
+	 finally (return (1+ indl)))
       (if marrayp
 	  (loop for i below (first dimensions)
-	     do (setf (maref pointer i) (nth i list)))
+	     do (setf (maref pointer i) (nth (+ start i) list))
+	     finally (return (+ start (first dimensions))))
 	  (loop for i below (first dimensions)
-	     do (setf (dcref pointer i) (nth i list))))))
+	     do (setf (dcref pointer i) (nth (+ start i) list))
+	     finally (return (+ start (first dimensions)))))))
+
+(defun list-to-arrays (list pointers dimensionss marrayps)
+  (loop for pointer in pointers
+     for dimensions in dimensionss
+     for marrayp in marrayps
+     for start = 0 then
+     (list-to-array list pointer dimensions marrayp start)))
 
 (defun call-maybe-scalar (function arguments scalars dimensions marrays)
   "Call the function on the arguments.  If scalars is true, pass the
@@ -380,7 +379,7 @@ FUNCTION
 		      (first dimensions)
 		      (eq :marray (first marrays)))))))
 	(if (rest arguments)
-	    (list-to-array
-	     user-fn-return (second arguments) (second dimensions) (second marrays))
+	    (list-to-arrays
+	     user-fn-return (rest arguments) (rest dimensions) (rest marrays))
 	    (first user-fn-return)))
       (apply function arguments)))

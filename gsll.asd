@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-03-14 19:19:06EDT gsll.asd>
+;; Time-stamp: <2009-03-15 14:53:45EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -17,7 +17,8 @@
 	       (:file "forms")
 	       (:file "conditions" :depends-on (init))
 	       (:file "number-conversion" :depends-on (init))
-	       (:file "mobject" :depends-on (init))
+	       (:file "callback-compile-defs" :depends-on (init))
+	       (:file "mobject" :depends-on (init callback-compile-defs))
 	       (:file "callback-included" :depends-on (mobject))
 	       (:file "callback" :depends-on (init forms number-conversion callback-included))
 	       (:file "types" :depends-on (init))
@@ -193,19 +194,19 @@
 	       (:file "lookup")
 	       (:file "evaluation")
 	       (:file "spline-example" :depends-on (types))))
-     ;(:file "chebyshev" :depends-on (init))
+     (:file "chebyshev" :depends-on (init))
      (:file "series-acceleration" :depends-on (init))
      (:file "wavelet" :depends-on (init data))
      (:file "hankel" :depends-on (init data))
-     #+(or)
      (:module solve-minimize-fit
 	      :depends-on (init data random)
 	      :components
 	      ((:file "generic")
 	       (:file "roots-one" :depends-on (generic))
-	       (:file "minimization-one" :depends-on (generic))
-	       (:file "roots-multi" :depends-on (roots-one generic))
-	       (:file "minimization-multi" :depends-on (generic))
-	       (:file "linear-least-squares")
-	       (:file "nonlinear-least-squares" :depends-on (generic))))
+	       ;;(:file "minimization-one" :depends-on (generic))
+	       ;;(:file "roots-multi" :depends-on (roots-one generic))
+	       ;;(:file "minimization-multi" :depends-on (generic))
+	       ;;(:file "linear-least-squares")
+	       ;;(:file "nonlinear-least-squares" :depends-on (generic))
+	       ))
      (:file "basis-splines" :depends-on (init data random))))

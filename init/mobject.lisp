@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-14 21:39:48EDT mobject.lisp>
+;; Time-stamp: <2009-03-15 14:56:45EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -21,6 +21,44 @@
 
 (defconstant +callback-argument-name+ 'callback)
 
+;;; Required arguments for defmobject:
+;;;  class           Name of class being made.
+;;;  prefix          String that starts each GSL function name
+;;;  allocation-args Arguments used in the allocation (initialization)
+;;;  description     Short string describing class
+
+;;; Key arguments for defmobject:
+;;; documentation
+;;;  Docstring for the object maker.
+;;; initialize-suffix
+;;;  The string appended to prefix to form GSL function name or a list of
+;;;  such a string and the c-return argument.
+;;; initialize-name
+;;;  A string with the name of the GSL function for initialization; defaults to
+;;;  prefix + initialize-suffix.
+;;; initialize-args
+;;; arglists-function
+;;;  A function of one symbol, a flag indicating that an optional
+;;;  argument has been set.  It returns a list of three forms: the
+;;;  arglists for the maker defun, the arguments that will be applied
+;;;  therein to the inititializer and to the reinitializer.
+;;; inputs, gsl-version
+;;;  Defmfun arguments for reinitializer.
+;;; allocator
+;;; allocate-inputs
+;;; freer
+;;; class-slots-instance
+;;; ci-class-slots OBSOLETE
+;;; callbacks
+;;;   See callbacks.lisp
+;;; callback-dynamic
+;;;   See callbacks.lisp
+;;; superclasses
+;;;   List of superclasses other than 'mobject.
+;;; singular
+;;;   Where a list of several objects like 'functions is specified, this permits
+;;;   a single one with the singular form, like 'function.
+
 (defmacro defmobject
     (class prefix allocation-args description 
      &key documentation initialize-suffix initialize-name initialize-args
@@ -30,9 +68,6 @@
      singular)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
-  ;; Argument 'initialize-suffix: string appended to prefix to form
-  ;; GSL function name or a list of such a string and the c-return
-  ;; argument.
   (let* ((settingp (make-symbol "SETTINGP"))
 	 (arglists
 	  (when arglists-function
@@ -45,6 +80,8 @@
 	 (initializerp (or initialize-name initialize-suffix))
 	 (initargs ; arguments that are exclusively for reinitialize-instance
 	  (remove-if (lambda (s) (member s cl-alloc-args)) cl-initialize-args)))
+    ;; Need callback information for macroexpansion make-cbstruct-object
+    (when callbacks (record-callbacks-for-class class callbacks))
     (if (have-at-least-gsl-version gsl-version)
 	`(progn
 	   ,(if callbacks
@@ -171,7 +208,7 @@
 		`(:callbacks
 		  ',callbacks
 		  :callback-dynamic
-		  ,(cons 'cl:list(callback-dynamic-lister callback-dynamic))))
+		  ,(cons 'cl:list (callback-dynamic-lister callback-dynamic))))
 	     ,@(symbol-keyword-symbol (callback-remove-arg class-slots-instance))
 	     ,@(when (callback-arg-p class-slots-instance)
 		     (symbol-keyword-symbol 'functions))
