@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-01-15 21:49:10EST blas3.lisp>
+;; Time-stamp: <2009-03-15 17:15:40EDT blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -152,6 +152,11 @@
        (s1 (scalar-default))
        (s2 (scalar-default)))
    (cl-array (matrix-product m1 m2 m3 s1 s2))))
+
+(generate-all-array-tests matrix-product-nonsquare :float-complex
+ (let ((m1 (array-default '(2 3)))
+       (m2 (array-default '(3 2))))
+   (cl-array (matrix-product m1 m2))))
 
 (generate-all-array-tests matrix-product-triangular :float-complex
  (let ((m1 (array-default '(3 3)))

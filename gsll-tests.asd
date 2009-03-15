@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-24 15:06:55EST gsll-tests.asd>
+;; Time-stamp: <2009-03-15 17:21:18EDT gsll-tests.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll-tests"
@@ -108,6 +108,7 @@
 	     (:file "matrix-mult")
 	     (:file "matrix-product-hermitian")
 	     (:file "matrix-product")
+	     (:file "matrix-product-nonsquare")
 	     (:file "matrix-product-symmetric")
 	     (:file "matrix-product-triangular")
 	     (:file "matrix-set-all-add")
