@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2009-02-10 22:39:58EST marray.lisp>
+;; Time-stamp: <2009-03-15 21:22:22EDT marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,7 +10,7 @@
 ;;;;****************************************************************************
 
 (defclass marray (mobject foreign-array)
-  ()
+  ((block-pointer :initarg :block-pointer :reader block-pointer))
   (:documentation
    "A superclass for arrays represented in GSL and CL."))
 
@@ -34,14 +34,40 @@
     (let ((blockptr (cffi:foreign-alloc 'gsl-block-c)))
       (setf (cffi:foreign-slot-value blockptr 'gsl-block-c 'size)
 	    (total-size object)
-	    (cffi:foreign-slot-value blockptr 'gsl-block-c 'data)
-	    (c-pointer object))
+	    (slot-value object 'block-pointer)
+	    blockptr)
       (let ((array-struct (alloc-from-block object blockptr)))
 	(setf (slot-value object 'mpointer) array-struct)
+	#-native (set-struct-array-pointer object)
 	(tg:finalize object
 		     (lambda ()
 		       (cffi:foreign-free blockptr)
 		       (cffi:foreign-free array-struct)))))))
+
+(defun set-struct-array-pointer (object)
+  "Set the pointer in the 'data slot of the foreign structs to be the
+   current c-pointer value.  In non-native implementations this need
+   be called only once when the marray is made.  In native implementations
+   it is called whenever mpointer is requested because of the possibility
+   that a GC moved the pointer."
+  (setf (cffi:foreign-slot-value (block-pointer object) 'gsl-block-c 'data)
+	(c-pointer object)
+	;; alloc-from-block automatically copies over the data pointer
+	;; from the block to the vector/matrix; we must do that manually here
+	(cffi:foreign-slot-value
+	 (slot-value object 'mpointer)
+	 (if (typep object 'matrix) 'gsl-matrix-c 'gsl-vector-c)
+	 'data)
+	(c-pointer object)))
+
+#+native
+(defmethod mpointer ((object marray))
+  "Compute the c-pointer of the array and place it in the GSL struct
+   because the stored version is untrustworthy unless it was computed
+   within the same native-pointer-protect form as this mpointer
+   extraction."
+  (set-struct-array-pointer object)
+  (slot-value object 'mpointer))
 
 (defmethod make-load-form ((object marray) &optional env)
   (declare (ignore env))
