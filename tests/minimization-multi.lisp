@@ -23,7 +23,7 @@
    (LIST 0.9999999999999997d0 2.0d0 30.0d0)
    (MULTIPLE-VALUE-LIST
     (MULTIMIN-EXAMPLE-DERIVATIVE +VECTOR-BFGS+ NIL)))
-  (let ((lisp-unit:*epsilon* (* 1200 double-float-epsilon)))
+  (let ((lisp-unit:*epsilon* (* 2400 double-float-epsilon)))
     (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
      (LIST 1.0d0 2.0d0 30.0d0)
      (MULTIPLE-VALUE-LIST
