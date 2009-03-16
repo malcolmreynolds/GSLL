@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2009-03-15 21:22:22EDT marray.lisp>
+;; Time-stamp: <2009-03-16 09:36:00EDT marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -67,7 +67,7 @@
    within the same native-pointer-protect form as this mpointer
    extraction."
   (set-struct-array-pointer object)
-  (slot-value object 'mpointer))
+  (call-next-method))
 
 (defmethod make-load-form ((object marray) &optional env)
   (declare (ignore env))
