@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-15 14:28:59EDT callback.lisp>
+;; Time-stamp: <2009-03-16 21:45:06EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -353,13 +353,19 @@ FUNCTION
 	     finally (return (+ start (first dimensions)))))))
 
 (defun list-to-arrays (list pointers dimensionss marrayps)
-  (loop for pointer in pointers
-     for dimensions in dimensionss
-     for marrayp in marrayps
+  (loop for index from -1 below (length pointers)
      for start = 0 then
-     (list-to-array list pointer dimensions marrayp start)))
+     (list-to-array
+      list
+      (nth index pointers)
+      (nth index dimensionss)
+      (nth index marrayps)
+      start)))
 
-(defun call-maybe-scalar (function arguments scalars dimensions marrays)
+(defun marrayp (symbol)
+  (string-equal symbol :marray))
+
+(defun call-maybe-scalar (function arguments scalars dimensions array-kinds)
   "Call the function on the arguments.  If scalars is true, pass the
    function scalar arguments and set set1 and set2 to the scalar
    results.  In that case, the stated dimensions and whether the
@@ -368,7 +374,7 @@ FUNCTION
   ;; arguments: list of 1-3 symbols
   ;; scalars: T or NIL
   ;; dimensions: list of 1-3 lists of 1-2 expressions using dim0/dim1
-  ;; marrays: list of 1-3 boolean
+  ;; array-kinds: list of 1-3 boolean
   (if scalars				; should be nil also for scalar functions
       (let ((user-fn-return
 	     (multiple-value-list 
@@ -377,9 +383,12 @@ FUNCTION
 		     (array-to-list
 		      (first arguments)
 		      (first dimensions)
-		      (eq :marray (first marrays)))))))
+		      (marrayp (first array-kinds)))))))
 	(if (rest arguments)
 	    (list-to-arrays
-	     user-fn-return (rest arguments) (rest dimensions) (rest marrays))
+	     user-fn-return
+	     (rest arguments)
+	     (rest dimensions)
+	     (mapcar 'marrayp (rest array-kinds)))
 	    (first user-fn-return)))
       (apply function arguments)))
