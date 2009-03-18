@@ -76,7 +76,7 @@
                                                               PERM-1 1 3)
                                                              (SWAP-ELEMENTS
                                                               PERM-1 0 2)
-                                                             (PERMUTE-VECTOR
+                                                             (PERMUTE
                                                               PERM-1 INTVEC)
                                                              (CL-ARRAY
                                                               INTVEC))))
