@@ -1,6 +1,6 @@
 ;; Foreign arrays (usually in C)
 ;; Liam Healy 2008-12-28 10:44:22EST foreign-array.lisp
-;; Time-stamp: <2009-03-15 18:22:52EDT foreign-array.lisp>
+;; Time-stamp: <2009-03-18 14:45:50EDT foreign-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -83,6 +83,8 @@
 	  #-native (copy-c-to-cl object)
 	  (princ (cl-array object) stream))
 	(format stream "dimensions ~a" (dimensions object)))))
+
+(export '(dim0 dim1))
 
 (defun dim0 (object)
   "The first dimension of the object."

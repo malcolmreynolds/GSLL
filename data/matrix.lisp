@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2009-01-08 21:50:38EST matrix.lisp>
+;; Time-stamp: <2009-03-18 14:45:31EDT matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -15,8 +15,8 @@
 
 ;;; GSL-matrix definition
 (cffi:defcstruct gsl-matrix-c
+  (size0 sizet)
   (size1 sizet)
-  (size2 sizet)
   (tda sizet)
   (data :pointer)
   (block :pointer)
@@ -28,11 +28,11 @@
 (defmethod contents-from-pointer
     (pointer (struct-type (eql 'gsl-matrix-c))
      &optional (element-type 'double-float))
-  (let ((dim1 (cffi:foreign-slot-value pointer struct-type 'size1))
-	(dim2 (cffi:foreign-slot-value pointer struct-type 'size2)))
+  (let ((dim0 (cffi:foreign-slot-value pointer struct-type 'size0))
+	(dim1 (cffi:foreign-slot-value pointer struct-type 'size1)))
     ;; Copy over from the C side
-    (loop for i below dim1
-       collect (loop for j below dim2 
+    (loop for i below dim0
+       collect (loop for j below dim1
 		  collect (maref pointer i j element-type)))))
 
 ;;;;****************************************************************************
@@ -78,8 +78,8 @@
   :outputs (matrix)
   :return (vector)			;setf should return the quantity set
   :documentation			; FDL
-  "Copy the elements of the vector into the jth column of the matrix.
-  The length of the vector must be the same as the length of the column.")
+  "Copy the elements of the vector into the jth row of the matrix.
+  The length of the vector must be the same as the length of the row.")
 
 (defmfun column
     ((matrix matrix) i
