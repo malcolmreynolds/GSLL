@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-15 14:56:45EDT mobject.lisp>
+;; Time-stamp: <2009-03-18 20:19:39EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -51,8 +51,6 @@
 ;;; ci-class-slots OBSOLETE
 ;;; callbacks
 ;;;   See callbacks.lisp
-;;; callback-dynamic
-;;;   See callbacks.lisp
 ;;; superclasses
 ;;;   List of superclasses other than 'mobject.
 ;;; singular
@@ -63,7 +61,7 @@
     (class prefix allocation-args description 
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
-     class-slots-instance ci-class-slots callbacks callback-dynamic
+     class-slots-instance ci-class-slots callbacks
      (superclasses (if callbacks '(callback-included) '(mobject)))
      singular)
   "Define the class, the allocate, initialize-instance and
@@ -118,7 +116,7 @@
 	   ,(mobject-maker
 	     maker arglists initargs class cl-alloc-args cl-initialize-args
 	     description documentation initialize-args initializerp settingp
-	     singular class-slots-instance callbacks callback-dynamic))
+	     singular class-slots-instance callbacks))
 	`(progn
 	   (export ',maker)
 	   (defun ,maker (&rest args)
@@ -183,7 +181,7 @@
 (defun mobject-maker
     (maker arglists initargs class cl-alloc-args cl-initialize-args
      description documentation initialize-args initializerp settingp
-     singular class-slots-instance callbacks callback-dynamic)
+     singular class-slots-instance callbacks)
   "Make the defun form that makes the mobject."
   `(defun ,maker
        ,(if arglists
@@ -204,11 +202,7 @@
 	    (make-instance
 	     ',class
 	     ,@(when
-		callbacks
-		`(:callbacks
-		  ',callbacks
-		  :callback-dynamic
-		  ,(cons 'cl:list (callback-dynamic-lister callback-dynamic))))
+		callbacks `(:callbacks ',callbacks))
 	     ,@(symbol-keyword-symbol (callback-remove-arg class-slots-instance))
 	     ,@(when (callback-arg-p class-slots-instance)
 		     (symbol-keyword-symbol 'functions))

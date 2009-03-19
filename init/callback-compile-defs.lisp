@@ -1,6 +1,6 @@
 ;; Definitions for macro expansion
 ;; Liam Healy 2009-03-15 14:50:28EDT callback-compile-defs.lisp
-;; Time-stamp: <2009-03-15 14:53:24EDT callback-compile-defs.lisp>
+;; Time-stamp: <2009-03-18 22:46:59EDT callback-compile-defs.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -18,17 +18,14 @@
 (defun get-callbacks-for-class (class)
   (gethash class *callbacks-for-classes*))
 
-;; old dimensions
-;;   (when (dimension-names object)
-;;     (mapcan 'list (dimension-names object) (dimensions object)))
-
 (defun make-cbstruct-object (class)
   "Make the callback structure based on the mobject definition."
   (let ((cbs (get-callbacks-for-class class)))
     (unless cbs (error "Class ~a not defined." class))
     `(make-cbstruct
       ',(parse-callback-static cbs 'callback-structure-type)
-      nil			    ; dimensions eventually, see above
+      (when (dimension-names object)
+	(mapcan 'list (dimension-names object) (dimensions object)))
       ,@(mapcan
 	 'list
 	 (mapcar

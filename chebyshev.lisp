@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-03-14 19:23:41EDT chebyshev.lisp>
+;; Time-stamp: <2009-03-18 20:54:02EDT chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,7 +17,6 @@
   :documentation			; FDL
   "Make a Chebyshev series of specified order."
   :callbacks (callback gsl-function (function))
-  :callback-dynamic ((function))
   :initialize-suffix "init"
   :initialize-args
   ((callback :pointer) (lower-limit :double) (upper-limit :double))
@@ -102,8 +101,6 @@
 ;;; to keep things sane.
 
 (defun chebyshev-step (x) (if (< x 0.5d0) 0.25d0 0.75d0))
-
-;; (make-callbacks single-function chebyshev-step)
 
 (defun chebyshev-table-example ()
   (let ((steps 100))

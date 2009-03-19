@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-03-16 22:38:30EDT minimization-one.lisp>
+;; Time-stamp: <2009-03-18 20:47:02EDT minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -21,7 +21,6 @@
    set to use the function and the initial search interval [lower,
    upper], with a guess for the location of the minimum."
   :callbacks (callback gsl-function (function))
-  :callback-dynamic ((function))
   :initialize-suffix "set"		; should use set_with_values?
   :initialize-args
   ((callback :pointer) (minimum :double) (lower :double) (upper :double))

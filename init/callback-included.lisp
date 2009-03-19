@@ -1,6 +1,6 @@
 ;; The mobject that defines callbacks
 ;; Liam Healy 2009-03-14 11:20:03EDT callback-included.lisp
-;; Time-stamp: <2009-03-15 14:53:27EDT callback-included.lisp>
+;; Time-stamp: <2009-03-18 20:57:19EDT callback-included.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -13,16 +13,17 @@
   ((callbacks
     :initarg :callbacks :reader callbacks
     :documentation "The specification form for static callback information.")
-   (callback-dynamic
-    :initarg :callback-dynamic :reader callback-dynamic
-    :documentation "A list of (function scalarsp dimensions &rest dimensions).")
    (dimension-names
     :initarg :dimension-names :reader dimension-names
     :documentation "The names in the GSL struct for dimensions.")
    (functions
-    :initarg :functions :reader functions
+    :initarg :functions :reader functions :initform nil
     :documentation "The names of the function(s) defined by defmcallback.
     These should correspond in order to the structure-slot-name list.")
+   (scalarsp
+    :initarg :scalarsp :reader scalarsp :initform t
+    :documentation "Whether the function expect to be passed and return
+    scalars or arrays.")
    (dimensions :initarg :dimensions :reader dimensions))
   (:documentation
    "A mobject that includes a callback function or functions to GSL."))
@@ -45,13 +46,22 @@
     (class-name superclasses documentation)
   `(defclass ,class-name ,superclasses
      ((dimension-names :initform nil :allocation :class)
-      (dimensions :initform '(1) :allocation :class))
+      (dimensions :initform '(1) :allocation :class)
+      (scalarsp :initform T :allocation :class))
      (:documentation ,documentation)))
 
 ;;;;****************************************************************************
 ;;;; For making mobjects
 ;;;;****************************************************************************
 
+(defun select-dynamic-values (object n)
+  (list (nth n (functions object))
+	(if (listp (scalarsp object))
+	    (nth n (scalarsp object))
+	    (scalarsp object))
+	(dimensions object)))
+
+;;; This is expanded in defmfun to set the dynamic variables. 
 (defun callback-set-dynamic (callback-object arglist)
   "Make a form to set the dynamic variable defining callbacks."
   `((setf 
@@ -61,5 +71,4 @@
 	       class
 	       (number-of-callbacks (get-callbacks-for-class class))))
 	    for n from 0
-	    append
-	    `(,symb (nth ,n (callback-dynamic ,callback-object))))))) 
+	    append `(,symb (select-dynamic-values ,callback-object ,n))))))
