@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2009-03-20 10:48:31EDT matrix.lisp>
+;; Time-stamp: <2009-03-20 17:20:57EDT matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -37,13 +37,13 @@
 
 (defmethod copy-to-destination
     ((object matrix) (pointer #.+foreign-pointer-class+))
-  (if (typep pointer +foreign-pointer-type+)
-      (loop for i below (dim0 object)
-	 do (loop for j below (dim1 object)
-	       do
-	       (setf (maref pointer i j (element-type object))
-		     (maref object i j))))
-      (call-next-method)))
+  (foreign-pointer-method
+   pointer
+   (loop for i below (dim0 object)
+      do (loop for j below (dim1 object)
+	    do
+	    (setf (maref pointer i j (element-type object))
+		  (maref object i j))))))
 
 ;;;;****************************************************************************
 ;;;; Mathematical

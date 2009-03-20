@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
-;; Time-stamp: <2009-03-20 10:37:55EDT vector.lisp>
+;; Time-stamp: <2009-03-20 17:20:40EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -32,11 +32,11 @@
 
 (defmethod copy-to-destination
     ((object mvector) (pointer #.+foreign-pointer-class+))
-  (if (typep pointer +foreign-pointer-type+)
-      (loop for i below (dim0 object)
-	   do (setf (maref pointer i nil (element-type object))
-		    (maref object i)))
-      (call-next-method)))
+  (foreign-pointer-method
+   pointer
+   (loop for i below (dim0 object)
+      do (setf (maref pointer i nil (element-type object))
+	       (maref object i)))))
 
 ;;;;****************************************************************************
 ;;;; Function definitions
