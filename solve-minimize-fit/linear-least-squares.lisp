@@ -1,11 +1,12 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2009-02-21 16:46:32EST linear-least-squares.lisp>
+;; Time-stamp: <2009-03-20 14:58:52EDT linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_fit.h
+;;; /usr/include/gsl/gsl_multifit.h
 
 ;;;;****************************************************************************
 ;;;; Linear regression
@@ -166,17 +167,20 @@
 	   &aux
 	   (parameters (vdf parameters-or-size)))
   ("gsl_multifit_linear" "gsl_multifit_wlinear")
-  ((((mpointer model) :pointer) ((mpointer observations) :pointer)
-    (tolerance :double)
-    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
+  ((((mpointer model) :pointer)
+    ((mpointer observations) :pointer)
+    ((mpointer parameters) :pointer)
+    ((mpointer covariance) :pointer)
+    (chisq :double)
     ((mpointer workspace) :pointer))
    (((mpointer model) :pointer)
     ((mpointer weight) :pointer)
     ((mpointer observations) :pointer)
     ((mpointer parameters) :pointer)
-    ((mpointer covariance) :pointer) (chisq :double)
+    ((mpointer covariance) :pointer)
+    (chisq :double)
     ((mpointer workspace) :pointer)))
-  :inputs (model observations)
+  :inputs (model weight observations)
   :outputs (parameters covariance)
   :switch (weight)
   :return (parameters covariance (dcref chisq))
@@ -204,17 +208,22 @@
 	   (workspace (default-lls-workspace observations parameters-or-size))
 	   &aux (parameters (vdf parameters-or-size)))
   ("gsl_multifit_linear_svd" "gsl_multifit_wlinear_svd")
-  ((((mpointer model) :pointer) ((mpointer observations) :pointer)
+  ((((mpointer model) :pointer)
+    ((mpointer observations) :pointer)
     (tolerance :double)
     (rank sizet)
-    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
+    ((mpointer parameters) :pointer)
+    ((mpointer covariance) :pointer)
+    (chisq :double)
     ((mpointer workspace) :pointer))
    (((mpointer model) :pointer)
     ((mpointer weight) :pointer)
     ((mpointer observations) :pointer)
     (tolerance :double)
     (rank sizet)
-    ((mpointer parameters) :pointer) (covariance :pointer) (chisq :double)
+    ((mpointer parameters) :pointer)
+    ((mpointer covariance) :pointer)
+    (chisq :double)
     ((mpointer workspace) :pointer)))
   :inputs (model weight observations)
   :outputs (parameters covariance)
