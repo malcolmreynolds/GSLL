@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2009-03-16 09:36:00EDT marray.lisp>
+;; Time-stamp: <2009-03-20 11:33:31EDT marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -118,13 +118,14 @@
 
 (export 'make-marray)
 (defun make-marray
-    (element-type &rest keys &key dimensions initial-contents from-pointer cl-array
+    (class-or-element-type &rest keys &key dimensions initial-contents from-pointer cl-array
      &allow-other-keys)
   "Make a GSLL array with the given element type,
    :dimensions, and :initial-contents, :initial-element or :cl-array.
    If the :cl-array is supplied, it should be a CL array generated with #'make-ffa.
    If a pointer to a GSL object is given in :from-pointer, create
-   an object with duplicate contents; if a matrix, :dimensions must be set to 2."
+   an object with duplicate contents; if a matrix, :dimensions must be a list
+   of length 2 (contents are unimportant)."
   ;; Some functions in solve-minimize-fit return a pointer to a GSL
   ;; vector of double-floats.  With the :from-pointer argument, this
   ;; function turn that into a foreign-friendly array.  There is no
@@ -132,21 +133,27 @@
   ;; because GSL is doing the mallocing, the data are not
   ;; CL-accessible.
   (if from-pointer
-      (make-marray element-type
+      (make-marray class-or-element-type
 		   :initial-contents
 		   (contents-from-pointer
 		    from-pointer
-		    (if (eql dimensions 2) 'gsl-matrix-c 'gsl-vector-c)
-		    element-type))
+		    (if (and (listp dimensions)
+			     (eql (length dimensions) 2))
+			'gsl-matrix-c 'gsl-vector-c)
+		    (if (subtypep class-or-element-type 'marray)
+			(lookup-type class-or-element-type *class-element-type*)
+			class-or-element-type)))
       (apply #'make-instance
-	     (data-class-name
-	      (if
-	       (or
-		(and dimensions (listp dimensions) (eql (length dimensions) 2))
-		(and initial-contents (listp (first initial-contents)))
-		(and cl-array (eql (length (array-dimensions cl-array)) 2)))
-	       'matrix 'vector)
-	      element-type)
+	     (if (subtypep class-or-element-type 'marray)
+		 class-or-element-type
+		 (data-class-name
+		  (if
+		   (or
+		    (and dimensions (listp dimensions) (eql (length dimensions) 2))
+		    (and initial-contents (listp (first initial-contents)))
+		    (and cl-array (eql (length (array-dimensions cl-array)) 2)))
+		   'matrix 'vector)
+		  class-or-element-type))
 	     keys)))
 
 (defun hashm-numeric-code (n)
@@ -183,7 +190,22 @@
       (total-size object)))
 
 ;;;;****************************************************************************
-;;;; C structures
+;;;; Copy to and from bare mpointers 
 ;;;;****************************************************************************
 
-;;; For #-native, do the whole thing using _alloc, _free functions.
+(defgeneric contents-from-pointer (pointer struct-type &optional element-type)
+  (:documentation
+   "Create a contents list from the GSL object of type struct-type
+    referenced by pointer."))
+
+(defmethod copy-making-destination ((pointer #.+foreign-pointer-class+))
+  (if (typep pointer +foreign-pointer-type+)
+      ;; Default assumption when destination isn't given in #'copy is
+      ;; that this should make a vector-double-float.
+      (copy-to-destination pointer 'vector-double-float)
+      (call-next-method)))
+
+(defmethod copy-to-destination ((pointer #.+foreign-pointer-class+) (class-name symbol))
+  (if (typep pointer +foreign-pointer-type+)
+      (make-marray class-name :from-pointer pointer)
+      (call-next-method)))

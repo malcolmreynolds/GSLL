@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-02-26 13:55:22EST minimization-multi.lisp>
+;; Time-stamp: <2009-03-19 11:19:31EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -148,7 +148,7 @@
   (((mpointer minimizer) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
@@ -157,7 +157,7 @@
   (((mpointer minimizer) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The current best estimate of the location of the minimum.")
 
@@ -188,7 +188,7 @@
   "gsl_multimin_fdfminimizer_gradient"
   (((mpointer minimizer) :pointer))
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The current best estimate of the gradient for the minimizer.")
 

@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-02-24 15:36:40EST mobject.lisp>
+;; Time-stamp: <2009-03-20 10:22:49EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -249,11 +249,6 @@
 ;;; form suitable for make-marray.  There is no choice but to copy
 ;;; over the data even on native implementations; because GSL is doing
 ;;; the mallocing, the data are not CL-accessible.
-
-(defgeneric contents-from-pointer (pointer struct-type &optional element-type)
-  (:documentation
-   "Create a contents list from the GSL object of type struct-type
-    referenced by pointer."))
 
 (defmethod mpointer ((object #.+foreign-pointer-class+))
   (check-type object #.+foreign-pointer-type+)

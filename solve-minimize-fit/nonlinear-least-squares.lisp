@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-02-16 10:16:06EST nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-03-19 11:13:41EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -157,7 +157,7 @@
   (((mpointer solver) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The current best-fit parameters.")
 
@@ -166,15 +166,13 @@
   (((mpointer solver) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The current best-fit parameters.")
 
 ;;; Why doesn't GSL have functions to extract these values?
 (defmethod function-value ((solver nonlinear-fdffit))
-  (make-marray
-   'double-float
-   :from-pointer
+  (copy
    (cffi:foreign-slot-value (mpointer solver) 'gsl-fdffit-solver 'f)))
 
 (defmethod last-step ((solver nonlinear-fdffit))

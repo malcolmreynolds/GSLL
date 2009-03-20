@@ -303,7 +303,12 @@ area of memory.</p>
  with <code>setf maref</code>.  A complete CL array may
  be extracted with the function <code>#'cl-array</code>.
 </p>
-
+<p>Copying marrays is performed with the function <code>copy</code>.
+  This works between marrays, pointers, and CL arrays.  It is useful
+  for functions intended to be passed to GSL functions (for
+  e.g. solving, minimizing or fitting) that need to set a GSL vector
+  or matrix, because one can simply copy into the passed-in pointer.
+</p>
  <h3>Passing functions</h3>
  <p>
  Functions that are passed to GSL functions (known as <i>callbacks</i>
@@ -391,7 +396,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-03-10 21:00:47EDT index.html>
+Time-stamp: <2009-03-20 11:54:53EDT index.html>
 </small>
 <!-- hhmts end -->
  </div>
