@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-03-18 21:23:59EDT roots-multi.lisp>
+;;; Time-stamp: <2009-03-19 22:53:49EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -24,12 +24,14 @@
   "Make an instance of a solver of the type specified for a system of
    the specified number of dimensions.  Optionally
    set or reset an existing solver to use the function and the
-   initial guess gsl-vector."
+   initial guess gsl-vector.  If scalarsp is T, the functions will
+   be supplied, and should return scalars."
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
   :callbacks
   (callback gsl-mfunction
-	    (function :success-failure (:double :marray dim0)))
+	    (function :success-failure
+		      (:double :marray dim0) (:double :marray dim0)))
   :arglists-function
   (lambda (set)
     `((type &optional function-or-dimension (initial nil ,set) (scalarsp t))
@@ -39,22 +41,6 @@
       (:functions (list function-or-dimension) :initial initial :scalarsp scalarsp)))
   :inputs (initial))
 
-#| OBSOLETE
-(def-make-callbacks
-    multi-dimensional-root-solver-f (function dimension &optional (scalars t))
-  (if scalars
-      `(defmcallback ,function
-	   :success-failure
-	 ((:double ,dimension)) ((:set :double ,dimension))
-	 T
-	 ,function)
-      `(defmcallback ,function
-	   :success-failure
-	 (:pointer) (:pointer)
-	 T
-	 ,function)))
-|#
-
 (defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
   ((type :pointer) ((first dimensions) sizet))
   "multi-dimensional root solver with function and derivative"
@@ -62,7 +48,8 @@
   "Make an instance of a derivative solver of the type specified for
    a system of the specified number of dimensions.  Optionally
    set or reset an existing solver to use the function and derivative
-   (fdf) and the initial guess."
+   (fdf) and the initial guess.  If scalarsp is T, the functions will
+   be supplied, and should return scalars."
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
   ;;:ci-class-slots (gsl-mfunction-fdf marray (function df fdf))
@@ -72,43 +59,21 @@
 		      (:double :marray dim0)
 		      (:double :marray dim0))
 	    (df :success-failure
-		      (:double :marray dim0)
-		      (:double :marray dim0 dim1))
-	    (ddf :success-failure
-		      (:double :marray dim0)
-		      (:double :marray dim0)
-		      (:double :marray dim0 dim1)))
+		(:double :marray dim0)
+		(:double :marray dim0 dim0))
+	    (fdf :success-failure
+		 (:double :marray dim0)
+		 (:double :marray dim0)
+		 (:double :marray dim0 dim0)))
   :arglists-function
   (lambda (set)
-    `((type &optional function-or-dimension (initial nil ,set))
+    `((type &optional function-or-dimension (initial nil ,set) 
+	    (scalarsp t))
       (:type type
 	     :dimensions
 	     (if ,set (dimensions initial) function-or-dimension))
-      (:functions function-or-dimension :initial initial)))
+      (:functions function-or-dimension :initial initial :scalarsp scalarsp)))
   :inputs (initial))
-
-#| OBSOLETE
-(def-make-callbacks
-    multi-dimensional-root-solver-fdf
-    (function df fdf dimension &optional (array t))
-  `(progn
-     (defmcallback ,function
-	 :success-failure
-       ((:double ,dimension)) ((:set :double ,dimension))
-       ,array
-       ,function)
-     (defmcallback ,df
-	 :success-failure
-       ((:double ,dimension)) ((:set :double ,dimension ,dimension))
-       ,array
-       ,df)
-     (defmcallback ,fdf
-	 :success-failure
-       ((:double ,dimension))
-       ((:set :double ,dimension) (:set :double ,dimension ,dimension))
-       ,array
-       ,fdf)))
-|#
 
 (defmfun name ((solver multi-dimensional-root-solver-f))
   "gsl_multiroot_fsolver_name"
@@ -418,8 +383,6 @@
    (* *rosenbrock-a* (- 1 arg0))
    (* *rosenbrock-b* (- arg1 (expt arg0 2)))))
 
-;;(make-callbacks multi-dimensional-root-solver-f rosenbrock 2)
-
 (defun roots-multi-example-no-derivative
     (&optional (method +hybrid-scaled+) (print-steps t))
   "Solving Rosenbrock, the example given in Sec. 34.8 of the GSL manual."
@@ -462,8 +425,6 @@
     (multiple-value-bind (j0 j1 j2 j3)
 	(rosenbrock-df arg0 arg1)
       (values v0 v1 j0 j1 j2 j3))))
-
-;;(make-callbacks multi-dimensional-root-solver-fdf rosenbrock rosenbrock-df rosenbrock-fdf 2)
 
 (defun roots-multi-example-derivative
     (&optional (method +gnewton-mfdfsolver+) (print-steps t))
