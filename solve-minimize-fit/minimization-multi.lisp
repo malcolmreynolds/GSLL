@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-03-19 11:19:31EDT minimization-multi.lisp>
+;; Time-stamp: <2009-03-21 18:15:41EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -37,27 +37,14 @@
    the function starting from the initial point.  The size of the
    initial trial steps is given in vector step-size. The precise
    meaning of this parameter depends on the method used."
-  :superclasses (callback-included)
-  :ci-class-slots (gsl-mfunction marray (function))
+  :callbacks
+  (callback gsl-mfunction
+	    (function :double (:double :marray dim0)))
   :initialize-suffix "set"
   :initialize-args ;; Could have one fewer argument: dimension=(dim0 initial)
   ((callback :pointer) ((mpointer initial) :pointer)
    ((mpointer step-size) :pointer))
   :singular (dimension function))
-
-(def-make-callbacks
-    multi-dimensional-minimizer-f (function dimension &optional (scalars t))
-  (if scalars
-      `(defmcallback ,function
-	   :double 
-	 ((:double ,dimension))
-	 nil t
-	 ,function)
-      `(defmcallback ,function
-	   :double
-	 (:pointer) 
-	 nil t
-	 ,function)))
 
 (defmobject multi-dimensional-minimizer-fdf
     "gsl_multimin_fdfminimizer"
@@ -74,36 +61,21 @@
    gradient of the function g is orthogonal to the current search
    direction p to a relative accuracy of tolerance, where dot(p,g) <
    tol |p| |g|."
-  :superclasses (callback-included)
-  :ci-class-slots (gsl-mfunction-fdf marray (function df fdf))
+  :callbacks
+  (callback gsl-mfunction-fdf
+	    (function :double (:double :marray dim0))
+	    (df :void
+		(:double :marray dim0)
+		(:double :marray dim0 dim0))
+	    (fdf :void
+		 (:double :marray dim0)
+		 (:double :cvector dim0)
+		 (:double :marray dim0 dim0)))
   :initialize-suffix "set"
   :initialize-args
   ((callback :pointer) ((mpointer initial) :pointer)
    (step-size :double) (tolerance :double))
   :singular (dimension))
-
-(def-make-callbacks
-    multi-dimensional-minimizer-fdf
-    (function df fdf dimension &optional (scalars t))
-  ;; If scalars=T, assume scalars are sent and returned from the functions.
-  ;; Otherwise, marrays are.
-  ;; Though the definition of struct gsl_multimin_function_fdf_struct
-  ;; says that they functions return pointers to :double, :void and :void
-  ;; resepctively, CFFI converts the double to a pointer to a double.
-  (if scalars
-      `(progn
-	 (defmcallback ,function :double ((:double ,dimension)) nil t ,function)
-	 (defmcallback ,df :void
-	   ((:double ,dimension)) ((:set :double ,dimension ,dimension))
-	   t ,df)
-	 (defmcallback ,fdf :void
-	   ((:double ,dimension))
-	   ((:set :double -1) (:set :double ,dimension ,dimension))
-	   t ,fdf))
-      `(progn
-	 (defmcallback ,function :double :pointer nil t ,function)
-	 (defmcallback ,df :void :pointer (:pointer) t ,df)
-	 (defmcallback ,fdf :void :pointer ((:set :double -1) :pointer) t ,fdf))))
 
 (defmfun name ((minimizer multi-dimensional-minimizer-f))
   "gsl_multimin_fminimizer_name"
@@ -129,6 +101,7 @@
   "gsl_multimin_fminimizer_iterate"
   (((mpointer minimizer) :pointer))
   :definition :method
+  :callback-object minimizer
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  If the iteration
    encounters an unexpected problem then an error code will be
@@ -138,6 +111,7 @@
   "gsl_multimin_fdfminimizer_iterate"
   (((mpointer minimizer) :pointer))
   :definition :method
+  :callback-object minimizer
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  If the iteration
    encounters an unexpected problem then an error code will be
@@ -147,6 +121,7 @@
   "gsl_multimin_fminimizer_x"
   (((mpointer minimizer) :pointer))
   :definition :method
+  :callback-object minimizer
   :c-return (crtn :pointer)
   :return ((copy crtn))
   :documentation			; FDL
@@ -156,6 +131,7 @@
   "gsl_multimin_fdfminimizer_x"
   (((mpointer minimizer) :pointer))
   :definition :method
+  :callback-object minimizer
   :c-return (crtn :pointer)
   :return ((copy crtn))
   :documentation			; FDL
@@ -373,8 +349,6 @@
        (* 20 (expt (- y dp1) 2))
        30)))
 
-(make-callbacks multi-dimensional-minimizer-f paraboloid-scalar 2 t)
-
 (defun multimin-example-no-derivative
     (&optional (method +simplex-nelder-mead-on2+) (print-steps t))
   (let ((step-size (make-marray 'double-float :dimensions 2)))
@@ -430,15 +404,13 @@
 	  (maref derivative-gv-pointer 1)
 	  (* 40 (- y dp1)))))
 
-(defun paraboloid-and-derivative (arguments-gv-pointer derivative-gv-pointer)
+(defun paraboloid-and-derivative
+    (arguments-gv-pointer value-pointer derivative-gv-pointer)
   (prog1
-      (paraboloid-vector arguments-gv-pointer)
+      (setf (dcref value-pointer)
+	    (paraboloid-vector arguments-gv-pointer))
     (paraboloid-derivative
      arguments-gv-pointer derivative-gv-pointer)))
-
-(make-callbacks
- multi-dimensional-minimizer-fdf
- paraboloid-vector paraboloid-derivative paraboloid-and-derivative 2 nil)
 
 (defun multimin-example-derivative
     (&optional (method +conjugate-fletcher-reeves+) (print-steps t))
@@ -447,7 +419,7 @@
 	  (make-multi-dimensional-minimizer-fdf
 	   method 2
 	   '(paraboloid-vector paraboloid-derivative paraboloid-and-derivative)
-	   initial 0.01d0 1.0d-4)))
+	   initial 0.01d0 1.0d-4 nil)))
     (loop with status = T
        for iter from 0 below 100
        while status

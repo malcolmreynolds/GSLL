@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-21 16:45:10EDT mobject.lisp>
+;; Time-stamp: <2009-03-21 17:52:14EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -182,7 +182,9 @@
      description documentation initialize-args initializerp settingp
      singular class-slots-instance callbacks)
   "Make the defun form that makes the mobject."
-  (when callbacks (setf initargs (append initargs '((scalarsp t)))))
+  (when callbacks
+    (setf initargs (append initargs '((scalarsp t)))
+	  cl-initialize-args (append cl-initialize-args '(scalarsp))))
   `(defun ,maker
        ,(if arglists
 	    (first arglists)

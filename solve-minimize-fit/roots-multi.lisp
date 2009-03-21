@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-03-21 13:56:37EDT roots-multi.lisp>
+;;; Time-stamp: <2009-03-21 17:42:43EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -38,7 +38,8 @@
       (:type type
        :dimensions
        (if ,set (dimensions initial) function-or-dimension))
-      (:functions (list function-or-dimension) :initial initial :scalarsp scalarsp)))
+      (:functions
+       (list function-or-dimension) :initial initial :scalarsp scalarsp)))
   :inputs (initial))
 
 (defmobject multi-dimensional-root-solver-fdf "gsl_multiroot_fdfsolver"
