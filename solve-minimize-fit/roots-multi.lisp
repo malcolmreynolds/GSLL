@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-03-21 11:16:27EDT roots-multi.lisp>
+;;; Time-stamp: <2009-03-21 13:56:37EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -52,7 +52,6 @@
    be supplied, and should return scalars."
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
-  ;;:ci-class-slots (gsl-mfunction-fdf marray (function df fdf))
   :callbacks
   (callback gsl-mfunction-fdf
 	    (function :success-failure

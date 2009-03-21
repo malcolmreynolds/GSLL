@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-16 21:45:06EDT callback.lisp>
+;; Time-stamp: <2009-03-21 16:25:25EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -63,14 +63,14 @@
 ;;;; Definitions for making cbstruct
 ;;;;****************************************************************************
 
-(defun set-cbstruct (cbstruct struct slots-values function-slotnames)
+(defun set-cbstruct (cbstruct structure-name slots-values function-slotnames)
   "Make the slots in the foreign callback structure."
   (loop for (slot-name function) on function-slotnames by #'cddr
-     do (set-slot-function cbstruct struct slot-name function))
-  (set-parameters cbstruct struct)
+     do (set-slot-function cbstruct structure-name slot-name function))
+  (set-parameters cbstruct structure-name)
   (when slots-values
     (loop for (slot-name value) on slots-values by #'cddr
-       do (set-structure-slot cbstruct struct slot-name value))))
+       do (set-structure-slot cbstruct structure-name slot-name value))))
 
 (defun make-cbstruct (struct slots-values &rest function-slotnames)
   "Make the callback structure."
@@ -119,22 +119,6 @@
       (princ "," stream))
     (princ "dimensions " stream)
     (princ (dimensions object) stream)))
-
-;;;;****************************************************************************
-;;;; TO BE OBSOLETE Using callback specification in function arugments
-;;;;****************************************************************************
-
-;;; to be obsolete?
-(defun callback-arg-p (arglist &optional key)
-  (member +callback-argument-name+ arglist :key key))
-
-;;; to be obsolete?
-(defun callback-replace-arg (replacement list)
-  (subst replacement +callback-argument-name+ list))
-
-;;; to be obsolete?
-(defun callback-remove-arg (list &optional key)
-  (remove +callback-argument-name+ list :key key))
 
 ;;;;****************************************************************************
 ;;;; Parsing :callback argument specification
@@ -219,6 +203,26 @@ FUNCTION
 (parse-callback-static *cblist* 'argument-spec 0 'dimensions)
 (DIM0)
 |#
+
+;;;;****************************************************************************
+;;;; Using callback specification in function arugments
+;;;;****************************************************************************
+
+(defun callback-arg-p (arglist callbacks &optional key)
+  (member (parse-callback-static callbacks 'foreign-argument) arglist :key key))
+
+(defun callback-replace-arg (replacement list callbacks)
+  "Replace in the list the symbol representing the foreign callback argument."
+  (if callbacks
+      (subst
+       replacement
+       (parse-callback-static callbacks 'foreign-argument)
+       list)
+      list))
+
+(defun callback-remove-arg (list callbacks &optional key)
+  "Remove from the list the symbol representing the foreign callback argument."
+  (remove (parse-callback-static callbacks 'foreign-argument) list :key key))
 
 ;;;;****************************************************************************
 ;;;; Form generation

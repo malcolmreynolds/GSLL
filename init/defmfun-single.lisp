@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-03-14 21:52:22EDT defmfun-single.lisp>
+;; Time-stamp: <2009-03-21 16:44:34EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -170,8 +170,9 @@
 				    (first (cl-convert-form it))
 				    sym)))
 			    return))
-		   (mapcan #'cl-convert-form
-			   (callback-remove-arg allocated-decl 'st-symbol))
+		   (mapcan
+		    #'cl-convert-form
+		    (callback-remove-arg allocated-decl callbacks 'st-symbol))
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
@@ -179,7 +180,8 @@
 	  '(error 'pass-complex-by-value) ; arglist should be declared ignore
 	  (wrap-letlike
 	   allocated-decl
-	   (mapcar #'wfo-declare allocated-decl)
+	   (mapcar (lambda (d) (wfo-declare d callbacks))
+		   allocated-decl)
 	   'cffi:with-foreign-objects
 	   `(,@(append
 		(callback-symbol-set

@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-21 11:16:09EDT mobject.lisp>
+;; Time-stamp: <2009-03-21 16:45:10EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -18,8 +18,6 @@
 (defclass mobject ()
   ((mpointer :initarg :mpointer :reader mpointer
 	     :documentation "A pointer to the GSL representation of the object.")))
-
-(defconstant +callback-argument-name+ 'callback)
 
 ;;; Required arguments for defmobject:
 ;;;  class           Name of class being made.
@@ -74,7 +72,9 @@
 	 (cl-alloc-args (variables-used-in-c-arguments allocation-args))
 	 (cl-initialize-args
 	  (callback-replace-arg
-	   'functions (variables-used-in-c-arguments initialize-args)))
+	   'functions
+	   (variables-used-in-c-arguments initialize-args)
+	   callbacks))
 	 (initializerp (or initialize-name initialize-suffix))
 	 (initargs ; arguments that are exclusively for reinitialize-instance
 	  (remove-if (lambda (s) (member s cl-alloc-args)) cl-initialize-args)))
@@ -108,8 +108,8 @@
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
-		    (and callbacks
-			 (not (callback-arg-p class-slots-instance)))))
+		    (and (not (callback-arg-p class-slots-instance callbacks))
+			 callbacks)))
 	   (export '(,maker ,class))
 	   ,@(when callbacks `((record-callbacks-for-class ',class ',callbacks)))
 	   ,@(when callbacks (make-mobject-defmcallbacks callbacks class))
@@ -145,15 +145,14 @@
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     callback)
-  "Expand the reinitialize-instance form.  In the GSL arglist, the callback
-   structure pointer should be named the value of +callback-argument-name+."
+     callbacks)
+  "Expand the reinitialize-instance form."
   (let ((cbstruct (make-symbol "CBSTRUCT")))
     `((defmfun reinitialize-instance
 	  ((object ,class)
 	   &key
 	   ,@cl-initialize-args
-	   ,@(when callback
+	   ,@(when callbacks
 		   `(&aux (,cbstruct ,(make-cbstruct-object class)))))
 	,(or initialize-name
 	     (format nil "~a_~a" prefix
@@ -161,15 +160,15 @@
 			 (first initialize-suffix)
 			 initialize-suffix)))
 	(((mpointer object) :pointer)
-	 ,@(callback-replace-arg cbstruct initialize-args))
+	 ,@(callback-replace-arg cbstruct initialize-args callbacks))
 	:definition :method
-	,@(when callback '(:callback-object object))
+	,@(when callbacks '(:callback-object object))
 	:qualifier :after
 	,@(when (and initialize-suffix (listp initialize-suffix))
 		`(:c-return ,(second initialize-suffix)))
 	:return (object)
 	,@(when inputs `(:inputs ,inputs))
-	,@(when callback
+	,@(when callbacks
 		`(:after
 		  ((trivial-garbage:finalize 
 		    object
@@ -183,13 +182,15 @@
      description documentation initialize-args initializerp settingp
      singular class-slots-instance callbacks)
   "Make the defun form that makes the mobject."
+  (when callbacks (setf initargs (append initargs '((scalarsp t)))))
   `(defun ,maker
        ,(if arglists
 	    (first arglists)
 	    (singularize
 	     singular
 	     `(,@cl-alloc-args
-	       ,@(callback-replace-arg 'functions class-slots-instance)
+	       ,@(callback-replace-arg
+		  'functions class-slots-instance callbacks)
 	       ,@(when initargs
 		       (append
 			(list
@@ -203,17 +204,21 @@
 	     ',class
 	     ,@(when
 		callbacks `(:callbacks ',callbacks))
-	     ,@(symbol-keyword-symbol (callback-remove-arg class-slots-instance))
-	     ,@(when (callback-arg-p class-slots-instance)
+	     ,@(symbol-keyword-symbol
+		(callback-remove-arg class-slots-instance callbacks))
+	     ,@(when (callback-arg-p class-slots-instance callbacks)
 		     (symbol-keyword-symbol 'functions))
 	     ,@(if arglists
 		   (second arglists)
 		   (symbol-keyword-symbol cl-alloc-args singular)))))
        ;; There is callback slot variable
-       ,@(when (callback-arg-p class-slots-instance)
+       ,@(when (callback-arg-p class-slots-instance callbacks)
 	       (with-unique-names (cbs)
 		 `((let ((,cbs (make-cbstruct-object object)))
-		     (setf (slot-value object ',+callback-argument-name+) ,cbs)
+		     (setf (slot-value
+			    object
+			    ',(parse-callback-static callbacks 'foreign-argument))
+			   ,cbs)
 		     (tg:finalize object (lambda () (foreign-free ,cbs)))))))
        ;; There is an initialization step
        ,@(when initializerp
