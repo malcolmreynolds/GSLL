@@ -1,7 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-02-24 15:06:55EST gsll-tests.asd>
-;; $Id$
+;; Time-stamp: <2009-03-16 19:02:05EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -9,15 +8,9 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "LLGPL v3, FDL"
-  :depends-on (gsll)
+  :depends-on (gsll lisp-unit)
   :components
-  ((:module test-unit
-	    :components
-	    ;; http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
-	    ((:file "lisp-unit")
-	     (:file "additional-definitions" :depends-on (lisp-unit))))
-   (:module tests
-	    :depends-on (test-unit)
+  ((:module tests
 	    :components
 	    ((:file "absolute-deviation")
 	     (:file "absolute-sum")
@@ -108,6 +101,7 @@
 	     (:file "matrix-mult")
 	     (:file "matrix-product-hermitian")
 	     (:file "matrix-product")
+	     (:file "matrix-product-nonsquare")
 	     (:file "matrix-product-symmetric")
 	     (:file "matrix-product-triangular")
 	     (:file "matrix-set-all-add")

@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-02-18 19:00:55EST both.lisp>
+;; Time-stamp: <2009-03-18 11:08:31EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -159,6 +159,9 @@
   "Subtract the elements of b from the elements of a.
    The two must have the same dimensions.")
 
+(defmethod elt- ((a marray) (x float))
+  (elt+ a (- x)))
+
 (defmfun elt* ((a vector) (b vector))
   ("gsl_" :category :type "_mul")
   (((mpointer a) :pointer) ((mpointer b) :pointer))
@@ -200,6 +203,9 @@
   :inputs (a b)
   :outputs (a)
   :return (a))
+
+(defmethod elt/ ((a marray) (x float))
+  (elt* a (/ x)))
 
 (defmfun elt* ((a both) (x float))
   ("gsl_" :category :type "_scale")

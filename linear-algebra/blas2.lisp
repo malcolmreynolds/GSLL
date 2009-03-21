@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-01-15 21:45:11EST blas2.lisp>
+;; Time-stamp: <2009-03-15 17:09:00EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,7 +30,7 @@
 (defun matrix-product-dimensions (a b)
   (if (typep b 'matrix)
       (list (first (dimensions a))
-	    (second (dimensions a)))
+	    (second (dimensions b)))
       (first (dimensions a))))
 
 ;;; To do: the y should be an optional argument, default to a zero vector.

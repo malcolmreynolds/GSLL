@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-03-19 22:53:49EDT roots-multi.lisp>
+;;; Time-stamp: <2009-03-21 11:16:27EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -127,7 +127,7 @@
   :definition :method
   :callback-object solver
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The current estimate of the root for the solver.")
 
@@ -137,7 +137,7 @@
   :definition :method
   :callback-object solver
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation
   "The current estimate of the root for the solver.")
 
@@ -146,7 +146,7 @@
   (((mpointer solver) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
@@ -155,7 +155,7 @@
   (((mpointer solver) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The function value f(x) at the current estimate x of the root for the solver.")
 
@@ -164,7 +164,7 @@
   (((mpointer solver) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The last step dx taken by the solver.")
 
@@ -173,7 +173,7 @@
   (((mpointer solver) :pointer))
   :definition :method
   :c-return (crtn :pointer)
-  :return ((make-marray 'double-float :from-pointer crtn))
+  :return ((copy crtn))
   :documentation			; FDL
   "The last step dx taken by the solver.")
 

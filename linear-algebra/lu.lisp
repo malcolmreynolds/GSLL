@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2009-02-23 13:50:29EST lu.lisp>
+;; Time-stamp: <2009-03-17 20:42:37EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -148,13 +148,17 @@
 		:initial-contents '(1.0d0 2.0d0 3.0d0 4.0d0)))))
 
 (generate-all-array-tests lu :doubles
- (let ((mat (array-default '(3 3)))
-       (vec (array-default '3)))
-   (multiple-value-bind (matrix perm) (lu-decomposition mat)
-     (let ((x (lu-solve matrix vec perm)))
-       (cl-array
+ (let ((matrix (array-default '(4 4)))
+       (vec (array-default '4 )))
+   (multiple-value-bind (matrix perm)
+       (lu-decomposition matrix)
+    (let ((x (lu-solve matrix vec perm)))
+      (cl-array
+       (permute-inverse
+	perm
 	(matrix-product-triangular
 	 matrix
-	 (matrix-product-triangular
-	  matrix x 1 :Upper :NoTrans :NonUnit)
-	 1 :Lower :NoTrans :Unit))))))
+	 (matrix-product-triangular matrix x 1 :upper :notrans :nonunit)
+	 1 :lower :notrans :unit)))))))
+
+

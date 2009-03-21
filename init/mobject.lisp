@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-18 20:19:39EDT mobject.lisp>
+;; Time-stamp: <2009-03-21 11:16:09EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -283,19 +283,27 @@
   (defconstant +foreign-pointer-type+ (type-of (cffi:null-pointer))
     "The type of foreign pointers."))
 
+;;; Note: clisp has a foreign pointer class = T, so it would be best
+;;; to narrow down methods that dispatch on this class.
+(defmacro foreign-pointer-method (pointer form)
+  "Execute this form only if the pointer is of +foreign-pointer-type+;
+   otherwise call the next method."
+  #-clisp (declare (ignore pointer))
+  #+clisp
+  `(if (typep ,pointer +foreign-pointer-type+)
+       ,form
+       (call-next-method))
+  #-clisp
+  form)
+
 ;;; Some functions in solve-minimize-fit return a pointer to a GSL
 ;;; vector with double-floats.  This function will return a contents
 ;;; form suitable for make-marray.  There is no choice but to copy
 ;;; over the data even on native implementations; because GSL is doing
 ;;; the mallocing, the data are not CL-accessible.
 
-(defgeneric contents-from-pointer (pointer struct-type &optional element-type)
-  (:documentation
-   "Create a contents list from the GSL object of type struct-type
-    referenced by pointer."))
-
 (defmethod mpointer ((object #.+foreign-pointer-class+))
-  (check-type object #.+foreign-pointer-type+)
+  #+clisp (check-type object #.+foreign-pointer-type+)
   object)
 
 (export 'order)

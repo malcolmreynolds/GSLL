@@ -114,8 +114,12 @@ version 0.10.0 or newer; callbacks and <code>foreign-funcall</code> must be supp
 <li><a href="http://www.cliki.net/trivial-garbage">trivial-garbage</a>
 <li><a href="http://common-lisp.net/project/cl-utilities/">cl-utilities</a>
 </li>
+<li><a href="http://www.cliki.net/asdf">ASDF</a></li>
+<li><a href="http://repo.or.cz/w/lisp-unit.git">lisp-unit</a>, <i>(Optional)</i> necessary 
+   to run <code>gsll-tests</code>
+</li>
+</ul>
 
-<li><a href="http://www.cliki.net/asdf">ASDF</a></li></ul>
 <p>GSLL has been tested with
   <a href="http://sbcl.sourceforge.net/">SBCL</a>
   and
@@ -178,6 +182,10 @@ from within the clbuild directory:
     <li><code>(clc:clc-require :gsll)</code></li>
   </ul>
  <h3>Test suite</h3>
+ <p>You must get the test suite lisp-unit:
+  <ul>
+    <li><code>git clone git://repo.or.cz/lisp-unit.git</code></li>
+  </ul>
   <p>The test suite may be run with
   <ul>
     <li><code>(asdf:operate 'asdf:load-op :gsll-tests)</code></li>
@@ -295,7 +303,12 @@ area of memory.</p>
  with <code>setf maref</code>.  A complete CL array may
  be extracted with the function <code>#'cl-array</code>.
 </p>
-
+<p>Copying marrays is performed with the function <code>copy</code>.
+  This works between marrays, pointers, and CL arrays.  It is useful
+  for functions intended to be passed to GSL functions (for
+  e.g. solving, minimizing or fitting) that need to set a GSL vector
+  or matrix, because one can simply copy into the passed-in pointer.
+</p>
  <h3>Passing functions</h3>
  <p>
  Functions that are passed to GSL functions (known as <i>callbacks</i>
@@ -383,7 +396,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-02-21 16:47:23EST index.html>
+Time-stamp: <2009-03-20 11:54:53EDT index.html>
 </small>
 <!-- hhmts end -->
  </div>

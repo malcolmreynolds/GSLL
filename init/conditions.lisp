@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2008-12-31 18:32:09EST conditions.lisp>
+;; Time-stamp: <2009-03-16 10:36:05EDT conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -18,7 +18,7 @@
    (line-number :initform 0 :initarg :line-number :reader line-number))
   (:report
    (lambda (condition stream)
-     (format stream "~a ~a ~@[in ~a at line ~d~]"
+     (format stream "~a~@[; ~a~] ~@[in ~a at line ~d~]"
 	     (error-text condition)
 	     (explanation condition)
 	     (source-file condition)

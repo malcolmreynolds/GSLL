@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
-;; Time-stamp: <2008-12-28 18:01:59EST vector.lisp>
+;; Time-stamp: <2009-03-20 17:20:40EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -29,6 +29,14 @@
      &optional (element-type 'double-float))
   (loop for i below (cffi:foreign-slot-value pointer struct-type 'size)
      collect (maref pointer i nil element-type)))
+
+(defmethod copy-to-destination
+    ((object mvector) (pointer #.+foreign-pointer-class+))
+  (foreign-pointer-method
+   pointer
+   (loop for i below (dim0 object)
+      do (setf (maref pointer i nil (element-type object))
+	       (maref object i)))))
 
 ;;;;****************************************************************************
 ;;;; Function definitions

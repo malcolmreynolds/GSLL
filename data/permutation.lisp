@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2009-01-11 21:18:15EST permutation.lisp>
+;; Time-stamp: <2009-03-17 20:27:01EDT permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -177,27 +177,7 @@
 ;;;; Applying Permutations
 ;;;;****************************************************************************
 
-(defmfun permute (p data stride n)
-  "gsl_permute"
-  (((mpointer p) :pointer) (data :pointer) (stride sizet) (n sizet))
-  :inputs (p data)
-  :outputs (data)
-  :return (data)
-  :documentation			; FDL
-  "Apply the permutation p to the array data of
-   size n with stride stride.")
-
-(defmfun permute-inverse (p data stride n)
-    "gsl_permute_inverse"
-  (((mpointer p) :pointer) (data :pointer) (stride sizet) (n sizet))
-  :inputs (p data)
-  :outputs (data)
-  :return (data)
-  :documentation			; FDL
-  "Apply the inverse of the permutation p to the array data of
-   size n with stride.")
-
-(defmfun permute-vector ((p permutation) (v vector))
+(defmfun permute ((p permutation) (v vector) &optional size stride)
   ("gsl_permute_vector" :type)
   (((mpointer p) :pointer) ((mpointer v) :pointer))
   :definition :generic
@@ -212,7 +192,20 @@
    identity matrix. The permutation p and the vector v must
    have the same length.")
 
-(defmfun permute-vector-inverse ((p permutation) (v vector))
+(defmfun permute
+    (p (data #.+foreign-pointer-class+) &optional (size 1) (stride 1))
+  "gsl_permute"
+  (((mpointer p) :pointer) (data :pointer) (stride sizet) (size sizet))
+  :definition :method
+  :inputs (p data)
+  :outputs (data)
+  :return (data)
+  :documentation			; FDL
+  "Apply the permutation p to the array data of
+   size n with stride stride.")
+
+(defmfun permute-inverse
+    ((p permutation) (v vector) &optional size stride)
   ("gsl_permute_vector" :type "_inverse")
   (((mpointer p) :pointer) ((mpointer v) :pointer))
   :definition :generic
@@ -226,6 +219,18 @@
    permutation matrix P is given by the p_j-th column of the
    identity matrix. The permutation p and the vector v must
    have the same length.")
+
+(defmfun permute-inverse
+    (p (data #.+foreign-pointer-class+) &optional (size 1) (stride 1))
+  "gsl_permute_inverse"
+  (((mpointer p) :pointer) (data :pointer) (stride sizet) (n sizet))
+  :definition :method
+  :inputs (p data)
+  :outputs (data)
+  :return (data)
+  :documentation			; FDL
+  "Apply the inverse of the permutation p to the array data of
+   size n with stride.")
 
 (defmfun permutation* (p pa pb)
   "gsl_permutation_mul"
@@ -307,8 +312,7 @@
     (loop collect (copy-seq (cl-array perm))
 	  while (permutation-previous perm))))
 
-(save-test
- permutation
+(save-test permutation
  (let ((perm-1 (make-permutation 4 t)))	;maref
    (maref perm-1 2))
  (let ((perm-1 (make-permutation 4 t)))	;cl-array
@@ -333,7 +337,7 @@
    (set-identity perm-1)
    (swap-elements perm-1 1 3)
    (swap-elements perm-1 0 2)
-   (permute-vector perm-1 intvec)
+   (permute perm-1 intvec)
    (cl-array intvec))
  (let ((perm-1 (make-permutation 4 t)))	;inversions
    (set-identity perm-1)

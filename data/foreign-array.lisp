@@ -1,6 +1,6 @@
 ;; Foreign arrays (usually in C)
 ;; Liam Healy 2008-12-28 10:44:22EST foreign-array.lisp
-;; Time-stamp: <2009-02-23 15:18:04EST foreign-array.lisp>
+;; Time-stamp: <2009-03-18 14:45:50EDT foreign-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -52,7 +52,7 @@
 (defmethod initialize-instance :after
     ((object foreign-array) &rest initargs
      &key dimensions initial-contents initial-element)
-  (declare (ignore dimensions initial-contents initial-element))
+  (declare (ignore dimensions #+native initial-contents #+native initial-element))
   (with-slots (cl-array dimensions original-array offset total-size) object
     (unless (and (slot-boundp object 'cl-array) cl-array)
       (setf cl-array (apply #'make-ffa (element-type object) initargs)))
@@ -64,7 +64,8 @@
 		 :count (total-size object))))
       (setf (c-pointer object) cptr)
       (tg:finalize object (lambda () (cffi:foreign-free cptr))))
-    #-native (setf (cl-invalid object) nil)
+    #-native
+    (setf (cl-invalid object) (not (or initial-contents initial-element)))
     (multiple-value-bind  (oa index-offset)
 	(find-original-array (cl-array object))
       (setf original-array oa
@@ -82,6 +83,8 @@
 	  #-native (copy-c-to-cl object)
 	  (princ (cl-array object) stream))
 	(format stream "dimensions ~a" (dimensions object)))))
+
+(export '(dim0 dim1))
 
 (defun dim0 (object)
   "The first dimension of the object."
