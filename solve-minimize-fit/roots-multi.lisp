@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-03-21 17:42:43EDT roots-multi.lisp>
+;;; Time-stamp: <2009-03-22 00:03:35EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -29,7 +29,7 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
   :callbacks
-  (callback gsl-mfunction
+  (callback gsl-mfunction (dimension)
 	    (function :success-failure
 		      (:double :marray dim0) (:double :marray dim0)))
   :arglists-function
@@ -54,7 +54,7 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
   :callbacks
-  (callback gsl-mfunction-fdf
+  (callback gsl-mfunction-fdf (dimension)
 	    (function :success-failure
 		      (:double :marray dim0)
 		      (:double :marray dim0))

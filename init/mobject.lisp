@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-21 21:34:28EDT mobject.lisp>
+;; Time-stamp: <2009-03-22 00:02:39EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -85,8 +85,7 @@
 		   ,class
 		   ,superclasses
 		   ,(format nil "The GSL representation of the ~a." description)
-		   ;; Class slots go here
-		   )
+		   ,(parse-callback-static callbacks 'dimension-names))
 		`(defclass ,class ,superclasses
 		   nil
 		   (:documentation
@@ -203,8 +202,7 @@
        (let ((object
 	      (make-instance
 	       ',class
-	       ,@(when
-		  callbacks `(:callbacks ',callbacks))
+	       ,@(when callbacks `(:callbacks ',callbacks))
 	       ,@(symbol-keyword-symbol
 		  (callback-remove-arg class-slots-instance callbacks))
 	       ,@(when (callback-arg-p class-slots-instance callbacks)

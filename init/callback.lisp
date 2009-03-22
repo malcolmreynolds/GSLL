@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-21 16:25:25EDT callback.lisp>
+;; Time-stamp: <2009-03-21 23:43:36EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -125,7 +125,7 @@
 ;;;;****************************************************************************
 
 ;;; The :callbacks argument is a list of the form:
-;;; (foreign-argument callback-structure-type function ...)
+;;; (foreign-argument callback-structure-type dimension-names function ...)
 ;;; where each function is of the form 
 ;;; (structure-slot-name
 ;;;   &optional (return-spec 'double-float) (argument-spec 'double-float)
@@ -139,30 +139,13 @@
 ;;; scalarsp = flag determining whether to pass/accept scalars or arrays
 ;;; dimensions = dimension of the problem
 
-(defun parse-callback-static (callbacks component &optional fn-num arg-component)
-  "Get the information component from the callbacks list.  Where
-  specific to a particular function, get the information for function
-  n (0, 1, 2)."
+(defun parse-callback-static (callbacks component)
+  "Get the information component from the callbacks list."
   (case component
     (foreign-argument (first callbacks))
     (callback-structure-type (second callbacks))
-    (functions (cddr callbacks))
-    ;; The parts below are obsolete?
-    (t
-     (let* ((fn (nth fn-num (cddr callbacks)))
-	    (comp
-	     (case component
-	       (function fn)
-	       (structure-slot-name (first fn))
-	       (return-spec (or (second fn) :double))
-	       (argument-spec (or (third fn) :double))
-	       (set1-spec (fourth fn))
-	       (set2-spec (fifth fn)))))
-       (case arg-component
-	 (element-type (first comp)) ; but it's always :double when this is a list
-	 (array-type (second comp))
-	 (dimensions (cddr comp))
-	 (t comp))))))		   ; just the element-type as a symbol
+    (dimension-names (third callbacks))
+    (functions (nthcdr 3 callbacks))))
 
 (defun number-of-callbacks (callbacks)
   (length (parse-callback-static callbacks 'functions)))
@@ -184,25 +167,6 @@
      (if (listp argspec) (first argspec) argspec)) ; but it's always :double when this is a list
     (array-type (when (listp argspec) (second argspec)))
     (dimensions (when (listp argspec) (cddr argspec)))))
-
-#|
-(defparameter *cblist*
-  '(callback monte-function (function :double (:double :cvector dim0))))
-(parse-callback-static *cblist* 'foreign-argument)
-CALLBACK
-(parse-callback-static *cblist* 'callback-structure-type)
-MONTE-FUNCTION
-(parse-callback-static *cblist* 'structure-slot-name 0)
-FUNCTION
-(parse-callback-static *cblist* 'return-spec 0)
-:DOUBLE
-(parse-callback-static *cblist* 'argument-spec 0)
-(:DOUBLE :CVECTOR DIM0)
-(parse-callback-static *cblist* 'argument-spec 0 'array-type)
-:CVECTOR
-(parse-callback-static *cblist* 'argument-spec 0 'dimensions)
-(DIM0)
-|#
 
 ;;;;****************************************************************************
 ;;;; Using callback specification in function arugments

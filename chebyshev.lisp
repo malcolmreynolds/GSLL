@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-03-18 20:54:02EDT chebyshev.lisp>
+;; Time-stamp: <2009-03-21 23:49:02EDT chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -16,7 +16,7 @@
   "Chebyshev series"
   :documentation			; FDL
   "Make a Chebyshev series of specified order."
-  :callbacks (callback gsl-function (function))
+  :callbacks (callback gsl-function nil (function))
   :initialize-suffix "init"
   :initialize-args
   ((callback :pointer) (lower-limit :double) (upper-limit :double))

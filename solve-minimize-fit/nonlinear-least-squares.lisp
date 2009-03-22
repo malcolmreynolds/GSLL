@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-03-19 11:13:41EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-03-21 23:56:35EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -21,9 +21,11 @@
   "nonlinear least squares fit with function only"
   :documentation			; FDL
   "The number of observations must be greater than or equal to parameters."
-  :superclasses (callback-included)
-  :ci-class-slots
-  (gsl-ffit-function nil (function) (number-of-observations number-of-parameters))
+  :callbacks
+  (callback gsl-ffit-function
+	    (number-of-observations number-of-parameters)
+	    (function :success-failure
+		      (:double :marray dim1) (:double :marray dim0)))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer))
   :singular (function))
@@ -67,10 +69,13 @@
   :documentation			; FDL
   "The number of observations must be greater than or
    equal to parameters."
-  :superclasses (callback-included)
-  :ci-class-slots
-  (gsl-fdffit-function marray (function df fdf)
-		       (number-of-observations number-of-parameters))
+  :callbacks
+  (callback gsl-fdffit-function
+	    (number-of-observations number-of-parameters)
+	    (function :success-failure
+		      (:double :marray dim1) (:double :marray dim0))
+	    (df ???????????)
+	    (fdf ????????????))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer)))
 

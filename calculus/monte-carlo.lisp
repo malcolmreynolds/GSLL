@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-03-07 16:39:34EST monte-carlo.lisp>
+;; Time-stamp: <2009-03-21 23:48:35EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,6 +9,15 @@
 ;;; /usr/include/gsl/gsl_monte_plain.h
 ;;; /usr/include/gsl/gsl_monte_miser.h
 ;;; /usr/include/gsl/gsl_monte_vegas.h
+
+;;;;****************************************************************************
+;;;; Callback definition
+;;;;****************************************************************************
+
+(cffi:defcstruct monte-function
+  (function :pointer)
+  (dimensions sizet)
+  (parameters :pointer))
 
 ;;;;****************************************************************************
 ;;;; PLAIN Monte Carlo
@@ -38,7 +47,8 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callbacks (callback monte-function (function :double (:double :cvector dim0)))
+  :callbacks
+  (callback monte-function dimensions (function :double (:double :cvector dim0)))
   :callback-dynamic ((function scalars (dim0 lower-limits)))
   :documentation			; FDL
   "Uses the plain Monte Carlo algorithm to integrate the
@@ -116,7 +126,8 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callbacks (callback monte-function (function :double (:double :cvector dim0)))
+  :callbacks
+  (callback monte-function dimensions (function :double (:double :cvector dim0)))
   :callback-dynamic ((function scalars (dim0 lower-limits)))
   :documentation			; FDL
   "Uses the miser Monte Carlo algorithm to integrate the
@@ -204,7 +215,8 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callbacks (callback monte-function (function :double (:double :cvector dim0)))
+  :callbacks
+  (callback monte-function dimensions (function :double (:double :cvector dim0)))
   :callback-dynamic ((function scalars (dim0 lower-limits)))
   :documentation			; FDL
   "Uses the vegas Monte Carlo algorithm to integrate the
@@ -221,22 +233,6 @@
    consistent with 1 for the weighted average to be reliable.")
 
 ;;;;****************************************************************************
-;;;; Callback definition
-;;;;****************************************************************************
-
-(cffi:defcstruct monte-function
-  (function :pointer)
-  (dimensions sizet)
-  (parameters :pointer))
-
-(def-make-callbacks monte-carlo (function dimension)
-  `(defmcallback ,function
-       :double ((:double ,dimension))
-       nil
-       nil
-       ,function))
-
-;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
@@ -246,8 +242,6 @@
   "Example function for Monte Carlo used in random walk studies."
   (* (/ (expt pi 3))
      (/ (- 1 (* (cos x) (cos y) (cos z))))))
-
-;;(make-callbacks monte-carlo mcrw 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-plain 3))

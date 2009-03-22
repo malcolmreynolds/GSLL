@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-03-21 18:15:41EDT minimization-multi.lisp>
+;; Time-stamp: <2009-03-22 00:03:34EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -38,7 +38,7 @@
    initial trial steps is given in vector step-size. The precise
    meaning of this parameter depends on the method used."
   :callbacks
-  (callback gsl-mfunction
+  (callback gsl-mfunction (dimension)
 	    (function :double (:double :marray dim0)))
   :initialize-suffix "set"
   :initialize-args ;; Could have one fewer argument: dimension=(dim0 initial)
@@ -62,7 +62,7 @@
    direction p to a relative accuracy of tolerance, where dot(p,g) <
    tol |p| |g|."
   :callbacks
-  (callback gsl-mfunction-fdf
+  (callback gsl-mfunction-fdf (dimension)
 	    (function :double (:double :marray dim0))
 	    (df :void
 		(:double :marray dim0)

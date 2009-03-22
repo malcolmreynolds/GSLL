@@ -1,6 +1,6 @@
 ;; The mobject that defines callbacks
 ;; Liam Healy 2009-03-14 11:20:03EDT callback-included.lisp
-;; Time-stamp: <2009-03-19 21:06:00EDT callback-included.lisp>
+;; Time-stamp: <2009-03-22 00:02:37EDT callback-included.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -36,14 +36,14 @@
     slot."))
 
 (defmacro def-ci-subclass
-    (class-name superclasses documentation
-     &optional (dimension-names '(dimensions)))
+    (class-name superclasses documentation dimension-names)
   `(defclass ,class-name ,superclasses
      ((dimension-names :initform ',dimension-names :allocation :class))
      (:documentation ,documentation)))
 
 (defmacro def-ci-subclass-1d
-    (class-name superclasses documentation)
+    (class-name superclasses documentation ignore)
+  (declare (ignore ignore))
   `(defclass ,class-name ,superclasses
      ((dimension-names :initform nil :allocation :class)
       (dimensions :initform '(1) :allocation :class)
