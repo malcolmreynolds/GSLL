@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-21 23:43:36EDT callback.lisp>
+;; Time-stamp: <2009-03-22 15:40:17EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -205,15 +205,17 @@
 	    for list in (callback-dynamic-lister callbacks)
 	    append (list symb list))))))
 
-(defun callback-set-slots (callbacks symbols)
+(defun callback-set-slots (callbacks dynamic-variables)
   (when callbacks
     `((set-cbstruct
        ,(parse-callback-static callbacks 'foreign-argument)
        ',(parse-callback-static callbacks 'callback-structure-type)
-       nil 				; will have dimensions
+       (mapcan 'list
+	       ',(parse-callback-static callbacks 'dimension-names)
+	       (cddr ,(caar dynamic-variables)))
        ,(cons
 	 'list
-	 (loop for symb in symbols
+	 (loop for symb in (second dynamic-variables)
 	    for fn in (parse-callback-static callbacks 'functions)
 	    append
 	    `(',(parse-callback-fnspec fn 'structure-slot-name)

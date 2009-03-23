@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-03-21 16:44:34EDT defmfun-single.lisp>
+;; Time-stamp: <2009-03-22 15:40:17EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -188,7 +188,7 @@
 		 callback-dynamic (first callback-dynamic-variables))
 		(when callback-object (callback-set-dynamic callback-object arglist))
 		before)
-	       ,@(callback-set-slots callbacks (second callback-dynamic-variables))
+	       ,@(callback-set-slots callbacks callback-dynamic-variables)
 	       (let ((,cret-name
 		      (cffi:foreign-funcall
 		       ,gsl-name

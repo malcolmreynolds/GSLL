@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-03-21 23:48:35EDT monte-carlo.lisp>
+;; Time-stamp: <2009-03-22 00:18:55EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -48,7 +48,7 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function dimensions (function :double (:double :cvector dim0)))
+  (callback monte-function (dimensions) (function :double (:double :cvector dim0)))
   :callback-dynamic ((function scalars (dim0 lower-limits)))
   :documentation			; FDL
   "Uses the plain Monte Carlo algorithm to integrate the
@@ -127,7 +127,7 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function dimensions (function :double (:double :cvector dim0)))
+  (callback monte-function (dimensions) (function :double (:double :cvector dim0)))
   :callback-dynamic ((function scalars (dim0 lower-limits)))
   :documentation			; FDL
   "Uses the miser Monte Carlo algorithm to integrate the
@@ -216,7 +216,7 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function dimensions (function :double (:double :cvector dim0)))
+  (callback monte-function (dimensions) (function :double (:double :cvector dim0)))
   :callback-dynamic ((function scalars (dim0 lower-limits)))
   :documentation			; FDL
   "Uses the vegas Monte Carlo algorithm to integrate the

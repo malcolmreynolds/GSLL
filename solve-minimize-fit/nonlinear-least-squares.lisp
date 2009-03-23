@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-03-21 23:56:35EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-03-22 16:09:53EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -74,8 +74,11 @@
 	    (number-of-observations number-of-parameters)
 	    (function :success-failure
 		      (:double :marray dim1) (:double :marray dim0))
-	    (df ???????????)
-	    (fdf ????????????))
+	    (df :success-failure
+		      (:double :marray dim1) (:double :marray dim0 dim1))
+	    (fdf :success-failure
+		      (:double :marray dim1)
+		      (:double :marray dim0) (:double :marray dim0 dim1)))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer)))
 
@@ -101,6 +104,7 @@
   (number-of-parameters sizet)
   (parameters :pointer))
 
+#|
 (def-make-callbacks nonlinear-fdffit
     (function df fdf &optional number-of-observations number-of-parameters)
   (if number-of-observations
@@ -128,6 +132,7 @@
 	 (defmcallback ,df :success-failure :pointer :pointer nil ,df)
 	 (defmcallback
 	     ,fdf :success-failure :pointer (:pointer :pointer) nil ,fdf))))
+|#
 
 (defmfun name ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_name"
@@ -382,10 +387,12 @@
   (exponential-residual x f)
   (exponential-residual-derivative x jacobian))
 
+#|
 (make-callbacks
  nonlinear-fdffit
  exponential-residual exponential-residual-derivative
  exponential-residual-fdf)
+|#
 
 (defun norm-f (fit)
   "Find the norm of the fit function f."
@@ -407,7 +414,7 @@
 		 (list number-of-observations number-of-parameters)
 		 '(exponential-residual
 		   exponential-residual-derivative exponential-residual-fdf)
-		 init)))
+		 init nil)))
       (macrolet ((fitx (i) `(maref (solution fit) ,i))
 		 (err (i) `(sqrt (maref covariance ,i ,i))))
 	(when print-steps

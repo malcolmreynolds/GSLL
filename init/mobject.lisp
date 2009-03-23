@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-22 00:02:39EDT mobject.lisp>
+;; Time-stamp: <2009-03-22 19:52:53EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -194,7 +194,10 @@
 		 ,@(when initargs
 			 (append
 			  (list
-			   '&optional (list (first initargs) nil settingp))
+			   '&optional
+			   (if (listp (first initargs))
+			       `(,@(first initargs) ,settingp)
+			       `(,(first initargs) nil ,settingp)))
 			  (rest initargs))))))
        ,(format
 	 nil "Create the GSL object representing a ~a (class ~a).~@[~&~a~]"
