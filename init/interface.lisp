@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-16 18:39:59EST interface.lisp>
+;; Time-stamp: <2009-03-23 12:14:14EDT interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -71,25 +71,24 @@
 ;;;; Checking results from GSL functions
 ;;;;****************************************************************************
 
+(defun success-failure (value)
+  "If status is either +success+ or +continue+, return T;
+   otherwise, return NIL."
+  (member value (list +success+ +continue+)))
+
+(defun success-continue (value)
+  "If status is +success+, return T, othewise return NIL."
+  (eql value +success+))
+
 (defun check-gsl-status (status-code context)
   "Check the return status code from a GSL function and signal a warning
    if it is not :SUCCESS."
-  (unless (eql status-code success)
+  (unless (success-failure status-code)
     (signal-gsl-warning status-code (format nil "in ~a" context))))
 
 (defun check-null-pointer (pointer error-code reason)
   (when (cffi:null-pointer-p pointer)
     (signal-gsl-error error-code reason)))
-
-(defun success-failure (value)
-  "If status indicates failure, return NIL, othewise return T."
-  ;;(not (eql value (cffi:foreign-enum-value 'gsl-errorno :FAILURE)))
-  ;; More general, to allow :CONTINUE
-  (not (minusp value)))
-
-(defun success-continue (value)
-  "If status indicates success, return T, othewise return NIL."
-  (eql value success))
 
 ;;;;****************************************************************************
 ;;;; Argument check

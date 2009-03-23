@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-02-25 21:23:42EST callback.lisp>
+;; Time-stamp: <2009-03-23 11:18:51EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -192,7 +192,7 @@
 	  (:success-failure
 	   ;; We always return success, because if there was a
 	   ;; problem, a CL error would be signalled.
-	   '(success))
+	   '(+success+))
 	  (:pointer
 	   ;; For unclear reasons, some GSL functions want callbacks
 	   ;; to return a void pointer which is apparently meaningless.

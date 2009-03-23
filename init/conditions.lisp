@@ -1,9 +1,30 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2009-03-16 10:36:05EDT conditions.lisp>
+;; Time-stamp: <2009-03-23 12:27:09EDT conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;;;****************************************************************************
+;;;; Define non-error and error C return codes 
+;;;;****************************************************************************
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (cffi:defcenum gsl-errorno
+    "Error codes for GSL, from /usr/include/gsl/gsl_errno.h."
+    (:CONTINUE -2)
+    :FAILURE :SUCCESS :EDOM :ERANGE :EFAULT :EINVAL :EFAILED :EFACTOR  
+    :ESANITY :ENOMEM :EBADFUNC :ERUNAWAY :EMAXITER :EZERODIV :EBADTOL  
+    :ETOL :EUNDRFLW :EOVRFLW :ELOSS :EROUND :EBADLEN :ENOTSQR :ESING    
+    :EDIVERGE :EUNSUP :EUNIMPL :ECACHE :ETABLE :ENOPROG :ENOPROGJ 
+    :ETOLF :ETOLX :ETOLG :EOF))
+
+#.(cons 'progn
+	(loop for i from (cffi:foreign-enum-value 'gsl-errorno :continue)
+	    to (cffi:foreign-enum-value 'gsl-errorno :eof)
+	    for name = (string (cffi:foreign-enum-keyword 'gsl-errorno i))
+	    collect
+	    `(defconstant ,(intern (format nil "+~:@(~a~)+" name) :gsll) ,i)))
 
 ;;;;****************************************************************************
 ;;;; GSL conditions
@@ -49,74 +70,98 @@
     (setf *errorno-keyword* (acons ,number ',keyword *errorno-keyword*))
     (export ',keyword)))
 
-(define-gsl-condition input-domain 1 "Input domain error")
-(define-gsl-condition input-range 2 "Output range error")
-(define-gsl-condition invalid-pointer 3 "Invalid pointer")
-(define-gsl-condition invalid-argument 4 "Invalid argument")
-(define-gsl-condition generic-failure 5 "Generic failure")
-(define-gsl-condition factorization-failure 6 "Factorization failed")
+(define-condition unspecified-errno (gsl-condition)
+  ((error-text :initform "Returned errno code not recognized"
+	       :reader error-text :allocation :class))
+  (:documentation
+   "Errno value from GNU Scientific Library not recognized."))
+
+(define-gsl-condition input-domain +edom+ "Input domain error")
+(define-gsl-condition input-range +erange+ "Output range error")
+(define-gsl-condition invalid-pointer +efault+ "Invalid pointer")
+(define-gsl-condition invalid-argument +einval+ "Invalid argument")
+(define-gsl-condition generic-failure +efailed+ "Generic failure")
+(define-gsl-condition generic-failure +failure+ "Generic failure")
+(define-gsl-condition factorization-failure +efactor+ "Factorization failed")
 (define-gsl-condition sanity-check-failure
-    7 "Sanity check failed - shouldn't happen")
-(define-gsl-condition memory-allocation-failure 8 "Malloc failed")
+    +esanity+ "Sanity check failed - shouldn't happen")
+(define-gsl-condition memory-allocation-failure +enomem+ "Malloc failed")
 (define-gsl-condition bad-function-supplied
-    9 "Problem with user-supplied function")
+    +ebadfunc+ "Problem with user-supplied function")
 (define-gsl-condition runaway-iteration
-    10 "Iterative process is out of control")
+    +erunaway+ "Iterative process is out of control")
 (define-gsl-condition exceeded-maximum-iterations
-    11 "Exceeded max number of iterations")
+    +emaxiter+ "Exceeded max number of iterations")
 (define-gsl-condition gsl-division-by-zero
-    12 "Tried to divide by zero" gsl-condition division-by-zero)
-(define-gsl-condition invalid-tolerance 13 "User specified an invalid tolerance")
+    +ezerodiv+ "Tried to divide by zero" gsl-condition division-by-zero)
+(define-gsl-condition invalid-tolerance
+    +ebadtol+ "User specified an invalid tolerance")
 (define-gsl-condition failure-to-reach-tolerance
-    14 "Failed to reach the specified tolerance")
-(define-gsl-condition underflow 15 "Underflow")
-(define-gsl-condition overflow 16 "Overflow")
-(define-gsl-condition loss-of-accuracy 17 "Loss of accuracy")
-(define-gsl-condition roundoff-failure 18 "Failed because of roundoff error")
+    +etol+ "Failed to reach the specified tolerance")
+(define-gsl-condition underflow +eundrflw+ "Underflow")
+(define-gsl-condition overflow +eovrflw+ "Overflow")
+(define-gsl-condition loss-of-accuracy +eloss+ "Loss of accuracy")
+(define-gsl-condition roundoff-failure
+    +eround+ "Failed because of roundoff error")
 (define-gsl-condition nonconformant-dimensions
-    19 "Matrix, vector lengths are not conformant")
-(define-gsl-condition nonsquare-matrix 20 "Matrix not square")
-(define-gsl-condition singularity 21 "Apparent singularity detected")
-(define-gsl-condition divergence 22 "Integral or series is divergent")
+    +ebadlen+ "Matrix, vector lengths are not conformant")
+(define-gsl-condition nonsquare-matrix +enotsqr+ "Matrix not square")
+(define-gsl-condition singularity +esing+ "Apparent singularity detected")
+(define-gsl-condition divergence +ediverge+ "Integral or series is divergent")
 (define-gsl-condition unsupported-feature
-    23 "Requested feature is not supported by the hardware")
+    +eunsup+ "Requested feature is not supported by the hardware")
 (define-gsl-condition unimplemented-feature
-    24 "Requested feature not (yet) implemented")
-(define-gsl-condition cache-limit-exceeded 25 "Cache limit exceeded")
-(define-gsl-condition table-limit-exceeded 26 "Table limit exceeded")
-(define-gsl-condition no-progress 27
+    +eunimpl+ "Requested feature not (yet) implemented")
+(define-gsl-condition cache-limit-exceeded +ecache+ "Cache limit exceeded")
+(define-gsl-condition table-limit-exceeded +etable+ "Table limit exceeded")
+(define-gsl-condition no-progress +enoprog+
   "Iteration is not making progress towards solution")
 (define-gsl-condition jacobian-not-improving
-    28 "Jacobian evaluations are not improving the solution")
+    +enoprogj+ "Jacobian evaluations are not improving the solution")
 (define-gsl-condition failure-to-reach-tolerance-f
-    29 "Cannot reach the specified tolerance in F")
+    +etolf+ "Cannot reach the specified tolerance in F")
 (define-gsl-condition failure-to-reach-tolerance-x
-    30 "Cannot reach the specified tolerance in X")
+    +etolx+ "Cannot reach the specified tolerance in X")
 (define-gsl-condition failure-to-reach-tolerance-g
-    31 "Cannot reach the specified tolerance in gradient")
+    +etolg+ "Cannot reach the specified tolerance in gradient")
 ;; not a subclass of gsl-condition
-(define-gsl-condition gsl-eof 32 "End of file" end-of-file)
+(define-gsl-condition gsl-eof +eof+ "End of file" end-of-file)
 ;;; It is possible to return +positive-infinity+
 ;;; by defining a handler for 'overflow.
 
 (defun lookup-condition (number)
   (or (rest (assoc number *errorno-keyword*))
-      ;; go for "Generic failure" of the code doesn't come up
-      'generic-failure))
+      'unspecified-errno))
 
 (defun signal-gsl-error (number explanation &optional file line)
   "Signal an error from the GSL library."
-  (error (lookup-condition number)
-	 :explanation explanation
-	 :source-file file
-	 :line-number line))
+  (unless (success-failure number)
+    (let ((condition (lookup-condition number)))
+      (if (eq condition 'unspecified-errno)
+	  (error condition
+	   :error-number number
+	   :explanation explanation
+	   :source-file file
+	   :line-number line)
+	  (error condition
+	   :explanation explanation
+	   :source-file file
+	   :line-number line)))))
 
 (defun signal-gsl-warning (number explanation &optional file line)
   "Signal a warning from the GSL library."
-  (warn (lookup-condition number)
-	 :explanation explanation
-	 :source-file file
-	 :line-number line))
+  (unless (success-failure number)
+    (let ((condition (lookup-condition number)))
+      (if (eq condition 'unspecified-errno)
+	  (warn condition
+		:error-number number
+		:explanation explanation
+		:source-file file
+		:line-number line)
+	  (warn condition
+		:explanation explanation
+		:source-file file
+		:line-number line)))))
 
 (cffi:defcallback gsl-error :void
     ((reason :string) (file :string) (line :int) (error-number :int))
@@ -132,25 +177,3 @@
 ;;; This insures that conditions will be signalled if GSLL is dumped
 ;;; in save-lisp-and-die.
 #+sbcl (push 'establish-handler sb-ext:*init-hooks*)
-
-;;;;****************************************************************************
-;;;; Define non-error C codes 
-;;;;****************************************************************************
-
-(cffi:defcenum gsl-errorno
-  "Error codes for GSL, from /usr/include/gsl/gsl_errno.h."
-  ;; We really only need the first three here; the rest are handled
-  ;; above.
-  (:CONTINUE -2)
-  :FAILURE :SUCCESS :EDOM :ERANGE :EFAULT :EINVAL :EFAILED :EFACTOR  
-  :ESANITY :ENOMEM :EBADFUNC :ERUNAWAY :EMAXITER :EZERODIV :EBADTOL  
-  :ETOL :EUNDRFLW :EOVRFLW :ELOSS :EROUND :EBADLEN :ENOTSQR :ESING    
-  :EDIVERGE :EUNSUP :EUNIMPL :ECACHE :ETABLE :ENOPROG :ENOPROGJ 
-  :ETOLF :ETOLX :ETOLG :EOF)
-
-(defmacro gsl-errorno-sm (keyword)
-  `(define-symbol-macro
-    ,(intern (symbol-name keyword) (find-package :gsl))
-    (cffi:foreign-enum-value 'gsl-errorno ,keyword)))
-
-(gsl-errorno-sm :success)

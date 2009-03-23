@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-03-20 11:33:58EDT roots-multi.lisp>
+;;; Time-stamp: <2009-03-23 12:50:44EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -228,7 +228,7 @@
 (defmfun multiroot-test-residual (solver absolute-error)
   "gsl_multiroot_test_residual"
   (((multiroot-slot solver 'f) :pointer) (absolute-error :double))
-  :c-return :success-failure
+  :c-return :success-continue
   :documentation			; FDL
   "Test the residual value f against the absolute error,
    returning T if the following condition is achieved:
@@ -409,7 +409,8 @@
     (loop for iter from 0
        with fnval and argval
        while (and (< iter max-iter)
-		  (not (multiroot-test-residual solver 1.0d-7)))
+		  (or (zerop iter)
+		      (not (multiroot-test-residual solver 1.0d-7))))
        do
        (iterate solver)
        (setf fnval (function-value solver)
