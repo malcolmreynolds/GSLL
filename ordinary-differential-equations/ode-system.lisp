@@ -1,17 +1,9 @@
 ;; ODE system setup
 ;; Liam Healy, Sun Apr 15 2007 - 14:19
-;; Time-stamp: <2009-02-23 09:35:27EST ode-system.lisp>
+;; Time-stamp: <2009-03-22 19:54:05EDT ode-system.lisp>
 ;; $Id$
 
 (in-package :gsl)
-
-(cffi:defcstruct ode-system		; gsl_odeiv_system
-  ;; See /usr/include/gsl/gsl_odeiv.h
-  "The definition of an ordinary differential equation system for GSL."
-  (function :pointer)
-  (jacobian :pointer)
-  (dimension sizet)
-  (parameters :pointer))
 
 (export '(with-ode-integration))
 

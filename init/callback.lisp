@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-22 15:40:17EDT callback.lisp>
+;; Time-stamp: <2009-03-24 22:49:53EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -154,19 +154,17 @@
   "From the :callbacks argument, parse a single function specification."
   (ecase component
     (structure-slot-name (first fnspec))
-    (return-spec (or (second fnspec) :double))
-    (argument-spec (or (third fnspec) :double))
-    (set1-spec (fourth fnspec))
-    (set2-spec (fifth fnspec))))
+    (return-spec (second fnspec))
+    (arguments-spec (cddr fnspec))))
 
 (defun parse-callback-argspec (argspec component)
   "From the :callbacks argument, parse a single argument of a single
   function specification."
   (ecase component
-    (element-type
-     (if (listp argspec) (first argspec) argspec)) ; but it's always :double when this is a list
-    (array-type (when (listp argspec) (second argspec)))
-    (dimensions (when (listp argspec) (cddr argspec)))))
+    (io (first argspec))		; :input or :output
+    (element-type (second argspec))	; :double
+    (array-type (third argspec))	; :marray or :cvector
+    (dimensions (nthcdr 3 argspec))))
 
 ;;;;****************************************************************************
 ;;;; Using callback specification in function arugments
@@ -243,9 +241,7 @@
      (parse-callback-static callbacks 'functions))))
 
 (defmacro defmcallback (name dynamic-variable function-spec)
-  (let* ((arg-component (parse-callback-fnspec function-spec 'argument-spec))
-	 (set1-component (parse-callback-fnspec function-spec 'set1-spec))
-	 (set2-component (parse-callback-fnspec function-spec 'set2-spec))
+  (let* ((argspec (parse-callback-fnspec function-spec 'arguments-spec))
 	 (return-type (parse-callback-fnspec function-spec 'return-spec))
 	 (args (callback-args
 		(remove		; remove unused arguments in list tail
