@@ -1,107 +1,106 @@
 ;; Generate a wrapper to be called by callback, that calls user function.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-25 21:11:29EDT funcallable.lisp>
+;; Time-stamp: <2009-03-26 23:19:47EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;; To do: change the specification scheme for each argument to 
-;; (direction type array-type &rest dimensions)
+(defun make-symbol-cardinal (name i)
+  (make-symbol (format nil "~:@(~a~)~d" name i)))
 
-(defun callback-args (types)
-  "The arguments passed by GSL to the callback function."
-  (mapcar (lambda (type)
-	    (let ((symbol (gensym "ARG")))
-	      (list symbol
-		    (if (listp type)	; like (:double 3)
-			:pointer	; C array
-			type))))
-	  (if (listp types) types (list types))))
+(defun reference-foreign-element (foreign-variable-name index argspec)
+  "Form to reference, for getting or setting, the element of a foreign
+   array, or a scalar."
+  (if (parse-callback-argspec argspec 'dimensions)
+      (if (eql (parse-callback-argspec argspec 'dimensions) :marray)
+	  `(maref
+	    ,foreign-variable-name
+	    ;; need to pad NIL for vectors
+	    ,@(parse-callback-argspec argspec 'dimensions)
+	    ',(cffi-cl (parse-callback-argspec argspec 'element-type)))
+	  `(cffi:mem-aref
+	    ,foreign-variable-name
+	    ',(parse-callback-argspec argspec 'element-type)
+	    ,index))
+      ;; not setfable if it's a scalar
+      foreign-variable-name))
 
-;;; (embedded-clfunc-args '(:double (:double 2) (:set :double 2)) (callback-args '(:double (:double 2) (:set :double 2))))
-;;; (#:ARG1244 (MEM-AREF #:ARG1245 ':DOUBLE 0) (MEM-AREF #:ARG1245 ':DOUBLE 1))
-
-(defvar *setting-spec* '(:set))
-(defun embedded-clfunc-args (types callback-args &optional marray)
-  "The arguments passed to the CL function call embedded in the callback.
-   If 'marray is T, then reference GSL arrays; otherwise reference raw
-   C vectors.  A specification (:set ...) means that the CL function
-   will define the array as multiple values; if the size is negative,
-   then the opposite value will be used for marray."
-  (loop for spec in types
-     for (symbol nil) in callback-args
-     append
-     (unless (and (listp spec) (member (first spec) *setting-spec*))
-       (if (listp spec)
-	   (if (third spec)
-	       ;; matrix, marrays only
-	       (loop for i from 0 below (second spec)
-		  append
-		  (loop for j from 0 below (third spec)
-		     collect
-		     `(maref ,symbol ,i ,j ',(cffi-cl (first spec)))))
-	       ;; vector, marray or C array
-	       (loop for ind from 0 below (abs (second spec))
-		  collect (if (if (minusp (second spec)) (not marray) marray)
-			      `(maref ,symbol ,ind nil ',(cffi-cl (first spec)))
-			      `(cffi:mem-aref ,symbol ',(first spec) ,ind))))
-	   (list symbol)))))
-
-(defun callback-set-mvb (form types callback-args &optional marray)
+(defun callback-set-mvb (argument-names form fnspec)
   "Create the multiple-value-bind form in the callback to set the return C arrays."
-  (multiple-value-bind (settype setcba)
-      (loop for cba in callback-args
-	 for type in types
-	 for setting = (and (listp type) (member (first type) *setting-spec*))
-	 when setting
-	 collect cba into setcba
-	 when setting
-	 collect type into settype
-	 finally (return (values (mapcar 'rest settype) setcba)))
-    (let* ((setvbls (embedded-clfunc-args settype setcba marray))
-	   (count
-	    (apply
-	     '+
-	     (mapcar (lambda (inds) (abs (apply '* (rest inds)))) settype)))
-	   (mvbvbls (loop repeat count collect (gensym "SETCB"))))
-      (if (zerop count)
-	  form
-	  `(multiple-value-bind ,mvbvbls
-	       ,form
-	     (setf ,@(loop for mvbvbl in mvbvbls
-			for setvbl in setvbls
-			append (list setvbl mvbvbl))))))))
+  (let* ((setargs		 ; arguments that are arrays being set
+	  (remove-if-not
+	   (lambda (arg)
+	     (and (eql (parse-callback-argspec arg 'io) :output)
+		  (parse-callback-argspec arg 'dimensions)))
+	   (parse-callback-fnspec fnspec 'arguments-spec)))
+	 (counts		  ; number of scalars for each set arg
+	  (mapcar
+	   (lambda (arg)
+	     (abs (apply '* (parse-callback-argspec arg 'dimensions))))
+	   setargs))
+	 (count				; total number of scalars set
+	  (apply '+ counts))
+	 (mvbvbls	      ; the symbols to be multiple-value-bound
+	  (loop for i from 0 below count
+	     collect (make-symbol-cardinal 'setscalar i)))
+	 (setvbls
+	  (loop for arg in setargs
+	     for count in counts
+	     append
+	     (loop for i from 0 below count
+		collect (reference-foreign-element argument-names i arg)))))
+    (if (zerop count)
+	form
+	`(multiple-value-bind ,mvbvbls
+	     ,form
+	   (setf ,@(loop for mvbvbl in mvbvbls
+		      for setvbl in setvbls
+		      append (list setvbl mvbvbl)))))))
 
-(defun make-funcallable
-    (dynfn-variable &optional (return-type :double) (argument-types :double)
-     additional-argument-types marray)
+(defun make-funcallable (dynfn-variable fnspec)
   "Define a wrapper function to interface GSL with the user's function"
-  (let* ((atl (if (listp argument-types) argument-types (list argument-types)))
-	 (aatl (if (listp additional-argument-types) additional-argument-types
-		   (list additional-argument-types)))
-	 (cbargs (callback-args atl))
-	 (cbaddl (callback-args aatl)))
+  (let* ((argspecs (parse-callback-fnspec fnspec 'arguments-spec))
+	 (noslug (remove :slug argspecs))
+	 (paramsarg (make-symbol "PARAMS"))
+	 (lambda-args
+	  (loop for arg in argspecs
+	     with count = 0
+	     collect
+	     (if (eql arg :slug)
+		 paramsarg
+		 (progn
+		   (if (eql (parse-callback-argspec arg 'io) :output)
+		       (make-symbol-cardinal 'output count)
+		       (make-symbol-cardinal 'input count))
+		   (incf count)))))
+	 (call-form
+	  `(funcall
+	    (first ,dynfn-variable)
+	    ,@(loop ;; over all elements of input variables
+		 (reference-foreign-element ???????)))))
     `(lambda
-	 (,@(mapcar 'st-symbol cbargs) params ,@(mapcar 'st-symbol cbaddl))
+	 (,lambda-args)
        ;; Parameters as C argument are always ignored, because we have
        ;; CL specials to do the same job.
-       (declare (ignore params) (special ,dynfn-variable))
-       ,(callback-set-mvb
-	 `(funcall
-	   (first ,dynfn-variable)
-	   ,@(append
-	      (embedded-clfunc-args atl cbargs marray)
-	      (embedded-clfunc-args aatl cbaddl marray)))
-	 (append atl aatl)
-	 (append cbargs cbaddl)
-	 marray)
+       (declare (ignore ,paramsarg) (special ,dynfn-variable))
+       ,(if (find :output argspecs
+		  :key (lambda (arg) (parse-callback-argspec arg 'io)))
+	    ,(callback-set-mvb
+	      argument-names
+	      call-form
+	      fnspec)
+	    ;; no specified output, return what the function returns
+	    call-form)
        ,@(case
-	  return-type
+	  (parse-callback-fnspec fnspec 'return-spec)
 	  (:success-failure
-	   ;; We always return success, because if there was a
-	   ;; problem, a CL error would be signalled.
+	   ;; We always return success, because if there is a
+	   ;; problem, a CL error should be signalled.
 	   '(+success+))
 	  (:pointer
 	   ;; For unclear reasons, some GSL functions want callbacks
 	   ;; to return a void pointer which is apparently meaningless.
-	   '((cffi:null-pointer)))))))
+	   '((cffi:null-pointer)))
+	  ;; If it isn't either of these things, return what the
+	  ;; function returned.
+	  (otherwise nil)))))
