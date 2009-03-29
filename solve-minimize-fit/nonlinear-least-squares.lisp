@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-03-22 16:09:53EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-03-29 12:42:59EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -24,8 +24,10 @@
   :callbacks
   (callback gsl-ffit-function
 	    (number-of-observations number-of-parameters)
-	    (function :success-failure
-		      (:double :marray dim1) (:double :marray dim0)))
+	    (function
+	     :success-failure
+	     (:input :double :marray dim1) :slug
+	     (:output :double :marray dim0)))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer))
   :singular (function))
@@ -37,17 +39,6 @@
   (number-of-observations sizet)
   (number-of-parameters sizet)
   (parameters :pointer))
-
-(def-make-callbacks nonlinear-ffit
-    (function number-of-observations number-of-parameters &optional (scalars t))
-  (if scalars
-      `(defmcallback ,function
-	   :success-failure
-	 (:double ,number-of-parameters)
-	 ((:double ,number-of-observations))
-	 t ,function)
-      `(defmcallback ,function
-	   :success-failure :pointer :pointer nil ,function)))
 
 (defmfun name ((solver nonlinear-ffit))
   "gsl_multifit_fsolver_name"
@@ -73,12 +64,18 @@
   (callback gsl-fdffit-function
 	    (number-of-observations number-of-parameters)
 	    (function :success-failure
-		      (:double :marray dim1) (:double :marray dim0))
+		      (:input :double :marray dim1)
+		      :slug
+		      (:output :double :marray dim0))
 	    (df :success-failure
-		      (:double :marray dim1) (:double :marray dim0 dim1))
+		      (:input :double :marray dim1)
+		      :slug
+		      (:output :double :marray dim0 dim1))
 	    (fdf :success-failure
-		      (:double :marray dim1)
-		      (:double :marray dim0) (:double :marray dim0 dim1)))
+		      (:input :double :marray dim1)
+		      :slug
+		      (:output :double :marray dim0)
+		      (:output :double :marray dim0 dim1)))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer)))
 
@@ -103,36 +100,6 @@
   (number-of-observations sizet)
   (number-of-parameters sizet)
   (parameters :pointer))
-
-#|
-(def-make-callbacks nonlinear-fdffit
-    (function df fdf &optional number-of-observations number-of-parameters)
-  (if number-of-observations
-      (cl-utilities:once-only (number-of-parameters number-of-observations)
-	`(progn
-	   (defmcallback ,function
-	       :success-failure
-	     (:double ,number-of-parameters)
-	     ((:double ,number-of-observations))
-	     t ,function)
-	   (defmcallback ,df
-	       :success-failure
-	     (:double ,number-of-parameters)
-	     ((:double ,number-of-observations ,number-of-parameters))
-	     t ,df)
-	   (defmcallback ,fdf
-	       :success-failure
-	     (:double ,number-of-parameters)
-	     ((:double ,number-of-observations)
-	      (:double ,number-of-observations ,number-of-parameters))
-	     t ,fdf)))
-      `(progn
-	 (defmcallback ,function
-	     :success-failure :pointer :pointer nil ,function)
-	 (defmcallback ,df :success-failure :pointer :pointer nil ,df)
-	 (defmcallback
-	     ,fdf :success-failure :pointer (:pointer :pointer) nil ,fdf))))
-|#
 
 (defmfun name ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_name"
@@ -386,13 +353,6 @@
    for the nonlinear least squares example."
   (exponential-residual x f)
   (exponential-residual-derivative x jacobian))
-
-#|
-(make-callbacks
- nonlinear-fdffit
- exponential-residual exponential-residual-derivative
- exponential-residual-fdf)
-|#
 
 (defun norm-f (fit)
   "Find the norm of the fit function f."

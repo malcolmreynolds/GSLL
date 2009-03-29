@@ -1,6 +1,6 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2009-03-23 22:25:34EDT stepping.lisp>
+;; Time-stamp: <2009-03-29 12:34:49EDT stepping.lisp>
 ;; $Id$
 
 ;; /usr/include/gsl/gsl_odeiv.h
@@ -21,14 +21,16 @@
   (callback ode-system
 	    (dimension)
 	    (function :success-failure
-		      ((:double)	     ; t (independent variable), input
-		       (:double :cvector dim0)) ; y (dependent variables), input
-		      (:double :cvector dim0))	; dydt, output
+		      (:input :double)	; t (independent variable)
+		      (:input :double :cvector dim0) ; y (dependent variables)
+		      (:output :double :cvector dim0) ; dydt
+		      :slug)
 	    (jacobian :success-failure
-		      ((:double)			    ; t, input
-		       (:double :cvector dim0))	    ; y, input
-		      ((:double :cvector dim0 dim0) ; dfdy, output
-		       (:double :cvector dim0))))   ; dfdt, output
+		      (:input :double)	; t (independent variable)
+		      (:input :double :cvector dim0) ; y (dependent variables)
+		      (:output :double :cvector dim0 dim0) ; dfdy
+		      (:output :double :cvector dim0)	   ; dydt
+		      :slug))
   :class-slots-instance (callback)
   :initialize-suffix "reset"
   :initialize-args nil

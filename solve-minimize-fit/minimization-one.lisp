@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-03-21 23:56:38EDT minimization-one.lisp>
+;; Time-stamp: <2009-03-29 12:13:30EDT minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,7 +20,8 @@
   "Make an instance of a minimizer of tphe given type.  Optionally
    set to use the function and the initial search interval [lower,
    upper], with a guess for the location of the minimum."
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :initialize-suffix "set"		; should use set_with_values?
   :initialize-args
   ((callback :pointer) (minimum :double) (lower :double) (upper :double))
@@ -180,17 +181,13 @@
 ;;; This is the example given in Sec. 33.8.  The results are different
 ;;; than given there.
 
-(defun minimization-one-fn (x)
-  (1+ (cos x)))
-
 (defun minimization-one-example
     (&optional (minimizer-type +brent-fminimizer+) (print-steps t))
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
   (let ((max-iter 100)
 	(minimizer
 	 (make-one-dimensional-minimizer
-	  minimizer-type 'minimization-one-fn
-	  2.0d0 0.0d0 6.0d0)))
+	  minimizer-type (lambda (x) (1+ (cos x))) 2.0d0 0.0d0 6.0d0)))
     (when print-steps
       (format
        t

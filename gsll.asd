@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-03-22 16:58:26EDT gsll.asd>
+;; Time-stamp: <2009-03-29 12:54:31EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -21,6 +21,7 @@
 	       (:file "mobject" :depends-on (init callback-compile-defs))
 	       (:file "callback-included" :depends-on (mobject))
 	       (:file "callback" :depends-on (init forms number-conversion callback-included))
+	       (:file "funcallable")
 	       (:file "types" :depends-on (init))
 	       (:file "complex-types" :depends-on (types))
 	       (:file "element-types" :depends-on (init complex-types))
@@ -171,6 +172,7 @@
 	       (:file "operations" :depends-on (histogram))
 	       (:file "probability-distribution" :depends-on (histogram))
 	       (:file "ntuple")))
+     #+(or)
      (:module calculus
 	      :depends-on (init data random)
 	      :components

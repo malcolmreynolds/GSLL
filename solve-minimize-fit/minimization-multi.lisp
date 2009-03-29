@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-03-28 23:41:15EDT minimization-multi.lisp>
+;; Time-stamp: <2009-03-29 12:43:30EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -63,14 +63,14 @@
    tol |p| |g|."
   :callbacks
   (callback gsl-mfunction-fdf (dimension)
-	    (function :double (:double :marray dim0) :slug)
+	    (function :double (:input :double :marray dim0) :slug)
 	    (df :void
-		(:double :marray dim0) :slug
-		(:double :marray dim0 dim0))
+		(:input :double :marray dim0) :slug
+		(:output :double :marray dim0 dim0))
 	    (fdf :void
-		 (:double :marray dim0) :slug
-		 (:double :cvector dim0)
-		 (:double :marray dim0 dim0)))
+		 (:input :double :marray dim0) :slug
+		 (:output :double :cvector dim0)
+		 (:output :double :marray dim0 dim0)))
   :initialize-suffix "set"
   :initialize-args
   ((callback :pointer) ((mpointer initial) :pointer)
@@ -355,7 +355,7 @@
     (set-all step-size 1.0d0)
     (let ((minimizer
 	   (make-multi-dimensional-minimizer-f
-	    method 2 ''paraboloid-scalar
+	    method 2 'paraboloid-scalar
 	    #m(5.0d0 7.0d0) step-size)))
       (loop with status = T and size
 	 for iter from 0 below 100
@@ -379,8 +379,7 @@
 ;;; Example using derivatives, taking a vector argument.
 ;;; Note that these functions are written to read objects of
 ;;; vector-double-float.  They could as well have been written to
-;;; accept the correct number of scalar double-floats, in which case
-;;; the last argument to the make-callbacks form would be t.
+;;; accept the correct number of scalar double-floats.
 
 (defun paraboloid-vector (gsl-vector)
   "A paraboloid function of two arguments, given in GSL manual Sec. 35.4.

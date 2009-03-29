@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-03-22 00:03:35EDT roots-multi.lisp>
+;;; Time-stamp: <2009-03-29 12:22:43EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -30,14 +30,16 @@
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
   :callbacks
   (callback gsl-mfunction (dimension)
-	    (function :success-failure
-		      (:double :marray dim0) (:double :marray dim0)))
+	    (function
+	     :success-failure
+	     (:input :double :marray dim0) :slug
+	     (:output :double :marray dim0)))
   :arglists-function
   (lambda (set)
     `((type &optional function-or-dimension (initial nil ,set) (scalarsp t))
       (:type type
-       :dimensions
-       (if ,set (dimensions initial) function-or-dimension))
+	     :dimensions
+	     (if ,set (dimensions initial) function-or-dimension))
       (:functions
        (list function-or-dimension) :initial initial :scalarsp scalarsp)))
   :inputs (initial))
@@ -56,15 +58,18 @@
   :callbacks
   (callback gsl-mfunction-fdf (dimension)
 	    (function :success-failure
-		      (:double :marray dim0)
-		      (:double :marray dim0))
+		      (:input :double :marray dim0)
+		      :slug
+		      (:output :double :marray dim0))
 	    (df :success-failure
-		(:double :marray dim0)
-		(:double :marray dim0 dim0))
+		(:input :double :marray dim0)
+		:slug
+		(:output :double :marray dim0 dim0))
 	    (fdf :success-failure
-		 (:double :marray dim0)
-		 (:double :marray dim0)
-		 (:double :marray dim0 dim0)))
+		 (:input :double :marray dim0)
+		 :slug
+		 (:output :double :marray dim0)
+		 (:output :double :marray dim0 dim0)))
   :arglists-function
   (lambda (set)
     `((type &optional function-or-dimension (initial nil ,set) 

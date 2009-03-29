@@ -1,6 +1,6 @@
 ;; Generate a lambda that calls the user function; will be called by callback.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-29 10:00:03EDT funcallable.lisp>
+;; Time-stamp: <2009-03-29 12:04:35EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -77,14 +77,19 @@
       ;; not setfable if it's a scalar
       foreign-variable-name))
 
-(defun array-element-refs (array-names argspecs dimension-values)
-  "A list of forms reference each array element in succession."
-  (loop for arg in argspecs
-     for count = (value-from-dimensions arg dimension-values t)
-     for name in array-names
-     append
-     (loop for i from 0 below count
-	collect (reference-foreign-element name i arg dimension-values))))
+(defun array-element-refs (names argspecs dimension-values)
+  "A list of forms reference each array element in succession.
+   If there is no argspec for the argument, just reference the variable itself."
+  (if argspecs
+      (loop for arg in argspecs
+	 for count = (when arg (value-from-dimensions arg dimension-values t))
+	 for name in names
+	 append
+	 (if arg
+	     (loop for i from 0 below count
+		collect (reference-foreign-element name i arg dimension-values))
+	     (list name)))
+      names))
 
 (defun callback-set-mvb (argument-names form fnspec dimension-values)
   "Create the multiple-value-bind form in the callback to set the return C arrays."
@@ -101,7 +106,6 @@
 	  (loop for i from 0 below count
 	     collect (make-symbol-cardinal 'setscalar i)))
 	 (setvbls (array-element-refs argument-names setargs dimension-values)))
-    ;;(lu:print-variables setargs counts count mvbvbls setvbls)
     (if (zerop count)
 	form
 	`(multiple-value-bind ,mvbvbls
@@ -142,18 +146,22 @@
 		      (parse-callback-argspec arg 'array-type))
 		 (list (pop oarg))
 		 (if (eql (parse-callback-argspec arg 'io) :input)
-		     (list (pop iarg)))))))
+		     (list (pop iarg))))))
+	 (function-designator
+	  (if (symbolp user-function)
+	      (let ((uf user-function)) `',uf)
+	      user-function)))
     `(lambda ,lambda-args
        ,(if (and scalarsp (or inargs-specs outargs-specs))
 	    (let ((call-form
 		   `(funcall
-		     ,user-function
+		     ,function-designator
 		     ,@(array-element-refs inargs-names inargs-specs dimension-values))))
 	      (if outargs-specs
 		  (callback-set-mvb outargs-names call-form fnspec dimension-values)
 		  ;; no specified output, return what the function returns
 		  call-form))
-	    `(funcall ,user-function ,@(append inargs-names outargs-names)))
+	    `(funcall ,function-designator ,@(append inargs-names outargs-names)))
        ,@(case
 	  (parse-callback-fnspec fnspec 'return-spec)
 	  (:success-failure
