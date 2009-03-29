@@ -1,6 +1,6 @@
 ;; Generate a lambda that calls the user function; will be called by callback.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-28 23:39:28EDT funcallable.lisp>
+;; Time-stamp: <2009-03-29 10:00:03EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -120,7 +120,7 @@
 ;;;; Create a lambda form suitable for call by defmcallback
 ;;;;****************************************************************************
 
-(defun make-funcallable (user-function fnspec scalarsp dimension-values)
+(defun make-funcallable-form (user-function fnspec scalarsp dimension-values)
   "Define a wrapper function to interface GSL with the user's function.
    scalarsp will be either T or NIL, depending on whether the user function
    expects and returns scalars, and dimension-values should be a list
@@ -167,3 +167,15 @@
 	  ;; If it isn't either of these things, return what the
 	  ;; function returned.
 	  (otherwise nil)))))
+
+(defun make-funcallables-for-object (object)
+  "Make compiled functions for the object that can be funcalled in the callback."
+  (setf
+   (slot-value object 'funcallables)
+   (mapcar
+    (lambda (fn fnspec)
+      (compile
+       nil
+       (make-funcallable-form fn fnspec (scalarsp object) (dimensions object))))
+    (functions object)
+    (parse-callback-static (callbacks object) 'functions))))
