@@ -1,6 +1,6 @@
 ;; The mobject that defines callbacks
 ;; Liam Healy 2009-03-14 11:20:03EDT callback-included.lisp
-;; Time-stamp: <2009-03-22 00:02:37EDT callback-included.lisp>
+;; Time-stamp: <2009-03-28 23:05:30EDT callback-included.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -55,11 +55,15 @@
 ;;;;****************************************************************************
 
 (defun select-dynamic-values (object n)
-  `(,(nth n (functions object))
-     ,(if (listp (scalarsp object))
-	  (nth n (scalarsp object))
-	  (scalarsp object))
-     ,@(dimensions object)))
+  (coerce
+   (make-funcallable
+    (nth n (functions object))
+    (nth n (parse-callback-static (callbacks object) 'functions))
+    (scalarsp object)
+    (dimensions object))
+   'function))
+
+
 
 ;;; This is expanded in defmfun to set the dynamic variables. 
 (defun callback-set-dynamic (callback-object arglist)

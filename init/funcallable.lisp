@@ -1,6 +1,6 @@
 ;; Generate a lambda that calls the user function; will be called by callback.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-28 18:11:09EDT funcallable.lisp>
+;; Time-stamp: <2009-03-28 23:39:28EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -41,6 +41,15 @@
       (lambda (arg)
 	(and (listp arg)
 	     (eql (parse-callback-argspec arg 'io) direction)))))
+
+(defun array-direction-specs (argspecs direction)
+  (remove-if-not
+   (lambda (arg)
+     (when
+	 (and (eql (parse-callback-argspec arg 'io) direction)
+	      (parse-callback-argspec arg 'dimensions))
+       arg))
+   argspecs))
 
 ;;;;****************************************************************************
 ;;;; Reference foreign elements and make multiple-value-bind form
@@ -106,6 +115,7 @@
 		      (loop for i from 0 below count
 			 append (list (pop svs) (pop mvv)))))))))
 
+
 ;;;;****************************************************************************
 ;;;; Create a lambda form suitable for call by defmcallback
 ;;;;****************************************************************************
@@ -115,32 +125,25 @@
    scalarsp will be either T or NIL, depending on whether the user function
    expects and returns scalars, and dimension-values should be a list
    of number(s), (dim0) or (dim0 dim1), or NIL."
-  (let* ((argspecs (parse-callback-fnspec fnspec 'arguments-spec))
-	 (paramsarg (make-symbol "PARAMS"))
-	 (inargs-specs (remove nil (mapcar (all-io :input) argspecs)))
+  (let* ((argspecs (remove :slug (parse-callback-fnspec fnspec 'arguments-spec)))
+	 (inargs-specs (array-direction-specs argspecs :input))
 	 (inargs-names
 	  (make-symbol-cardinals
 	   'input
 	   (length (remove nil (mapcar (all-io :input nil) argspecs)))))
-	 (outargs-specs (remove nil (mapcar (all-io :output) argspecs)))
+	 (outargs-specs (array-direction-specs argspecs :output))
 	 (outargs-names (make-symbol-cardinals 'output (length outargs-specs)))
 	 (lambda-args
 	  (loop for arg in argspecs
 	     with oarg = (copy-list outargs-names)
 	     and iarg = (copy-list inargs-names)
 	     append
-	     (if (eql arg :slug)
-		 (list paramsarg)
-		 (progn
-		   (if (and (eql (parse-callback-argspec arg 'io) :output)
-			    (parse-callback-argspec arg 'array-type))
-		       (list (pop oarg))
-		       (if (eql (parse-callback-argspec arg 'io) :input)
-			   (list (pop iarg)))))))))
+	     (if (and (eql (parse-callback-argspec arg 'io) :output)
+		      (parse-callback-argspec arg 'array-type))
+		 (list (pop oarg))
+		 (if (eql (parse-callback-argspec arg 'io) :input)
+		     (list (pop iarg)))))))
     `(lambda ,lambda-args
-       ;; Parameters as C argument are always ignored, because we have
-       ;; CL specials to do the same job.
-       (declare (ignore ,paramsarg))
        ,(if (and scalarsp (or inargs-specs outargs-specs))
 	    (let ((call-form
 		   `(funcall

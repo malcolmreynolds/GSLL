@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-03-22 00:03:34EDT minimization-multi.lisp>
+;; Time-stamp: <2009-03-28 23:41:15EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,7 +39,7 @@
    meaning of this parameter depends on the method used."
   :callbacks
   (callback gsl-mfunction (dimension)
-	    (function :double (:double :marray dim0)))
+	    (function :double (:input :double :marray dim0) :slug))
   :initialize-suffix "set"
   :initialize-args ;; Could have one fewer argument: dimension=(dim0 initial)
   ((callback :pointer) ((mpointer initial) :pointer)
@@ -63,12 +63,12 @@
    tol |p| |g|."
   :callbacks
   (callback gsl-mfunction-fdf (dimension)
-	    (function :double (:double :marray dim0))
+	    (function :double (:double :marray dim0) :slug)
 	    (df :void
-		(:double :marray dim0)
+		(:double :marray dim0) :slug
 		(:double :marray dim0 dim0))
 	    (fdf :void
-		 (:double :marray dim0)
+		 (:double :marray dim0) :slug
 		 (:double :cvector dim0)
 		 (:double :marray dim0 dim0)))
   :initialize-suffix "set"
@@ -355,7 +355,7 @@
     (set-all step-size 1.0d0)
     (let ((minimizer
 	   (make-multi-dimensional-minimizer-f
-	    method 2 'paraboloid-scalar
+	    method 2 ''paraboloid-scalar
 	    #m(5.0d0 7.0d0) step-size)))
       (loop with status = T and size
 	 for iter from 0 below 100
