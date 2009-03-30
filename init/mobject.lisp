@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-29 12:52:22EDT mobject.lisp>
+;; Time-stamp: <2009-03-29 23:04:45EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -106,7 +106,8 @@
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
 		    (and (not (callback-arg-p class-slots-instance callbacks))
-			 callbacks)))
+			 callbacks)
+		    superclasses))
 	   (export '(,maker ,class))
 	   ,@(when callbacks `((record-callbacks-for-class ',class ',callbacks)))
 	   ,@(when callbacks (make-mobject-defmcallbacks callbacks class))
@@ -142,7 +143,7 @@
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     callbacks)
+     callbacks superclasses)
   "Expand the reinitialize-instance form."
   (let ((cbstruct (make-symbol "CBSTRUCT")))
     `((defmfun reinitialize-instance
@@ -167,7 +168,9 @@
 	,@(when inputs `(:inputs ,inputs))
 	,@(when callbacks
 		`(:before
-		  ((make-funcallables-for-object object))
+		  (,@(when (member 'callback-included-cl superclasses)
+			   `((setf (slot-value object 'callback) ,cbstruct)))
+		   (make-funcallables-for-object object))
 		  :after
 		  ((trivial-garbage:finalize 
 		    object
@@ -226,7 +229,7 @@
 		       (tg:finalize object (lambda () (foreign-free ,cbs)))))))
 	 ;; There is an initialization step
 	 ,@(when initializerp
-		 (if initialize-args	; with arguments
+		 (if (or initialize-args arglists)	; with arguments
 		     (let ((reii 
 			    `(reinitialize-instance
 			      object

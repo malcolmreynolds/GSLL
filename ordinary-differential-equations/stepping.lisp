@@ -1,6 +1,6 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2009-03-29 12:34:49EDT stepping.lisp>
+;; Time-stamp: <2009-03-29 17:19:19EDT stepping.lisp>
 ;; $Id$
 
 ;; /usr/include/gsl/gsl_odeiv.h
@@ -31,10 +31,13 @@
 		      (:output :double :cvector dim0 dim0) ; dfdy
 		      (:output :double :cvector dim0)	   ; dydt
 		      :slug))
-  :class-slots-instance (callback)
   :initialize-suffix "reset"
   :initialize-args nil
-  :singular (dimension))
+  :arglists-function
+  (lambda (set)
+    `((type dimension &optional (function nil ,set) jacobian (scalarsp t))
+      (:type type :dimensions (list dimension))
+      (:functions (list function jacobian) :scalarsp scalarsp))))
 
 (cffi:defcstruct ode-system		; gsl_odeiv_system
   "The definition of an ordinary differential equation system for GSL."

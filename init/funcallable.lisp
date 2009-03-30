@@ -1,6 +1,6 @@
 ;; Generate a lambda that calls the user function; will be called by callback.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-29 12:04:35EDT funcallable.lisp>
+;; Time-stamp: <2009-03-29 22:37:19EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -42,12 +42,14 @@
 	(and (listp arg)
 	     (eql (parse-callback-argspec arg 'io) direction)))))
 
-(defun array-direction-specs (argspecs direction)
+(defun vspecs-direction (argspecs direction &optional array-only)
+  "Find the specs for all variables, or all array variables, with the
+   specified direction."
   (remove-if-not
    (lambda (arg)
      (when
 	 (and (eql (parse-callback-argspec arg 'io) direction)
-	      (parse-callback-argspec arg 'dimensions))
+	      (if array-only (parse-callback-argspec arg 'dimensions) t))
        arg))
    argspecs))
 
@@ -130,13 +132,13 @@
    expects and returns scalars, and dimension-values should be a list
    of number(s), (dim0) or (dim0 dim1), or NIL."
   (let* ((argspecs (remove :slug (parse-callback-fnspec fnspec 'arguments-spec)))
-	 (inargs-specs (array-direction-specs argspecs :input))
+	 (inargs-specs (vspecs-direction argspecs :input))
 	 (inargs-names
 	  (make-symbol-cardinals
 	   'input
 	   (length (remove nil (mapcar (all-io :input nil) argspecs)))))
-	 (outargs-specs (array-direction-specs argspecs :output))
-	 (outargs-names (make-symbol-cardinals 'output (length outargs-specs)))
+	 (outarrayp (vspecs-direction argspecs :output t))
+	 (outargs-names (make-symbol-cardinals 'output (length outarrayp)))
 	 (lambda-args
 	  (loop for arg in argspecs
 	     with oarg = (copy-list outargs-names)
@@ -152,16 +154,20 @@
 	      (let ((uf user-function)) `',uf)
 	      user-function)))
     `(lambda ,lambda-args
-       ,(if (and scalarsp (or inargs-specs outargs-specs))
+       ,(if (and scalarsp (or inargs-specs outarrayp))
 	    (let ((call-form
 		   `(funcall
 		     ,function-designator
 		     ,@(array-element-refs inargs-names inargs-specs dimension-values))))
-	      (if outargs-specs
+	      (if outarrayp
 		  (callback-set-mvb outargs-names call-form fnspec dimension-values)
 		  ;; no specified output, return what the function returns
 		  call-form))
-	    `(funcall ,function-designator ,@(append inargs-names outargs-names)))
+	    `(funcall ,function-designator
+		      ,@(if outarrayp
+			    (append inargs-names outargs-names)
+			    ;; no arrays to return, just return the value
+			    inargs-names)))
        ,@(case
 	  (parse-callback-fnspec fnspec 'return-spec)
 	  (:success-failure

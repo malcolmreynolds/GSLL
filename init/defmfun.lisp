@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-03-14 21:54:00EDT defmfun.lisp>
+;; Time-stamp: <2009-03-29 16:28:26EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -106,7 +106,9 @@
 	    ;; A list of variable names, and a list of callback names
 	    (when (or callbacks callback-object)
 	      (if callback-object
-		  (let ((class (category-for-argument arglist callback-object)))
+		  (let ((class (if (listp callback-object)
+				   (second (first callback-object))
+				   (category-for-argument arglist callback-object))))
 		    (list (mobject-fnvnames
 			   class
 			   (number-of-callbacks (get-callbacks-for-class class)))

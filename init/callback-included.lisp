@@ -1,6 +1,6 @@
 ;; The mobject that defines callbacks
 ;; Liam Healy 2009-03-14 11:20:03EDT callback-included.lisp
-;; Time-stamp: <2009-03-29 09:52:12EDT callback-included.lisp>
+;; Time-stamp: <2009-03-29 16:12:31EDT callback-included.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -59,8 +59,11 @@
 ;;;;****************************************************************************
 
 ;;; This is expanded in defmfun to set the dynamic variables. 
-(defun callback-set-dynamic (callback-object arglist)
+(defun callback-set-dynamic (callback-object &optional arglist)
   "Make a form to set the dynamic variable defining callbacks."
+  (when (listp callback-object)
+    (setf arglist callback-object
+	  callback-object (caar callback-object)))
   `((setf 
      ,@(loop for symb in
 	    (let ((class (category-for-argument arglist callback-object)))
@@ -68,4 +71,4 @@
 	       class
 	       (number-of-callbacks (get-callbacks-for-class class))))
 	    for n from 0
-	    append `(,symb (nth ,n (funcallables ,callback-object)))))))
+	    append `(,symb (nth ,n (funcallables ,callback-object))))))))
