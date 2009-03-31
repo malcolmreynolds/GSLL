@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-28 20:59:14EDT callback.lisp>
+;; Time-stamp: <2009-03-30 22:14:14EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -40,9 +40,13 @@
 	value))
 
 (defun set-slot-function (foreign-structure structure-name slot-name gsl-function)
+  "Set the slot in the cbstruct to the callback corresponding to gsl-function.
+   If gsl-function is nil, set to the null-pointer."
   (set-structure-slot
    foreign-structure structure-name slot-name
-   (cffi:get-callback gsl-function)))
+   (if gsl-function
+       (cffi:get-callback gsl-function)
+       (cffi:null-pointer))))
 
 (defun set-parameters (foreign-structure structure-name)
   "Set the parameters slot to null."
@@ -190,27 +194,32 @@
 ;;;; Form generation
 ;;;;****************************************************************************
 
-(defun callback-dynamic-lister (callback-dynamic)
-  (mapcar (lambda (l) (cons 'list l)) callback-dynamic))
-
-(defun callback-symbol-set (callbacks symbols)
+(defun callback-symbol-set (functions callbacks symbols)
   "Generate the form to set each of the dynamic (special) variables
    to (function scalarsp dimensions...) in the body of the demfun for
    each of the callback functions."
   (when callbacks
     `((setf
        ,@(loop for symb in symbols
-	    for list in (callback-dynamic-lister callbacks)
-	    append (list symb list))))))
+	    for function in functions
+	    for fnspec in (parse-callback-static callbacks 'functions)
+	    append
+	    `(,symb
+	      (make-compiled-funcallable
+	       ,(first function)
+	       ',fnspec
+	       ,(second function)
+	       ,(cddr function))))))))
 
 (defun callback-set-slots (callbacks dynamic-variables)
   (when callbacks
     `((set-cbstruct
        ,(parse-callback-static callbacks 'foreign-argument)
        ',(parse-callback-static callbacks 'callback-structure-type)
-       (mapcan 'list
-	       ',(parse-callback-static callbacks 'dimension-names)
-	       (cddr ,(caar dynamic-variables)))
+       ,(when (parse-callback-static callbacks 'dimension-names)
+	      `(mapcan 'list
+		       ',(parse-callback-static callbacks 'dimension-names)
+		       (cddr ,(caar dynamic-variables))))
        ,(cons
 	 'list
 	 (loop for symb in (second dynamic-variables)

@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-03-21 23:47:23EDT numerical-integration.lisp>
+;; Time-stamp: <2009-03-30 22:25:31EDT numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -23,7 +23,8 @@
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
    (result :double) (abserr :double) (neval sizet))
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation				       ; FDL
   "Apply the Gauss-Kronrod 10-point, 21-point, 43-point and
@@ -64,7 +65,8 @@
    (absolute-error :double) (relative-error :double)
    (limit sizet) (method integrate-method) ((mpointer workspace) :pointer)
    (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation			; FDL
   "Apply an integration rule adaptively until an estimate
@@ -98,7 +100,8 @@
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation			; FDL
   "Apply the Gauss-Kronrod 21-point integration rule
@@ -128,7 +131,8 @@
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :inputs (points)
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation			; FDL
   "Apply the adaptive integration algorithm QAGS taking
@@ -154,7 +158,8 @@
   ((callback :pointer)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation			; FDL
   "Compute the integral of the function f over the
@@ -175,7 +180,8 @@
   ((callback :pointer) (a :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation			; FDL
   "Compute the integral of the function f over the
@@ -192,7 +198,8 @@
   ((callback :pointer) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation			; FDL
   "Compute the integral of the function f over the
@@ -214,7 +221,8 @@
    (a :double) (b :double) (c :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
-  :callbacks (callback gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic ((function))
   :documentation			; FDL
   "Compute the Cauchy principal value of the integral of

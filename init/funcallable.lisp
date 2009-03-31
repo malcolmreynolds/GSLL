@@ -1,6 +1,6 @@
 ;; Generate a lambda that calls the user function; will be called by callback.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-29 22:37:19EDT funcallable.lisp>
+;; Time-stamp: <2009-03-30 21:08:16EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -193,3 +193,6 @@
        (make-funcallable-form fn fnspec (scalarsp object) (dimensions object))))
     (functions object)
     (parse-callback-static (callbacks object) 'functions))))
+
+(defun make-compiled-funcallable (function fnspec scalarsp dimensions)
+  (compile nil (make-funcallable-form function fnspec scalarsp dimensions)))
