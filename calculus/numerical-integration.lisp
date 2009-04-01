@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-02-15 14:43:39EST numerical-integration.lisp>
+;; Time-stamp: <2009-03-31 22:09:43EDT numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -23,7 +23,10 @@
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
    (result :double) (abserr :double) (neval sizet))
-  :documentation			; FDL
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
+  :documentation				       ; FDL
   "Apply the Gauss-Kronrod 10-point, 21-point, 43-point and
    87-point integration rules in succession until an estimate of the
    integral of f over (a,b) is achieved within the desired
@@ -62,6 +65,9 @@
    (absolute-error :double) (relative-error :double)
    (limit sizet) (method integrate-method) ((mpointer workspace) :pointer)
    (result :double) (abserr :double))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Apply an integration rule adaptively until an estimate
   of the integral of f over (a,b) is achieved within the
@@ -94,6 +100,9 @@
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Apply the Gauss-Kronrod 21-point integration rule
    adaptively until an estimate of the integral of f over
@@ -122,6 +131,9 @@
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :inputs (points)
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Apply the adaptive integration algorithm QAGS taking
    account of the user-supplied locations of singular points.  The array
@@ -146,6 +158,9 @@
   ((callback :pointer)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the integral of the function f over the
    infinite interval (-\infty,+\infty).  The integral is mapped onto the
@@ -165,6 +180,9 @@
   ((callback :pointer) (a :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the integral of the function f over the
    semi-infinite interval (a,+\infty).  The integral is mapped onto the
@@ -180,6 +198,9 @@
   ((callback :pointer) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the integral of the function f over the
    semi-infinite interval (-\infty,b).  The integral is mapped onto the
@@ -200,6 +221,9 @@
    (a :double) (b :double) (c :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the Cauchy principal value of the integral of
    f over (a,b), with a singularity at c,
@@ -217,10 +241,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(defun one-sine (x) (sin x))
-(make-callbacks single-function one-sine)
-
 (save-test numerical-integration
-  (integration-qng 'one-sine 0.0d0 pi)
-  (integration-QAG 'one-sine 0.0d0 pi :gauss15 20)
-  (integration-QAG 'one-sine 0.0d0 pi :gauss21 40))
+  (integration-qng 'sin 0.0d0 pi)
+  (integration-QAG 'sin 0.0d0 pi :gauss15 20)
+  (integration-QAG 'sin 0.0d0 pi :gauss21 40))

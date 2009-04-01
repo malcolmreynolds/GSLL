@@ -1,6 +1,6 @@
 ;; Example ODE                               
 ;; Liam Healy Sat Sep 29 2007 - 17:49
-;; Time-stamp: <2009-02-16 10:18:29EST ode-example.lisp>
+;; Time-stamp: <2009-03-29 22:51:51EDT ode-example.lisp>
 ;; $Id$
 
 ;;; van der Pol as given in Section 25.5 of the GSL manual.  To
@@ -26,8 +26,6 @@
 
 (defparameter *max-iter* 2000)
 
-(make-callbacks ode-stepper vanderpol vanderpol-jacobian 2)
-
 (defun integrate-vanderpol
     (max-time &optional (step-size 1.0d-6) (stepper +step-rk8pd+) (print-steps t))
   "Integrate the van der Pol oscillator as given in Section 25.5 of the
@@ -35,8 +33,8 @@
   (let ((mu 10.0d0) (initial-time 0.0d0) (iter 0))
     (declare (special mu))
     (with-ode-integration
-	((vanderpol vanderpol-jacobian)
-	 time step max-time (dep0 dep1) 2 stepper)
+	(vanderpol time step max-time (dep0 dep1) 2
+		   :jacobian vanderpol-jacobian :stepper stepper)
       (setf dep0 1.0d0 dep1 0.0d0 step step-size time initial-time)
       (loop
 	 (when (or (>= time max-time) (> iter *max-iter*))

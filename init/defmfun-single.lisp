@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-02-25 09:39:03EST defmfun-single.lisp>
+;; Time-stamp: <2009-03-31 21:37:38EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -71,17 +71,14 @@
     does not have the function defined."))
 
 (defun complete-definition
-    (definition name arglist gsl-name c-arguments key-args
+    (defn name arglist gsl-name c-arguments key-args
      &optional
      (body-maker 'body-no-optional-arg)
      (mapdown (eq body-maker 'body-optional-arg)))
   "A complete definition form, starting with defun, :method, or defmethod."
-  (destructuring-bind
-	(&key documentation before after
-	      qualifier gsl-version &allow-other-keys)
-      key-args
+  (with-defmfun-key-args key-args
     (if (have-at-least-gsl-version gsl-version)
-	`(,definition
+	`(,defn
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))
 	     ,@(when qualifier (list qualifier))
@@ -90,7 +87,7 @@
 	     (cl-argument-types arglist c-arguments)
 	     (set-difference	       ; find all the unused variables
 	      (arglist-plain-and-categories arglist nil)
-	      (union
+	      (remove-duplicates (union
 	       (if mapdown
 		   (apply 'union
 			  (mapcar 'variables-used-in-c-arguments c-arguments))
@@ -100,18 +97,18 @@
 		(cons
 		 'values
 		 (append before after
-			 (when (callback-arg-p
-				(variables-used-in-c-arguments c-arguments))
-			   '(function))	; hardwired name to use for callback
+			 (callback-symbol-set
+			  callback-dynamic callbacks (first callback-dynamic-variables))
 			 (let ((auxstart (position '&aux arglist)))
 			   ;; &aux bindings are checked
 			   (when auxstart
 			     (apply
 			      'append
 			      (mapcar 'rest (subseq arglist (1+ auxstart))))))))))))
+	     (first callback-dynamic-variables))
 	   ,@(when documentation (list documentation))
 	   ,(funcall body-maker name arglist gsl-name c-arguments key-args))
-	`(,definition
+	`(,defn
 	     ,@(when (and name (not (defgeneric-method-p name)))
 		     (list name))
 	     ,@(when qualifier (list qualifier))
@@ -174,8 +171,9 @@
 				    (first (cl-convert-form it))
 				    sym)))
 			    return))
-		   (mapcan #'cl-convert-form
-			   (callback-remove-arg allocated-decl 'st-symbol))
+		   (mapcan
+		    #'cl-convert-form
+		    (callback-remove-arg allocated-decl callbacks 'st-symbol))
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
@@ -183,46 +181,52 @@
 	  '(error 'pass-complex-by-value) ; arglist should be declared ignore
 	  (wrap-letlike
 	   allocated-decl
-	   (mapcar #'wfo-declare allocated-decl)
+	   (mapcar (lambda (d) (wfo-declare d callbacks))
+		   allocated-decl)
 	   'cffi:with-foreign-objects
-	   `(,@before
-	     ,@(callback-set-slots allocated callback-struct function)
-	     (let ((,cret-name
-		    (cffi:foreign-funcall
-		     ,gsl-name
-		     ,@(mapcan
-			(lambda (arg)
-			  (let ((cfind	; variable is complex
-				 (find (st-symbol arg) complex-args :key 'first)))
-			    (if cfind	; make two successive scalars
-				(passing-complex-by-value cfind)
-				;; otherwise use without conversion
-				(list (if (member (st-symbol arg) allocated)
-					  :pointer
-					  (st-type arg))
-				      (st-symbol arg)))))
-			c-arguments)
-		     ,cret-type)))
-	       ,@(case c-return
-		       (:void `((declare (ignore ,cret-name))))
-		       (:error-code	; fill in arguments
-			`((check-gsl-status ,cret-name
-					    ',(or (defgeneric-method-p name) name)))))
-	       #-native
-	       ,@(when outputs
-		       (mapcar
-			(lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
-			outputs))
-	       ,@(when (eq cret-type :pointer)
-		       `((check-null-pointer
-			  ,cret-name
-			  ,@'('memory-allocation-failure "No memory allocated."))))
-	       ,@after
-	       (values
-		,@(defmfun-return
-		   c-return cret-name clret allocated
-		   return return-supplied-p
-		   enumeration outputs)))))))))
+	   `(,@(append
+		(callback-symbol-set
+		 callback-dynamic callbacks (first callback-dynamic-variables))
+		before
+		(when callback-object (callback-set-dynamic callback-object arglist)))
+	       ,@(callback-set-slots
+		  callbacks callback-dynamic-variables callback-dynamic)
+	       (let ((,cret-name
+		      (cffi:foreign-funcall
+		       ,gsl-name
+		       ,@(mapcan
+			  (lambda (arg)
+			    (let ((cfind ; variable is complex
+				   (find (st-symbol arg) complex-args :key 'first)))
+			      (if cfind	; make two successive scalars
+				  (passing-complex-by-value cfind)
+				  ;; otherwise use without conversion
+				  (list (if (member (st-symbol arg) allocated)
+					    :pointer
+					    (st-type arg))
+					(st-symbol arg)))))
+			  c-arguments)
+		       ,cret-type)))
+		 ,@(case c-return
+			 (:void `((declare (ignore ,cret-name))))
+			 (:error-code	; fill in arguments
+			  `((check-gsl-status ,cret-name
+					      ',(or (defgeneric-method-p name) name)))))
+		 #-native
+		 ,@(when outputs
+			 (mapcar
+			  (lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
+			  outputs))
+		 ,@(when (eq cret-type :pointer)
+			 `((check-null-pointer
+			    ,cret-name
+			    ,@'('memory-allocation-failure "No memory allocated."))))
+		 ,@after
+		 (values
+		  ,@(defmfun-return
+		     c-return cret-name clret allocated
+		     return return-supplied-p
+		     enumeration outputs)))))))))
 
 (defun defmfun-return
     (c-return cret-name clret allocated return return-supplied-p enumeration outputs)

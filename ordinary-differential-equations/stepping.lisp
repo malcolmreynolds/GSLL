@@ -1,7 +1,9 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2009-02-16 09:57:47EST stepping.lisp>
+;; Time-stamp: <2009-03-31 22:33:39EDT stepping.lisp>
 ;; $Id$
+
+;; /usr/include/gsl/gsl_odeiv.h
 
 (in-package :gsl)
 
@@ -15,11 +17,35 @@
    should be reinitialized whenever the next use of it will not be a
    continuation of a previous step."
   :superclasses (callback-included-cl)
-  :ci-class-slots (ode-system marray (function jacobian) (dimension))
-  :class-slots-instance (#.+callback-argument-name+)
+  :callbacks
+  (callback ode-system
+	    (dimension)
+	    (function :success-failure
+		      (:input :double)	; t (independent variable)
+		      (:input :double :cvector dim0) ; y (dependent variables)
+		      (:output :double :cvector dim0) ; dydt
+		      :slug)
+	    (jacobian :success-failure
+		      (:input :double)	; t (independent variable)
+		      (:input :double :cvector dim0) ; y (dependent variables)
+		      (:output :double :cvector dim0 dim0) ; dfdy
+		      (:output :double :cvector dim0)	   ; dydt
+		      :slug))
   :initialize-suffix "reset"
   :initialize-args nil
-  :singular (dimension))
+  :arglists-function
+  (lambda (set)
+    `((type dimension &optional (function nil ,set) jacobian (scalarsp t))
+      (:type type :dimensions (list dimension))
+      (:functions (list function jacobian) :scalarsp scalarsp))))
+
+(cffi:defcstruct ode-system		; gsl_odeiv_system
+  "The definition of an ordinary differential equation system for GSL."
+  (function :pointer)
+  (jacobian :pointer)
+  (dimension sizet)
+  (parameters :pointer))
+
 
 #|
 This description applies when scalars=t:
@@ -50,33 +76,6 @@ values):
                                ...
          `d f_N / d y_1' `d f_N / d y_2' ... `d f_N / d y_N')
 |#
-
-(def-make-callbacks ode-stepper
-    (function jacobian dimension &optional (scalars t))
-  (if scalars
-      `(progn
-	 (defmcallback ,function
-	     :success-failure
-	   (:double (:double ,dimension) (:set :double ,dimension))
-	   nil nil
-	   ,function)
-	 (defmcallback ,jacobian
-	     :success-failure
-	   (:double
-	    (:double ,dimension)
-	    (:set :double ,(expt dimension 2))
-	    (:set :double ,dimension))
-	   nil nil ,jacobian))
-      `(progn
-	 (defmcallback ,function
-	     :success-failure
-	   (:double :pointer :pointer)
-	   nil nil
-	   ,function)
-	 (defmcallback ,jacobian
-	     :success-failure
-	   (:double :pointer :pointer :pointer)
-	   nil nil ,jacobian))))
 
 (defmfun name ((object ode-stepper))
   "gsl_odeiv_step_name"

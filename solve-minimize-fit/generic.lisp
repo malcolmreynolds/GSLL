@@ -1,6 +1,6 @@
 ;; Generic functions for optimization
 ;; Liam Healy 2009-01-03 12:59:07EST generic.lisp
-;; Time-stamp: <2009-02-21 16:47:51EST generic.lisp>
+;; Time-stamp: <2009-03-21 23:52:17EDT generic.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -34,7 +34,7 @@
   ;; See /usr/include/gsl/gsl_multiroots.h
   "The definition of a function for multiroot finding in GSL."
   (function :pointer)
-  (dimensions sizet)
+  (dimension sizet)
   (parameters :pointer))
 
 (cffi:defcstruct gsl-mfunction-fdf
@@ -44,7 +44,7 @@
   (function :pointer)
   (df :pointer)
   (fdf :pointer)
-  (dimensions sizet)
+  (dimension sizet)
   (parameters :pointer))
 
 ;;;;****************************************************************************

@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-02-16 09:55:06EST minimization-one.lisp>
+;; Time-stamp: <2009-03-29 12:13:30EDT minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,11 +17,11 @@
   ((type :pointer))
   "one-dimensional minimizer"
   :documentation			; FDL
-  "Make an instance of a minimizer of the given type.  Optionally
+  "Make an instance of a minimizer of tphe given type.  Optionally
    set to use the function and the initial search interval [lower,
    upper], with a guess for the location of the minimum."
-  :superclasses (callback-included)
-  :ci-class-slots (gsl-function nil (function))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :initialize-suffix "set"		; should use set_with_values?
   :initialize-args
   ((callback :pointer) (minimum :double) (lower :double) (upper :double))
@@ -57,6 +57,7 @@
   (((mpointer minimizer) :pointer))
   :definition :method
   :c-return :success-continue
+  :callback-object minimizer
   :documentation			; FDL
   "Perform a single iteration of the minimizer.  The following
    errors may be signalled: 'bad-function-supplied,
@@ -180,19 +181,13 @@
 ;;; This is the example given in Sec. 33.8.  The results are different
 ;;; than given there.
 
-(defun minimization-one-fn (x)
-  (1+ (cos x)))
-
-(make-callbacks single-function minimization-one-fn)
-
 (defun minimization-one-example
     (&optional (minimizer-type +brent-fminimizer+) (print-steps t))
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
   (let ((max-iter 100)
 	(minimizer
 	 (make-one-dimensional-minimizer
-	  minimizer-type 'minimization-one-fn
-	  2.0d0 0.0d0 6.0d0)))
+	  minimizer-type (lambda (x) (1+ (cos x))) 2.0d0 0.0d0 6.0d0)))
     (when print-steps
       (format
        t

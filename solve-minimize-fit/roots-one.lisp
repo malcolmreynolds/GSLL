@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-02-16 09:50:33EST roots-one.lisp>
+;; Time-stamp: <2009-03-29 11:50:01EDT roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,36 +14,28 @@
 (defmobject one-dimensional-root-solver-f "gsl_root_fsolver"
   ((type :pointer))
   "one-dimensional root solver with function only"
-  :superclasses (callback-included)
-  :ci-class-slots (gsl-function nil (function))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) (lower :double) (upper :double))
+  :callbacks
+  (callback gsl-function nil (function :double (:input :double) :slug))
   :singular (function))
 
 (defmobject one-dimensional-root-solver-fdf "gsl_root_fdfsolver"
   ((type :pointer))
   "one-dimensional root solver with function and derivative"
-  :superclasses (callback-included)
-  :ci-class-slots (gsl-function-fdf nil (function df fdf))
   :initialize-suffix "set"
-  :initialize-args ((callback :pointer) (root-guess :double)))
-
-(def-make-callbacks one-dimensional-root-solver-fdf (function df fdf)
-  `(progn
-     (defmcallback ,function
-	 :double :double
-	 nil
-	 nil
-	 ,function)
-     (defmcallback ,df
-	 :double :double
-	 nil
-	 nil
-	 ,df)
-     (defmcallback ,fdf
-	 :void :double ((:set :double 1) (:set :double 1)) 
-	 nil
-	 ,fdf)))
+  :initialize-args ((callback :pointer) (root-guess :double))
+  :callbacks
+  (callback gsl-function-fdf nil
+	    (function :double (:input :double) :slug)
+	    (df :double (:input :double) :slug)
+	    (fdf :void (:input :double) :slug
+		 (:output :double :cvector 1) (:output :double :cvector 1)))
+  :arglists-function
+  (lambda (set)
+    `((type &optional (function nil ,set) df fdf root-guess)
+      (:type type)
+      (:functions (list function df fdf) :root-guess root-guess))))
 
 (defmfun name ((solver one-dimensional-root-solver-f))
   "gsl_root_fsolver_name"
@@ -70,6 +62,7 @@
   "gsl_root_fsolver_iterate"
   (((mpointer solver) :pointer))
   :definition :method
+  :callback-object solver
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -82,6 +75,7 @@
   "gsl_root_fdfsolver_iterate"
   (((mpointer solver) :pointer))
   :definition :method
+  :callback-object solver
   :documentation			; FDL
   "Perform a single iteration of the solver.  The following errors may
    be signalled: 'bad-function-supplied, the iteration encountered a
@@ -302,10 +296,6 @@
     (values (+ (* (+ (* a x) b) x) c)
 	    (+ (* 2 a x) b))))
 
-(make-callbacks single-function quadratic)
-(make-callbacks one-dimensional-root-solver-fdf
-		quadratic quadratic-derivative quadratic-and-derivative)
-
 (defun roots-one-example-no-derivative
     (&optional (method +brent-fsolver+) (print-steps t))
   "Solving a quadratic, the example given in Sec. 32.10 of the GSL manual."
@@ -336,7 +326,7 @@
 	 (initial 5.0d0)
 	 (solver (make-one-dimensional-root-solver-fdf
 		  method
-		  '(quadratic quadratic-derivative quadratic-and-derivative)
+		  'quadratic 'quadratic-derivative 'quadratic-and-derivative
 		  initial)))
     (when print-steps
       (format t "iter ~6t ~8troot ~22terr ~34terr(est)~&"))

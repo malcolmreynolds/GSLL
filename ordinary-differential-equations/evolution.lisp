@@ -1,6 +1,6 @@
 ;; Evolution functions for ODE integration.
 ;; Liam Healy, Sun Sep 30 2007 - 14:31
-;; Time-stamp: <2009-02-15 08:58:47EST evolution.lisp>
+;; Time-stamp: <2009-03-29 16:25:04EDT evolution.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,6 +22,7 @@
    ((c-pointer step-size) :pointer) ((c-pointer y) :pointer))
   :inputs (time step-size y)
   :outputs (time step-size y)
+  :callback-object ((stepper ode-stepper))
   :documentation			; FDL
   "Advance the system (e, dydt) from time
    and position y using the stepping function step.
@@ -33,4 +34,3 @@
    changed the value of step-size will be modified on output.  The maximum
    time max-time is guaranteed not to be exceeded by the time-step.  On the
    final time-step the value of time will be set to t1 exactly.")
-

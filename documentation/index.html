@@ -312,22 +312,14 @@ area of memory.</p>
  <h3>Passing functions</h3>
  <p>
  Functions that are passed to GSL functions (known as <i>callbacks</i>
- in C) are defined by writing an ordinary CL function or functions and
- then calling <code>make-callbacks</code> with arguments that
- depend on the application.  Functions or objects that require a
- callback will accept the symbol representing the first or only function
- defined in the <code>make-callbacks</code>.  For example, after
- defining an ordinary CL function <code>mcrw</code>,
- <pre>
-   (make-callbacks monte-carlo mcrw 3)
-   (monte-carlo-integrate-plain 'mcrw lower upper nsamples rng ws)
- </pre>
- <p>
- In some cases, the CL function can be written to accept and return
- either scalars or arrays.  See examples for numerical
-   integration, numerical differentiation, Chebyshev, root solvers,
-    minimizers, Monte Carlo, nonlinear least squares, and ordinary
-    differential equation solvers.
+ in C) are specified with a
+ <a href="http://www.lispworks.com/documentation/HyperSpec/Body/26_glo_f.htm#function_designator">function
+ designator</a> for the CL function, that is, either the function
+ object itself or a symbol denoting the function.
+ There is usually an option <code>scalarsp</code> for functions
+ that take or return arrays that, if true, will
+ send the user function the argument element by element, and expect
+ the return values to be the individual elements. 
  </p>
 
  <h3>GSL objects</h3>
@@ -396,7 +388,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-03-20 11:54:53EDT index.html>
+Time-stamp: <2009-03-31 22:41:54EDT index.html>
 </small>
 <!-- hhmts end -->
  </div>

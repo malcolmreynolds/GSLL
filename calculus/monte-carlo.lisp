@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-02-16 10:16:43EST monte-carlo.lisp>
+;; Time-stamp: <2009-03-31 22:07:09EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,6 +9,15 @@
 ;;; /usr/include/gsl/gsl_monte_plain.h
 ;;; /usr/include/gsl/gsl_monte_miser.h
 ;;; /usr/include/gsl/gsl_monte_vegas.h
+
+;;;;****************************************************************************
+;;;; Callback definition
+;;;;****************************************************************************
+
+(cffi:defcstruct monte-function
+  (function :pointer)
+  (dimensions sizet)
+  (parameters :pointer))
 
 ;;;;****************************************************************************
 ;;;; PLAIN Monte Carlo
@@ -28,7 +37,8 @@
   (x :pointer))
 
 (defmfun monte-carlo-integrate-plain
-    (function lower-limits upper-limits calls generator state)
+    (function lower-limits upper-limits calls generator state
+	      &optional (scalars t))
   "gsl_monte_plain_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
@@ -37,7 +47,10 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callback-struct monte-function
+  :callbacks
+  (callback monte-function (dimensions)
+	    (function :double (:input :double :cvector dim0) :slug))
+  :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
   "Uses the plain Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -104,7 +117,8 @@
  `(foreign-slot-value ,workspace 'miser-state ',parameter))
 
 (defmfun monte-carlo-integrate-miser
-    (function lower-limits upper-limits calls generator state)
+    (function lower-limits upper-limits calls generator state
+	      &optional (scalars t))
   "gsl_monte_miser_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
@@ -113,7 +127,10 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callback-struct monte-function
+  :callbacks
+  (callback monte-function (dimensions)
+	    (function :double (:input :double :cvector dim0) :slug))
+  :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
   "Uses the miser Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -190,7 +207,8 @@
  `(foreign-slot-value ,workspace 'vegas-state ',parameter))
 
 (defmfun monte-carlo-integrate-vegas
-    (function lower-limits upper-limits calls generator state)
+    (function lower-limits upper-limits calls generator state
+	      &optional (scalars t))
   "gsl_monte_vegas_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
@@ -199,7 +217,10 @@
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
-  :callback-struct monte-function
+  :callbacks
+  (callback monte-function (dimensions)
+	    (function :double (:input :double :cvector dim0) :slug))
+  :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
   "Uses the vegas Monte Carlo algorithm to integrate the
    function f over the dim-dimensional hypercubic region
@@ -215,22 +236,6 @@
    consistent with 1 for the weighted average to be reliable.")
 
 ;;;;****************************************************************************
-;;;; Callback definition
-;;;;****************************************************************************
-
-(cffi:defcstruct monte-function
-  (function :pointer)
-  (dimensions sizet)
-  (parameters :pointer))
-
-(def-make-callbacks monte-carlo (function dimension)
-  `(defmcallback ,function
-       :double ((:double ,dimension))
-       nil
-       nil
-       ,function))
-
-;;;;****************************************************************************
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
@@ -240,8 +245,6 @@
   "Example function for Monte Carlo used in random walk studies."
   (* (/ (expt pi 3))
      (/ (- 1 (* (cos x) (cos y) (cos z))))))
-
-(make-callbacks monte-carlo mcrw 3)
 
 (defun random-walk-plain-example (&optional (nsamples 500000))
   (let ((ws (make-monte-carlo-plain 3))
