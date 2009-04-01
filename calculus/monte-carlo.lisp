@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-03-30 22:29:48EDT monte-carlo.lisp>
+;; Time-stamp: <2009-03-31 22:07:09EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -49,8 +49,8 @@
   :inputs (lower-limits upper-limits)
   :callbacks
   (callback monte-function (dimensions)
-	    (function :double (:double :cvector dim0) :slug))
-  :callback-dynamic ((function scalars (dim0 lower-limits)))
+	    (function :double (:input :double :cvector dim0) :slug))
+  :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
   "Uses the plain Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -128,8 +128,9 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function (dimensions) (function :double (:double :cvector dim0)))
-  :callback-dynamic ((function scalars (dim0 lower-limits)))
+  (callback monte-function (dimensions)
+	    (function :double (:input :double :cvector dim0) :slug))
+  :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
   "Uses the miser Monte Carlo algorithm to integrate the
    function f over the hypercubic region defined by the
@@ -217,8 +218,9 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function (dimensions) (function :double (:double :cvector dim0)))
-  :callback-dynamic ((function scalars (dim0 lower-limits)))
+  (callback monte-function (dimensions)
+	    (function :double (:input :double :cvector dim0) :slug))
+  :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
   "Uses the vegas Monte Carlo algorithm to integrate the
    function f over the dim-dimensional hypercubic region

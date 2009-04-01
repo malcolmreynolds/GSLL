@@ -1,6 +1,6 @@
 ;; Generate a lambda that calls the user function; will be called by callback.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-30 21:08:16EDT funcallable.lisp>
+;; Time-stamp: <2009-03-31 22:22:50EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -112,9 +112,7 @@
 	form
 	`(multiple-value-bind ,mvbvbls
 	     ,form
-	   (setf ,@(loop for arg in setargs
-		      for mvbvbl in mvbvbls
-		      for count in counts
+	   (setf ,@(loop for count in counts
 		      with svs = (copy-list setvbls)
 		      and mvv = (copy-list mvbvbls)
 		      append

@@ -1,6 +1,6 @@
 ;; The mobject that defines callbacks
 ;; Liam Healy 2009-03-14 11:20:03EDT callback-included.lisp
-;; Time-stamp: <2009-03-29 16:12:31EDT callback-included.lisp>
+;; Time-stamp: <2009-03-31 22:10:34EDT callback-included.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -71,4 +71,4 @@
 	       class
 	       (number-of-callbacks (get-callbacks-for-class class))))
 	    for n from 0
-	    append `(,symb (nth ,n (funcallables ,callback-object))))))))
+	    append `(,symb (nth ,n (funcallables ,callback-object)))))))

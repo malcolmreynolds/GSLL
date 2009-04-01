@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-30 22:14:14EDT callback.lisp>
+;; Time-stamp: <2009-03-31 22:15:12EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -135,13 +135,6 @@
 ;;;   &optional (return-spec 'double-float) (argument-spec 'double-float)
 ;;;             set1-spec set2-spec)
 ;;; and each of the *-spec are (type array-type &rest dimensions).
-;;; The :callback-dynamic is a list of functions corresponding in
-;;; order to the cddr of the :callbacks argument (function... ) in which
-;;; each element is a list of (function scalarsp &rest dimensions)
-;;; where
-;;; function = function designator, 
-;;; scalarsp = flag determining whether to pass/accept scalars or arrays
-;;; dimensions = dimension of the problem
 
 (defun parse-callback-static (callbacks component)
   "Get the information component from the callbacks list."
@@ -194,14 +187,29 @@
 ;;;; Form generation
 ;;;;****************************************************************************
 
-(defun callback-symbol-set (functions callbacks symbols)
+;;; The :callback-dynamic is a list of the form
+;;; (dimensions (function scalarsp) ...)
+;;; This is used in defmfuns that send callbacks directly, with no mobject.
+;;; With functions given in the same order as
+;;; the in the :callbacks argument
+;;; function = function designator, 
+;;; scalarsp = flag determining whether to pass/accept scalars or arrays
+;;; dimensions = source dimensions, a list
+
+(defun cbd-dimensions (callback-dynamic)
+  (first callback-dynamic))
+
+(defun cbd-functions (callback-dynamic)
+  (rest callback-dynamic))
+
+(defun callback-symbol-set (callback-dynamic callbacks symbols)
   "Generate the form to set each of the dynamic (special) variables
    to (function scalarsp dimensions...) in the body of the demfun for
    each of the callback functions."
   (when callbacks
     `((setf
        ,@(loop for symb in symbols
-	    for function in functions
+	    for function in (cbd-functions callback-dynamic)
 	    for fnspec in (parse-callback-static callbacks 'functions)
 	    append
 	    `(,symb
@@ -209,17 +217,20 @@
 	       ,(first function)
 	       ',fnspec
 	       ,(second function)
-	       ,(cddr function))))))))
+	       ,(cons 'list (cbd-dimensions callback-dynamic)))))))))
 
-(defun callback-set-slots (callbacks dynamic-variables)
+(defun callback-set-slots (callbacks dynamic-variables callback-dynamic)
+  "Set the slots in the foreign callback struct."
   (when callbacks
     `((set-cbstruct
        ,(parse-callback-static callbacks 'foreign-argument)
        ',(parse-callback-static callbacks 'callback-structure-type)
        ,(when (parse-callback-static callbacks 'dimension-names)
-	      `(mapcan 'list
-		       ',(parse-callback-static callbacks 'dimension-names)
-		       (cddr ,(caar dynamic-variables))))
+	      (cons 'list
+		    (loop
+		       for dim-name in (parse-callback-static callbacks 'dimension-names)
+		       for dim in (cbd-dimensions callback-dynamic)
+		       append (list `',dim-name dim))))
        ,(cons
 	 'list
 	 (loop for symb in (second dynamic-variables)

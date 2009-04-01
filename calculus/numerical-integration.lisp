@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-03-30 22:25:31EDT numerical-integration.lisp>
+;; Time-stamp: <2009-03-31 22:09:43EDT numerical-integration.lisp>
 ;; $Id$
 
 ;;; To do: QAWS, QAWO, QAWF, more tests
@@ -25,7 +25,7 @@
    (result :double) (abserr :double) (neval sizet))
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation				       ; FDL
   "Apply the Gauss-Kronrod 10-point, 21-point, 43-point and
    87-point integration rules in succession until an estimate of the
@@ -67,7 +67,7 @@
    (result :double) (abserr :double))
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Apply an integration rule adaptively until an estimate
   of the integral of f over (a,b) is achieved within the
@@ -102,7 +102,7 @@
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Apply the Gauss-Kronrod 21-point integration rule
    adaptively until an estimate of the integral of f over
@@ -133,7 +133,7 @@
   :inputs (points)
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Apply the adaptive integration algorithm QAGS taking
    account of the user-supplied locations of singular points.  The array
@@ -160,7 +160,7 @@
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the integral of the function f over the
    infinite interval (-\infty,+\infty).  The integral is mapped onto the
@@ -182,7 +182,7 @@
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the integral of the function f over the
    semi-infinite interval (a,+\infty).  The integral is mapped onto the
@@ -200,7 +200,7 @@
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the integral of the function f over the
    semi-infinite interval (-\infty,b).  The integral is mapped onto the
@@ -223,7 +223,7 @@
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
-  :callback-dynamic ((function))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the Cauchy principal value of the integral of
    f over (a,b), with a singularity at c,
