@@ -1,6 +1,6 @@
 ;; The mobject that defines callbacks
 ;; Liam Healy 2009-03-14 11:20:03EDT callback-included.lisp
-;; Time-stamp: <2009-03-31 22:10:34EDT callback-included.lisp>
+;; Time-stamp: <2009-03-31 22:33:09EDT callback-included.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -53,6 +53,15 @@
       (dimensions :initform '(1) :allocation :class)
       (scalarsp :initform T :allocation :class))
      (:documentation ,documentation)))
+
+(defmethod print-object ((object callback-included) stream)
+  (print-unreadable-object (object stream :type t :identity t)
+    (when (slot-boundp object 'functions)
+      (princ "for " stream)
+      (princ (first (functions object)) stream)
+      (princ ", " stream))
+    (princ "dimensions " stream)
+    (princ (dimensions object) stream)))
 
 ;;;;****************************************************************************
 ;;;; For making mobjects

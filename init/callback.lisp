@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-31 22:15:12EDT callback.lisp>
+;; Time-stamp: <2009-03-31 22:33:11EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -82,47 +82,6 @@
   (let ((cbstruct (cffi:foreign-alloc struct)))
     (set-cbstruct cbstruct struct slots-values function-slotnames)
     cbstruct))
-
-;;;;****************************************************************************
-;;;; to be obsolete make-callbacks
-;;;;****************************************************************************
-
-(defgeneric make-callbacks-fn (class args)
-  (:documentation "Function to make forms that expand into defmcallback(s)."))
-
-(eval-when (:compile-toplevel :load-toplevel)
-  (defvar *callback-table* (make-hash-table :size 20)))
-
-(defmacro def-make-callbacks (class arglist &body body)
-  `(eval-when (:compile-toplevel :load-toplevel)
-     (setf (gethash ',class *callback-table*)
-	   (lambda ,arglist ,@body))))
-
-(def-make-callbacks single-function (function)
-  `(defmcallback ,function
-       :double :double
-       nil
-       t
-       ,function))
-
-(export 'make-callbacks)
-(defmacro make-callbacks (class &rest args)
-  "Make the callbacks for the named class.  The args are generally of the form
-     function [function...] dimension [dimension ...] scalars
-   If 'scalars is T, the functions will be called with scalars, and should
-   return answer as multiple values with #'values.  If it is NIL, it will
-   be called with two arguments; it should read the values from the first
-   array and write the answer in the second array."
-  (apply (gethash class *callback-table*) args))
-
-(defmethod print-object ((object callback-included) stream)
-  (print-unreadable-object (object stream :type t :identity t)
-    (when (slot-boundp object 'functions)
-      (princ "for " stream)
-      (princ (first (functions object)) stream)
-      (princ "," stream))
-    (princ "dimensions " stream)
-    (princ (dimensions object) stream)))
 
 ;;;;****************************************************************************
 ;;;; Parsing :callback argument specification

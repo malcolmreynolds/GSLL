@@ -1,6 +1,6 @@
 ;; Stepping functions for ODE systems.
 ;; Liam Healy, Mon Sep 24 2007 - 21:33
-;; Time-stamp: <2009-03-29 17:19:19EDT stepping.lisp>
+;; Time-stamp: <2009-03-31 22:33:39EDT stepping.lisp>
 ;; $Id$
 
 ;; /usr/include/gsl/gsl_odeiv.h
@@ -45,37 +45,6 @@
   (jacobian :pointer)
   (dimension sizet)
   (parameters :pointer))
-
-
-#|
-(def-make-callbacks ode-stepper
-    (function jacobian dimension &optional (scalars t))
-  (if scalars
-      `(progn
-	 (defmcallback ,function
-	     :success-failure
-	   (:double (:double ,dimension) (:set :double ,dimension))
-	   nil nil
-	   ,function)
-	 (defmcallback ,jacobian
-	     :success-failure
-	   (:double
-	    (:double ,dimension)
-	    (:set :double ,(expt dimension 2))
-	    (:set :double ,dimension))
-	   nil nil ,jacobian))
-      `(progn
-	 (defmcallback ,function
-	     :success-failure
-	   (:double :pointer :pointer)
-	   nil nil
-	   ,function)
-	 (defmcallback ,jacobian
-	     :success-failure
-	   (:double :pointer :pointer :pointer)
-	   nil nil ,jacobian))))
-|#
-
 
 
 #|
