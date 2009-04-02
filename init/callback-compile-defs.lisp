@@ -1,6 +1,6 @@
 ;; Definitions for macro expansion
 ;; Liam Healy 2009-03-15 14:50:28EDT callback-compile-defs.lisp
-;; Time-stamp: <2009-03-18 22:46:59EDT callback-compile-defs.lisp>
+;; Time-stamp: <2009-04-01 21:36:12EDT callback-compile-defs.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -25,8 +25,8 @@
     `(make-cbstruct
       ',(parse-callback-static cbs 'callback-structure-type)
       (when (dimension-names object)
-	(mapcan 'list (dimension-names object) (dimensions object)))
-      ,@(mapcan
+	(mappend 'list (dimension-names object) (dimensions object)))
+      ,@(mappend
 	 'list
 	 (mapcar
 	  (lambda (fn) `',(parse-callback-fnspec fn 'structure-slot-name))

@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-03-31 21:37:38EDT defmfun-single.lisp>
+;; Time-stamp: <2009-04-01 21:36:13EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -32,14 +32,14 @@
 				      (find-package :keyword))))
 		   (list sexp))
 		 (unless (member (first sexp) '(quote))
-		   (mapcan #'scwfv (rest sexp))))))
+		   (mappend #'scwfv (rest sexp))))))
     (remove nil (remove-duplicates (scwfv sexp)))))
 
 (defun variables-used-in-c-arguments (c-arguments)
   "Find the arguments passed to the C function.  This is a poor
   quality code walker, but is sufficient for actual usage of defmfun."
   (remove-duplicates
-   (mapcan (lambda (carg)
+   (mappend (lambda (carg)
 	     (stupid-code-walk-find-variables (st-symbol carg)))
 	   c-arguments)
    :from-end t))
@@ -171,7 +171,7 @@
 				    (first (cl-convert-form it))
 				    sym)))
 			    return))
-		   (mapcan
+		   (mappend
 		    #'cl-convert-form
 		    (callback-remove-arg allocated-decl callbacks 'st-symbol))
 		   outputs
@@ -194,7 +194,7 @@
 	       (let ((,cret-name
 		      (cffi:foreign-funcall
 		       ,gsl-name
-		       ,@(mapcan
+		       ,@(mappend
 			  (lambda (arg)
 			    (let ((cfind ; variable is complex
 				   (find (st-symbol arg) complex-args :key 'first)))
@@ -233,7 +233,7 @@
   "Generate the return computation expression for defmfun."
   (case c-return
     (:number-of-answers
-     (mapcan
+     (mappend
       (lambda (vbl seq)
 	`((when (> ,cret-name ,seq) ,vbl)))
       clret

@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-03-29 23:04:45EDT mobject.lisp>
+;; Time-stamp: <2009-04-01 21:36:13EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -266,7 +266,7 @@
 (defun symbol-keyword-symbol (symbol &optional singular)
   "Make a list of key symbol, listifying if singular."
   (if (listp symbol)
-      (mapcan (lambda (s) (symbol-keyword-symbol s singular)) symbol)
+      (mappend (lambda (s) (symbol-keyword-symbol s singular)) symbol)
       (if (member (singular-symbol symbol) singular)
 	  (list (intern (symbol-name symbol) :keyword)
 		`(list ,(singular-symbol symbol)))

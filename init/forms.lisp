@@ -1,6 +1,6 @@
 ;; Lisp forms
 ;; Liam Healy 2009-03-07 15:49:25EST forms.lisp
-;; Time-stamp: <2009-03-14 18:44:04EDT forms.lisp>
+;; Time-stamp: <2009-04-01 21:33:58EDT forms.lisp>
 
 (in-package :gsl)
 
@@ -39,3 +39,12 @@
     (let ((pos (position symbol plain)))
       (when pos
 	(nth pos cats)))))
+
+;;;;****************************************************************************
+;;;; Utility
+;;;;****************************************************************************
+
+;;; http://common-lisp.net/project/bdb/qbook/mycl-util/api/function_005FMYCL-UTIL_003A_003AMAPPEND.html
+(defun mappend (fn &rest lsts)
+  "maps elements in list and finally appends all resulted lists."
+  (apply #'append (apply #'mapcar fn lsts)))
