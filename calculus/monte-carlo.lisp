@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-03-31 22:07:09EDT monte-carlo.lisp>
+;; Time-stamp: <2009-04-01 21:25:08EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,13 +36,21 @@
   (dim sizet)
   (x :pointer))
 
+(defparameter *monte-carlo-default-samples-per-dimension* 150000)
+
 (defmfun monte-carlo-integrate-plain
-    (function lower-limits upper-limits calls generator state
-	      &optional (scalars t))
+    (function lower-limits upper-limits 
+	      &optional
+	      (number-of-samples
+	       (* *monte-carlo-default-samples-per-dimension*
+		  (dim0 lower-limits)))
+	      (generator (make-random-number-generator +mt19937+ 0))
+	      (state (make-monte-carlo-plain (dim0 lower-limits)))
+	      (scalars t))
   "gsl_monte_plain_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
-   ((dim0 lower-limits) sizet) (calls sizet)
+   ((dim0 lower-limits) sizet) (number-of-samples sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
@@ -57,7 +65,7 @@
    lower and upper limits in the arrays 'lower-limits and
    'upper-limits, each a gsl-vector of length dim.
    The integration uses a fixed number
-   of function calls calls, and obtains random sampling points using
+   of function calls number-of-samples, and obtains random sampling points using
    the random number generator 'generator. A previously allocated workspace
    'state must be supplied.  The result of the integration is returned
    with an estimated absolute error.")
@@ -114,15 +122,21 @@
    integration method."
   ;; (miser-parameter ws min-calls)
   ;; (setf (miser-parameter ws min-calls) 300)
- `(foreign-slot-value ,workspace 'miser-state ',parameter))
+ `(cffi:foreign-slot-value ,workspace 'miser-state ',parameter))
 
 (defmfun monte-carlo-integrate-miser
-    (function lower-limits upper-limits calls generator state
-	      &optional (scalars t))
+    (function lower-limits upper-limits 
+	      &optional
+	      (number-of-samples
+	       (* *monte-carlo-default-samples-per-dimension*
+		  (dim0 lower-limits)))
+	      (generator (make-random-number-generator +mt19937+ 0))
+	      (state (make-monte-carlo-miser (dim0 lower-limits)))
+	      (scalars t))
   "gsl_monte_miser_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
-   ((dim0 lower-limits) sizet) (calls sizet)
+   ((dim0 lower-limits) sizet) (number-of-samples sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
@@ -137,7 +151,7 @@
    lower and upper limits in the arrays 'lower-limits and
    'upper-limits, each a gsl-vector of the samelength
    The integration uses a fixed number
-   of function calls calls, and obtains random sampling points using
+   of function calls number-of-samples, and obtains random sampling points using
    the random number generator 'generator. A previously allocated workspace
    'state must be supplied.  The result of the integration is returned
    with an estimated absolute error.")
@@ -204,15 +218,21 @@
    integration method."
   ;; (vegas-parameter ws bins-max)
   ;; (setf (vegas-parameter ws bins-max) 300)
- `(foreign-slot-value ,workspace 'vegas-state ',parameter))
+ `(cffi:foreign-slot-value ,workspace 'vegas-state ',parameter))
 
 (defmfun monte-carlo-integrate-vegas
-    (function lower-limits upper-limits calls generator state
-	      &optional (scalars t))
+    (function lower-limits upper-limits 
+	      &optional
+	      (number-of-samples
+	       (* *monte-carlo-default-samples-per-dimension*
+		  (dim0 lower-limits)))
+	      (generator (make-random-number-generator +mt19937+ 0))
+	      (state (make-monte-carlo-vegas (dim0 lower-limits)))
+	      (scalars t))
   "gsl_monte_vegas_integrate"
   ((callback :pointer)
    ((c-pointer lower-limits) :pointer) ((c-pointer upper-limits) :pointer)
-   ((dim0 lower-limits) sizet) (calls sizet)
+   ((dim0 lower-limits) sizet) (number-of-samples sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
    (result :double) (abserr :double))
@@ -222,18 +242,18 @@
 	    (function :double (:input :double :cvector dim0) :slug))
   :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
-  "Uses the vegas Monte Carlo algorithm to integrate the
-   function f over the dim-dimensional hypercubic region
-   defined by the lower and upper limits in the arrays x1 and
-   xu, each of the same length.  The integration uses a fixed number
-   of function calls calls, and obtains random sampling points using
-   the random number generator r.  A previously allocated workspace
-   s must be supplied.  The result of the integration is returned
-   with an estimated absolute error.  The result
-   and its error estimate are based on a weighted average of independent
-   samples. The chi-squared per degree of freedom for the weighted average
-   is returned via the state struct component, s->chisq, and must be
-   consistent with 1 for the weighted average to be reliable.")
+  "Uses the vegas Monte Carlo algorithm to integrate the function f
+   over the dim-dimensional hypercubic region defined by the lower and
+   upper limits in the arrays x1 and xu, each of the same length.  The
+   integration uses a fixed number of function calls
+   number-of-samples, and obtains random sampling points using the
+   random number generator r.  A previously allocated workspace s must
+   be supplied.  The result of the integration is returned with an
+   estimated absolute error.  The result and its error estimate are
+   based on a weighted average of independent samples. The chi-squared
+   per degree of freedom for the weighted average is returned via the
+   state struct component, s->chisq, and must be consistent with 1 for
+   the weighted average to be reliable.")
 
 ;;;;****************************************************************************
 ;;;; Examples and unit test
@@ -246,26 +266,19 @@
   (* (/ (expt pi 3))
      (/ (- 1 (* (cos x) (cos y) (cos z))))))
 
+(defparameter *mc-lower* #m(0.0d0 0.0d0 0.0d0))
+
+(defparameter *mc-upper*
+  (make-marray 'double-float :initial-contents (list pi pi pi)))
+
 (defun random-walk-plain-example (&optional (nsamples 500000))
-  (let ((ws (make-monte-carlo-plain 3))
-	(lower #m(0.0d0 0.0d0 0.0d0))
-	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	(rng (make-random-number-generator +mt19937+ 0)))
-    (monte-carlo-integrate-plain 'mcrw lower upper nsamples rng ws)))
+  (monte-carlo-integrate-plain 'mcrw *mc-lower* *mc-upper* nsamples))
 
 (defun random-walk-miser-example (&optional (nsamples 500000))
-  (let ((ws (make-monte-carlo-miser 3))
-	(lower #m(0.0d0 0.0d0 0.0d0))
-	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	(rng (make-random-number-generator +mt19937+ 0)))
-    (monte-carlo-integrate-miser 'mcrw lower upper nsamples rng ws)))
+  (monte-carlo-integrate-miser 'mcrw *mc-lower* *mc-upper* nsamples))
 
 (defun random-walk-vegas-example (&optional (nsamples 500000))
-  (let ((ws (make-monte-carlo-vegas 3))
-	(lower #m(0.0d0 0.0d0 0.0d0))
-	(upper (make-marray 'double-float :initial-contents (list pi pi pi)))
-	(rng (make-random-number-generator +mt19937+ 0)))
-    (monte-carlo-integrate-vegas 'mcrw lower upper nsamples rng ws)))
+  (monte-carlo-integrate-vegas 'mcrw *mc-lower* *mc-upper* nsamples))
 
 (save-test monte-carlo
   (random-walk-plain-example)
