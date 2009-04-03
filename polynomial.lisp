@@ -1,14 +1,11 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2009-01-31 19:34:56EST polynomial.lisp>
+;; Time-stamp: <2009-04-02 21:58:22EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_poly.h
-
-;;; Provide autotranslation from CL pure arrays?
-;;; Divided differences not complete/tested.
 
 ;;;;****************************************************************************
 ;;;; Polynomial Evaluation
@@ -62,7 +59,8 @@
 ;;;; Divided Difference Representation of Polynomials
 ;;;;****************************************************************************
 
-(defmfun divided-difference (dd xa ya)
+(defmfun divided-difference
+    (xa ya &optional (dd (make-marray 'double-float :dimensions (dim0 xa))))
   "gsl_poly_dd_init"
   (((c-pointer dd) :pointer)
    ((c-pointer xa) :pointer) ((c-pointer ya) :pointer)
@@ -77,23 +75,27 @@
    divided-differences of (xa,ya) are stored in the array
    dd, of the same length.")
 
-(defmfun taylor-divided-difference (coefs xp dd xa workspace)
+(defmfun taylor-divided-difference
+    (xp dd xa
+	&optional
+	(coefficients (make-marray 'double-float :dimensions (dim0 xa)))
+	(workspace (make-marray 'double-float :dimensions (dim0 xa))))
   "gsl_poly_dd_taylor"
-  (((c-pointer coefs) :pointer)
+  (((c-pointer coefficients) :pointer)
    (xp :double)
    ((c-pointer dd) :pointer)
    ((c-pointer xa) :pointer)
    ((dim0 xa) sizet)
    ((c-pointer workspace) :pointer))
-  :inputs (coefs xa)
-  :outputs (coefs)
+  :inputs (dd xa)
+  :outputs (coefficients)
   :documentation			; FDL
   "Convert the divided-difference representation of a
   polynomial to a Taylor expansion.  The divided-difference representation
   is supplied in the arrays dd and xa of the same length.
   On output the Taylor coefficients of the polynomial expanded about the
-  point xp are stored in the array coefs which has the same length
-  as xa and dd.  A workspace of that length must be provided.")
+  point xp are stored in the array coefficients which has the same length
+  as xa and dd.")
 
 ;;;;****************************************************************************
 ;;;; Quadratic Equations
@@ -177,10 +179,8 @@
 ;;;;****************************************************************************
 
 (save-test polynomial
- (let ((xa #m(0.0d0 1.0d0 2.0d0 3.0d0))
-       (ya #m(2.5d0 7.2d0 32.7d0 91.0d0))
-       (dd (make-marray 'double-float :dimensions 4)))
-   (divided-difference dd xa ya)
+ (let* ((xa #m(0.0d0 1.0d0 2.0d0 3.0d0))
+	(dd (divided-difference xa #m(2.5d0 7.2d0 32.7d0 91.0d0))))
    (list
     (evaluate xa 0.0d0 :divided-difference dd)
     (evaluate xa 1.0d0 :divided-difference dd)
@@ -194,5 +194,46 @@
  (solve-cubic -6.0d0 -13.0d0 42.0d0)
  (solve-cubic-complex -1.0d0 1.0d0 -1.0d0)
  ;; Example from GSL manual
- (cl-array (polynomial-solve #m(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0))))
+ (copy (polynomial-solve #m(-1.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0)) 'array)
+ ;; tests from gsl-1.11/poly/test.c
+ (evaluate #m(1 0.5 0.3) 0.5d0)
+ (evaluate #m(1 -1 1 -1 1 -1 1 -1 1 -1 1) 1.0d0)
+ (solve-quadratic 4.0d0 -20.0d0 26.0d0)		  ; no roots
+ (solve-quadratic 4.0d0 -20.0d0 25.0d0)		  ; one root
+ (solve-quadratic 4.0d0 -20.0d0 21.0d0)		  ; two roots
+ (solve-quadratic 4.0d0 7.0d0 0.0d0)		  ; two roots
+ (solve-quadratic 5.0d0 0.0d0 -20.0d0)		  ; two roots
+ (solve-quadratic 0.0d0 3.0d0 -21.0d0)		  ; one root (linear)
+ (solve-quadratic 0.0d0 0.0d0 1.0d0)
+ (solve-cubic 0.0d0 0.0d0 -27.0d0)		      ; one root
+ (solve-cubic -51.0d0 867.0d0 -4913.0d0)	      ; three roots
+ (solve-cubic -57.0d0 1071.0d0 -6647.0d0)	      ; three roots
+ (solve-cubic -11.0d0 -493.0d0 +6647.0d0)	      ; three roots
+ (solve-cubic -143.0d0 5087.0d0 -50065.0d0)	      ; three roots
+ (solve-cubic -109.0d0 803.0d0 50065.0d0)	      ; three roots
+ (solve-quadratic-complex 4.0d0 -20.0d0 26.0d0)
+ (solve-quadratic-complex 4.0d0 -20.0d0 25.0d0)
+ (solve-quadratic-complex 4.0d0 -20.0d0 21.0d0)
+ (solve-quadratic-complex 4.0d0 7.0d0 0.0d0)
+ (solve-quadratic-complex 5.0d0 0.0d0 -20.0d0)
+ (solve-quadratic-complex 5.0d0 0.0d0 20.0d0)
+ (solve-quadratic-complex 0.0d0 3.0d0 -21.0d0)
+ (solve-quadratic-complex 0.0d0 0.0d0 1.0d0)
+ (solve-cubic-complex 0.0d0 0.0d0 -27.0d0)
+ (solve-cubic-complex -1.0d0 1.0d0 39.0d0)
+ (solve-cubic-complex -51.0d0 867.0d0 -4913.0d0)
+ (solve-cubic-complex -57.0d0 1071.0d0 -6647.0d0)
+ (solve-cubic-complex -11.0d0 -493.0d0 +6647.0d0)
+ (solve-cubic-complex -143.0d0 5087.0d0 -50065.0d0)
+ (copy (polynomial-solve #m(-120 274 -225 85 -15 1.0)) 'array)
+ (copy (polynomial-solve #m(1 0 0 0 1 0 0 0 1)) 'array)
+ (let* ((xa #m(0.16 0.97 1.94 2.74 3.58 3.73 4.70))
+	(ya #m(0.73 1.11 1.49 1.84 2.30 2.41 3.07))
+	(dd (divided-difference xa ya)))
+   (list
+    (copy dd 'array)
+    (map 'vector (lambda (x) (evaluate xa x :divided-difference dd)) (copy xa 'array))
+    (map 'vector
+	 (lambda (x) (evaluate (taylor-divided-difference 1.5d0 dd xa) (- x 1.5d0)))
+	 (copy xa 'array)))))
 
