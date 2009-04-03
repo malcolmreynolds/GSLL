@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-03-31 22:50:57EDT callback.lisp>
+;; Time-stamp: <2009-04-02 22:32:19EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -200,15 +200,15 @@
 
 (defun callback-args (argspec)
   "The arguments passed by GSL to the callback function."
-  (mapcar (lambda (arg)
-	    (if (listp arg)
-		(let ((symbol (gensym "ARG")))
-		  (list symbol
-			(if (parse-callback-argspec arg 'array-type)
-			    :pointer	; C array
-			    (parse-callback-argspec arg 'element-type))))
-		arg))
-	  argspec))
+  (loop for arg in argspec
+     with count = -1
+     collect
+     (if (listp arg)
+	 (list (make-symbol-cardinal "ARG" (incf count))
+	       (if (parse-callback-argspec arg 'array-type)
+		   :pointer		; C array
+		   (parse-callback-argspec arg 'element-type)))
+	 arg)))
 
 ;;;;****************************************************************************
 ;;;; Macro defmcallback

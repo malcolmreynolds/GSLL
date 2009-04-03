@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-03-29 16:28:26EDT defmfun.lisp>
+;; Time-stamp: <2009-04-02 22:48:34EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -106,17 +106,20 @@
 	    ;; A list of variable names, and a list of callback names
 	    (when (or callbacks callback-object)
 	      (if callback-object
-		  (let ((class (if (listp callback-object)
-				   (second (first callback-object))
-				   (category-for-argument arglist callback-object))))
+		  (let ((class
+			 (if (listp callback-object)
+			     (second (first callback-object))
+			     (category-for-argument arglist callback-object))))
 		    (list (mobject-fnvnames
 			   class
 			   (number-of-callbacks (get-callbacks-for-class class)))
 			  nil))
 		  (let ((num-callbacks (number-of-callbacks callbacks)))
 		    (list
-		     (loop repeat num-callbacks collect (gensym "DYNFN"))
-		     (loop repeat num-callbacks collect (gensym "CBFN")))))))
+		     (make-symbol-cardinals
+		      (list name 'dynfn) num-callbacks :gsl)
+		     (make-symbol-cardinals
+		      (list name 'cbfn) num-callbacks :gsl))))))
       (wrap-index-export
        (cond
 	 ((eq definition :generic)

@@ -1,6 +1,6 @@
 ;; Generate a lambda that calls the user function; will be called by callback.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-31 22:22:50EDT funcallable.lisp>
+;; Time-stamp: <2009-04-02 22:34:03EDT funcallable.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,13 +8,6 @@
 ;;;;****************************************************************************
 ;;;; Utility 
 ;;;;****************************************************************************
-
-(defun make-symbol-cardinal (name i)
-  (make-symbol (format nil "~:@(~a~)~d" name i)))
-
-(defun make-symbol-cardinals (name max-count)
-  (loop for i from 0 below max-count
-       collect (make-symbol-cardinal name i)))
 
 (defun value-from-dimensions (argspec dimension-values &optional total)
   "Return a list of numerical sizes for dimensions of an array.  If
