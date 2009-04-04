@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-04-01 21:36:13EDT mobject.lisp>
+;; Time-stamp: <2009-04-04 09:51:08EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -45,7 +45,6 @@
 ;;; allocator
 ;;; allocate-inputs
 ;;; freer
-;;; class-slots-instance
 ;;; callbacks
 ;;;   See callbacks.lisp
 ;;; superclasses
@@ -58,7 +57,7 @@
     (class prefix allocation-args description 
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
-     class-slots-instance callbacks
+     callbacks
      (superclasses (if callbacks '(callback-included) '(mobject)))
      singular)
   "Define the class, the allocate, initialize-instance and
@@ -105,8 +104,7 @@
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
-		    (and (not (callback-arg-p class-slots-instance callbacks))
-			 callbacks)
+		    callbacks
 		    superclasses))
 	   (export '(,maker ,class))
 	   ,@(when callbacks `((record-callbacks-for-class ',class ',callbacks)))
@@ -114,7 +112,7 @@
 	   ,(mobject-maker
 	     maker arglists class cl-alloc-args cl-initialize-args
 	     description documentation initialize-args initializerp settingp
-	     singular class-slots-instance callbacks))
+	     singular callbacks))
 	`(progn
 	   (export ',maker)
 	   (defun ,maker (&rest args)
@@ -182,7 +180,7 @@
 (defun mobject-maker
     (maker arglists class cl-alloc-args cl-initialize-args
      description documentation initialize-args initializerp settingp
-     singular class-slots-instance callbacks)
+     singular callbacks)
   "Make the defun form that makes the mobject."
   (when callbacks
     (setf cl-initialize-args (append cl-initialize-args '((scalarsp t)))))
@@ -194,8 +192,6 @@
 	      (singularize
 	       singular
 	       `(,@cl-alloc-args
-		 ,@(callback-replace-arg
-		    'functions class-slots-instance callbacks)
 		 ,@(when initargs
 			 (append
 			  (list
@@ -211,22 +207,9 @@
 	      (make-instance
 	       ',class
 	       ,@(when callbacks `(:callbacks ',callbacks))
-	       ,@(symbol-keyword-symbol
-		  (callback-remove-arg class-slots-instance callbacks))
-	       ,@(when (callback-arg-p class-slots-instance callbacks)
-		       (symbol-keyword-symbol 'functions))
 	       ,@(if arglists
 		     (second arglists)
 		     (symbol-keyword-symbol cl-alloc-args singular)))))
-	 ;; There is callback slot variable
-	 ,@(when (callback-arg-p class-slots-instance callbacks)
-		 (with-unique-names (cbs)
-		   `((let ((,cbs ,(make-cbstruct-object class)))
-		       (setf (slot-value
-			      object
-			      ',(parse-callback-static callbacks 'foreign-argument))
-			     ,cbs)
-		       (tg:finalize object (lambda () (foreign-free ,cbs)))))))
 	 ;; There is an initialization step
 	 ,@(when initializerp
 		 (if (or initialize-args arglists)	; with arguments

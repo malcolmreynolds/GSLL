@@ -1,6 +1,6 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2009-01-27 21:32:59EST init.lisp>
+;; Time-stamp: <2009-04-04 09:55:29EDT init.lisp>
 ;; $Id$
 
 (defpackage gsll
@@ -38,21 +38,3 @@
 #+sbcl
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (pushnew :native *features*))
-
-#+openmcl
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (pushnew :callback-toplevel-only *features*))
-
-;;; CFFI currently doesn't allow uninterned callback names for CCL;
-;;; patch here.  This patch can be removed once the fix in CFFI:
-;;; http://common-lisp.net/pipermail/cffi-devel/2009-January/003046.html
-;;; makes it into a released version.
-#-openmcl (import 'cl-utilities:with-unique-names :gsll)
-
-#+openmcl
-(defmacro gsll::with-unique-names ((&rest bindings) &body body)
-  `(cl-utilities:with-unique-names
-       (,@bindings)
-     (let ,(mapcar (lambda (symb) `(,symb (intern (symbol-name ,symb))))
-		   bindings)
-       ,@body)))

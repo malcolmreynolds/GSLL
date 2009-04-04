@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-04-02 22:32:19EDT callback.lisp>
+;; Time-stamp: <2009-04-04 09:55:41EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -125,9 +125,6 @@
 ;;;;****************************************************************************
 ;;;; Using callback specification in function arugments
 ;;;;****************************************************************************
-
-(defun callback-arg-p (arglist callbacks &optional key)
-  (member (parse-callback-static callbacks 'foreign-argument) arglist :key key))
 
 (defun callback-replace-arg (replacement list callbacks)
   "Replace in the list the symbol representing the foreign callback argument."

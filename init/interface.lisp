@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-31 22:51:22EDT interface.lisp>
+;; Time-stamp: <2009-04-04 12:02:28EDT interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -141,8 +141,8 @@
       ;; Insufficient version number handled by binding a special of
       ;; the same name to the condition.  It would be nice to signal
       ;; the error, but it least this will provide some information.
-      `(defparameter ,cl-symbol
-	 (make-condition
+      `(define-symbol-macro ,cl-symbol
+	 (error
 	  'obsolete-gsl-version :name ',cl-symbol :gsl-name
 	  ,gsl-symbol :gsl-version ',gsl-version ))))
 
