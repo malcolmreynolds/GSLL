@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-04-04 09:55:40EDT gsll.asd>
+;; Time-stamp: <2009-04-04 17:56:17EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -178,6 +178,8 @@
 	    :depends-on (init data random)
 	    :components
 	    ((:file "numerical-integration")
+	     (:file "numerical-integration-with-tables"
+		    :depends-on (numerical-integration))
 	     (:file "monte-carlo")
 	     (:file "numerical-differentiation")))
    (:module ordinary-differential-equations

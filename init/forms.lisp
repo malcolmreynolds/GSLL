@@ -1,6 +1,6 @@
 ;; Lisp forms
 ;; Liam Healy 2009-03-07 15:49:25EST forms.lisp
-;; Time-stamp: <2009-04-02 22:34:03EDT forms.lisp>
+;; Time-stamp: <2009-04-04 19:08:43EDT forms.lisp>
 
 (in-package :gsl)
 
@@ -39,4 +39,21 @@
     (let ((pos (position symbol plain)))
       (when pos
 	(nth pos cats)))))
+
+(defun after-llk (arglist)
+  "The portion of the arglist from the first llk on."
+  (loop for elt in arglist
+       with seen = nil
+       when (or seen (member elt *defmfun-llk*))
+       do (setf seen t)
+       when seen collect elt))
+
+#|
+;;; Oddly, this gives a warning in SBCL but works the same.
+(defun after-llk (arglist)
+  "The portion of the arglist from the first llk on."
+  (when (intersection *defmfun-llk* arglist)
+    (subseq arglist
+	    (some (lambda (itm) (position itm arglist)) *defmfun-llk*))))
+|#
 

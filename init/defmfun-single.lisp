@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-04-01 21:36:13EDT defmfun-single.lisp>
+;; Time-stamp: <2009-04-04 18:47:47EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -99,12 +99,12 @@
 		 (append before after
 			 (callback-symbol-set
 			  callback-dynamic callbacks (first callback-dynamic-variables))
-			 (let ((auxstart (position '&aux arglist)))
-			   ;; &aux bindings are checked
+			   ;; &optional/&key/&aux defaults are checked
+			 (let ((auxstart (after-llk arglist)))
 			   (when auxstart
 			     (apply
 			      'append
-			      (mapcar 'rest (subseq arglist (1+ auxstart))))))))))))
+			      (mapcar 'rest (remove-if 'atom auxstart)))))))))))
 	     (first callback-dynamic-variables))
 	   ,@(when documentation (list documentation))
 	   ,(funcall body-maker name arglist gsl-name c-arguments key-args))

@@ -1,20 +1,32 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-03-31 22:09:43EDT numerical-integration.lisp>
+;; Time-stamp: <2009-04-04 19:35:50EDT numerical-integration.lisp>
 ;; $Id$
-
-;;; To do: QAWS, QAWO, QAWF, more tests
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_integration.h
 
 ;;;;****************************************************************************
+;;;; Default error values
+;;;;****************************************************************************
+
+(export '(*default-absolute-error* *default-relative-error*))
+
+(defparameter *default-absolute-error* 1.0d-5
+  "The default absolute error used in numerical integration.")
+
+(defparameter *default-relative-error* 0.0d0
+  "The default relative error used in numerical integration.")
+
+;;;;****************************************************************************
 ;;;; QNG non-adaptive Gauss-Kronrod integration
 ;;;;****************************************************************************
 
 (defmfun integration-QNG
-    (function a b &optional (absolute-error 1.0d0) (relative-error 1.0d0))
+    (function a b
+	      &optional (absolute-error *default-absolute-error*)
+	      (relative-error *default-relative-error*))
   ;; Set absolute-error and relative-error to 1 because it apparently doesn't matter
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
@@ -26,7 +38,7 @@
   :callbacks
   (callback gsl-function nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
-  :documentation				       ; FDL
+  :documentation			; FDL
   "Apply the Gauss-Kronrod 10-point, 21-point, 43-point and
    87-point integration rules in succession until an estimate of the
    integral of f over (a,b) is achieved within the desired
@@ -53,9 +65,11 @@
   :gauss41 :gauss51 :gauss61)
 
 (defmfun integration-QAG
-    (function a b method limit 
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
-	      (workspace (make-integration-workspace limit)))
+    (function a b method
+	      &optional
+	      (absolute-error *default-absolute-error*)
+	      (relative-error *default-relative-error*)
+	      (limit 1000) (workspace (make-integration-workspace limit)))
   ;; Set absolute-error and relative-error to 1 because it apparently doesn't matter
   ;; what these are if they are too large, it will do a minimum number
   ;; of points anyway.
@@ -92,9 +106,10 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAGS
-    (function a b limit
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
-	      (workspace (make-integration-workspace limit)))
+    (function a b 
+	      &optional (absolute-error *default-absolute-error*)
+	      (relative-error *default-relative-error*)
+	      (limit 1000) (workspace (make-integration-workspace limit)))
   "gsl_integration_qags"
   ((callback :pointer)
    (a :double) (b :double)
@@ -122,12 +137,14 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAGP
-    (function points limit
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
-	      (workspace (make-integration-workspace limit)))
+    (function points
+	      &optional
+	      (absolute-error *default-absolute-error*)
+	      (relative-error *default-relative-error*)
+	      (limit 1000) (workspace (make-integration-workspace limit)))
   "gsl_integration_qagp"
   ((callback :pointer)
-   ((mpointer points) :pointer) ((dim0 points) sizet)
+   ((c-pointer points) :pointer) ((dim0 points) sizet)
    (absolute-error :double) (relative-error :double) (limit sizet)
    ((mpointer workspace) :pointer) (result :double) (abserr :double))
   :inputs (points)
@@ -151,9 +168,11 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAGi
-    (function limit
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
-	      (workspace (make-integration-workspace limit)))
+    (function 
+     &optional
+     (absolute-error *default-absolute-error*)
+     (relative-error *default-relative-error*)
+     (limit 1000) (workspace (make-integration-workspace limit)))
   "gsl_integration_qagi"
   ((callback :pointer)
    (absolute-error :double) (relative-error :double) (limit sizet)
@@ -173,9 +192,11 @@
    this case a lower-order rule is more efficient.")
 
 (defmfun integration-QAGiu
-    (function a limit
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
-	      (workspace (make-integration-workspace limit)))
+    (function a
+	      &optional
+	      (absolute-error *default-absolute-error*)
+	      (relative-error *default-relative-error*)
+	      (limit 1000) (workspace (make-integration-workspace limit)))
   "gsl_integration_qagiu"
   ((callback :pointer) (a :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
@@ -191,9 +212,11 @@
    and then integrated using the QAGS algorithm.")
 
 (defmfun integration-QAGil
-    (function b limit
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
-	      (workspace (make-integration-workspace limit)))
+    (function b
+	      &optional
+	      (absolute-error *default-absolute-error*)
+	      (relative-error *default-relative-error*)
+	      (limit 1000) (workspace (make-integration-workspace limit)))
   "gsl_integration_qagil"
   ((callback :pointer) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
@@ -213,9 +236,11 @@
 ;;;;****************************************************************************
 
 (defmfun integration-QAWC
-    (function a b c limit
-	      &optional (absolute-error 1.0d0) (relative-error 1.0d0)
-	      (workspace (make-integration-workspace limit)))
+    (function a b c 
+	      &optional
+	      (absolute-error *default-absolute-error*)
+	      (relative-error *default-relative-error*)
+	      (limit 1000) (workspace (make-integration-workspace limit)))
   "gsl_integration_qawc"
   ((callback :pointer)
    (a :double) (b :double) (c :double)
@@ -241,7 +266,97 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
+;;; CCL 1.2 returns a complex number when the exponent is a double
+;;; float even if it's positive whole number value.  This is a
+;;; workaround.
+#+ccl
+(defun nn-expt (base power)
+  (if (= power (floor power))
+      (expt base (floor power))
+      (expt base power)))
+
+(defun integration-test-f1 (alpha)
+  (lambda (x) (* (expt x alpha) (log (/ x)))))
+
+(defun integration-test-f3 (alpha)
+  (lambda (x) (cos (* (expt 2 alpha) (sin x)))))
+
+(defun integration-test-f11 (alpha)
+  (lambda (x) (#+ccl nn-expt #-ccl expt (log (/ x)) (1- alpha))))
+
+(defun integration-test-f15 (alpha)
+  (lambda (x) (* x x (exp (* (- (expt 2 (- alpha))) x)))))
+
+(defun integration-test-f16 (alpha)
+  (lambda (x)
+    (cond
+      ((and (= alpha 1.0d0) (zerop x)) 1.0d0)
+      ((and (> alpha 1.0d0) (zerop x)) 0.0d0)
+      (t (/ (#+ccl nn-expt #-ccl expt x (1- alpha))
+	    (expt (1+ (* 10 x)) 2))))))
+
+(defun integration-test-f454 (x)
+  (* (expt x 3) (* (log (abs (* (- (expt x 2) 1.0d0) (- (expt x 2) 2.0d0)))))))
+
+(defun integration-test-f455 (x)
+  (/ (log x) (1+ (* 100 x x))))
+
+(defun integration-test-f459 (x)
+  (/ (+ (* 5.0d0 (expt x 3)) 6.0d0)))
+
+(defun integration-test-myfn1 (x)
+  (exp (- (- x) (expt x 2))))
+
+(defun integration-test-myfn2 (alpha)
+  (lambda (x) (exp (* alpha x))))
+
 (save-test numerical-integration
-  (integration-qng 'sin 0.0d0 pi)
-  (integration-QAG 'sin 0.0d0 pi :gauss15 20)
-  (integration-QAG 'sin 0.0d0 pi :gauss21 40))
+ (integration-qng 'sin 0.0d0 pi)
+ (integration-QAG 'sin 0.0d0 pi :gauss15 20)
+ (integration-QAG 'sin 0.0d0 pi :gauss21 40)
+ ;; Tests from gsl-1.11/integration/test.c
+ ;; Functions defined in gsl-1.11/integration/tests.c
+ (integration-QNG (integration-test-f1 2.6d0) 0.0d0 1.0d0 0.1d0 0.0d0)
+ (integration-QNG (integration-test-f1 2.6d0) 1.0d0 0.0d0 0.1d0 0.0d0)
+ (integration-QNG (integration-test-f1 2.6d0) 0.0d0 1.0d0 0.0d0 1.0d-9)
+ (integration-QNG (integration-test-f1 2.6d0) 1.0d0 0.0d0 0.0d0 1.0d-9)
+ (integration-QNG (integration-test-f3 1.3d0) 0.3d0 2.71d0 0.0d0 1d-12)
+ (integration-QNG (integration-test-f3 1.3d0) 2.71d0 0.3d0 0.0d0 1d-12)
+ (integration-QNG (integration-test-f1 2.6d0) 0.0d0 1.0d0 0.0d0 1.0d-13)
+ (integration-QNG (integration-test-f1 2.6d0) 1.0d0 0.0d0 0.0d0 1.0d-13)
+ (integration-QNG (integration-test-f1 -0.9d0) 0.0d0 1.0d0 0.0d0 1.0d-3) ; error
+ (integration-QNG (integration-test-f1 -0.9d0) 1.0d0 0.0d0 0.0d0 1.0d-3) ; error
+ (integration-QAG
+  (integration-test-f1 2.6d0) 0.0d0 1.0d0 :gauss15 0.0d0 1.0d-10 1000)
+ (integration-QAG
+  (integration-test-f1 2.6d0) 1.0d0 0.0d0 :gauss15 0.0d0 1.0d-10 1000)
+ (integration-QAG
+  (integration-test-f1 2.6d0) 0.0d0 1.0d0 :gauss21 1.0d-14 0.0d0 1000)
+ (integration-QAG
+  (integration-test-f1 2.6d0) 1.0d0 0.0d0 :gauss21 1.0d-14 0.0d0 1000)
+ (integration-QAG			; roundoff error
+  (integration-test-f3 1.3d0) 0.3d0 2.71d0 :gauss31 1.0d-14 0.0d0 1000)
+ (integration-QAG			; roundoff error
+  (integration-test-f3 1.3d0) 2.71d0 0.3d0 :gauss31 1.0d-14 0.0d0 1000)
+ (integration-QAG			; singularity error
+  (integration-test-f16 2.0d0) -1.0d0 1.0d0 :gauss51 1.0d-14 0.0d0 1000)
+ (integration-QAG			; singularity error
+  (integration-test-f16 2.0d0) 1.0d0 -1.0d0 :gauss51 1.0d-14 0.0d0 1000)
+ (integration-QAG			; iteration limit error
+  (integration-test-f16 2.0d0) -1.0d0 1.0d0 :gauss61 1.0d-14 0.0d0 3)
+ (integration-QAG			; iteration limit error
+  (integration-test-f16 2.0d0) 1.0d0 -1.0d0 :gauss61 1.0d-14 0.0d0 3)
+ (integration-QAGS (integration-test-f1 2.6d0) 0.0d0 1.0d0 0.0d0 1d-10 1000)
+ (integration-QAGS (integration-test-f1 2.6d0) 1.0d0 0.0d0 0.0d0 1d-10 1000)
+ (integration-QAGS (integration-test-f11 2.0d0) 1.0d0 1000.0d0 1d-7 0.0d0 1000)
+ (integration-QAGS (integration-test-f11 2.0d0) 1000.0d0 1.0d0 1d-7 0.0d0 1000)
+ (integration-QAGiu 'integration-test-f455 0.0d0 0.0d0 1d-3 1000)
+ (integration-QAGiu (integration-test-f15 5.0d0) 0.0d0 0.0d0 1d-7 1000)
+ (integration-QAGiu (integration-test-f16 1.0d0) 99.9d0 1d-7 0.0d0 1000)
+ (integration-QAGi 'integration-test-myfn1 1.0d-7 0.0d0 1000)
+ (integration-QAGil (integration-test-myfn2 1.0d0) 1.0d0 1.0d-7 0.0d0 1000)
+ (integration-QAGp
+  'integration-test-f454
+  (copy (vector 0.0d0 1.0d0 (sqrt 2.0d0) 3.0d0) 'vector-double-float)
+  0.0d0 1.0d-3 1000)
+ (integration-QAWc 'integration-test-f459 -1.0d0 5.0d0 0.0d0 0.0d0 1.0d-3 1000))
