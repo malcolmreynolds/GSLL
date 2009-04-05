@@ -1,6 +1,6 @@
 ;; Generic functions for optimization
 ;; Liam Healy 2009-01-03 12:59:07EST generic.lisp
-;; Time-stamp: <2009-03-21 23:52:17EDT generic.lisp>
+;; Time-stamp: <2009-04-04 22:20:38EDT generic.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -26,37 +26,4 @@
   (:documentation			; FDL
    "The last step dx taken by the solver.")) 
 
-;;;;****************************************************************************
-;;;; Structures and macros for function definition
-;;;;****************************************************************************
 
-(cffi:defcstruct gsl-mfunction
-  ;; See /usr/include/gsl/gsl_multiroots.h
-  "The definition of a function for multiroot finding in GSL."
-  (function :pointer)
-  (dimension sizet)
-  (parameters :pointer))
-
-(cffi:defcstruct gsl-mfunction-fdf
-  ;; See /usr/include/gsl/gsl_multiroots.h
-  "The definition of a function and its derivatives for multiroot
-   finding in GSL."
-  (function :pointer)
-  (df :pointer)
-  (fdf :pointer)
-  (dimension sizet)
-  (parameters :pointer))
-
-;;;;****************************************************************************
-;;;; Function definition
-;;;;****************************************************************************
-
-;;; Solvers that require the function and its derivative use the
-;;; following structure.
-(cffi:defcstruct gsl-function-fdf
-  ;; See /usr/include/gsl/gsl_math.h
-  "The definition of a function and its derivative for root finding in GSL."
-  (function :pointer)
-  (df :pointer)
-  (fdf :pointer)
-  (parameters :pointer))

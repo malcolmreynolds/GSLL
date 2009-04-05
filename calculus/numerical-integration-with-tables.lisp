@@ -1,6 +1,6 @@
 ;; Numerical integration techniques that require tables
 ;; Liam Healy 2009-04-04 15:24:05EDT 
-;; Time-stamp: <2009-04-04 18:09:47EDT numerical-integration-with-tables.lisp>
+;; Time-stamp: <2009-04-04 22:27:18EDT numerical-integration-with-tables.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -50,7 +50,7 @@
    (limit sizet) ((mpointer workspace) :pointer)
    (result :double) (abserr :double))
   :callbacks
-  (callback gsl-function nil (function :double (:input :double) :slug))
+  (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
   :documentation			; FDL
   "Compute the integral of the function f(x) over the interval (a,b)
@@ -111,7 +111,7 @@
    ((mpointer table) :pointer)
    (result :double) (abserr :double))
   :callbacks
-  (callback gsl-function nil (function :double (:input :double) :slug))
+  (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
   :documentation			; FDL
   "Use an adaptive algorithm to compute the integral of f over (a,b)
@@ -155,7 +155,7 @@
    ((mpointer table) :pointer)
    (result :double) (abserr :double))
   :callbacks
-  (callback gsl-function nil (function :double (:input :double) :slug))
+  (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
   :documentation			; FDL
   "This function attempts to compute a Fourier integral of the

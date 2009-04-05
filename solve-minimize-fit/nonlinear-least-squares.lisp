@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-03-29 12:42:59EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-04-04 22:30:04EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,7 +22,7 @@
   :documentation			; FDL
   "The number of observations must be greater than or equal to parameters."
   :callbacks
-  (callback gsl-ffit-function
+  (callback fnstruct-fit
 	    (number-of-observations number-of-parameters)
 	    (function
 	     :success-failure
@@ -31,14 +31,6 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer))
   :singular (function))
-
-(cffi:defcstruct gsl-ffit-function
-  "The definition of a function for nonlinear least squares fitting in GSL."
-  ;; See gsl_multifit_function in /usr/include/gsl/gsl_multifit_nlin.h
-  (function :pointer)
-  (number-of-observations sizet)
-  (number-of-parameters sizet)
-  (parameters :pointer))
 
 (defmfun name ((solver nonlinear-ffit))
   "gsl_multifit_fsolver_name"
@@ -61,7 +53,7 @@
   "The number of observations must be greater than or
    equal to parameters."
   :callbacks
-  (callback gsl-fdffit-function
+  (callback fnstruct-fit-fdf
 	    (number-of-observations number-of-parameters)
 	    (function :success-failure
 		      (:input :double :marray dim1)
@@ -90,16 +82,6 @@
   (jacobian :pointer)
   (dx :pointer)
   (state :pointer))
-
-(cffi:defcstruct gsl-fdffit-function
-  "The definition of a function and its derivatives for nonlinear
-   least squares fitting in GSL."
-  (function :pointer)
-  (df :pointer)
-  (fdf :pointer)
-  (number-of-observations sizet)
-  (number-of-parameters sizet)
-  (parameters :pointer))
 
 (defmfun name ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_name"

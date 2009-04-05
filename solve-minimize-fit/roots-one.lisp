@@ -1,6 +1,6 @@
 ;; One-dimensional root solver.
 ;; Liam Healy 
-;; Time-stamp: <2009-03-29 11:50:01EDT roots-one.lisp>
+;; Time-stamp: <2009-04-04 22:27:16EDT roots-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,7 +17,7 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) (lower :double) (upper :double))
   :callbacks
-  (callback gsl-function nil (function :double (:input :double) :slug))
+  (callback fnstruct nil (function :double (:input :double) :slug))
   :singular (function))
 
 (defmobject one-dimensional-root-solver-fdf "gsl_root_fdfsolver"
@@ -26,7 +26,7 @@
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) (root-guess :double))
   :callbacks
-  (callback gsl-function-fdf nil
+  (callback fnstruct-fdf nil
 	    (function :double (:input :double) :slug)
 	    (df :double (:input :double) :slug)
 	    (fdf :void (:input :double) :slug

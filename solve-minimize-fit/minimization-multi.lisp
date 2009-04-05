@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-03-29 12:43:30EDT minimization-multi.lisp>
+;; Time-stamp: <2009-04-04 22:29:11EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -14,7 +14,7 @@
 ;;; is easy enough to eliminate this, but then mfdfminimizer-gradient
 ;;; would not be useful to a CL user.
 
-;;; The structures gsl-mfunction and gsl-mfunction-fdf are, from the
+;;; The structures fnstruct-dimension and fnstruct-dimension-fdf are, from the
 ;;; CFFI point of view, equally valid for gsl_multimin_function and
 ;;; gsl_multimin_function_fdf defined in
 ;;; /usr/include/gsl/gsl_multimin.h as they are for
@@ -38,7 +38,7 @@
    initial trial steps is given in vector step-size. The precise
    meaning of this parameter depends on the method used."
   :callbacks
-  (callback gsl-mfunction (dimension)
+  (callback fnstruct-dimension (dimension)
 	    (function :double (:input :double :marray dim0) :slug))
   :initialize-suffix "set"
   :initialize-args ;; Could have one fewer argument: dimension=(dim0 initial)
@@ -62,7 +62,7 @@
    direction p to a relative accuracy of tolerance, where dot(p,g) <
    tol |p| |g|."
   :callbacks
-  (callback gsl-mfunction-fdf (dimension)
+  (callback fnstruct-dimension-fdf (dimension)
 	    (function :double (:input :double :marray dim0) :slug)
 	    (df :void
 		(:input :double :marray dim0) :slug

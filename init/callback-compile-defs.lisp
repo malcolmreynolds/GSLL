@@ -1,6 +1,6 @@
 ;; Definitions for macro expansion
 ;; Liam Healy 2009-03-15 14:50:28EDT callback-compile-defs.lisp
-;; Time-stamp: <2009-04-04 21:40:57EDT callback-compile-defs.lisp>
+;; Time-stamp: <2009-04-04 22:44:05EDT callback-compile-defs.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -23,7 +23,7 @@
   (let ((cbs (get-callbacks-for-class class)))
     (unless cbs (error "Class ~a not defined." class))
     `(make-cbstruct
-      ',(parse-callback-static cbs 'callback-structure-type)
+      ',(parse-callback-static cbs 'callback-fnstruct)
       (when (dimension-names object)
 	(mappend 'list (dimension-names object) (dimensions object)))
       ,@(mappend

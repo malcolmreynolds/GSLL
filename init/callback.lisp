@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-04-04 21:58:32EDT callback.lisp>
+;; Time-stamp: <2009-04-04 22:44:06EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -54,16 +54,6 @@
 		      'parameters (cffi:null-pointer)))
 
 ;;;;****************************************************************************
-;;;; The GSL struct for holding callbacks
-;;;;****************************************************************************
-
-(cffi:defcstruct gsl-function
-  "Passing functions to GSL."
-  ;; see /usr/include/gsl/gsl_math.h
-  (function :pointer)
-  (parameters :pointer))
-
-;;;;****************************************************************************
 ;;;; Definitions for making cbstruct
 ;;;;****************************************************************************
 
@@ -88,7 +78,7 @@
 ;;;;****************************************************************************
 
 ;;; The :callbacks (cbinfo) argument is a list of the form:
-;;; (foreign-argument callback-structure-type dimension-names function ...)
+;;; (foreign-argument callback-fnstruct dimension-names function ...)
 ;;; where each function is of the form 
 ;;; (structure-slot-name
 ;;;   &optional (return-spec 'double-float) (argument-spec 'double-float)
@@ -100,7 +90,7 @@
   "Get the information component from the callbacks list."
   (case component
     (foreign-argument (first cbinfo))
-    (callback-structure-type (second cbinfo))
+    (callback-fnstruct (second cbinfo))
     (dimension-names (third cbinfo))
     (functions (nthcdr 3 cbinfo))))
 
@@ -181,7 +171,7 @@
   (when cbinfo
     `((set-cbstruct
        ,(parse-callback-static cbinfo 'foreign-argument)
-       ',(parse-callback-static cbinfo 'callback-structure-type)
+       ',(parse-callback-static cbinfo 'callback-fnstruct)
        ,(when (parse-callback-static cbinfo 'dimension-names)
 	      (cons 'list
 		    (loop

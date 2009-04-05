@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-04-01 21:25:08EDT monte-carlo.lisp>
+;; Time-stamp: <2009-04-04 22:34:29EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,15 +11,6 @@
 ;;; /usr/include/gsl/gsl_monte_vegas.h
 
 ;;;;****************************************************************************
-;;;; Callback definition
-;;;;****************************************************************************
-
-(cffi:defcstruct monte-function
-  (function :pointer)
-  (dimensions sizet)
-  (parameters :pointer))
-
-;;;;****************************************************************************
 ;;;; PLAIN Monte Carlo
 ;;;;****************************************************************************
 
@@ -28,7 +19,7 @@
   ((dim sizet))
   "plain Monte Carlo integration"
   :documentation			; FDL
-  "Make and initialize a workspace for Monte Carlo integration in dim dimensions."
+  "Make and initialize a workspace for Monte Carlo integration in dimension dim."
   :initialize-suffix "init"
   :initialize-args nil)
 
@@ -56,7 +47,7 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function (dimensions)
+  (callback fnstruct-dimension (dimension)
 	    (function :double (:input :double :cvector dim0) :slug))
   :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
@@ -85,7 +76,7 @@
   "miser Monte Carlo integration"
   :documentation			; FDL
   "Make and initialize a workspace for Monte Carlo integration in
-   dim dimensions.  The workspace is used to maintain
+   dimension dim.  The workspace is used to maintain
    the state of the integration."
   :initialize-suffix "init"
   :initialize-args nil)
@@ -142,7 +133,7 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function (dimensions)
+  (callback fnstruct-dimension (dimension)
 	    (function :double (:input :double :cvector dim0) :slug))
   :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
@@ -171,7 +162,7 @@
   "vegas Monte Carlo integration"
   :documentation			; FDL
   "Make and initialize a workspace for Monte Carlo integration in
-   dim dimensions.  The workspace is used to maintain
+   dimension dim.  The workspace is used to maintain
    the state of the integration.  Returns a pointer to vegas-state."
   :initialize-suffix "init"
   :initialize-args nil)
@@ -238,7 +229,7 @@
    (result :double) (abserr :double))
   :inputs (lower-limits upper-limits)
   :callbacks
-  (callback monte-function (dimensions)
+  (callback fnstruct-dimension (dimension)
 	    (function :double (:input :double :cvector dim0) :slug))
   :callback-dynamic (((dim0 lower-limits)) (function scalars))
   :documentation			; FDL
