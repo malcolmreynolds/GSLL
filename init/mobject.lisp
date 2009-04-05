@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-04-04 09:51:08EDT mobject.lisp>
+;; Time-stamp: <2009-04-04 22:00:21EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -57,8 +57,8 @@
     (class prefix allocation-args description 
      &key documentation initialize-suffix initialize-name initialize-args
      arglists-function inputs gsl-version allocator allocate-inputs freer
-     callbacks
-     (superclasses (if callbacks '(callback-included) '(mobject)))
+     ((:callbacks cbinfo))
+     (superclasses (if cbinfo '(callback-included) '(mobject)))
      singular)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
@@ -72,19 +72,19 @@
 	  (callback-replace-arg
 	   'functions
 	   (variables-used-in-c-arguments initialize-args)
-	   callbacks))
+	   cbinfo))
 	 (initializerp (or initialize-name initialize-suffix)))
     ;; Need callback information for macroexpansion make-cbstruct-object
-    (when callbacks (record-callbacks-for-class class callbacks))
+    (when cbinfo (record-callbacks-for-class class cbinfo))
     (if (have-at-least-gsl-version gsl-version)
 	`(progn
-	   ,(if callbacks
+	   ,(if cbinfo
 		`(,(if (member 'dimensions cl-alloc-args)
 		       'def-ci-subclass 'def-ci-subclass-1d)
 		   ,class
 		   ,superclasses
 		   ,(format nil "The GSL representation of the ~a." description)
-		   ,(parse-callback-static callbacks 'dimension-names))
+		   ,(parse-callback-static cbinfo 'dimension-names))
 		`(defclass ,class ,superclasses
 		   nil
 		   (:documentation
@@ -104,15 +104,15 @@
 		   (make-reinitialize-instance
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
-		    callbacks
+		    cbinfo
 		    superclasses))
 	   (export '(,maker ,class))
-	   ,@(when callbacks `((record-callbacks-for-class ',class ',callbacks)))
-	   ,@(when callbacks (make-mobject-defmcallbacks callbacks class))
+	   ,@(when cbinfo `((record-callbacks-for-class ',class ',cbinfo)))
+	   ,@(when cbinfo (make-mobject-defmcallbacks cbinfo class))
 	   ,(mobject-maker
 	     maker arglists class cl-alloc-args cl-initialize-args
 	     description documentation initialize-args initializerp settingp
-	     singular callbacks))
+	     singular cbinfo))
 	`(progn
 	   (export ',maker)
 	   (defun ,maker (&rest args)
@@ -141,14 +141,14 @@
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     callbacks superclasses)
+     cbinfo superclasses)
   "Expand the reinitialize-instance form."
   (let ((cbstruct (make-symbol "CBSTRUCT")))
     `((defmfun reinitialize-instance
 	  ((object ,class)
 	   &key
 	   ,@cl-initialize-args
-	   ,@(when callbacks
+	   ,@(when cbinfo
 		   `(&aux (,cbstruct ,(make-cbstruct-object class)))))
 	,(or initialize-name
 	     (format nil "~a_~a" prefix
@@ -156,15 +156,15 @@
 			 (first initialize-suffix)
 			 initialize-suffix)))
 	(((mpointer object) :pointer)
-	 ,@(callback-replace-arg cbstruct initialize-args callbacks))
+	 ,@(callback-replace-arg cbstruct initialize-args cbinfo))
 	:definition :method
-	,@(when callbacks '(:callback-object object))
+	,@(when cbinfo '(:callback-object object))
 	:qualifier :after
 	,@(when (and initialize-suffix (listp initialize-suffix))
 		`(:c-return ,(second initialize-suffix)))
 	:return (object)
 	,@(when inputs `(:inputs ,inputs))
-	,@(when callbacks
+	,@(when cbinfo
 		`(:before
 		  (,@(when (member 'callback-included-cl superclasses)
 			   `((setf (slot-value object 'callback) ,cbstruct)))
@@ -180,9 +180,9 @@
 (defun mobject-maker
     (maker arglists class cl-alloc-args cl-initialize-args
      description documentation initialize-args initializerp settingp
-     singular callbacks)
+     singular cbinfo)
   "Make the defun form that makes the mobject."
-  (when callbacks
+  (when cbinfo
     (setf cl-initialize-args (append cl-initialize-args '((scalarsp t)))))
   (let ((initargs ; arguments that are exclusively for reinitialize-instance
 	 (remove-if (lambda (s) (member s cl-alloc-args)) cl-initialize-args)))
@@ -206,7 +206,7 @@
        (let ((object
 	      (make-instance
 	       ',class
-	       ,@(when callbacks `(:callbacks ',callbacks))
+	       ,@(when cbinfo `(:cbinfo ',cbinfo))
 	       ,@(if arglists
 		     (second arglists)
 		     (symbol-keyword-symbol cl-alloc-args singular)))))

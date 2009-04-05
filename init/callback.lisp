@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-04-04 09:55:41EDT callback.lisp>
+;; Time-stamp: <2009-04-04 21:58:32EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -87,24 +87,25 @@
 ;;;; Parsing :callback argument specification
 ;;;;****************************************************************************
 
-;;; The :callbacks argument is a list of the form:
+;;; The :callbacks (cbinfo) argument is a list of the form:
 ;;; (foreign-argument callback-structure-type dimension-names function ...)
 ;;; where each function is of the form 
 ;;; (structure-slot-name
 ;;;   &optional (return-spec 'double-float) (argument-spec 'double-float)
 ;;;             set1-spec set2-spec)
 ;;; and each of the *-spec are (type array-type &rest dimensions).
+;;; When assigned to a variable, the variable is named 'cbinfo.
 
-(defun parse-callback-static (callbacks component)
+(defun parse-callback-static (cbinfo component)
   "Get the information component from the callbacks list."
   (case component
-    (foreign-argument (first callbacks))
-    (callback-structure-type (second callbacks))
-    (dimension-names (third callbacks))
-    (functions (nthcdr 3 callbacks))))
+    (foreign-argument (first cbinfo))
+    (callback-structure-type (second cbinfo))
+    (dimension-names (third cbinfo))
+    (functions (nthcdr 3 cbinfo))))
 
-(defun number-of-callbacks (callbacks)
-  (length (parse-callback-static callbacks 'functions)))
+(defun number-of-callbacks (cbinfo)
+  (length (parse-callback-static cbinfo 'functions)))
 
 (defun parse-callback-fnspec (fnspec component)
   "From the :callbacks argument, parse a single function specification."
@@ -126,18 +127,18 @@
 ;;;; Using callback specification in function arugments
 ;;;;****************************************************************************
 
-(defun callback-replace-arg (replacement list callbacks)
+(defun callback-replace-arg (replacement list cbinfo)
   "Replace in the list the symbol representing the foreign callback argument."
-  (if callbacks
+  (if cbinfo
       (subst
        replacement
-       (parse-callback-static callbacks 'foreign-argument)
+       (parse-callback-static cbinfo 'foreign-argument)
        list)
       list))
 
-(defun callback-remove-arg (list callbacks &optional key)
+(defun callback-remove-arg (list cbinfo &optional key)
   "Remove from the list the symbol representing the foreign callback argument."
-  (remove (parse-callback-static callbacks 'foreign-argument) list :key key))
+  (remove (parse-callback-static cbinfo 'foreign-argument) list :key key))
 
 ;;;;****************************************************************************
 ;;;; Form generation
@@ -158,15 +159,15 @@
 (defun cbd-functions (callback-dynamic)
   (rest callback-dynamic))
 
-(defun callback-symbol-set (callback-dynamic callbacks symbols)
+(defun callback-symbol-set (callback-dynamic cbinfo symbols)
   "Generate the form to set each of the dynamic (special) variables
    to (function scalarsp dimensions...) in the body of the demfun for
    each of the callback functions."
-  (when callbacks
+  (when cbinfo
     `((setf
        ,@(loop for symb in symbols
 	    for function in (cbd-functions callback-dynamic)
-	    for fnspec in (parse-callback-static callbacks 'functions)
+	    for fnspec in (parse-callback-static cbinfo 'functions)
 	    append
 	    `(,symb
 	      (make-compiled-funcallable
@@ -175,22 +176,22 @@
 	       ,(second function)
 	       ,(cons 'list (cbd-dimensions callback-dynamic)))))))))
 
-(defun callback-set-slots (callbacks dynamic-variables callback-dynamic)
+(defun callback-set-slots (cbinfo dynamic-variables callback-dynamic)
   "Set the slots in the foreign callback struct."
-  (when callbacks
+  (when cbinfo
     `((set-cbstruct
-       ,(parse-callback-static callbacks 'foreign-argument)
-       ',(parse-callback-static callbacks 'callback-structure-type)
-       ,(when (parse-callback-static callbacks 'dimension-names)
+       ,(parse-callback-static cbinfo 'foreign-argument)
+       ',(parse-callback-static cbinfo 'callback-structure-type)
+       ,(when (parse-callback-static cbinfo 'dimension-names)
 	      (cons 'list
 		    (loop
-		       for dim-name in (parse-callback-static callbacks 'dimension-names)
+		       for dim-name in (parse-callback-static cbinfo 'dimension-names)
 		       for dim in (cbd-dimensions callback-dynamic)
 		       append (list `',dim-name dim))))
        ,(cons
 	 'list
 	 (loop for symb in (second dynamic-variables)
-	    for fn in (parse-callback-static callbacks 'functions)
+	    for fn in (parse-callback-static cbinfo 'functions)
 	    append
 	    `(',(parse-callback-fnspec fn 'structure-slot-name)
 		',symb)))))))
@@ -211,12 +212,12 @@
 ;;;; Macro defmcallback
 ;;;;****************************************************************************
 
-(defun make-defmcallbacks (callbacks callback-names function-names)
-  (when callbacks
+(defun make-defmcallbacks (cbinfo callback-names function-names)
+  (when cbinfo
     (mapcar
      (lambda (cb vbl fspec) `(defmcallback ,cb ,vbl ,fspec))
      callback-names function-names
-     (parse-callback-static callbacks 'functions))))
+     (parse-callback-static cbinfo 'functions))))
 
 (defmacro defmcallback (name dynamic-variable function-spec)
   (let* ((argspec (parse-callback-fnspec function-spec 'arguments-spec))

@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-04-04 12:02:28EDT interface.lisp>
+;; Time-stamp: <2009-04-04 21:42:32EDT interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -59,13 +59,13 @@
 (defun st-pointer-last-p (decl)
   (third (st-type decl)))
 
-(defun wfo-declare (d callbacks)
+(defun wfo-declare (d cbinfo)
   `(,(st-symbol d)
      ,@(if (st-arrayp d)
 	   `(',(st-eltype d) ,(st-dim d))
 	   (if (eq (st-symbol d)
-		   (parse-callback-static callbacks 'foreign-argument))
-	       `(',(parse-callback-static callbacks 'callback-structure-type))
+		   (parse-callback-static cbinfo 'foreign-argument))
+	       `(',(parse-callback-static cbinfo 'callback-structure-type))
 	       `(',(st-type d))))))
 
 ;;;;****************************************************************************

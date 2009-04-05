@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-04-04 18:47:47EDT defmfun-single.lisp>
+;; Time-stamp: <2009-04-04 21:56:30EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -98,7 +98,7 @@
 		 'values
 		 (append before after
 			 (callback-symbol-set
-			  callback-dynamic callbacks (first callback-dynamic-variables))
+			  callback-dynamic cbinfo (first callback-dynamic-variables))
 			   ;; &optional/&key/&aux defaults are checked
 			 (let ((auxstart (after-llk arglist)))
 			   (when auxstart
@@ -173,7 +173,7 @@
 			    return))
 		   (mappend
 		    #'cl-convert-form
-		    (callback-remove-arg allocated-decl callbacks 'st-symbol))
+		    (callback-remove-arg allocated-decl cbinfo 'st-symbol))
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
@@ -181,16 +181,16 @@
 	  '(error 'pass-complex-by-value) ; arglist should be declared ignore
 	  (wrap-letlike
 	   allocated-decl
-	   (mapcar (lambda (d) (wfo-declare d callbacks))
+	   (mapcar (lambda (d) (wfo-declare d cbinfo))
 		   allocated-decl)
 	   'cffi:with-foreign-objects
 	   `(,@(append
 		(callback-symbol-set
-		 callback-dynamic callbacks (first callback-dynamic-variables))
+		 callback-dynamic cbinfo (first callback-dynamic-variables))
 		before
 		(when callback-object (callback-set-dynamic callback-object arglist)))
 	       ,@(callback-set-slots
-		  callbacks callback-dynamic-variables callback-dynamic)
+		  cbinfo callback-dynamic-variables callback-dynamic)
 	       (let ((,cret-name
 		      (cffi:foreign-funcall
 		       ,gsl-name

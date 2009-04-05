@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-04-04 19:35:50EDT numerical-integration.lisp>
+;; Time-stamp: <2009-04-04 21:30:01EDT numerical-integration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -266,15 +266,6 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-;;; CCL 1.2 returns a complex number when the exponent is a double
-;;; float even if it's positive whole number value.  This is a
-;;; workaround.
-#+ccl
-(defun nn-expt (base power)
-  (if (= power (floor power))
-      (expt base (floor power))
-      (expt base power)))
-
 (defun integration-test-f1 (alpha)
   (lambda (x) (* (expt x alpha) (log (/ x)))))
 
@@ -282,7 +273,7 @@
   (lambda (x) (cos (* (expt 2 alpha) (sin x)))))
 
 (defun integration-test-f11 (alpha)
-  (lambda (x) (#+ccl nn-expt #-ccl expt (log (/ x)) (1- alpha))))
+  (lambda (x) (realpart (expt (log (/ x)) (1- alpha)))))
 
 (defun integration-test-f15 (alpha)
   (lambda (x) (* x x (exp (* (- (expt 2 (- alpha))) x)))))
@@ -292,8 +283,9 @@
     (cond
       ((and (= alpha 1.0d0) (zerop x)) 1.0d0)
       ((and (> alpha 1.0d0) (zerop x)) 0.0d0)
-      (t (/ (#+ccl nn-expt #-ccl expt x (1- alpha))
-	    (expt (1+ (* 10 x)) 2))))))
+      (t (realpart
+	  (/ (expt x (1- alpha))
+	     (expt (1+ (* 10 x)) 2)))))))
 
 (defun integration-test-f454 (x)
   (* (expt x 3) (* (log (abs (* (- (expt x 2) 1.0d0) (- (expt x 2) 2.0d0)))))))

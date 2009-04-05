@@ -1,6 +1,6 @@
 ;; The mobject that defines callbacks
 ;; Liam Healy 2009-03-14 11:20:03EDT callback-included.lisp
-;; Time-stamp: <2009-03-31 22:33:09EDT callback-included.lisp>
+;; Time-stamp: <2009-04-04 21:45:12EDT callback-included.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -10,8 +10,8 @@
 ;;;;****************************************************************************
 
 (defclass callback-included (mobject)
-  ((callbacks
-    :initarg :callbacks :reader callbacks
+  ((cbinfo
+    :initarg :cbinfo :reader cbinfo
     :documentation "The specification form for static callback information.")
    (dimension-names
     :initarg :dimension-names :reader dimension-names

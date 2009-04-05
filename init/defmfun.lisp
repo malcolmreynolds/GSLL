@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-04-02 22:48:34EDT defmfun.lisp>
+;; Time-stamp: <2009-04-04 22:00:20EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -78,12 +78,12 @@
      (definition :function)
      (export (not (member definition (list :method :methods))))
      documentation inputs outputs before after enumeration qualifier
-     gsl-version switch callbacks callback-dynamic callback-object)
+     gsl-version switch ((:callbacks cbinfo)) callback-dynamic callback-object)
     ,key-args
     (declare (ignorable c-return return definition element-types
       index export documentation inputs outputs
       before after enumeration qualifier
-      gsl-version switch callbacks callback-dynamic callback-object)
+      gsl-version switch cbinfo callback-dynamic callback-object)
      (special indexed-functions callback-dynamic-variables))
     ,@body))
 
@@ -104,7 +104,7 @@
       (setf indexed-functions (list)
 	    callback-dynamic-variables
 	    ;; A list of variable names, and a list of callback names
-	    (when (or callbacks callback-object)
+	    (when (or cbinfo callback-object)
 	      (if callback-object
 		  (let ((class
 			 (if (listp callback-object)
@@ -114,7 +114,7 @@
 			   class
 			   (number-of-callbacks (get-callbacks-for-class class)))
 			  nil))
-		  (let ((num-callbacks (number-of-callbacks callbacks)))
+		  (let ((num-callbacks (number-of-callbacks cbinfo)))
 		    (list
 		     (make-symbol-cardinals
 		      (list name 'dynfn) num-callbacks :gsl)
@@ -153,7 +153,7 @@
       `(progn
 	 ,@(if (symbolp (first expanded-body)) (list expanded-body) expanded-body)
 	 ,@(make-defmcallbacks
-	    callbacks
+	    cbinfo
 	    (second callback-dynamic-variables)
 	    (first callback-dynamic-variables))
 	 ,@index-export))))

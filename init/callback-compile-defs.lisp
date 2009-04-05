@@ -1,6 +1,6 @@
 ;; Definitions for macro expansion
 ;; Liam Healy 2009-03-15 14:50:28EDT callback-compile-defs.lisp
-;; Time-stamp: <2009-04-01 21:36:12EDT callback-compile-defs.lisp>
+;; Time-stamp: <2009-04-04 21:40:57EDT callback-compile-defs.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -12,8 +12,8 @@
 (defvar *callbacks-for-classes* (make-hash-table :size 32)
   "A table of :callbacks arguments for each class.")
 
-(defun record-callbacks-for-class (class callbacks)
-  (setf (gethash class *callbacks-for-classes*) callbacks))
+(defun record-callbacks-for-class (class cbinfo)
+  (setf (gethash class *callbacks-for-classes*) cbinfo))
 
 (defun get-callbacks-for-class (class)
   (gethash class *callbacks-for-classes*))
@@ -41,12 +41,12 @@
 ;;; These functions make interned symbols that will be bound to
 ;;; dynamic variables.
 
-(defun make-mobject-defmcallbacks (callbacks class)
+(defun make-mobject-defmcallbacks (cbinfo class)
   "Make the defmcallback forms needed to define the callbacks
    associated with mobject that includes callback functions."
-  (let ((numcb (number-of-callbacks callbacks)))
+  (let ((numcb (number-of-callbacks cbinfo)))
     (make-defmcallbacks
-     callbacks
+     cbinfo
      (mobject-cbvnames class numcb)
      (mobject-fnvnames class numcb))))
 
