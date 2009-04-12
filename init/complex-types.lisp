@@ -1,6 +1,6 @@
 ;; Complex number types
 ;; Liam Healy 2009-01-13 21:24:05EST complex-types.lisp
-;; Time-stamp: <2009-01-14 22:45:53EST complex-types.lisp>
+;; Time-stamp: <2009-04-11 21:15:24EDT complex-types.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -10,31 +10,18 @@
 ;;;;****************************************************************************
 
 ;;; GSL represents complex variables as a struct of two reals and
-;;; passes them by value (not a pointer) to functions.  Few FFIs have
-;;; the capability of handling that.  However, it does seem to work
-;;; (SBCL and CCL at least) that we can treat each complex argument as
-;;; a succession of two double-float arguments, or two single-floats
-;;; packed into a double float.  Here we probe that the first is true;
-;;; if so, functions will automatically be converted.
-(defparameter *pass-complex-scalar-as-two-reals*
-  (eql 5.0d0
-   (ignore-errors
-     (cffi:foreign-funcall "gsl_complex_abs" :double 3.0d0 :double 4.0d0 :double)))
-  "A complex number can be passed as two adjacent reals.")
-
-;;; GSL defines complex numbers in a struct, and passes the struct by
-;;; value.  CFFI does not support call by value for structs, so we
-;;; cannot use functions that call or return complex scalars.
+;;; passes them by value (not a pointer) to functions.  In order to
+;;; handle this we use FSBV.
 
 ;;; See /usr/include/gsl/gsl_complex.h
-(cffi:defcstruct complex-float-c
+(fsbv:defcstruct complex-float-c
   (dat :float :count 2))
 
-(cffi:defcstruct complex-double-c
+(fsbv:defcstruct complex-double-c
   (dat :double :count 2))
 
 #+long-double
-(cffi:defcstruct complex-long-double-c
+(fsbv:defcstruct complex-long-double-c
   (dat :long-double :count 2))
 
 (defun clean-type (type)
@@ -55,6 +42,26 @@
       (second eltype)
       eltype))
 
+(defun component-float-type-from-value (value)
+  (let ((full (component-float-type (type-of value))))
+    (if (listp full) (first full) full)))
+
+;; See also complex-to-cl in number-conversion.lisp
+(defun cl-to-complex (complex-number struct)
+  "Set the CL complex number into the GSL struct."
+  (let ((struct-type
+	 (ecase (component-float-type-from-value complex-number)
+	   (single-float 'complex-float-c)
+	   (double-float 'complex-double-c))))
+    (setf (cffi:mem-aref
+	   (cffi:foreign-slot-value struct struct-type 'dat)
+	   :double 0)
+	  (realpart complex-number)
+	  (cffi:mem-aref
+	   (cffi:foreign-slot-value struct struct-type 'dat)
+	   :double 1)
+	  (imagpart complex-number))))
+
 (define-condition pass-complex-by-value (error)
   ()
   (:report
@@ -65,28 +72,3 @@
    "An error indicating that this implementation and platform are
    unable to pass complex numbers to the GSL libary by value."))
 
-(defun pack-complex-as-double (number)
-  "Pack a number of type (complex single-float) into a double-float,
-   which may be accepted as a struct of type gsl_complex_float.
-   This is hideously non-portable."
-  (integer-as-float
-   (dpb
-    (float-as-integer (imagpart number) t)
-    (byte 32 32)
-    (dpb
-     (float-as-integer (realpart number) t)
-     (byte 32 0)
-     0))
-   'double-float))
-
-(defun passing-complex-by-value (cfind)
-  "Substitution in defmfun so that complex numbers can be passed by
-   value to the GSL structs defined above.  This is non-portable."
-  (if (eq (component-float-type (cffi-cl (third cfind))) 'single-float)
-      ;; single-float
-      `(:double	(pack-complex-as-double ,(first cfind)))
-      ;; double-float
-      `(:double
-	(realpart ,(first cfind))
-	:double
-	(imagpart ,(first cfind)))))

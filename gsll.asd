@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-04-04 22:32:18EDT gsll.asd>
+;; Time-stamp: <2009-04-11 17:43:54EDT gsll.asd>
 ;; $Id$
 
 (asdf:defsystem "gsll"
@@ -9,7 +9,7 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "LLGPL v3, FDL"
-  :depends-on (cffi trivial-garbage)
+  :depends-on (cffi trivial-garbage fsbv)
   :components
   ((:module init
 	    :components

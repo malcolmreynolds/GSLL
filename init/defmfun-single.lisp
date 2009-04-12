@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-04-04 21:56:30EDT defmfun-single.lisp>
+;; Time-stamp: <2009-04-11 21:24:36EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -12,15 +12,27 @@
       (second name)))
 
 (defun complex-scalars (cl-arguments c-arguments-types)
+  "Create a list of (symbol temp-variable c-struct) for each complex
+  variable in the argument."
   (loop for sd in c-arguments-types
-	for cl-type = (cffi-cl (st-type sd))
-	append
-	(when (and cl-type (subtypep cl-type 'complex)
-		   (member (st-symbol sd)
-			   (arglist-plain-and-categories cl-arguments)))
-	  (list (list (st-symbol sd)
-		      (gensym (string (st-symbol sd)))
-		      (st-type sd))))))
+     for cl-type = (cffi-cl (st-type sd))
+     append
+     (when (and cl-type (subtypep cl-type 'complex)
+		(member (st-symbol sd)
+			(arglist-plain-and-categories cl-arguments)))
+       (list (list (st-symbol sd)
+		   (make-symbol (string (st-symbol sd)))
+		   (st-type sd))))))
+
+(defun substitute-symbols (substlist list)
+  "Substitute in list the second element of each list of substlist for
+   the first element."
+  (loop for pair in substlist
+     with answer = list
+     do
+     (setf answer
+	   (subst (second pair) (first pair) answer))
+     finally (return answer)))
 
 (defun stupid-code-walk-find-variables (sexp)
   "This will work with the simplest s-expression forms only to find
@@ -150,83 +162,93 @@
 	   (cret-name
 	    (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
 	   (complex-args (complex-scalars arglist c-arguments))
+	   (cargs (substitute-symbols complex-args c-arguments)) ; with complex
 	   (allocated		     ; Foreign objects to be allocated
 	    (remove-if
 	     (lambda (s)
 	       (member s (arglist-plain-and-categories arglist nil)))
-	     (variables-used-in-c-arguments c-arguments)))
+	     (variables-used-in-c-arguments cargs)))
 	   (allocated-decl
 	    (mapcar
 	     (lambda (s)
-	       (or (find s c-arguments :key #'st-symbol)
+	       (or (find s cargs :key #'st-symbol)
 		   ;; Catch programming errors, usually typos
 		   (error "Could not find ~a among the arguments" s)))
 	     allocated))
+	   ;; same as allocated-decl, but no complex struct variables
+	   (allocated-decl-ret
+	    (mapcar
+	     (lambda (s)
+	       (or (find s (set-difference c-arguments (mapcar 'first complex-args))
+			 :key #'st-symbol)
+		   ;; Catch programming errors, usually typos
+		   (error "Could not find ~a among the arguments" s)))
+	     (set-difference allocated  (mapcar 'second complex-args))))	   
 	   (clret (or			; better as a symbol macro
 		   (substitute
 		    cret-name :c-return
 		    (mapcar (lambda (sym)
-			      (let ((it (find sym allocated-decl :key 'st-symbol)))
+			      (let ((it (find sym allocated-decl-ret :key 'st-symbol)))
 				(if it
 				    (first (cl-convert-form it))
 				    sym)))
 			    return))
 		   (mappend
 		    #'cl-convert-form
-		    (callback-remove-arg allocated-decl cbinfo 'st-symbol))
+		    (callback-remove-arg allocated-decl-ret cbinfo 'st-symbol))
 		   outputs
 		   (unless (eq c-return :void)
 		     (list cret-name)))))
-      (if (and complex-args (not *pass-complex-scalar-as-two-reals*))
-	  '(error 'pass-complex-by-value) ; arglist should be declared ignore
-	  (wrap-letlike
-	   allocated-decl
-	   (mapcar (lambda (d) (wfo-declare d cbinfo))
-		   allocated-decl)
-	   'cffi:with-foreign-objects
-	   `(,@(append
-		(callback-symbol-set
-		 callback-dynamic cbinfo (first callback-dynamic-variables))
-		before
-		(when callback-object (callback-set-dynamic callback-object arglist)))
-	       ,@(callback-set-slots
-		  cbinfo callback-dynamic-variables callback-dynamic)
-	       (let ((,cret-name
-		      (cffi:foreign-funcall
-		       ,gsl-name
-		       ,@(mappend
-			  (lambda (arg)
-			    (let ((cfind ; variable is complex
-				   (find (st-symbol arg) complex-args :key 'first)))
-			      (if cfind	; make two successive scalars
-				  (passing-complex-by-value cfind)
-				  ;; otherwise use without conversion
-				  (list (if (member (st-symbol arg) allocated)
-					    :pointer
-					    (st-type arg))
-					(st-symbol arg)))))
-			  c-arguments)
-		       ,cret-type)))
-		 ,@(case c-return
-			 (:void `((declare (ignore ,cret-name))))
-			 (:error-code	; fill in arguments
-			  `((check-gsl-status ,cret-name
-					      ',(or (defgeneric-method-p name) name)))))
-		 #-native
-		 ,@(when outputs
-			 (mapcar
-			  (lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
-			  outputs))
-		 ,@(when (eq cret-type :pointer)
-			 `((check-null-pointer
-			    ,cret-name
-			    ,@'('memory-allocation-failure "No memory allocated."))))
-		 ,@after
-		 (values
-		  ,@(defmfun-return
-		     c-return cret-name clret allocated
-		     return return-supplied-p
-		     enumeration outputs)))))))))
+      (wrap-letlike
+       allocated-decl
+       (mapcar (lambda (d) (wfo-declare d cbinfo))
+	       allocated-decl)
+       'cffi:with-foreign-objects
+       `(,@(append
+	    (callback-symbol-set
+	     callback-dynamic cbinfo (first callback-dynamic-variables))
+	    before
+	    (when complex-args
+	      (loop for arg in complex-args
+		 collect `(cl-to-complex ,(first arg) ,(second arg))))
+	    (when callback-object (callback-set-dynamic callback-object arglist)))
+	   ,@(callback-set-slots
+	      cbinfo callback-dynamic-variables callback-dynamic)
+	   (let ((,cret-name
+		  (,(if complex-args
+			'fsbv:foreign-funcall
+			'cffi:foreign-funcall)
+		    ,gsl-name
+		    ,@(mappend
+		       (lambda (arg)
+			 (list (cond
+				 ((third (find (st-symbol arg) complex-args :key 'second)))
+				 ((member (st-symbol arg) allocated) :pointer)
+				 (t (st-type arg)))
+			       (st-symbol arg)))
+		       cargs)
+		    ,cret-type)))
+	     ,@(case c-return
+		     (:void `((declare (ignore ,cret-name))))
+		     (:error-code	; fill in arguments
+		      `((check-gsl-status ,cret-name
+					  ',(or (defgeneric-method-p name) name)))))
+	     #-native
+	     ,@(when outputs
+		     (mapcar
+		      (lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
+		      outputs))
+	     ,@(when (eq cret-type :pointer)
+		     `((check-null-pointer
+			,cret-name
+			,@'('memory-allocation-failure "No memory allocated."))))
+	     ,@after
+	     (values
+	      ,@(defmfun-return
+		 c-return cret-name clret
+		 (set-difference allocated (mapcar 'second complex-args))
+		 return return-supplied-p
+		 enumeration outputs))))))))
 
 (defun defmfun-return
     (c-return cret-name clret allocated return return-supplied-p enumeration outputs)
