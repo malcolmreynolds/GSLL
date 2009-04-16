@@ -1,6 +1,6 @@
 ;; Make tests from examples.
 ;; Liam Healy 2008-09-07 21:00:48EDT generate-tests.lisp
-;; Time-stamp: <2009-01-04 11:00:11EST generate-tests.lisp>
+;; Time-stamp: <2009-04-15 23:33:26EDT generate-tests.lisp>
 ;; $Id: $
 
 ;;; Througout the GSLL interface definition files are #'save-test
@@ -26,7 +26,9 @@
 (defun numerical-serialize (form)
   (if (typep form 'list)
       (cons 'list (mapcar #'numerical-serialize form))
-      form))
+      (if (typep form 'mobject)
+	  (make-load-form form)
+	  form)))
 
 ;;; (make-test '(legendre-conicalP-half 3.5d0 10.0d0))
 (defun make-test (form)

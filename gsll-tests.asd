@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-03-16 19:02:05EDT gsll-tests.asd>
+;; Time-stamp: <2009-04-15 23:26:17EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -10,7 +10,10 @@
   :licence "LLGPL v3, FDL"
   :depends-on (gsll lisp-unit)
   :components
-  ((:module tests
+  ((:module test-unit
+	    :components
+	    ((:file "augment")))
+   (:module tests
 	    :components
 	    ((:file "absolute-deviation")
 	     (:file "absolute-sum")

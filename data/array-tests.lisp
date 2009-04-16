@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2009-01-11 22:19:58EST array-tests.lisp>
+;; Time-stamp: <2009-04-15 23:28:05EDT array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -62,7 +62,7 @@
 (generate-all-array-tests vector-add :no-complex
  (let ((v1 (array-default 3))
        (v2 (array-default 3)))
-   (cl-array (elt+ v1 v2))))
+   (elt+ v1 v2)))
 
 (generate-all-array-tests matrix-add :no-complex
  (let ((m1 (array-default '(3 3)))
