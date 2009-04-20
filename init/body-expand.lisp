@@ -1,6 +1,6 @@
 ;; Expand the body of a defmfun
 ;; Liam Healy 2009-04-13 22:07:13EDT body-expand.lisp
-;; Time-stamp: <2009-04-15 23:10:44EDT body-expand.lisp>
+;; Time-stamp: <2009-04-19 22:50:11EDT body-expand.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -45,24 +45,26 @@
 (defmacro foreign-funcall-indirect (name-and-options &rest arguments)
   "Call the foreign function through FSBV, after setting one more level of indirection."  
   (let* ((arguments-symbol-type
-	  (loop for (type symbol) on (butlast arguments) by #'cddr
-	     collect (list (make-symbol (string symbol)) type)))
+	  (loop for (type form) on (butlast arguments) by #'cddr
+	     collect
+	     (list (if (symbolp form)
+		       (make-symbol (string form))
+		       (gensym "FORMARG"))
+		   type)))
+	 (clargs (loop for (nil form) on (butlast arguments) by #'cddr
+		    collect form))
 	 (ptrlist (mapcar
 		   (lambda (st)
 		     (make-st (st-symbol st)
 			      (st-type st)))
 		   arguments-symbol-type)))
     ;; Here allocate the foreign objects
-    `(cffi:with-foreign-objects
-	 ,(mapcar (lambda (st) (make-st (st-symbol st) `',(st-type st))) ptrlist)
-       ;; and fill them
-       (setf 
-	,@(loop for newarg in arguments-symbol-type
-	     for (nil oldarg) on (butlast arguments) by #'cddr
-	     append (list
-		     `(cffi:mem-aref ,(st-symbol newarg) ',(st-type newarg))
-		     oldarg)))
-       ;; then call the foreign function
+    `(fsbv:with-foreign-objects
+	 ,(mapcar (lambda (st cl)
+		    (append (make-st (st-symbol st) `',(st-type st))
+			    (list cl)))
+		  ptrlist
+		  clargs)
        (fsbv:foreign-funcall
 	,name-and-options
 	,@(append (mappend 'reverse ptrlist) (last arguments))))))
@@ -72,11 +74,15 @@
   (with-defmfun-key-args key-args
     (let* ((creturn-st (creturn-st c-return))
 	   (allocated-return ; Allocated and then returned from CL function
-	    (remove-if
+	    (mapcar
 	     (lambda (s)
-	       (member s (arglist-plain-and-categories arglist nil)))
-	     c-arguments
-	     :key 'st-symbol))
+	       (or (find s c-arguments :key #'st-symbol)
+		   ;; Catch programming errors, usually typos
+		   (error "Could not find ~a among the arguments" s)))
+	     (remove-if
+	      (lambda (s)
+		(member s (arglist-plain-and-categories arglist nil)))
+	      (variables-used-in-c-arguments c-arguments))))
 	   (pbv (variables-passed-by-value c-arguments)) ; passed by value
 	   (clret (or			; better as a symbol macro
 		   (substitute
@@ -106,7 +112,7 @@
 	   ,@(callback-set-slots
 	      cbinfo callback-dynamic-variables callback-dynamic)
 	   (let ((,(st-symbol creturn-st)
-		  (,(if pbv
+		  (,(if (some 'identity pbv)
 			'foreign-funcall-indirect
 			'cffi:foreign-funcall)
 		    ,gsl-name
