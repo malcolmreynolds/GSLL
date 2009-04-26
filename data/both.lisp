@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-03-18 11:08:31EDT both.lisp>
+;; Time-stamp: <2009-04-25 18:29:10EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -247,7 +247,9 @@
 
 (defmfun minmax ((a both))
   ("gsl_" :category :type "_minmax")
-  (((mpointer a) :pointer) (min :element-c-type) (max :element-c-type))
+  (((mpointer a) :pointer)
+   (min (:pointer :element-c-type))
+   (max (:pointer :element-c-type)))
   :definition :generic
   :element-types :no-complex
   :inputs (a)

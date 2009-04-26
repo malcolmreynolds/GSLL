@@ -1,6 +1,6 @@
 ;; Expand the body of a defmfun
 ;; Liam Healy 2009-04-13 22:07:13EDT body-expand.lisp
-;; Time-stamp: <2009-04-19 22:50:11EDT body-expand.lisp>
+;; Time-stamp: <2009-04-25 23:42:34EDT body-expand.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -122,7 +122,7 @@
 				 ((member (st-symbol arg) allocated-return) :pointer)
 				 (t (st-type arg)))
 			       (st-symbol arg)))
-		       c-arguments)
+		       (mapcar 'st-pointer-generic-pointer c-arguments))
 		    ,(st-type creturn-st))))
 	     ,@(case c-return
 		     (:void `((declare (ignore ,(st-symbol creturn-st)))))

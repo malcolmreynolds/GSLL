@@ -1,6 +1,6 @@
 ;; Macros to interface GSL functions, including definitions necessary for defmfun.
 ;; Liam Healy 
-;; Time-stamp: <2009-04-04 22:44:06EDT interface.lisp>
+;; Time-stamp: <2009-04-25 23:31:38EDT interface.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -44,29 +44,29 @@
 (defun st-type (decl)
   (second decl))
 
-(defun st-arrayp (decl)
-  (listp (st-type decl)))
+(defun st-pointerp (decl)
+  "If this st represents a pointer, return the type of the object."
+  (if
+   (eq (st-type decl) :pointer)
+   t				   ; return T for type if unknown type
+   (if (and (listp (st-type decl))
+	    (eq (first (st-type decl)) :pointer))
+       (second (st-type decl)))))
 
-(defun st-array-pointer-last-p (decl)
-  (listp (st-type decl)))
+(defun st-actual-type (decl)
+  (or (st-pointerp decl) (st-type decl)))
 
-(defun st-eltype (decl)
-  (first (st-type decl)))
-
-(defun st-dim (decl)
-  (second (st-type decl)))
-
-(defun st-pointer-last-p (decl)
-  (third (st-type decl)))
+(defun st-pointer-generic-pointer (decl)
+  (if (st-pointerp decl)
+      (make-st (st-symbol decl) :pointer)
+      decl))
 
 (defun wfo-declare (d cbinfo)
   `(,(st-symbol d)
-     ,@(if (st-arrayp d)
-	   `(',(st-eltype d) ,(st-dim d))
-	   (if (eq (st-symbol d)
-		   (parse-callback-static cbinfo 'foreign-argument))
-	       `(',(parse-callback-static cbinfo 'callback-fnstruct))
-	       `(',(st-type d))))))
+     ,@(if (eq (st-symbol d)
+	       (parse-callback-static cbinfo 'foreign-argument))
+	   `(',(parse-callback-static cbinfo 'callback-fnstruct))
+	   `(',(st-actual-type d)))))
 
 ;;;;****************************************************************************
 ;;;; Checking results from GSL functions
