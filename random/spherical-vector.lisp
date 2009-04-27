@@ -1,6 +1,6 @@
 ;; Spherical Vector distribution
 ;; Liam Healy, Sun Oct  22 2006
-;; Time-stamp: <2009-02-16 10:10:32EST spherical-vector.lisp>
+;; Time-stamp: <2009-04-26 23:08:37EDT spherical-vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,7 +11,8 @@
 
 (defmfun direction-2d (generator)
   "gsl_ran_dir_2d"
-  (((mpointer generator) :pointer) (x :double) (y :double))
+  (((mpointer generator) :pointer)
+   (x (:pointer :double)) (y (:pointer :double)))
   :c-return :void
   :documentation			; FDL
   "A random direction vector v = (x,y) in
@@ -20,7 +21,8 @@
 
 (defmfun direction-2d-trig-method (generator)
   "gsl_ran_dir_2d_trig_method"
-  (((mpointer generator) :pointer) (x :double) (y :double))
+  (((mpointer generator) :pointer)
+   (x (:pointer :double)) (y (:pointer :double)))
   :c-return :void
   :documentation			; FDL
   "A random direction vector v = (x,y) in
@@ -29,7 +31,8 @@
 
 (defmfun direction-3d (generator)
   "gsl_ran_dir_3d"
-  (((mpointer generator) :pointer) (x :double) (y :double) (z :double))
+  (((mpointer generator) :pointer)
+   (x (:pointer :double)) (y (:pointer :double)) (z (:pointer :double)))
   :c-return :void
   :documentation			; FDL
   "A random direction vector v =

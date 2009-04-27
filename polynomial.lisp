@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2009-04-02 21:58:22EDT polynomial.lisp>
+;; Time-stamp: <2009-04-26 22:49:47EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -103,7 +103,8 @@
 
 (defmfun solve-quadratic (a b c)
   "gsl_poly_solve_quadratic"
-  ((a :double) (b :double) (c :double) (root1 :double) (root2 :double))
+  ((a :double) (b :double) (c :double)
+   (root1 (:pointer :double)) (root2 (:pointer :double)))
   :c-return :number-of-answers
   :documentation			; FDL
   "The real roots of the quadratic equation a x^2 + b x + c = 0.
@@ -127,7 +128,8 @@
 (defmfun solve-cubic (a b c)
   "gsl_poly_solve_cubic"
   ((a :double) (b :double) (c :double)
-   (root1 :double) (root2 :double) (root3 :double))
+   (root1 (:pointer :double))
+   (root2 (:pointer :double)) (root3 (:pointer :double)))
   :c-return :number-of-answers
   :documentation			; FDL
   "Find the real roots of the cubic equation, x^3 + a x^2 + b x + c = 0

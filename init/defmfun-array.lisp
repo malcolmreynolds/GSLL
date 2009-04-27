@@ -1,6 +1,6 @@
 ;; Helpers for defining GSL functions on arrays
 ;; Liam Healy 2009-01-07 22:01:16EST defmfun-array.lisp
-;; Time-stamp: <2009-04-25 23:27:05EDT defmfun-array.lisp>
+;; Time-stamp: <2009-04-26 22:27:10EDT defmfun-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -200,7 +200,7 @@
    (lambda (v)
      (subst (cl-cffi element-type) :element-c-type
 	    (subst (component-type element-type) :component-float-type v)))
-   c-arguments)))
+   c-arguments))
 
 ;;; (actual-class-arglist '((v1 vector) (v2 vector) (m matrix) x) '(unsigned-byte 16))
 ;;; ((V1 VECTOR-UNSIGNED-BYTE-16) (V2 VECTOR-UNSIGNED-BYTE-16)

@@ -1,6 +1,6 @@
 ;; Gaussian bivariate distribution
 ;; Liam Healy, Sat Sep  2 2006 - 16:32
-;; Time-stamp: <2009-02-16 10:10:33EST gaussian-bivariate.lisp>
+;; Time-stamp: <2009-04-26 23:06:34EDT gaussian-bivariate.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,7 +10,7 @@
 (defmfun bivariate-gaussian (generator sigma-x sigma-y rho)
   "gsl_ran_bivariate_gaussian"
   (((mpointer generator) :pointer) (sigma-x :double) (sigma-y :double) (rho :double)
-   (x :double) (y :double))
+   (x (:pointer :double)) (y (:pointer :double)))
   :c-return :void
   :documentation			; FDL
   "Generate a pair of correlated Gaussian variates, with

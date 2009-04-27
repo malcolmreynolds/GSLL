@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2009-01-11 22:19:58EST array-tests.lisp>
+;; Time-stamp: <2009-04-11 22:33:59EDT array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -15,13 +15,13 @@
 ;;;; Bulk operations
 ;;;;****************************************************************************
 
-(generate-all-array-tests vector-set-all-add :no-complex
+(generate-all-array-tests vector-set-all-add t
  (let ((v1 (array-default 3 t))
 	(v2 (array-default 3)))
    (set-all v1 (scalar-default))
    (cl-array (elt+ v1 v2))))
 
-(generate-all-array-tests matrix-set-all-add :no-complex
+(generate-all-array-tests matrix-set-all-add t
  (let ((m1 (array-default '(3 3) t))
        (m2 (array-default '(3 3))))
    (set-all m1 (scalar-default))

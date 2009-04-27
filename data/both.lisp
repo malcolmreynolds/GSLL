@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-04-25 18:29:10EDT both.lisp>
+;; Time-stamp: <2009-04-26 22:29:34EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -270,7 +270,7 @@
 
 (defmfun min-index ((a matrix))
   ("gsl_" :category :type "_min_index")
-  (((mpointer a) :pointer) (imin sizet) (jmin sizet))
+  (((mpointer a) :pointer) (imin (:pointer sizet)) (jmin (:pointer sizet)))
   :definition :methods
   :element-types :no-complex
   :inputs (a)
@@ -289,7 +289,7 @@
 
 (defmfun max-index ((a matrix))
   ("gsl_" :category :type "_max_index")
-  (((mpointer a) :pointer) (imax sizet) (jmax sizet))
+  (((mpointer a) :pointer) (imin (:pointer sizet)) (jmin (:pointer sizet)))
   :definition :methods
   :element-types :no-complex
   :inputs (a)
@@ -297,7 +297,7 @@
 
 (defmfun minmax-index ((a vector))
   ("gsl_" :category :type "_minmax_index")
-  (((mpointer a) :pointer) (imin sizet) (imax sizet))
+  (((mpointer a) :pointer) (imin (:pointer sizet)) (jmin (:pointer sizet)))
   :definition :generic
   :element-types :no-complex
   :inputs (a)
@@ -310,7 +310,9 @@
 
 (defmfun minmax-index ((a matrix))
   ("gsl_" :category :type "_minmax_index")
-  (((mpointer a) :pointer) (imin sizet) (jmin sizet) (imax sizet) (jmax sizet))
+  (((mpointer a) :pointer)
+   (imin (:pointer sizet)) (jmin (:pointer sizet))
+   (imax (:pointer sizet)) (jmax (:pointer sizet)))
   :definition :methods
   :element-types :no-complex
   :inputs (a)

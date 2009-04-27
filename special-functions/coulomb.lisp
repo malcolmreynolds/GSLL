@@ -1,9 +1,11 @@
 ;; Coulumb functions
 ;; Liam Healy, Sat Mar 18 2006 - 23:23
-;; Time-stamp: <2009-01-11 10:14:54EST coulomb.lisp>
+;; Time-stamp: <2009-04-26 22:57:18EDT coulomb.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_sf_coulomb.h
 
 ;;;;****************************************************************************
 ;;;; Normalized Hydrogenic Bound States
@@ -33,7 +35,7 @@
   "gsl_sf_coulomb_wave_FG_e"
   ((eta :double) (x :double) (L-F :double) (k :int)
    (F sf-result) (Fp sf-result) (G sf-result) (Gp sf-result)
-   (exp-F :double) (exp-G :double))
+   (exp-F (:pointer :double)) (exp-G (:pointer :double)))
   :return
   ((val F) (val Fp) (val G) (val Gp)
    (dcref exp-F) (dcref exp-G)
@@ -53,7 +55,7 @@
 	   &aux (fc-array (vdf size-or-array)))
   "gsl_sf_coulomb_wave_F_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
-   ((c-pointer fc-array) :pointer) (F-exponent :double))
+   ((c-pointer fc-array) :pointer) (F-exponent (:pointer :double)))
   :outputs (fc-array)
   :return (fc-array (dcref F-exponent))
   :documentation			; FDL
@@ -70,7 +72,7 @@
   "gsl_sf_coulomb_wave_FG_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((c-pointer fc-array) :pointer) ((c-pointer gc-array) :pointer)
-   (F-exponent :double) (G-exponent :double))
+   (F-exponent (:pointer :double)) (G-exponent (:pointer :double)))
   :outputs (fc-array gc-array)
   :return (fc-array gc-array (dcref F-exponent) (dcref G-exponent))
   :documentation			; FDL
@@ -93,7 +95,7 @@
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
    ((c-pointer fc-array) :pointer) ((c-pointer fcp-array) :pointer)
    ((c-pointer gc-array) :pointer) ((c-pointer gcp-array) :pointer)
-   (F-exponent :double) (G-exponent :double))
+   (F-exponent (:pointer :double)) (G-exponent (:pointer :double)))
   :outputs (fc-array fcp-array gc-array gcp-array)
   :return
   (fc-array fcp-array gc-array gcp-array
@@ -111,7 +113,7 @@
 	   &aux (fc-array (vdf size-or-array)))
   "gsl_sf_coulomb_wave_sphF_array"
   ((L-min :double) ((1- (dim0 fc-array)) :int) (eta :double) (x :double)
-   ((c-pointer fc-array) :pointer) (F-exponent :double))
+   ((c-pointer fc-array) :pointer) (F-exponent (:pointer :double)))
   :outputs (fc-array)
   :return (fc-array (dcref F-exponent))
   :documentation			; FDL

@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2009-03-17 20:27:01EDT permutation.lisp>
+;; Time-stamp: <2009-04-26 22:47:28EDT permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -223,7 +223,7 @@
 (defmfun permute-inverse
     (p (data #.+foreign-pointer-class+) &optional (size 1) (stride 1))
   "gsl_permute_inverse"
-  (((mpointer p) :pointer) (data :pointer) (stride sizet) (n sizet))
+  (((mpointer p) :pointer) (data :pointer) (stride sizet) (stride sizet))
   :definition :method
   :inputs (p data)
   :outputs (data)

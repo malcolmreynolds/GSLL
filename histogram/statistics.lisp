@@ -1,9 +1,12 @@
 ;; Statistics of histograms.
 ;; Liam Healy, Mon Jan  1 2007 - 16:13
-;; Time-stamp: <2008-12-26 14:46:23EST statistics.lisp>
+;; Time-stamp: <2009-04-26 23:15:55EDT statistics.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_histogram.h
+;;; /usr/include/gsl/gsl_histogram2d.h
 
 (defmfun mmax ((histogram histogram))
   "gsl_histogram_max_val"
@@ -50,7 +53,7 @@
 (defmfun max-index ((histogram histogram2d))
   "gsl_histogram2d_max_bin"
   (((mpointer histogram) :pointer)
-   (xindex sizet) (yindex sizet))
+   (xindex (:pointer sizet)) (yindex (:pointer sizet)))
   :definition :method
   :c-return :void
   :documentation			; FDL
@@ -71,7 +74,7 @@
 (defmfun min-index ((histogram histogram2d))
   "gsl_histogram2d_min_bin"
   (((mpointer histogram) :pointer)
-   (xindex sizet) (yindex sizet))
+   (xindex (:pointer sizet)) (yindex (:pointer sizet)))
   :definition :method
   :c-return :void
   :documentation			; FDL

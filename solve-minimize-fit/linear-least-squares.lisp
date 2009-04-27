@@ -1,6 +1,6 @@
 ;; Linear least squares, or linear regression
 ;; Liam Healy <2008-01-21 12:41:46EST linear-least-squares.lisp>
-;; Time-stamp: <2009-03-20 14:58:52EDT linear-least-squares.lisp>
+;; Time-stamp: <2009-04-26 23:36:23EDT linear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,16 +22,18 @@
     (x y &optional weight (x-stride 1) (y-stride 1) (weight-stride 1))
   ("gsl_fit_linear" "gsl_fit_wlinear")
   ((((c-pointer x) :pointer) (x-stride sizet)
-   ((c-pointer y) :pointer) (y-stride sizet)
-   ((dim0 x) sizet) (c0 :double) (c1 :double)
-   (cov00 :double) (cov01 :double) (cov11 :double)
-   (sumsq :double))
+    ((c-pointer y) :pointer) (y-stride sizet)
+    ((dim0 x) sizet)
+    (c0 (:pointer :double)) (c1 (:pointer :double))
+    (cov00 (:pointer :double)) (cov01 (:pointer :double))
+    (cov11 (:pointer :double)) (sumsq (:pointer :double)))
    (((c-pointer x) :pointer) (x-stride sizet)
-   ((c-pointer weight) :pointer) (weight-stride sizet)
-   ((c-pointer y) :pointer) (y-stride sizet)
-   ((dim0 x) sizet) (c0 :double) (c1 :double)
-   (cov00 :double) (cov01 :double) (cov11 :double)
-   (chisq :double)))
+    ((c-pointer weight) :pointer) (weight-stride sizet)
+    ((c-pointer y) :pointer) (y-stride sizet)
+    ((dim0 x) sizet)
+    (c0 (:pointer :double)) (c1 (:pointer :double))
+    (cov00 (:pointer :double)) (cov01 (:pointer :double))
+    (cov11 (:pointer :double)) (sumsq (:pointer :double))))
   :inputs (x weight y)
   :switch (weight weight-stride)
   :documentation			; FDL
@@ -53,7 +55,7 @@
   "gsl_fit_linear_est"
   ((x :double) (c0 :double) (c1 :double)
    (cov00 :double) (cov01 :double) (cov11 :double)
-   (y :double) (y-error :double))
+   (y (:pointer :double)) (y-error (:pointer :double)))
   :documentation			; FDL
   "Use the best-fit linear regression coefficients
    c0, c1 and their covariance
@@ -70,13 +72,15 @@
   ("gsl_fit_mul" "gsl_fit_wmul")
   ((((c-pointer x) :pointer) (x-stride sizet)
     ((c-pointer y) :pointer) (y-stride sizet)
-    ((dim0 x) sizet) (c1 :double) (cov11 :double)
-    (sumsq :double))
+    ((dim0 x) sizet)
+    (c1 (:pointer :double)) (cov11 (:pointer :double))
+    (sumsq (:pointer :double)))
    (((c-pointer x) :pointer) (x-stride sizet)
     ((c-pointer weight) :pointer) (weight-stride sizet)
     ((c-pointer y) :pointer) (y-stride sizet)
-    ((dim0 x) sizet) (c1 :double) (cov11 :double)
-    (chisq :double)))
+    ((dim0 x) sizet)
+    (c1 (:pointer :double)) (cov11 (:pointer :double))
+    (sumsq (:pointer :double))))
   :inputs (x y weight)
   :switch (weight weight-stride)
   :documentation			; FDL
@@ -95,7 +99,7 @@
 (defmfun multiplier-estimate (x c1 cov11)
   "gsl_fit_mul_est"
   ((x :double) (c1 :double) (cov11 :double)
-   (y :double) (y-error :double))
+   (y (:pointer :double)) (y-error (:pointer :double)))
   :documentation			; FDL
   "Use the best-fit linear regression coefficient
    c1 and its covariance cov11 to compute the fitted function
@@ -171,14 +175,14 @@
     ((mpointer observations) :pointer)
     ((mpointer parameters) :pointer)
     ((mpointer covariance) :pointer)
-    (chisq :double)
+    (chisq (:pointer :double))
     ((mpointer workspace) :pointer))
    (((mpointer model) :pointer)
     ((mpointer weight) :pointer)
     ((mpointer observations) :pointer)
     ((mpointer parameters) :pointer)
     ((mpointer covariance) :pointer)
-    (chisq :double)
+    (chisq (:pointer :double))
     ((mpointer workspace) :pointer)))
   :inputs (model weight observations)
   :outputs (parameters covariance)
@@ -211,19 +215,19 @@
   ((((mpointer model) :pointer)
     ((mpointer observations) :pointer)
     (tolerance :double)
-    (rank sizet)
+    (rank (:pointer sizet))
     ((mpointer parameters) :pointer)
     ((mpointer covariance) :pointer)
-    (chisq :double)
+    (chisq (:pointer :double))
     ((mpointer workspace) :pointer))
    (((mpointer model) :pointer)
     ((mpointer weight) :pointer)
     ((mpointer observations) :pointer)
     (tolerance :double)
-    (rank sizet)
+    (rank (:pointer sizet))
     ((mpointer parameters) :pointer)
     ((mpointer covariance) :pointer)
-    (chisq :double)
+    (chisq (:pointer :double))
     ((mpointer workspace) :pointer)))
   :inputs (model weight observations)
   :outputs (parameters covariance)
@@ -252,7 +256,8 @@
 (defmfun multi-linear-estimate (x coefficients covariance)
   "gsl_multifit_linear_est"
   (((mpointer x) :pointer) ((mpointer coefficients) :pointer)
-   ((mpointer covariance) :pointer) (y :double) (y-error :double))
+   ((mpointer covariance) :pointer)
+   (y (:pointer :double)) (y-error (:pointer :double)))
   :inputs (x coefficients covariance)
   :documentation			; FDL
   "Use the best-fit multilinear regression coefficients

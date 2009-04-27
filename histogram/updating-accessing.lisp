@@ -1,9 +1,12 @@
 ;; Updating and accessing histogram elements.
 ;; Liam Healy, Mon Jan  1 2007 - 14:43
-;; Time-stamp: <2008-12-26 11:58:11EST updating-accessing.lisp>
+;; Time-stamp: <2009-04-26 23:13:17EDT updating-accessing.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_histogram.h
+;;; /usr/include/gsl/gsl_histogram2d.h
 
 (defmfun increment (histogram value &optional weight)
   ("gsl_histogram_increment" "gsl_histogram_accumulate")
@@ -37,7 +40,7 @@
 (defmfun range (histogram i)
   "gsl_histogram_get_range"
   (((mpointer histogram) :pointer) (i sizet)
-   (lower :double) (upper :double))
+   (lower (:pointer :double)) (upper (:pointer :double)))
   :documentation			; FDL
   "Find the upper and lower range limits of the i-th
    bin of the histogram.  If the index i is valid then the
@@ -79,9 +82,9 @@
 
 (defmfun histogram-find (histogram x-value &optional y-value)
   ("gsl_histogram_find" "gsl_histogram2d_find")
-  ((((mpointer histogram) :pointer) (x-value :double) (bin sizet))
+  ((((mpointer histogram) :pointer) (x-value :double) (bin (:pointer sizet)))
    (((mpointer histogram) :pointer) (x-value :double) (y-value :double)
-   (xbin sizet) (ybin sizet)))
+   (xbin (:pointer sizet)) (ybin (:pointer sizet))))
   :documentation			; FDL
   "Finds the bin number which covers the coordinate value in
    the histogram.  The bin is located using a binary search. The

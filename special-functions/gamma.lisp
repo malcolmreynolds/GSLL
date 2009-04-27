@@ -1,6 +1,6 @@
 ;; Gamma functions
 ;; Liam Healy, Thu Apr 27 2006 - 22:06
-;; Time-stamp: <2008-10-23 23:02:09EDT gamma.lisp>
+;; Time-stamp: <2009-04-26 22:59:46EDT gamma.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,6 +8,8 @@
 ;;; Need to handle incoming gsl-complex numbers correctly for log-gamma-complex.
 ;;; Should functions returning sf-result and something else return the
 ;;; error at the end?
+
+;;; /usr/include/gsl/gsl_sf_gamma.h
 
 ;;;;****************************************************************************
 ;;;; Gamma functions
@@ -33,7 +35,8 @@
    is computed using the real Lanczos method.")
 
 (defmfun log-gamma-sign (x)
-  "gsl_sf_lngamma_sgn_e" ((x :double) (ret sf-result) (sign :double))
+  "gsl_sf_lngamma_sgn_e"
+  ((x :double) (ret sf-result) (sign (:pointer :double)))
   :return ((val ret) (dcref sign) (err ret))
   :documentation			; FDL
   "Compute the sign of the gamma function and the logarithm of
@@ -127,7 +130,7 @@
 
 (defmfun log-pochammer-sign (a x)
   "gsl_sf_lnpoch_sgn_e"
-  ((a :double) (x :double) (ret sf-result) (sign :double))
+  ((a :double) (x :double) (ret sf-result) (sign (:pointer :double)))
   :documentation			; FDL
   "The logarithm of the Pochhammer symbol and its sign.
   The computed parameters are result =
