@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2009-04-26 22:49:47EDT polynomial.lisp>
+;; Time-stamp: <2009-04-27 21:25:42EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -114,7 +114,7 @@
 (defmfun solve-quadratic-complex (a b c)
   "gsl_poly_complex_solve_quadratic"
   ((a :double) (b :double) (c :double)
-   (root1 complex-double-c) (root2 complex-double-c))
+   (root1 (:pointer complex-double-c)) (root2 (:pointer complex-double-c)))
   :c-return :number-of-answers
   :documentation			; FDL
   "The complex roots of the quadratic equation a x^2 + b x + c = 0.
@@ -140,7 +140,8 @@
 (defmfun solve-cubic-complex (a b c)
   "gsl_poly_complex_solve_cubic"
   ((a :double) (b :double) (c :double)
-   (root1 complex-double-c) (root2 complex-double-c) (root3 complex-double-c))
+   (root1 (:pointer complex-double-c)) (root2 (:pointer complex-double-c))
+   (root3 (:pointer complex-double-c)))
   :c-return :number-of-answers
   :documentation			; FDL
   "Find the complex roots of the cubic equation, x^3 + a x^2 + b x + c = 0

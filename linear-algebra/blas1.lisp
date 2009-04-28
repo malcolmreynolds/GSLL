@@ -1,6 +1,6 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2009-04-26 23:01:57EDT blas1.lisp>
+;; Time-stamp: <2009-04-27 21:30:47EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -32,7 +32,7 @@
 (defmfun cdot ((x vector) (y vector))
   ("gsl_blas_" :type "dotc")
   (((mpointer x) :pointer) ((mpointer y) :pointer)
-   (result :element-c-type))
+   (result (:pointer :element-c-type)))
   :definition :generic
   :element-types :complex
   :inputs (x y)
