@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-03-15 17:09:00EDT blas2.lisp>
+;; Time-stamp: <2009-04-29 20:38:03EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -15,13 +15,19 @@
   "CBLAS_TRANSPOSE from /usr/include/gsl/gsl_cblas.h."
   (:notrans 111) :trans :conjtrans)
 
+(fsbv:defcenum-aux cblas-transpose)
+
 (cffi:defcenum cblas-uplo
   "/usr/include/gsl/gsl_cblas.h."
   (:upper 121) :lower)
 
+(fsbv:defcenum-aux cblas-uplo)
+
 (cffi:defcenum cblas-diag
   "/usr/include/gsl/gsl_cblas.h."
  (:nonunit 131) :unit)
+
+(fsbv:defcenum-aux cblas-diag)
 
 ;;;;****************************************************************************
 ;;;; Functions
@@ -37,7 +43,9 @@
 (defmfun matrix-product
     ((A matrix) (x vector)
      &optional
-     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (y (make-marray
+	 element-type :dimensions (matrix-product-dimensions A x)
+	 :initial-element 0))
      (alpha 1) (beta 1) (TransA :notrans) TransB)
   ("gsl_blas_" :type "gemv")
   ((transa cblas-transpose) (alpha :element-c-type) ((mpointer A) :pointer)
@@ -123,7 +131,8 @@
 (defmfun matrix-product-symmetric
     ((A matrix) (x vector)
      &optional
-     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)
+		     :initial-element 0))
      (alpha 1) (beta 1) (uplo :upper) (side :left))
   ("gsl_blas_" :type "symv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
@@ -151,7 +160,8 @@
 (defmfun matrix-product-hermitian
     ((A matrix) (x vector)
      &optional
-     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)
+		     :initial-element 0))
      (alpha 1) (beta 1) (uplo :upper) (side :left))
   ;; This always signals an error because you can't pass a
   ;; struct in CFFI yet.

@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-03-16 19:02:05EDT gsll-tests.asd>
+;; Time-stamp: <2009-04-29 22:25:14EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -104,7 +104,7 @@
 	     (:file "matrix-product-nonsquare")
 	     (:file "matrix-product-symmetric")
 	     (:file "matrix-product-triangular")
-	     (:file "matrix-set-all-add")
+	     (:file "matrix-set-all")
 	     (:file "matrix-set-zero")
 	     (:file "matrix-standard-deviation")
 	     (:file "matrix-standard-deviation-with-fixed-mean")
@@ -177,7 +177,7 @@
 	     (:file "vector-add")
 	     (:file "vector-mult")
 	     (:file "vector-reverse")
-	     (:file "vector-set-all-add")
+	     (:file "vector-set-all")
 	     (:file "vector-set-zero")
 	     (:file "vector-standard-deviation")
 	     (:file "vector-standard-deviation-with-fixed-mean")

@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2009-04-27 21:25:42EDT polynomial.lisp>
+;; Time-stamp: <2009-04-29 22:34:47EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,11 +26,10 @@
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the point x.")
 
-#|
 ;;; These won't work until we can take returned complex (structs).
 (defmfun evaluate
     ((coefficients vector-double-float) (x complex)
-     &key &allow-other-keys)
+     &key)
   "gsl_poly_complex_eval"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
    (x complex-double-c))
@@ -43,7 +42,7 @@
 
 (defmfun evaluate
     ((coefficients vector-complex-double-float) (x complex)
-     &key &allow-other-keys)
+     &key)
   "gsl_complex_poly_complex_eval"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
    (x complex-double-c))
@@ -53,7 +52,6 @@
   :c-return complex-double-c
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the complex value x.")
-|#
 
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials

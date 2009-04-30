@@ -1,6 +1,6 @@
 ;; Tests of array functions 
 ;; Liam Healy 2008-10-20 22:41:48EDT array-tests.lisp
-;; Time-stamp: <2009-04-11 22:33:59EDT array-tests.lisp>
+;; Time-stamp: <2009-04-29 22:23:37EDT array-tests.lisp>
 ;; $Id: $
 
 ;;; Generate each file with #'write-test-to-file, e.g.
@@ -15,17 +15,13 @@
 ;;;; Bulk operations
 ;;;;****************************************************************************
 
-(generate-all-array-tests vector-set-all-add t
- (let ((v1 (array-default 3 t))
-	(v2 (array-default 3)))
-   (set-all v1 (scalar-default))
-   (cl-array (elt+ v1 v2))))
+(generate-all-array-tests vector-set-all t
+ (let ((v1 (array-default 3 t)))
+   (cl-array (set-all v1 (scalar-default)))))
 
-(generate-all-array-tests matrix-set-all-add t
- (let ((m1 (array-default '(3 3) t))
-       (m2 (array-default '(3 3))))
-   (set-all m1 (scalar-default))
-   (cl-array (elt+ m1 m2))))
+(generate-all-array-tests matrix-set-all t
+ (let ((m1 (array-default '(3 3) t)))
+   (cl-array (set-all m1 (scalar-default)))))
 
 (generate-all-array-tests vector-set-zero t
  (let ((v1 (array-default 3)))
@@ -58,6 +54,8 @@
 ;;;;****************************************************************************
 ;;;; Arithmetic operations
 ;;;;****************************************************************************
+
+;;; In GSL versions >= 1.12, :no-complex can be changed to T.
 
 (generate-all-array-tests vector-add :no-complex
  (let ((v1 (array-default 3))
