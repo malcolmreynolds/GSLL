@@ -1,6 +1,6 @@
 ;; Expand the body of a defmfun
 ;; Liam Healy 2009-04-13 22:07:13EDT body-expand.lisp
-;; Time-stamp: <2009-05-03 16:31:28EDT body-expand.lisp>
+;; Time-stamp: <2009-05-03 17:59:45EDT body-expand.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -96,7 +96,8 @@
 	      (lambda (s)
 		(member s (arglist-plain-and-categories arglist nil)))
 	      (variables-used-in-c-arguments c-arguments))))
-	   (pbv (variables-passed-by-value c-arguments)) ; passed by value
+	   (pbv				; passed by value
+	    (variables-passed-by-value (cons creturn-st c-arguments)))
 	   (clret (or			; better as a symbol macro
 		   (substitute
 		    (st-symbol creturn-st) :c-return
