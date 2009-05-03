@@ -1,6 +1,6 @@
 ;; Complex number types
 ;; Liam Healy 2009-01-13 21:24:05EST complex-types.lisp
-;; Time-stamp: <2009-04-26 00:02:09EDT complex-types.lisp>
+;; Time-stamp: <2009-05-03 10:00:23EDT complex-types.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -27,13 +27,21 @@
 ;;; cannot use functions that call or return complex scalars.
 
 ;;; See /usr/include/gsl/gsl_complex.h
+#+fsbv
 (fsbv:defcstruct
     (complex-float-c :constructor complex :deconstructor (realpart imagpart))
   (dat :float :count 2))
 
+#-fsbv
+(cffi:defcstruct complex-float-c (dat :float :count 2))
+
+#+fsbv
 (fsbv:defcstruct
     (complex-double-c :constructor complex :deconstructor (realpart imagpart))
   (dat :double :count 2))
+
+#-fsbv
+(cffi:defcstruct complex-double-c (dat :double :count 2))
 
 #+long-double
 (cffi:defcstruct complex-long-double-c

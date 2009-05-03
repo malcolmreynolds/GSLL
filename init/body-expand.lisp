@@ -1,6 +1,6 @@
 ;; Expand the body of a defmfun
 ;; Liam Healy 2009-04-13 22:07:13EDT body-expand.lisp
-;; Time-stamp: <2009-05-02 21:43:36EDT body-expand.lisp>
+;; Time-stamp: <2009-05-03 10:03:03EDT body-expand.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -41,6 +41,17 @@
 	    answer
 	    :test 'st-symbol))
      finally (return answer)))
+
+;;; This function should never be called even when FSBV is absent,
+;;; because the potential callers should all have #-fsbv
+;;; conditionalization.  It is here just so that body-expand can
+;;; compile when FSBV is absent.
+#-fsbv
+(defmacro no-fsbv-error (function-name &rest args)
+  (declare (ignore args))
+  `(error
+    "System FSBV is not present, so function ~a cannot be used."
+    ,function-name))
 
 (defun body-expand (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
@@ -86,7 +97,8 @@
 	      cbinfo callback-dynamic-variables callback-dynamic)
 	   (let ((,(st-symbol creturn-st)
 		  (,(if (some 'identity pbv)
-			'fsbv:foreign-funcall
+			#+fsbv 'fsbv:foreign-funcall
+			#-fsbv 'no-fsbv-error
 			'cffi:foreign-funcall)
 		    ,gsl-name
 		    ,@(mappend

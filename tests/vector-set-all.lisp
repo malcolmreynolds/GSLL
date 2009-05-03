@@ -13,6 +13,7 @@
                         (MULTIPLE-VALUE-LIST
                          (LET ((V1 (MAKE-MARRAY 'DOUBLE-FLOAT :DIMENSIONS '3)))
                            (CL-ARRAY (SET-ALL V1 -34.5d0)))))
+		       #+fsbv
                        (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
                         (LIST #(#C(-34.5 8.24) #C(-34.5 8.24) #C(-34.5 8.24)))
                         (MULTIPLE-VALUE-LIST
@@ -20,6 +21,7 @@
                                 (MAKE-MARRAY '(COMPLEX SINGLE-FLOAT)
                                              :DIMENSIONS '3)))
                            (CL-ARRAY (SET-ALL V1 #C(-34.5 8.24))))))
+		       #+fsbv
                        (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(-34.5d0 8.24d0) #C(-34.5d0 8.24d0)

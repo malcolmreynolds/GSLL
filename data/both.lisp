@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-04-26 22:29:34EDT both.lisp>
+;; Time-stamp: <2009-05-03 11:24:50EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,6 +39,7 @@
   ("gsl_" :category :type "_set_all")
   (((mpointer object) :pointer) (value :element-c-type))
   :definition :generic
+  :element-types #+fsbv t #-fsbv :no-complex
   :inputs (object)
   :outputs (object)
   :c-return :void
@@ -90,6 +91,7 @@
   ("gsl_"  :category :type "_set")
   (((mpointer object) :pointer) (index sizet) (value :element-c-type))
   :definition :generic
+  :element-types #+fsbv t #-fsbv :no-complex
   :inputs (object)
   :outputs (object)
   :c-return :void

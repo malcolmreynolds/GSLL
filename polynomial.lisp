@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2009-04-30 22:57:18EDT polynomial.lisp>
+;; Time-stamp: <2009-05-03 09:37:35EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,6 +26,7 @@
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the point x.")
 
+#+fsbv
 (defmfun evaluate
     ((coefficients vector-double-float) (x complex)
      &key)
@@ -39,6 +40,7 @@
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the complex value x.")
 
+#+fsbv
 (defmfun evaluate
     ((coefficients vector-complex-double-float) (x complex)
      &key)

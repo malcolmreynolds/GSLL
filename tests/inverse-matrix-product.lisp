@@ -42,6 +42,7 @@
                                                (-49.08d0 -39.66d0 -49.46d0))))
                                (S1 19.68d0))
                            (CL-ARRAY (INVERSE-MATRIX-PRODUCT M1 M2 S1)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((#C(-28.191956 35.052914) #C(-13.378113 28.736774)
@@ -71,6 +72,7 @@
                                                 -5.55 -8.82))))
                                (S1 #C(19.68 -5.55)))
                            (CL-ARRAY (INVERSE-MATRIX-PRODUCT M1 M2 S1)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((#C(-28.191956546692666d0 35.052909000810466d0)
