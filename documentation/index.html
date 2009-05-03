@@ -151,6 +151,18 @@ Then in Lisp, load the system:
   <ul>
     <li><code>(asdf:operate 'asdf:load-op :gsll)</code></li>
   </ul>
+ <p>If you wish to run the test suite, you must get lisp-unit and make
+ it known to ASDF:
+  <ul>
+    <li><code>git clone git://repo.or.cz/lisp-unit.git</code></li>
+  </ul>
+  <p>The test suite may be run with
+  <ul>
+    <li><code>(asdf:operate 'asdf:load-op :gsll-tests)</code></li>
+    <li><code>(in-package :gsl)</code></li>
+    <li><code>(lisp-unit:run-tests)</code></li>
+  </ul>
+  <p>Please see <a href="status.text">status.text</a> for known failures.
  <h3>With <a href="http://common-lisp.net/project/clbuild/">clbuild</a></h3>
 <p>
  Add the following to <code>wnpp-projects</code>:
@@ -173,29 +185,18 @@ from within the clbuild directory:
   <ul>
     <li><code>sudo aptitude install libgsl0-dev cl-cffi libffi-dev</code></li>
     <li><code>git clone git://repo.or.cz/gsll.git</code></li>
+    <li><code>git clone git://repo.or.cz/fsbv.git</code></li>
     <li><code>darcs get http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
     <li><code>clc-register-user-package trivial-garbage/trivial-garbage.asd</code></li>
     <li><code>clc-register-user-package gsll/gsll.asd</code></li>
-    <li><code>clc-register-user-package gsll/fsbv.asd</code></li>
     <li><code>clc-register-user-package gsll/gsll-tests.asd</code></li>
+    <li><code>clc-register-user-package fsbv/fsbv.asd</code></li>
   </ul>
 <p>
   After starting your Lisp implementation,
   <ul>
-    <li><code>(clc:clc-require :gsll)</code></li>
+    <li><code>(clc:clc-require :gsll-tests)</code></li>
   </ul>
- <h3>Test suite</h3>
- <p>You must get the test suite lisp-unit:
-  <ul>
-    <li><code>git clone git://repo.or.cz/lisp-unit.git</code></li>
-  </ul>
-  <p>The test suite may be run with
-  <ul>
-    <li><code>(asdf:operate 'asdf:load-op :gsll-tests)</code></li>
-    <li><code>(in-package :gsl)</code></li>
-    <li><code>(lisp-unit:run-tests)</code></li>
-  </ul>
-  <p>Please see <a href="status.text">status.text</a> for known failures.
  <h3>License</h3>
 <p>
 This software is distributed under
@@ -392,7 +393,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-05-03 12:08:21EDT index.html>
+Time-stamp: <2009-05-03 16:52:48EDT index.html>
 </small>
 <!-- hhmts end -->
  </div>
