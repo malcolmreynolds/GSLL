@@ -1,7 +1,10 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-04-04 22:32:18EDT gsll.asd>
+;; Time-stamp: <2009-05-03 09:37:17EDT gsll.asd>
 ;; $Id$
+
+(when (asdf:find-system :fsbv nil)
+  (pushnew :fsbv *features*))
 
 (asdf:defsystem "gsll"
   :name "gsll"
@@ -9,7 +12,7 @@
   :version "0"
   :author "Liam M. Healy"
   :licence "LLGPL v3, FDL"
-  :depends-on (cffi trivial-garbage)
+  :depends-on (cffi trivial-garbage #+fsbv fsbv)
   :components
   ((:module init
 	    :components
@@ -33,6 +36,7 @@
 	     (:file "defmfun" :depends-on (init forms element-types interface))
 	     (:file "defmfun-array" :depends-on (defmfun callback-included))
 	     (:file "defmfun-single" :depends-on (defmfun mobject callback))
+	     (:file "body-expand" :depends-on (defmfun mobject callback))
 	     (:file "generate-examples" :depends-on (init))))
    (:module floating-point
 	    :depends-on (init)
@@ -43,6 +47,7 @@
 	    :depends-on (init)
 	    :components
 	    ((:file "mathematical")
+	     #+fsbv
 	     (:file "complex")))
    (:module data
 	    :depends-on (init)

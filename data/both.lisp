@@ -1,6 +1,6 @@
 ;; Functions for both vectors and matrices.
 ;; Liam Healy 2008-04-26 20:48:44EDT both.lisp
-;; Time-stamp: <2009-03-18 11:08:31EDT both.lisp>
+;; Time-stamp: <2009-05-03 11:24:50EDT both.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -39,6 +39,7 @@
   ("gsl_" :category :type "_set_all")
   (((mpointer object) :pointer) (value :element-c-type))
   :definition :generic
+  :element-types #+fsbv t #-fsbv :no-complex
   :inputs (object)
   :outputs (object)
   :c-return :void
@@ -90,6 +91,7 @@
   ("gsl_"  :category :type "_set")
   (((mpointer object) :pointer) (index sizet) (value :element-c-type))
   :definition :generic
+  :element-types #+fsbv t #-fsbv :no-complex
   :inputs (object)
   :outputs (object)
   :c-return :void
@@ -247,7 +249,9 @@
 
 (defmfun minmax ((a both))
   ("gsl_" :category :type "_minmax")
-  (((mpointer a) :pointer) (min :element-c-type) (max :element-c-type))
+  (((mpointer a) :pointer)
+   (min (:pointer :element-c-type))
+   (max (:pointer :element-c-type)))
   :definition :generic
   :element-types :no-complex
   :inputs (a)
@@ -268,7 +272,7 @@
 
 (defmfun min-index ((a matrix))
   ("gsl_" :category :type "_min_index")
-  (((mpointer a) :pointer) (imin sizet) (jmin sizet))
+  (((mpointer a) :pointer) (imin (:pointer sizet)) (jmin (:pointer sizet)))
   :definition :methods
   :element-types :no-complex
   :inputs (a)
@@ -287,7 +291,7 @@
 
 (defmfun max-index ((a matrix))
   ("gsl_" :category :type "_max_index")
-  (((mpointer a) :pointer) (imax sizet) (jmax sizet))
+  (((mpointer a) :pointer) (imin (:pointer sizet)) (jmin (:pointer sizet)))
   :definition :methods
   :element-types :no-complex
   :inputs (a)
@@ -295,7 +299,7 @@
 
 (defmfun minmax-index ((a vector))
   ("gsl_" :category :type "_minmax_index")
-  (((mpointer a) :pointer) (imin sizet) (imax sizet))
+  (((mpointer a) :pointer) (imin (:pointer sizet)) (jmin (:pointer sizet)))
   :definition :generic
   :element-types :no-complex
   :inputs (a)
@@ -308,7 +312,9 @@
 
 (defmfun minmax-index ((a matrix))
   ("gsl_" :category :type "_minmax_index")
-  (((mpointer a) :pointer) (imin sizet) (jmin sizet) (imax sizet) (jmax sizet))
+  (((mpointer a) :pointer)
+   (imin (:pointer sizet)) (jmin (:pointer sizet))
+   (imax (:pointer sizet)) (jmax (:pointer sizet)))
   :definition :methods
   :element-types :no-complex
   :inputs (a)

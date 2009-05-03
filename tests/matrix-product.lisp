@@ -54,6 +54,7 @@
                                (S1 -41.67d0)
                                (S2 42.0d0))
                            (CL-ARRAY (MATRIX-PRODUCT M1 M2 M3 S1 S2)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((#C(140927.64 -143005.16) #C(72986.305 -201162.86)
@@ -93,6 +94,7 @@
                                (S1 #C(-41.67 42.0))
                                (S2 #C(42.0 -20.81)))
                            (CL-ARRAY (MATRIX-PRODUCT M1 M2 M3 S1 S2)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #2A((#C(140927.638311d0 -143005.14965699997d0)
@@ -171,6 +173,7 @@
                                (S1 -49.08d0)
                                (S2 -39.66d0))
                            (CL-ARRAY (MATRIX-PRODUCT M1 V1 V2 S1 S2)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(124163.57 -3332.2988) #C(119793.48 -166378.0)
@@ -198,6 +201,7 @@
                                (S1 #C(-49.08 -39.66))
                                (S2 #C(-39.66 -49.46)))
                            (CL-ARRAY (MATRIX-PRODUCT M1 V1 V2 S1 S2)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(124163.58013199999d0 -3332.2974459999896d0)

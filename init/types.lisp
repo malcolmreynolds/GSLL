@@ -1,6 +1,6 @@
 ;; Number types used by GSL functions, and specification conversion
 ;; Liam Healy 2008-12-31 21:06:34EST types.lisp
-;; Time-stamp: <2009-01-13 22:00:26EST types.lisp>
+;; Time-stamp: <2009-05-03 09:42:01EDT types.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -13,10 +13,12 @@
     (cffi:foreign-type-size :long)
   (8
    (push :int64 *features*)
-   (cffi:defctype sizet :uint64))
+   (cffi:defctype sizet :uint64)
+   #+fsbv (fsbv:defsynonym sizet :uint64))
   (4
    (push :int32 *features*)
-   (cffi:defctype sizet :uint32))
+   (cffi:defctype sizet :uint32)
+   #+fsbv (fsbv:defsynonym sizet :uint32))
   (t (error "Size of :long unrecognized")))
 
 ;;;;****************************************************************************

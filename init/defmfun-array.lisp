@@ -1,6 +1,6 @@
 ;; Helpers for defining GSL functions on arrays
 ;; Liam Healy 2009-01-07 22:01:16EST defmfun-array.lisp
-;; Time-stamp: <2009-03-07 15:54:48EST defmfun-array.lisp>
+;; Time-stamp: <2009-04-26 22:27:10EDT defmfun-array.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -191,30 +191,15 @@
       ;; argument, then map this function onto each.
       (mapcar (lambda (carg) (actual-array-c-type category carg nil))
 	      c-arguments)
-      (mapcar
-       (lambda (v)
-	 (if (st-arrayp v)
-	     (make-st (st-symbol v)
-		      (intern
-		       (apply #'concatenate
-			      'string
-			      (mapcar #'string
-				      (substitute category :category (st-type v))))
-		       :gsl))
-	     v))
-       c-arguments)))
+      c-arguments))
 
 (defun actual-element-c-type (element-type c-arguments)
   "Replace the generic element type :element-c-type with the
    actual element type."
   (mapcar 
    (lambda (v)
-     (if (member (st-type v) '(:element-c-type :component-float-type))
-	 (make-st (st-symbol v)
-		  (if (eq (st-type v) :component-float-type)
-		      (component-type element-type)
-		      (cl-cffi element-type)))
-	 v))
+     (subst (cl-cffi element-type) :element-c-type
+	    (subst (component-type element-type) :component-float-type v)))
    c-arguments))
 
 ;;; (actual-class-arglist '((v1 vector) (v2 vector) (m matrix) x) '(unsigned-byte 16))

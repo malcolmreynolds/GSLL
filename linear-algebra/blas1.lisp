@@ -1,14 +1,16 @@
 ;; BLAS level 1, Vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 15:23
-;; Time-stamp: <2009-01-15 21:28:41EST blas1.lisp>
+;; Time-stamp: <2009-05-03 11:28:12EDT blas1.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_blas.h
+
 (defmfun dot ((vec1 vector) (vec2 vector))
   ("gsl_blas_" :type "dot" :suffix)
   (((mpointer vec1) :pointer) ((mpointer vec2) :pointer)
-   (result :element-c-type))
+   (result (:pointer :element-c-type)))
   :definition :generic
   :element-types :float-complex
   :inputs (vec1 vec2)
@@ -30,7 +32,7 @@
 (defmfun cdot ((x vector) (y vector))
   ("gsl_blas_" :type "dotc")
   (((mpointer x) :pointer) ((mpointer y) :pointer)
-   (result :element-c-type))
+   (result (:pointer :element-c-type)))
   :definition :generic
   :element-types :complex
   :inputs (x y)
@@ -101,7 +103,7 @@
   ("gsl_blas_" :type "axpy")
   ((alpha  :element-c-type) ((mpointer x) :pointer) ((mpointer y) :pointer))
   :definition :generic
-  :element-types :float-complex
+  :element-types #+fsbv :float-complex #-fsbv :float
   :inputs (x y)
   :outputs (y)
   :documentation			; FDL
@@ -113,7 +115,7 @@
   ("gsl_blas_" :type "scal")
   ((alpha :element-c-type) ((mpointer x) :pointer))
   :definition :generic
-  :element-types :float-complex
+  :element-types #+fsbv :float-complex #-fsbv :float
   :c-return :void
   :inputs (x)
   :outputs (x)
@@ -192,12 +194,12 @@
 
 (generate-all-array-tests dot :float-complex
  (let ((v1 (array-default 8))
-	(v2 (array-default 8)))
+       (v2 (array-default 8)))
    (dot v1 v2)))
 
 (generate-all-array-tests cdot :complex
  (let ((v1 (array-default 8))
-	(v2 (array-default 8)))
+       (v2 (array-default 8)))
    (cdot v1 v2)))
 
 (generate-all-array-tests euclidean-norm :float-complex
@@ -230,7 +232,7 @@
 	(scalar (scalar-default)))
    (cl-array (axpy scalar v1 v2))))
 
-(generate-all-array-tests scale :float-complex
+(generate-all-array-tests scale #+fsbv :float-complex #-fsbv :float
  (let ((v1 (array-default 8))
 	(scalar (scalar-default)))
    (cl-array (scale scalar v1))))

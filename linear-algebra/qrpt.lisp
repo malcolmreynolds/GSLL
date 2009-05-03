@@ -1,16 +1,18 @@
 ;; QR with column pivoting
 ;; Liam Healy, Fri Apr 28 2006 - 16:53
-;; Time-stamp: <2009-02-23 22:11:10EST qrpt.lisp>
+;; Time-stamp: <2009-04-26 23:05:14EDT qrpt.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_linalg.h
 
 (defmfun QRPT-decomposition
     (A tau p &optional (norm (make-marray 'double-float :dimensions (dim1 A))))
   "gsl_linalg_QRPT_decomp"
   (((mpointer A) :pointer) ((mpointer tau) :pointer)
    ((mpointer p) :pointer)
-   (signum :int) ((mpointer norm) :pointer))
+   (signum (:pointer :int)) ((mpointer norm) :pointer))
   :inputs (A)
   :outputs (A tau p norm)
   :return (A tau signum p)
@@ -40,7 +42,7 @@
   "gsl_linalg_QRPT_decomp2"
   (((mpointer A) :pointer) ((mpointer q) :pointer)
    ((mpointer r) :pointer) ((mpointer tau) :pointer)
-   ((mpointer p) :pointer) (signum :int)
+   ((mpointer p) :pointer) (signum (:pointer :int))
    ((mpointer norm) :pointer))
   :inputs (A)
   :outputs (q r norm)

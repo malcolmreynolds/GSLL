@@ -36,6 +36,7 @@
                                                -49.08d0)))
                                (SCALAR -39.66d0))
                            (CL-ARRAY (AXPY SCALAR V1 V2)))))
+			#+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(1808.3204 1422.3015) #C(-589.3992 234.75043)
@@ -59,6 +60,7 @@
                                                31.67)))
                                (SCALAR #C(-39.66 -49.46)))
                            (CL-ARRAY (AXPY SCALAR V1 V2)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(1808.3204d0 1422.3016000000002d0)

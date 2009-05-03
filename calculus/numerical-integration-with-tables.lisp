@@ -1,6 +1,6 @@
 ;; Numerical integration techniques that require tables
 ;; Liam Healy 2009-04-04 15:24:05EDT 
-;; Time-stamp: <2009-04-04 22:27:18EDT numerical-integration-with-tables.lisp>
+;; Time-stamp: <2009-04-26 23:20:16EDT numerical-integration-with-tables.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -48,7 +48,7 @@
    ((mpointer table) :pointer)
    (absolute-error :double) (relative-error :double)
    (limit sizet) ((mpointer workspace) :pointer)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -109,7 +109,7 @@
    (absolute-error :double) (relative-error :double)
    (limit sizet) ((mpointer workspace) :pointer)
    ((mpointer table) :pointer)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -153,7 +153,7 @@
    (limit sizet)
    ((mpointer workspace) :pointer) ((mpointer cycle-workspace) :pointer)
    ((mpointer table) :pointer)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))

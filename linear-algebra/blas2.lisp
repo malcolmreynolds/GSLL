@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-03-15 17:09:00EDT blas2.lisp>
+;; Time-stamp: <2009-05-03 12:38:28EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -15,13 +15,22 @@
   "CBLAS_TRANSPOSE from /usr/include/gsl/gsl_cblas.h."
   (:notrans 111) :trans :conjtrans)
 
+#+fsbv
+(fsbv:defcenum-aux cblas-transpose)
+
 (cffi:defcenum cblas-uplo
   "/usr/include/gsl/gsl_cblas.h."
   (:upper 121) :lower)
 
+#+fsbv
+(fsbv:defcenum-aux cblas-uplo)
+
 (cffi:defcenum cblas-diag
   "/usr/include/gsl/gsl_cblas.h."
  (:nonunit 131) :unit)
+
+#+fsbv
+(fsbv:defcenum-aux cblas-diag)
 
 ;;;;****************************************************************************
 ;;;; Functions
@@ -33,17 +42,18 @@
 	    (second (dimensions b)))
       (first (dimensions a))))
 
-;;; To do: the y should be an optional argument, default to a zero vector.
 (defmfun matrix-product
     ((A matrix) (x vector)
      &optional
-     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (y (make-marray
+	 element-type :dimensions (matrix-product-dimensions A x)
+	 :initial-element 0))
      (alpha 1) (beta 1) (TransA :notrans) TransB)
   ("gsl_blas_" :type "gemv")
   ((transa cblas-transpose) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
   :definition :generic
-  :element-types :float-complex
+  :element-types #+fsbv :float-complex #-fsbv :float
   :inputs (A x y)
   :outputs (y)
   :documentation			; FDL
@@ -70,7 +80,7 @@
   :outputs (x)
   :documentation			; FDL
   "If the second argument is a vector, compute
-   the matrix-vector product x =alpha op(A) x
+   the matrix-vector product x = op(A) x
    for the triangular matrix A, where op(A) = A, A^T, A^H for
    TransA = :NoTrans, :Trans, :ConjTrans. When Uplo
    is :Upper then the upper triangle of A is used, and when
@@ -80,7 +90,7 @@
    matrix A are taken as unity and are not referenced.
    If the second argument is a matrix, compute
    the matrix-matrix product B = alpha op(A) B
-   if Side is :Left and B = \alpha B op(A) if Side is
+   if Side is :Left and B = alpha B op(A) if Side is
    :Right. The matrix A is triangular and op(A) = A, A^T, A^H
    for TransA = :NoTrans, :Trans, :ConjTrans When Uplo
    is :Upper then the upper triangle of A is used, and when
@@ -123,7 +133,8 @@
 (defmfun matrix-product-symmetric
     ((A matrix) (x vector)
      &optional
-     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)
+		     :initial-element 0))
      (alpha 1) (beta 1) (uplo :upper) (side :left))
   ("gsl_blas_" :type "symv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
@@ -148,13 +159,13 @@
   are used, and when Uplo is :Lower then the lower triangle
   and diagonal of A are used.")
 
+#+fsbv
 (defmfun matrix-product-hermitian
     ((A matrix) (x vector)
      &optional
-     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)))
+     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)
+		     :initial-element 0))
      (alpha 1) (beta 1) (uplo :upper) (side :left))
-  ;; This always signals an error because you can't pass a
-  ;; struct in CFFI yet.
   ("gsl_blas_" :type "hemv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
@@ -184,12 +195,13 @@
   ((alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) ((mpointer y) :pointer))
   :definition :generic
-  :element-types :float-complex
+  :element-types #+fsbv :float-complex #-fsbv :float
   :inputs (x y A)
   :outputs (A)
   :documentation			; FDL
    "The rank-1 update A = alpha x y^T + A of the matrix A.")
 
+#+fsbv
 (defmfun conjugate-rank-1-update (alpha (x vector) (y vector) (A matrix))
   ("gsl_blas_" :type "gerc")
   ((alpha :element-c-type) ((mpointer A) :pointer)
@@ -226,6 +238,7 @@
   used, and when Uplo is CblasLower then the lower triangle and
   diagonal of C are used.")
 
+#+fsbv
 (defmfun hermitian-rank-1-update
     ((x vector) (A matrix)
      &optional (alpha 1) (beta 1) (uplo :upper) (trans :notrans))
@@ -279,6 +292,7 @@
   then the upper triangle and diagonal of C are used, and when Uplo is
   :lower then the lower triangle and diagonal of C are used.")
 
+#+fsbv
 (defmfun hermitian-rank-2-update
     ((x vector) (y vector) (A matrix)
      &optional (alpha 1) (beta 1) (uplo :upper) (trans :notrans))
@@ -311,7 +325,7 @@
 ;;;; Examples and unit test
 ;;;;****************************************************************************
 
-(generate-all-array-tests matrix-product :float-complex
+(generate-all-array-tests matrix-product #+fsbv :float-complex #-fsbv :float
  (let ((m1 (array-default '(3 3)))
        (v1 (array-default 3))
        (v2 (array-default 3))
@@ -319,13 +333,15 @@
        (s2 (scalar-default)))
    (cl-array (matrix-product m1 v1 v2 s1 s2))))
 
-(generate-all-array-tests matrix-product-triangular :float-complex
+(generate-all-array-tests matrix-product-triangular
+			  #+fsbv :float-complex #-fsbv :float
  (let ((m1 (array-default '(3 3)))
        (v1 (array-default 3))
        (s1 (scalar-default)))
    (cl-array (matrix-product-triangular m1 v1 s1))))
 
-(generate-all-array-tests inverse-matrix-product :float-complex
+(generate-all-array-tests inverse-matrix-product
+			  #+fsbv :float-complex #-fsbv :float
  (let ((m1 (array-default '(3 3)))
        (v1 (array-default 3))
        (s1 (scalar-default)))
@@ -339,6 +355,7 @@
 	(s2 (scalar-default)))
    (cl-array (matrix-product-symmetric m1 v1 v3 s1 s2))))
 
+#+fsbv
 (generate-all-array-tests matrix-product-hermitian :complex
  (let ((m1 (array-default '(3 3)))
        (v1 (array-default 3))

@@ -1,6 +1,6 @@
 ;; Conversion of numbers C->CL
 ;; Liam Healy, Sun May 28 2006 - 22:04
-;; Time-stamp: <2009-01-13 21:40:26EST number-conversion.lisp>
+;; Time-stamp: <2009-04-27 21:24:36EDT number-conversion.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -42,7 +42,7 @@
 
 (defun cl-convert-form (decl)
   "Generate a form that calls the appropriate converter from C/GSL to CL."
-  (case (st-type decl)
+  (case (st-actual-type decl)
     (sf-result 
      `((val ,(st-symbol decl))
        (err ,(st-symbol decl))))
@@ -54,4 +54,4 @@
      `((complex-to-cl ,(st-symbol decl) 0 'complex-double-c)))
     (complex-float-c
      `((complex-to-cl ,(st-symbol decl) 0 'complex-float-c)))
-    (t `((cffi:mem-aref ,(st-symbol decl) ',(st-type decl))))))	
+    (t `((cffi:mem-aref ,(st-symbol decl) ',(st-actual-type decl))))))	

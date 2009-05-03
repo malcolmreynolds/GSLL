@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-04-04 22:34:29EDT monte-carlo.lisp>
+;; Time-stamp: <2009-04-26 23:21:18EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -44,7 +44,7 @@
    ((dim0 lower-limits) sizet) (number-of-samples sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :inputs (lower-limits upper-limits)
   :callbacks
   (callback fnstruct-dimension (dimension)
@@ -130,7 +130,7 @@
    ((dim0 lower-limits) sizet) (number-of-samples sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :inputs (lower-limits upper-limits)
   :callbacks
   (callback fnstruct-dimension (dimension)
@@ -226,7 +226,7 @@
    ((dim0 lower-limits) sizet) (number-of-samples sizet)
    ((mpointer generator) :pointer)
    ((mpointer state) :pointer)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :inputs (lower-limits upper-limits)
   :callbacks
   (callback fnstruct-dimension (dimension)

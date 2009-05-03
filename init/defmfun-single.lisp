@@ -1,6 +1,6 @@
 ;; Helpers that define a single GSL function interface
 ;; Liam Healy 2009-01-07 22:02:20EST defmfun-single.lisp
-;; Time-stamp: <2009-04-04 21:56:30EDT defmfun-single.lisp>
+;; Time-stamp: <2009-04-13 22:09:35EDT defmfun-single.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -10,17 +10,6 @@
    the name, and foo will be returned from this function."
   (if (and (listp name) (null (first name)))
       (second name)))
-
-(defun complex-scalars (cl-arguments c-arguments-types)
-  (loop for sd in c-arguments-types
-	for cl-type = (cffi-cl (st-type sd))
-	append
-	(when (and cl-type (subtypep cl-type 'complex)
-		   (member (st-symbol sd)
-			   (arglist-plain-and-categories cl-arguments)))
-	  (list (list (st-symbol sd)
-		      (gensym (string (st-symbol sd)))
-		      (st-type sd))))))
 
 (defun stupid-code-walk-find-variables (sexp)
   "This will work with the simplest s-expression forms only to find
@@ -140,125 +129,3 @@
      (intersection
       (union inputs outputs) (arglist-plain-and-categories arglist nil))
      (body-expand name arglist gsl-name c-arguments key-args))))
-
-(defun body-expand (name arglist gsl-name c-arguments key-args)
-  "Expand the body (computational part) of the defmfun."
-  (with-defmfun-key-args key-args
-    (let* ((cret-type (if (member c-return *special-c-return*)
-			  :int
-			  (if (listp c-return) (st-type c-return) c-return)))
-	   (cret-name
-	    (if (listp c-return) (st-symbol c-return) (make-symbol "CRETURN")))
-	   (complex-args (complex-scalars arglist c-arguments))
-	   (allocated		     ; Foreign objects to be allocated
-	    (remove-if
-	     (lambda (s)
-	       (member s (arglist-plain-and-categories arglist nil)))
-	     (variables-used-in-c-arguments c-arguments)))
-	   (allocated-decl
-	    (mapcar
-	     (lambda (s)
-	       (or (find s c-arguments :key #'st-symbol)
-		   ;; Catch programming errors, usually typos
-		   (error "Could not find ~a among the arguments" s)))
-	     allocated))
-	   (clret (or			; better as a symbol macro
-		   (substitute
-		    cret-name :c-return
-		    (mapcar (lambda (sym)
-			      (let ((it (find sym allocated-decl :key 'st-symbol)))
-				(if it
-				    (first (cl-convert-form it))
-				    sym)))
-			    return))
-		   (mappend
-		    #'cl-convert-form
-		    (callback-remove-arg allocated-decl cbinfo 'st-symbol))
-		   outputs
-		   (unless (eq c-return :void)
-		     (list cret-name)))))
-      (if (and complex-args (not *pass-complex-scalar-as-two-reals*))
-	  '(error 'pass-complex-by-value) ; arglist should be declared ignore
-	  (wrap-letlike
-	   allocated-decl
-	   (mapcar (lambda (d) (wfo-declare d cbinfo))
-		   allocated-decl)
-	   'cffi:with-foreign-objects
-	   `(,@(append
-		(callback-symbol-set
-		 callback-dynamic cbinfo (first callback-dynamic-variables))
-		before
-		(when callback-object (callback-set-dynamic callback-object arglist)))
-	       ,@(callback-set-slots
-		  cbinfo callback-dynamic-variables callback-dynamic)
-	       (let ((,cret-name
-		      (cffi:foreign-funcall
-		       ,gsl-name
-		       ,@(mappend
-			  (lambda (arg)
-			    (let ((cfind ; variable is complex
-				   (find (st-symbol arg) complex-args :key 'first)))
-			      (if cfind	; make two successive scalars
-				  (passing-complex-by-value cfind)
-				  ;; otherwise use without conversion
-				  (list (if (member (st-symbol arg) allocated)
-					    :pointer
-					    (st-type arg))
-					(st-symbol arg)))))
-			  c-arguments)
-		       ,cret-type)))
-		 ,@(case c-return
-			 (:void `((declare (ignore ,cret-name))))
-			 (:error-code	; fill in arguments
-			  `((check-gsl-status ,cret-name
-					      ',(or (defgeneric-method-p name) name)))))
-		 #-native
-		 ,@(when outputs
-			 (mapcar
-			  (lambda (x) `(setf (cl-invalid ,x) t (c-invalid ,x) nil))
-			  outputs))
-		 ,@(when (eq cret-type :pointer)
-			 `((check-null-pointer
-			    ,cret-name
-			    ,@'('memory-allocation-failure "No memory allocated."))))
-		 ,@after
-		 (values
-		  ,@(defmfun-return
-		     c-return cret-name clret allocated
-		     return return-supplied-p
-		     enumeration outputs)))))))))
-
-(defun defmfun-return
-    (c-return cret-name clret allocated return return-supplied-p enumeration outputs)
-  "Generate the return computation expression for defmfun."
-  (case c-return
-    (:number-of-answers
-     (mappend
-      (lambda (vbl seq)
-	`((when (> ,cret-name ,seq) ,vbl)))
-      clret
-      (loop for i below (length clret) collect i)))
-    (:success-failure
-     (if (equal clret outputs)
-	 ;; success-failure more important than passed-in
-	 `((success-failure ,cret-name))
-	 (remove cret-name		; don't return c-return itself
-		 `(,@clret (success-failure ,cret-name)))))
-    (:success-continue
-     (if (equal clret outputs)
-	 ;; success-failure more important than passed-in
-	 `((success-continue ,cret-name))
-	 (remove cret-name		; don't return c-return itself
-		 `(,@clret (success-continue ,cret-name)))))
-    (:true-false
-     `((not (zerop ,cret-name))))
-    (:enumerate
-     `((cffi:foreign-enum-keyword ',enumeration ,cret-name)))
-    (t (unless
-	   (or
-	    (and (eq c-return :error-code)
-		 (not outputs)
-		 (not allocated)
-		 (not return-supplied-p))
-	    (and (null return) return-supplied-p))
-	 clret))))

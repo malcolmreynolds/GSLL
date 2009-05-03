@@ -1,6 +1,6 @@
 ;; Complex number types
 ;; Liam Healy 2009-01-13 21:24:05EST complex-types.lisp
-;; Time-stamp: <2009-01-14 22:45:53EST complex-types.lisp>
+;; Time-stamp: <2009-05-03 10:00:23EDT complex-types.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -27,11 +27,21 @@
 ;;; cannot use functions that call or return complex scalars.
 
 ;;; See /usr/include/gsl/gsl_complex.h
-(cffi:defcstruct complex-float-c
+#+fsbv
+(fsbv:defcstruct
+    (complex-float-c :constructor complex :deconstructor (realpart imagpart))
   (dat :float :count 2))
 
-(cffi:defcstruct complex-double-c
+#-fsbv
+(cffi:defcstruct complex-float-c (dat :float :count 2))
+
+#+fsbv
+(fsbv:defcstruct
+    (complex-double-c :constructor complex :deconstructor (realpart imagpart))
   (dat :double :count 2))
+
+#-fsbv
+(cffi:defcstruct complex-double-c (dat :double :count 2))
 
 #+long-double
 (cffi:defcstruct complex-long-double-c
@@ -55,38 +65,3 @@
       (second eltype)
       eltype))
 
-(define-condition pass-complex-by-value (error)
-  ()
-  (:report
-   (lambda (condition stream)
-     (declare (ignore condition))
-     (format stream "Cannot pass complex scalars to GSL functions.")))
-  (:documentation
-   "An error indicating that this implementation and platform are
-   unable to pass complex numbers to the GSL libary by value."))
-
-(defun pack-complex-as-double (number)
-  "Pack a number of type (complex single-float) into a double-float,
-   which may be accepted as a struct of type gsl_complex_float.
-   This is hideously non-portable."
-  (integer-as-float
-   (dpb
-    (float-as-integer (imagpart number) t)
-    (byte 32 32)
-    (dpb
-     (float-as-integer (realpart number) t)
-     (byte 32 0)
-     0))
-   'double-float))
-
-(defun passing-complex-by-value (cfind)
-  "Substitution in defmfun so that complex numbers can be passed by
-   value to the GSL structs defined above.  This is non-portable."
-  (if (eq (component-float-type (cffi-cl (third cfind))) 'single-float)
-      ;; single-float
-      `(:double	(pack-complex-as-double ,(first cfind)))
-      ;; double-float
-      `(:double
-	(realpart ,(first cfind))
-	:double
-	(imagpart ,(first cfind)))))

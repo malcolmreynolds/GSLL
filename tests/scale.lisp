@@ -62,6 +62,7 @@
                                                -13.49d0)))
                                (SCALAR 32.5d0))
                            (CL-ARRAY (SCALE SCALAR V1)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(-1473.3452 -1206.385) #C(488.5039 -149.64331)
@@ -78,6 +79,7 @@
                                                -49.08)))
                                (SCALAR #C(32.5 42.73)))
                            (CL-ARRAY (SCALE SCALAR V1)))))
+		       #+fsbv
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST
                          #(#C(-1473.3452d0 -1206.385d0)

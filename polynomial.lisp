@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2009-04-02 21:58:22EDT polynomial.lisp>
+;; Time-stamp: <2009-05-03 09:37:35EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,11 +26,10 @@
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the point x.")
 
-#|
-;;; These won't work until we can take returned complex (structs).
+#+fsbv
 (defmfun evaluate
     ((coefficients vector-double-float) (x complex)
-     &key &allow-other-keys)
+     &key)
   "gsl_poly_complex_eval"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
    (x complex-double-c))
@@ -41,9 +40,10 @@
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the complex value x.")
 
+#+fsbv
 (defmfun evaluate
     ((coefficients vector-complex-double-float) (x complex)
-     &key &allow-other-keys)
+     &key)
   "gsl_complex_poly_complex_eval"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
    (x complex-double-c))
@@ -53,7 +53,6 @@
   :c-return complex-double-c
   :documentation			; FDL
   "Evaluate the polyonomial with coefficients at the complex value x.")
-|#
 
 ;;;;****************************************************************************
 ;;;; Divided Difference Representation of Polynomials
@@ -103,7 +102,8 @@
 
 (defmfun solve-quadratic (a b c)
   "gsl_poly_solve_quadratic"
-  ((a :double) (b :double) (c :double) (root1 :double) (root2 :double))
+  ((a :double) (b :double) (c :double)
+   (root1 (:pointer :double)) (root2 (:pointer :double)))
   :c-return :number-of-answers
   :documentation			; FDL
   "The real roots of the quadratic equation a x^2 + b x + c = 0.
@@ -113,7 +113,7 @@
 (defmfun solve-quadratic-complex (a b c)
   "gsl_poly_complex_solve_quadratic"
   ((a :double) (b :double) (c :double)
-   (root1 complex-double-c) (root2 complex-double-c))
+   (root1 (:pointer complex-double-c)) (root2 (:pointer complex-double-c)))
   :c-return :number-of-answers
   :documentation			; FDL
   "The complex roots of the quadratic equation a x^2 + b x + c = 0.
@@ -127,7 +127,8 @@
 (defmfun solve-cubic (a b c)
   "gsl_poly_solve_cubic"
   ((a :double) (b :double) (c :double)
-   (root1 :double) (root2 :double) (root3 :double))
+   (root1 (:pointer :double))
+   (root2 (:pointer :double)) (root3 (:pointer :double)))
   :c-return :number-of-answers
   :documentation			; FDL
   "Find the real roots of the cubic equation, x^3 + a x^2 + b x + c = 0
@@ -138,7 +139,8 @@
 (defmfun solve-cubic-complex (a b c)
   "gsl_poly_complex_solve_cubic"
   ((a :double) (b :double) (c :double)
-   (root1 complex-double-c) (root2 complex-double-c) (root3 complex-double-c))
+   (root1 (:pointer complex-double-c)) (root2 (:pointer complex-double-c))
+   (root3 (:pointer complex-double-c)))
   :c-return :number-of-answers
   :documentation			; FDL
   "Find the complex roots of the cubic equation, x^3 + a x^2 + b x + c = 0

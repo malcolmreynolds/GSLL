@@ -1,14 +1,17 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2009-03-17 20:42:37EDT lu.lisp>
+;; Time-stamp: <2009-04-26 23:04:02EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
+;;; /usr/include/gsl/gsl_linalg.h
+
 (defmfun LU-decomposition
     ((A matrix) &optional (permutation (make-permutation (dim0 A))))
   ("gsl_linalg" :complex "_LU_decomp")
-  (((mpointer A) :pointer) ((mpointer permutation) :pointer) (signum :int))
+  (((mpointer A) :pointer) ((mpointer permutation) :pointer)
+   (signum (:pointer :int)))
   :definition :generic
   :inputs (A)
   :outputs (A permutation)
@@ -94,7 +97,7 @@
 
 (defmfun LU-determinant ((LU matrix) signum)
   ("gsl_linalg" :complex "_LU_det")
-  (((mpointer LU) :pointer) (signum :int))
+  (((mpointer LU) :pointer) (signum (:pointer :int)))
   :definition :generic
   :inputs (LU)
   :element-types :doubles
@@ -119,7 +122,7 @@
 
 (defmfun LU-sgndet ((LU matrix) signum)
   ("gsl_linalg" :complex "_LU_sgndet")
-  (((mpointer LU) :pointer) (signum :int))
+  (((mpointer LU) :pointer) (signum (:pointer :int)))
   :definition :generic
   :inputs (LU)
   :element-types :doubles

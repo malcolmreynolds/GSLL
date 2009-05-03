@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-04-04 22:27:16EDT chebyshev.lisp>
+;; Time-stamp: <2009-04-26 23:25:30EDT chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -63,10 +63,10 @@
 
 (defmfun evaluate-chebyshev-error (chebyshev x &optional order)
   ("gsl_cheb_eval_err" "gsl_cheb_eval_n_err")
-  ((((mpointer chebyshev) :pointer) (x :double) (result :double)
-    (abserr :double))
+  ((((mpointer chebyshev) :pointer) (x :double)
+    (result (:pointer :double)) (abserr (:pointer :double)))
    (((mpointer chebyshev) :pointer) (order sizet) (x :double)
-    (result :double) (abserr :double)))
+    (result (:pointer :double)) (abserr (:pointer :double))))
   :documentation			; FDL
   "Evaluate the Chebyshev series at a point x, returning result and
    an estimate of its absolute error.  If order is supplied,

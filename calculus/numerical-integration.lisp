@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-04-04 22:25:57EDT numerical-integration.lisp>
+;; Time-stamp: <2009-04-26 23:19:49EDT numerical-integration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -34,7 +34,8 @@
   ((callback :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
-   (result :double) (abserr :double) (neval sizet))
+   (result (:pointer :double)) (abserr (:pointer :double))
+   (neval (:pointer sizet)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -78,7 +79,7 @@
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double)
    (limit sizet) (method integrate-method) ((mpointer workspace) :pointer)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -114,7 +115,8 @@
   ((callback :pointer)
    (a :double) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
-   ((mpointer workspace) :pointer) (result :double) (abserr :double))
+   ((mpointer workspace) :pointer)
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -146,7 +148,8 @@
   ((callback :pointer)
    ((c-pointer points) :pointer) ((dim0 points) sizet)
    (absolute-error :double) (relative-error :double) (limit sizet)
-   ((mpointer workspace) :pointer) (result :double) (abserr :double))
+   ((mpointer workspace) :pointer)
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :inputs (points)
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
@@ -176,7 +179,8 @@
   "gsl_integration_qagi"
   ((callback :pointer)
    (absolute-error :double) (relative-error :double) (limit sizet)
-   ((mpointer workspace) :pointer) (result :double) (abserr :double))
+   ((mpointer workspace) :pointer)
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -200,7 +204,8 @@
   "gsl_integration_qagiu"
   ((callback :pointer) (a :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
-   ((mpointer workspace) :pointer) (result :double) (abserr :double))
+   ((mpointer workspace) :pointer)
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -220,7 +225,8 @@
   "gsl_integration_qagil"
   ((callback :pointer) (b :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
-   ((mpointer workspace) :pointer) (result :double) (abserr :double))
+   ((mpointer workspace) :pointer)
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -245,7 +251,8 @@
   ((callback :pointer)
    (a :double) (b :double) (c :double)
    (absolute-error :double) (relative-error :double) (limit sizet)
-   ((mpointer workspace) :pointer) (result :double) (abserr :double))
+   ((mpointer workspace) :pointer)
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))

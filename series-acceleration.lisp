@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2009-01-26 21:31:38EST series-acceleration.lisp>
+;; Time-stamp: <2009-04-26 23:27:40EDT series-acceleration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,7 +36,7 @@
 (defmfun accelerate (array levin)
   "gsl_sum_levin_u_accel"
   (((c-pointer array) :pointer) ((dim0 array) sizet) ((mpointer levin) :pointer)
-   (accelerated-sum :double) (absolute-error :double))
+   (accelerated-sum (:pointer :double)) (abserr (:pointer :double)))
   :inputs (array)
   :documentation			; FDL
   "From the terms of a series in array, compute the extrapolated
@@ -64,7 +64,7 @@
 (defmfun accelerate-truncated (array levin)
   "gsl_sum_levin_utrunc_accel"
   (((c-pointer array) :pointer) ((dim0 array) sizet) ((mpointer levin) :pointer)
-   (accelerated-sum :double) (absolute-error :double))
+   (accelerated-sum (:pointer :double)) (abserr (:pointer :double)))
   :inputs (array)
   :documentation			; FDL
   "From the terms of a series in array, compute the extrapolated

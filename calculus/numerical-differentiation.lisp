@@ -1,19 +1,16 @@
 ;; Numerical differentiation.                
 ;; Liam Healy Mon Nov 12 2007 - 22:07
-;; Time-stamp: <2009-04-04 22:24:31EDT numerical-differentiation.lisp>
+;; Time-stamp: <2009-04-26 23:23:53EDT numerical-differentiation.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;;; The example at the end needs to be made into a regression test.
-;;; GSL function "callback" passing is identical to
-;;; numerical-integration, so those definitions have been used.
-;;; Some improvement could be made in naming/organization.
+;;; /usr/include/gsl/gsl_diff.h
 
 (defmfun central-derivative (function x step)
   "gsl_deriv_central"
   ((callback :pointer) (x :double) (step :double)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -36,7 +33,7 @@
 (defmfun forward-derivative (function x step)
   "gsl_deriv_forward"
   ((callback :pointer) (x :double) (step :double)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
@@ -61,7 +58,7 @@
 (defmfun backward-derivative (function x step)
   "gsl_deriv_backward"
   ((callback :pointer) (x :double) (step :double)
-   (result :double) (abserr :double))
+   (result (:pointer :double)) (abserr (:pointer :double)))
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
   :callback-dynamic (nil (function))
