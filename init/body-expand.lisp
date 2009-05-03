@@ -1,6 +1,6 @@
 ;; Expand the body of a defmfun
 ;; Liam Healy 2009-04-13 22:07:13EDT body-expand.lisp
-;; Time-stamp: <2009-04-25 23:42:34EDT body-expand.lisp>
+;; Time-stamp: <2009-05-02 21:43:36EDT body-expand.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -41,33 +41,6 @@
 	    answer
 	    :test 'st-symbol))
      finally (return answer)))
-
-(defmacro foreign-funcall-indirect (name-and-options &rest arguments)
-  "Call the foreign function through FSBV, after setting one more level of indirection."  
-  (let* ((arguments-symbol-type
-	  (loop for (type form) on (butlast arguments) by #'cddr
-	     collect
-	     (list (if (symbolp form)
-		       (make-symbol (string form))
-		       (gensym "FORMARG"))
-		   type)))
-	 (clargs (loop for (nil form) on (butlast arguments) by #'cddr
-		    collect form))
-	 (ptrlist (mapcar
-		   (lambda (st)
-		     (make-st (st-symbol st)
-			      (st-type st)))
-		   arguments-symbol-type)))
-    ;; Here allocate the foreign objects
-    `(fsbv:with-foreign-objects
-	 ,(mapcar (lambda (st cl)
-		    (append (make-st (st-symbol st) `',(st-type st))
-			    (list cl)))
-		  ptrlist
-		  clargs)
-       (fsbv:foreign-funcall
-	,name-and-options
-	,@(append (mappend 'reverse ptrlist) (last arguments))))))
 
 (defun body-expand (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
@@ -113,7 +86,7 @@
 	      cbinfo callback-dynamic-variables callback-dynamic)
 	   (let ((,(st-symbol creturn-st)
 		  (,(if (some 'identity pbv)
-			'foreign-funcall-indirect
+			'fsbv:foreign-funcall
 			'cffi:foreign-funcall)
 		    ,gsl-name
 		    ,@(mappend
