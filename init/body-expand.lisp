@@ -1,6 +1,6 @@
 ;; Expand the body of a defmfun
 ;; Liam Healy 2009-04-13 22:07:13EDT body-expand.lisp
-;; Time-stamp: <2009-05-03 10:03:03EDT body-expand.lisp>
+;; Time-stamp: <2009-05-03 16:31:28EDT body-expand.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -53,6 +53,35 @@
     "System FSBV is not present, so function ~a cannot be used."
     ,function-name))
 
+#+fsbv
+(defun make-defcfun-for-fsbv (gsl-name ff-args)
+  "Make a fsbv:defcfun form so that function will be prepped."
+  (multiple-value-bind (args return-type)
+      (fsbv:defcfun-args-from-ff-args ff-args)
+    (let ((gsl-name-symbol (make-symbol gsl-name))
+	  (symbargs
+	   (mapcar (lambda (st) (make-st (gensym "ARG") (st-type st)))
+		   args)))
+      (values
+       `(fsbv:defcfun (,gsl-name-symbol gsl-name) ,return-type
+	  "Function definition generated for FSBV prepping; will actually
+        be called by fsbv:foreign-funcall"
+	  ,@symbargs)
+       gsl-name-symbol))))
+
+(defun ffexpand (pass-by-value-p gsl-name args)
+  "Expand the foreign funcall."
+  (if pass-by-value-p
+      #+fsbv
+      (multiple-value-bind (form symbol)
+	  (make-defcfun-for-fsbv gsl-name args)
+	(declare (special fsbv-functions))
+	(push form fsbv-functions)
+	`(fsbv:foreign-funcall ,symbol ,@args))
+      #-fsbv
+      `(no-fsbv-error no-fsbv-error ,@args)
+      `(cffi:foreign-funcall ,gsl-name ,@args)))
+
 (defun body-expand (name arglist gsl-name c-arguments key-args)
   "Expand the body (computational part) of the defmfun."
   (with-defmfun-key-args key-args
@@ -96,19 +125,17 @@
 	   ,@(callback-set-slots
 	      cbinfo callback-dynamic-variables callback-dynamic)
 	   (let ((,(st-symbol creturn-st)
-		  (,(if (some 'identity pbv)
-			#+fsbv 'fsbv:foreign-funcall
-			#-fsbv 'no-fsbv-error
-			'cffi:foreign-funcall)
-		    ,gsl-name
-		    ,@(mappend
-		       (lambda (arg)
-			 (list (cond
-				 ((member (st-symbol arg) allocated-return) :pointer)
-				 (t (st-type arg)))
-			       (st-symbol arg)))
-		       (mapcar 'st-pointer-generic-pointer c-arguments))
-		    ,(st-type creturn-st))))
+		  ,(ffexpand (some 'identity pbv)
+			     gsl-name
+			     (append
+			      (mappend
+			       (lambda (arg)
+				 (list (cond
+					 ((member (st-symbol arg) allocated-return) :pointer)
+					 (t (st-type arg)))
+				       (st-symbol arg)))
+			       (mapcar 'st-pointer-generic-pointer c-arguments))
+			      (list(st-type creturn-st))))))
 	     ,@(case c-return
 		     (:void `((declare (ignore ,(st-symbol creturn-st)))))
 		     (:error-code	; fill in arguments

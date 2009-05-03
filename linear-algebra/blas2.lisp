@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-05-03 11:31:55EDT blas2.lisp>
+;; Time-stamp: <2009-05-03 12:38:28EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -201,12 +201,13 @@
   :documentation			; FDL
    "The rank-1 update A = alpha x y^T + A of the matrix A.")
 
+#+fsbv
 (defmfun conjugate-rank-1-update (alpha (x vector) (y vector) (A matrix))
   ("gsl_blas_" :type "gerc")
   ((alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer x) :pointer) ((mpointer y) :pointer))
   :definition :generic
-  :element-types #+fsbv :float-complex #-fsbv :float
+  :element-types :complex
   :inputs (x y A)
   :outputs (A)
   :documentation			; FDL

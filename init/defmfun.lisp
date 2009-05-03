@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-04-04 22:00:20EDT defmfun.lisp>
+;; Time-stamp: <2009-05-03 15:38:45EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -84,7 +84,7 @@
       index export documentation inputs outputs
       before after enumeration qualifier
       gsl-version switch cbinfo callback-dynamic callback-object)
-     (special indexed-functions callback-dynamic-variables))
+     (special indexed-functions callback-dynamic-variables #+fsbv fsbv-functions))
     ,@body))
 
 (defun optional-args-to-switch-gsl-functions (arglist gsl-name)
@@ -97,9 +97,9 @@
 	(listp (first gsl-name)))))
 
 (defun expand-defmfun-wrap (name arglist gsl-name c-arguments key-args)
-  (let (indexed-functions callback-dynamic-variables)
+  (let (indexed-functions callback-dynamic-variables #+fsbv fsbv-functions)
     ;; workaround for compiler errors that don't see 'indexed-function is used
-    (declare (ignorable indexed-functions callback-dynamic-variables))
+    (declare (ignorable indexed-functions callback-dynamic-variables #+fsbv fsbv-functions))
     (with-defmfun-key-args key-args
       (setf indexed-functions (list)
 	    callback-dynamic-variables
@@ -119,7 +119,8 @@
 		     (make-symbol-cardinals
 		      (list name 'dynfn) num-callbacks :gsl)
 		     (make-symbol-cardinals
-		      (list name 'cbfn) num-callbacks :gsl))))))
+		      (list name 'cbfn) num-callbacks :gsl)))))
+	     #+fsbv fsbv-functions #+fsbv (list))
       (wrap-index-export
        (cond
 	 ((eq definition :generic)
@@ -156,6 +157,8 @@
 	    cbinfo
 	    (second callback-dynamic-variables)
 	    (first callback-dynamic-variables))
+	 #+fsbv
+	 ,@fsbv-functions
 	 ,@index-export))))
 
 ;;;;****************************************************************************
