@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-02-16 10:16:44EST simulated-annealing.lisp>
+;; Time-stamp: <2009-05-03 18:47:17EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,8 +10,7 @@
 ;;; Print function is ignored, but probably couldn't work if it weren't.
 ;;; Does not converge.
 
-
-(cffi:defcstruct simulated-annealing-parameters
+(fsbv:defcstruct simulated-annealing-parameters
   (n-tries :int)		; how many points to try for each step
   (iterations-fixed-T :int) ; how many iterations at each temperature?
   (step-size :double)		    ; max step size in the random walk

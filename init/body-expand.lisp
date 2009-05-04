@@ -1,6 +1,6 @@
 ;; Expand the body of a defmfun
 ;; Liam Healy 2009-04-13 22:07:13EDT body-expand.lisp
-;; Time-stamp: <2009-05-03 17:59:45EDT body-expand.lisp>
+;; Time-stamp: <2009-05-03 22:18:13EDT body-expand.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -15,15 +15,13 @@
        :int
        (if (listp c-return) (st-type c-return) c-return))))
 
-(defparameter *c-types-passed-by-value*
-  '(complex-float-c complex-double-c))
-
+#+fsbv
 (defun variables-passed-by-value (c-arguments-st)
   "Create a list of (symbol newsymbol-st) for each structure
   variable in the C argument list."
   (loop for sd in c-arguments-st
      collect
-     (when (member (st-type sd) *c-types-passed-by-value*)
+     (when (fsbv:defined-type-p (st-type sd))
        (list (st-symbol sd)
 	     (make-st
 	      (make-symbol (string (st-symbol sd)))
@@ -97,7 +95,9 @@
 		(member s (arglist-plain-and-categories arglist nil)))
 	      (variables-used-in-c-arguments c-arguments))))
 	   (pbv				; passed by value
-	    (variables-passed-by-value (cons creturn-st c-arguments)))
+	    #+fsbv
+	    (variables-passed-by-value (cons creturn-st c-arguments))
+	    #-fsbv nil)
 	   (clret (or			; better as a symbol macro
 		   (substitute
 		    (st-symbol creturn-st) :c-return
