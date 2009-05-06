@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-05-03 11:18:02EDT blas3.lisp>
+;; Time-stamp: <2009-05-06 16:07:03EDT blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -132,8 +132,8 @@
    (alpha :element-c-type) ((mpointer A) :pointer)
    ((mpointer B) :pointer) (beta :element-c-type)
    ((mpointer C) :pointer))
-  :definition :methods
-  :element-types :float
+  :definition :methods 
+  :element-types #+fsbv :float-complex #-fsbv :float
   :inputs (A B C)
   :outputs (C))
 
