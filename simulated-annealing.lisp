@@ -1,9 +1,11 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-05-03 18:47:17EDT simulated-annealing.lisp>
+;; Time-stamp: <2009-05-07 23:01:05EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_siman.h
 
 ;;; This does not work.
 ;;; Step size passed to the step function is incorrect.
@@ -50,6 +52,91 @@
      ,t-min)
     ,@body))
 
+(defmacro def-energy-function (name)
+  "Define an energy or distance fuction for simulated annealing."
+  `(def-single-function ,name :double :pointer nil))
+
+(defmacro def-step-function (name)
+  "Define a step fuction for simulated annealing."
+  (let ((generator (gensym "GEN"))
+	(arguments (gensym "ARGS"))
+	(step-size (gensym "SS")))
+    `(cffi:defcallback ,name :void
+      ((,generator :pointer) (,arguments :pointer) (,step-size :double))
+      (,name ,generator ,arguments ,step-size))))
+
+(defmacro def-distance-function (name)
+  "Define a metric distance fuction for simulated annealing."
+  (let ((x (gensym "X"))
+	(y (gensym "Y")))
+    `(cffi:defcallback ,name :double
+      ((,x :pointer) (,y :pointer))
+      (,name ,x ,y))))
+
+(defmacro def-print-function (name)
+  "Define a print function for simulated annealing."
+  `(def-single-function ,name :int :pointer nil))
+
+;;;;****************************************************************************
+;;;; Callbacks
+;;;;****************************************************************************
+
+;;; A "state pointer" is in integer with a value of 0, 1, or 2.  The
+;;; users functions must suitably define state and be prepared to keep
+;;; three instances.  When they callbacks are called they will be
+;;; directed to do certain operations on one (or two) of the three
+;;; states.
+
+(defun state-pointer (foreign-pointer)
+  (cffi:pointer-address (cffi:mem-aref foreign-pointer :pointer)))
+
+;;; The user-energy-function should take one state pointers, and
+;;; return a double-float.
+;;; typedef double (*gsl_siman_Efunc_t) (void *xp);
+(cffi:defcallback sa-energy-function :double ((state :pointer))
+  (declare (special user-energy-function))
+  (funcall user-energy-function (state-pointer state)))
+
+;;; The user-step-function should take a rng pointer, a state pointer,
+;;; and a double-float, and return nothing.  The rng pointer should be
+;;; used in call to one of the distribution functions like #'uniform.
+;;; typedef void (*gsl_siman_step_t) (const gsl_rng *r, void *xp, double step_size);
+(cffi:defcallback sa-step-function :void
+    ((rng :pointer) (state :pointer) (step-size :double))
+  (declare (special user-step-function))
+  (funcall user-step-function rng (state-pointer state) step-size))
+
+;;; typedef double (*gsl_siman_metric_t) (void *xp, void *yp);
+;;; typedef void (*gsl_siman_print_t) (void *xp);
+
+;;; The user-copy-function should take two state pointers, and return nothing.
+;;; typedef void (*gsl_siman_copy_t) (void *source, void *dest);
+(cffi:defcallback sa-copy-function :void ((source :pointer) (destination :pointer))
+  (declare (special user-copy-function))
+  (funcall user-copy-function
+	   (state-pointer source)
+	   (state-pointer destination)))
+
+;;; The copy constructor will be special.  It will only be called
+;;; three times in the run, and it will generate in succession the
+;;; three pointer values.  It should expect copy state from the
+;;; supplied value.
+(cffi:defcallback sa-copy-constructor-function :pointer ((state :pointer))
+  )
+
+
+;;; typedef void * (*gsl_siman_copy_construct_t) (void *xp);
+
+#|
+typedef void (*gsl_siman_destroy_t) (void *xp);
+|#
+
+
+
+;;;;****************************************************************************
+;;;; New
+;;;;****************************************************************************
+
 (defmfun simulated-annealing
     (generator x0-p
 	       Ef take-step distance-function
@@ -58,7 +145,7 @@
 	       element-size parameters)
   "gsl_siman_solve"
   (((mpointer generator) :pointer) (x0-p :pointer)
-   ((cffi:get-callback Ef) :pointer)
+   ((cffi:get-callback simulated-annealing-energy) :pointer)
    ((cffi:get-callback take-step) :pointer)
    ((cffi:get-callback distance-function) :pointer)
    ((cffi:get-callback print-position) :pointer)
@@ -102,31 +189,6 @@
    print-position is null then no information is printed.
    The simulated annealing routines require several user-specified
    functions to define the configuration space and energy function.")
-
-(defmacro def-energy-function (name)
-  "Define an energy or distance fuction for simulated annealing."
-  `(def-single-function ,name :double :pointer nil))
-
-(defmacro def-step-function (name)
-  "Define a step fuction for simulated annealing."
-  (let ((generator (gensym "GEN"))
-	(arguments (gensym "ARGS"))
-	(step-size (gensym "SS")))
-    `(cffi:defcallback ,name :void
-      ((,generator :pointer) (,arguments :pointer) (,step-size :double))
-      (,name ,generator ,arguments ,step-size))))
-
-(defmacro def-distance-function (name)
-  "Define a metric distance fuction for simulated annealing."
-  (let ((x (gensym "X"))
-	(y (gensym "Y")))
-    `(cffi:defcallback ,name :double
-      ((,x :pointer) (,y :pointer))
-      (,name ,x ,y))))
-
-(defmacro def-print-function (name)
-  "Define a print function for simulated annealing."
-  `(def-single-function ,name :int :pointer nil))
 
 ;;;;****************************************************************************
 ;;;; Example

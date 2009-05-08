@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-02-21 17:23:26EST generators.lisp>
+;; Time-stamp: <2009-05-07 22:42:30EDT generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,6 +28,10 @@
    reproduces this when using *ranlux*."
   :initialize-suffix ("set" :void)
   :initialize-args ((value :ulong)))
+
+(defmethod print-object ((object random-number-generator) stream)
+  (print-unreadable-object (object stream :type t :identity t)
+    (format stream "of type ~a" (name object))))
 
 ;;;;****************************************************************************
 ;;;; Seed

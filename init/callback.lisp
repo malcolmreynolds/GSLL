@@ -1,6 +1,6 @@
 ;; Foreign callback functions.               
 ;; Liam Healy 
-;; Time-stamp: <2009-04-04 22:44:06EDT callback.lisp>
+;; Time-stamp: <2009-05-04 21:44:08EDT callback.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -219,5 +219,6 @@
 	 (,@(substitute `(,slug :pointer) :slug args))
        ;; Parameters as C argument are always ignored, because we have
        ;; CL specials to do the same job.
-       (declare (ignore ,slug) (special ,dynamic-variable))
+       (declare ,@(when (member :slug args) `((ignore ,slug)))
+		(special ,dynamic-variable))
        (funcall ,dynamic-variable ,@(mapcar 'st-symbol (remove :slug args))))))

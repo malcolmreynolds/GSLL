@@ -1,6 +1,6 @@
 ;; Random number generation
 ;; Liam Healy, Tue Jul 11 2006 - 23:39
-;; Time-stamp: <2009-02-16 18:49:40EST rng-types.lisp>
+;; Time-stamp: <2009-05-07 22:28:16EDT rng-types.lisp>
 ;; $Id$
 
 ;;; Random number generator types and information functions.
@@ -240,7 +240,7 @@
      described in the paper,
      P. L'Ecuyer, ``Tables of Maximally Equidistributed Combined LFSR
      Generators'', Mathematics of Computation, 68, 225 (1999), 261--269
-     The generator *taus2* should now be used in preference to *taus*.")
+     The generator +taus2+ should now be used in preference to +taus+.")
 
 (def-rng-type +taus113+)
 
