@@ -1,16 +1,15 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-05-07 23:01:05EDT simulated-annealing.lisp>
+;; Time-stamp: <2009-05-16 23:18:31EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_siman.h
 
-;;; This does not work.
-;;; Step size passed to the step function is incorrect.
-;;; Print function is ignored, but probably couldn't work if it weren't.
-;;; Does not converge.
+;;;;****************************************************************************
+;;;; Simulated annealing argument structure
+;;;;****************************************************************************
 
 (fsbv:defcstruct simulated-annealing-parameters
   (n-tries :int)		; how many points to try for each step
@@ -21,61 +20,6 @@
   (t-initial :double)
   (mu-t :double)
   (t-min :double))
-
-(defmacro with-simulated-annealing-parameters
-    ((name number-of-tries iterations-per-temperature
-		      step-size &optional k t-initial mu-t t-min)
-     &body body)
-  `(cffi:with-foreign-object (,name 'simulated-annealing-parameters)
-    (setf
-     (cffi:foreign-slot-value
-      ,name 'simulated-annealing-parameters 'n-tries)
-     ,number-of-tries
-     (cffi:foreign-slot-value
-      ,name 'simulated-annealing-parameters 'iterations-fixed-T)
-     ,iterations-per-temperature
-     (cffi:foreign-slot-value
-      ,name 'simulated-annealing-parameters 'step-size)
-     ,step-size
-     ;; The following parameters are for the Boltzmann distribution
-     (cffi:foreign-slot-value
-      ,name 'simulated-annealing-parameters 'k)
-     ,k
-     (cffi:foreign-slot-value
-      ,name 'simulated-annealing-parameters 't-initial)
-     ,t-initial
-     (cffi:foreign-slot-value
-      ,name 'simulated-annealing-parameters 'mu-t)
-     ,mu-t
-     (cffi:foreign-slot-value
-      ,name 'simulated-annealing-parameters 't-min)
-     ,t-min)
-    ,@body))
-
-(defmacro def-energy-function (name)
-  "Define an energy or distance fuction for simulated annealing."
-  `(def-single-function ,name :double :pointer nil))
-
-(defmacro def-step-function (name)
-  "Define a step fuction for simulated annealing."
-  (let ((generator (gensym "GEN"))
-	(arguments (gensym "ARGS"))
-	(step-size (gensym "SS")))
-    `(cffi:defcallback ,name :void
-      ((,generator :pointer) (,arguments :pointer) (,step-size :double))
-      (,name ,generator ,arguments ,step-size))))
-
-(defmacro def-distance-function (name)
-  "Define a metric distance fuction for simulated annealing."
-  (let ((x (gensym "X"))
-	(y (gensym "Y")))
-    `(cffi:defcallback ,name :double
-      ((,x :pointer) (,y :pointer))
-      (,name ,x ,y))))
-
-(defmacro def-print-function (name)
-  "Define a print function for simulated annealing."
-  `(def-single-function ,name :int :pointer nil))
 
 ;;;;****************************************************************************
 ;;;; Callbacks
@@ -107,7 +51,15 @@
   (funcall user-step-function rng (state-pointer state) step-size))
 
 ;;; typedef double (*gsl_siman_metric_t) (void *xp, void *yp);
+(cffi:defcallback sa-metric-function :double
+    ((state1 :pointer) (state2 :pointer))
+  (declare (special user-metric-function))
+  (funcall user-metric-function (state-pointer state1) (state-pointer state2)))
+
 ;;; typedef void (*gsl_siman_print_t) (void *xp);
+(cffi:defcallback sa-print-function :void ((state :pointer))
+  (declare (special user-print-function))
+  (funcall user-print-function (state-pointer state)))
 
 ;;; The user-copy-function should take two state pointers, and return nothing.
 ;;; typedef void (*gsl_siman_copy_t) (void *source, void *dest);
@@ -121,47 +73,70 @@
 ;;; three times in the run, and it will generate in succession the
 ;;; three pointer values.  It should expect copy state from the
 ;;; supplied value.
-(cffi:defcallback sa-copy-constructor-function :pointer ((state :pointer))
-  )
-
-
 ;;; typedef void * (*gsl_siman_copy_construct_t) (void *xp);
+(cffi:defcallback sa-copy-constructor-function :pointer ((state :pointer))
+  (declare (special sa-state-counter user-maker-function))
+  (prog1
+      (cffi:make-pointer sa-state-counter)
+    (make-)
+    (incf sa-state-counter)))
 
-#|
-typedef void (*gsl_siman_destroy_t) (void *xp);
-|#
-
-
+;;; Destructor?  How quaint.  Don't do anything.
+;;; typedef void (*gsl_siman_destroy_t) (void *xp);
+(cffi:defcallback sa-destroy-function :void ((state :pointer))
+  (declare (ignore state))
+  nil)
 
 ;;;;****************************************************************************
 ;;;; New
 ;;;;****************************************************************************
 
-(defmfun simulated-annealing
-    (generator x0-p
-	       Ef take-step distance-function
-	        print-position
-		;; copy-function copy-constructor destructor
-	       element-size parameters)
+(defun simulated-annealing
+    (parameters generator
+     state-maker-function
+     energy-function step-function metric-function
+     print-function copy-function)
+  (declare (special user-state-maker-function
+		    user-energy-function user-step-function
+		    user-metric-function user-print-function
+		    user-copy-function sa-state-counter))
+  (let ((sa-state-counter 0)
+	(user-state-maker-function state-maker-function)
+	(user-energy-function energy-function)
+	(user-step-function step-function)
+	(user-metric-function metric-function)
+	(user-print-function print-function)
+	(user-copy-function copy-function)
+	(user-maker-function state-maker-function))
+    (simulated-annealing-int
+     parameters generator
+     x0-p
+     sa-energy-function
+     sa-step-function
+     sa-metric-function
+     sa-print-function)))
+
+(defmfun simulated-annealing-int
+    (parameters generator x0-p
+	       energy-function step-function metric-function
+	        print-position)
   "gsl_siman_solve"
   (((mpointer generator) :pointer) (x0-p :pointer)
-   ((cffi:get-callback simulated-annealing-energy) :pointer)
-   ((cffi:get-callback take-step) :pointer)
-   ((cffi:get-callback distance-function) :pointer)
+   ((cffi:get-callback energy-function) :pointer)
+   ((cffi:get-callback step-function) :pointer)
+   ((cffi:get-callback metric-function) :pointer)
    ((cffi:get-callback print-position) :pointer)
-   ((cffi:null-pointer) :pointer)
-   ((cffi:null-pointer) :pointer)
-   ((cffi:null-pointer) :pointer)
-   ;;((cffi:get-callback copy-function) :pointer)
-   ;;((cffi:get-callback copy-constructor) :pointer)
-   ;;((cffi:get-callback destructor) :pointer)
-   (element-size sizet) (parameters simulated-annealing-parameters))
+   ((cffi:get-callback 'sa-copy-function) :pointer)
+   ((cffi:get-callback 'sa-copy-constructor-function) :pointer)
+   ((cffi:get-callback 'sa-destroy-function) :pointer)
+   (0 sizet)
+   (parameters simulated-annealing-parameters))
   :c-return :void
   :documentation			; FDL
   "Perform a simulated annealing search through a given
-   space.  The space is specified by providing the functions Ef and
+   space.  The space is specified by providing the functions energy-function and
    distance.  The simulated annealing steps are generated using the
-   random number generator r and the function take-step.
+   random number generator r and the function step-function.
 
    The starting configuration of the system should be given by x0-p
    The routine offers two modes for updating configurations, a fixed-size
