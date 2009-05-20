@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-05-19 22:06:51EDT simulated-annealing.lisp>
+;; Time-stamp: <2009-05-20 12:56:25EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -174,15 +174,20 @@
 
 (defun trivial-example-energy (state)
   (let ((x (maref state 0)))
+    (declare (type double-float x) (optimize (speed 3) (safety 1)))
     (* (exp (- (expt (1- x) 2))) (sin (* 8 x)))))
 
 (defun trivial-example-step (generator state step-size)
+  (declare (type double-float step-size) (optimize (speed 3) (safety 1)))
   (symbol-macrolet ((x (maref state 0)))
     (let ((rand (uniform generator)))
-      (setf x (+ x (- (* 2 rand step-size) step-size))))))
+      (declare (type double-float rand))
+      (setf x (+  (the double-float x) (- (* 2.0d0 rand step-size) step-size))))))
 
 (defun trivial-example-metric (state1 state2)
-    (abs (- (maref state1 0) (maref state2 0))))
+  (declare (optimize (speed 3) (safety 1)))
+  (abs (- (the double-float (maref state1 0))
+	  (the double-float (maref state2 0)))))
 
 (defun simulated-annealing-example ()
   (simulated-annealing
