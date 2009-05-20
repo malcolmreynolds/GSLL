@@ -1,6 +1,6 @@
 ;; Use the foreign-friendly arrays package.
 ;; Liam Healy 2008-03-22 15:40:08EDT
-;; Time-stamp: <2009-02-10 22:40:05EST foreign-friendly.lisp>
+;; Time-stamp: <2009-05-19 21:32:06EDT foreign-friendly.lisp>
 ;; $Id$
 
 ;;; Foreign-friendly arrays (original implementation by Tamas Papp)
@@ -86,7 +86,7 @@
 			       :initial-element (coerce initial-element
 							element-type)))
 		  ;; contents given, copy or coerce
-		  (initial-contents-p
+		  (initial-contents
 		   (when (listp (first initial-contents))
 		     ;; flatten list for matrices
 		     (setf initial-contents (apply 'append initial-contents)))

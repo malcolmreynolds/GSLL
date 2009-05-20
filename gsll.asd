@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-05-03 09:37:17EDT gsll.asd>
+;; Time-stamp: <2009-05-19 21:06:12EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
@@ -217,5 +217,7 @@
 	     (:file "roots-multi" :depends-on (roots-one generic))
 	     (:file "minimization-multi" :depends-on (generic))
 	     (:file "linear-least-squares")
-	     (:file "nonlinear-least-squares" :depends-on (generic))))
+	     (:file "nonlinear-least-squares" :depends-on (generic))
+	     #+fsbv
+	     (:file "simulated-annealing")))
    (:file "basis-splines" :depends-on (init data random))))

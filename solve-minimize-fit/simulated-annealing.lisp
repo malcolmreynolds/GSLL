@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-05-19 20:49:22EDT simulated-annealing.lisp>
+;; Time-stamp: <2009-05-19 22:06:51EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -88,11 +88,6 @@
   (declare (special user-metric-function))
   (funcall user-metric-function (sa-state-value state1) (sa-state-value state2)))
 
-;;; typedef void (*gsl_siman_print_t) (void *xp);
-(cffi:defcallback sa-print-function :void ((state :pointer))
-  (declare (special user-print-function))
-  (funcall user-print-function (sa-state-value state)))
-
 ;;; typedef void (*gsl_siman_copy_t) (void *source, void *dest);
 (cffi:defcallback sa-copy-function :void ((source :pointer) (destination :pointer))
   (copy-sa-state source destination))
@@ -118,19 +113,30 @@
     (state-values parameters
      generator
      state-maker-function energy-function
-     step-function metric-function print-function copy-function)
+     step-function metric-function copy-function)
+  "Perform a simulated annealing search through a given space.  The
+   space is specified by providing the functions energy-function and
+   metric-function.  The simulated annealing steps are generated using
+   the random number generator and the function step-function.  The
+   starting configuration of the system should be given by
+   state-values.  The parameters list controls the run by providing
+   the temperature schedule and other tunable parameters to the
+   algorithm.  On exit the best result achieved during the search is
+   returned.  If the annealing process has been successful this should
+   be a good approximation to the optimal point in the space.
+   The simulated annealing routines require several user-specified
+   functions to define the configuration space and energy function."
   (let ((sa-state-counter 0)
 	(user-state-maker-function state-maker-function)
 	(user-energy-function energy-function)
 	(user-step-function step-function)
 	(user-metric-function metric-function)
-	(user-print-function print-function)
 	(user-copy-function copy-function))
     (declare (special
 	      sa-state-counter
 	      user-state-maker-function user-energy-function
 	      user-step-function user-metric-function
-	      user-print-function user-copy-function))
+	      user-copy-function))
     (make-sa-states 4)
     (let ((x0-p (make-new-sa-state state-values)))
       (simulated-annealing-int
@@ -139,22 +145,18 @@
        x0-p
        'sa-energy-function
        'sa-step-function
-       'sa-metric-function
-       'sa-print-function)
+       'sa-metric-function)
       (sa-state-value x0-p))))
 
 (defmfun simulated-annealing-int
     (parameters generator x0-p
-		energy-function step-function metric-function
-	        print-function)
+		energy-function step-function metric-function)
   "gsl_siman_solve"
   (((mpointer generator) :pointer) (x0-p :pointer)
    ((cffi:get-callback energy-function) :pointer)
    ((cffi:get-callback step-function) :pointer)
    ((cffi:get-callback metric-function) :pointer)
-   ;; ((cffi:get-callback print-function) :pointer)
-   ;; Ignore the print function:
-   ((cffi:null-pointer) :pointer)
+   ((cffi:null-pointer) :pointer)	; No printing
    ((cffi:get-callback 'sa-copy-function) :pointer)
    ((cffi:get-callback 'sa-copy-constructor-function) :pointer)
    ((cffi:get-callback 'sa-destroy-function) :pointer)
@@ -162,39 +164,7 @@
    (parameters simulated-annealing-parameters))
   :c-return :void
   :export nil
-  :index simulated-annealing
-  :documentation			; FDL
-  "Perform a simulated annealing search through a given
-   space.  The space is specified by providing the functions energy-function and
-   distance.  The simulated annealing steps are generated using the
-   random number generator r and the function step-function.
-
-   The starting configuration of the system should be given by x0-p
-   The routine offers two modes for updating configurations, a fixed-size
-   mode and a variable-size mode.  In the fixed-size mode the configuration
-   is stored as a single block of memory of size element-size
-   The functions copy-function,
-   copy-constructor and destructor should be NIL in
-   fixed-size mode.  In the variable-size mode the functions
-   copy-function, copy-constructor and destructor are used to
-   create, copy and destroy configurations internally.  The variable
-   element-size should be zero in the variable-size mode.
-
-   The parameters structure (described below) controls the run by
-   providing the temperature schedule and other tunable parameters to the
-   algorithm.
-
-   On exit the best result achieved during the search is placed in
-   x0-p.  If the annealing process has been successful this
-   should be a good approximation to the optimal point in the space.
-
-   If the function pointer print-function is not null, a debugging
-   log will be printed to standard output with the following columns:
-   number_of_iterations temperature x x-x0p Ef(x)
-   and the output of the function print-function itself.  If
-   print-function is null then no information is printed.
-   The simulated annealing routines require several user-specified
-   functions to define the configuration space and energy function.")
+  :index simulated-annealing)
 
 ;;;;****************************************************************************
 ;;;; Example
@@ -214,12 +184,6 @@
 (defun trivial-example-metric (state1 state2)
     (abs (- (maref state1 0) (maref state2 0))))
 
-;;; This is unused due to the lack of useful information with an
-;;; excess of noise.
-(defun trivial-example-print (state)
-  (princ (maref state 0))
-  (fresh-line))
-
 (defun simulated-annealing-example ()
   (simulated-annealing
    (list 15.5d0)
@@ -229,11 +193,47 @@
    (list 200 1000 1.0d0 1.0d0 0.008d0 1.003d0 2.0d-6) ; parameters
    (make-random-number-generator +mt19937+ 0)
    (lambda (&optional initial)
-     (if initial
-	 (make-marray 'double-float :dimensions 1 :initial-contents initial)
-	 (make-marray 'double-float :dimensions 1)))
+     (make-marray 'double-float :dimensions 1 :initial-contents initial))
    'trivial-example-energy
    'trivial-example-step
    'trivial-example-metric
-   'trivial-example-print
    'copy))
+
+
+;;; The tests used in GSL's "make check", siman/test.c
+
+;;; exp(-square(x-1))*sin(8*x) - exp(-square(x-1000))*0.89;
+(defun trivial-test-energy (state)
+  (let ((x (maref state 0)))
+    (- (* (exp (- (expt (1- x) 2))) (sin (* 8 x)))
+       (* 0.89d0 (exp (- (expt (- x 1000) 2)))))))
+
+(defun simulated-annealing-test (initial-value)
+  (simulated-annealing
+   (list initial-value)
+   (list 200 1000 1.0d0 1.0d0 0.008d0 1.003d0 2.0d-6) ; parameters
+   (make-random-number-generator +mt19937+ 0)
+   (lambda (&optional initial)
+     (make-marray 'double-float :dimensions 1 :initial-contents initial))
+   'trivial-test-energy
+   'trivial-example-step
+   'trivial-example-metric
+   'copy))
+
+#|
+;;; These tests should all come out within 1.0e-3 relative of the true
+;;; answer
+;;;  double x_min = 1.36312999455315182 ;
+;;; They are kept out of the test suite for the time being because
+;;; they take so long to run.
+(simulated-annealing-test -10.0d0)
+#<VECTOR-DOUBLE-FLOAT #(1.3631299268454313d0)>
+(simulated-annealing-test 10.0d0)
+#<VECTOR-DOUBLE-FLOAT #(1.3631305298767984d0)>
+(simulated-annealing-test 0.6d0)
+#<VECTOR-DOUBLE-FLOAT #(1.363130221515894d0)>
+(simulated-annealing-test 0.5d0)
+#<VECTOR-DOUBLE-FLOAT #(1.3631302551366389d0)>
+(simulated-annealing-test 0.4d0)
+#<VECTOR-DOUBLE-FLOAT #(1.3631296899169683d0)>
+|#
