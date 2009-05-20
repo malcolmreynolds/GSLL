@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-05-17 22:57:01EDT simulated-annealing.lisp>
+;; Time-stamp: <2009-05-19 20:49:22EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -28,8 +28,12 @@
 ;;; States will be saved in an array of length 4, *sa-states*, a
 ;;; local special.  The "state pointer" is an index of type (integer 0 3). 
 
+(defparameter *pointer-offset* 0
+  "An arbitrary offset for the generated pointers; non-negative fixnum
+  value is irrelevant and changed for debugging purposes only.")
+
 (defun state-pointer (foreign-pointer)
-  (cffi:pointer-address (cffi:mem-aref foreign-pointer :pointer)))
+  (- (cffi:pointer-address foreign-pointer) *pointer-offset*))
 
 (defun sa-state-value (foreign-pointer)
   (declare (special *sa-states*))
@@ -44,7 +48,7 @@
    Pass any arguments to user-state-maker-function."
   (declare
    (special user-state-maker-function sa-state-counter *sa-states*))
-  (prog1 (cffi:make-pointer sa-state-counter)
+  (prog1 (cffi:make-pointer (+ *pointer-offset* sa-state-counter))
     (when (>= sa-state-counter (length *sa-states*))
       (adjust-array *sa-states* (1+ sa-state-counter)))
     (setf (aref *sa-states* sa-state-counter)
@@ -128,14 +132,16 @@
 	      user-step-function user-metric-function
 	      user-print-function user-copy-function))
     (make-sa-states 4)
-    (simulated-annealing-int
-     parameters
-     generator
-     (make-new-sa-state state-values)	; x0-p
-     'sa-energy-function
-     'sa-step-function
-     'sa-metric-function
-     'sa-print-function)))
+    (let ((x0-p (make-new-sa-state state-values)))
+      (simulated-annealing-int
+       parameters
+       generator
+       x0-p
+       'sa-energy-function
+       'sa-step-function
+       'sa-metric-function
+       'sa-print-function)
+      (sa-state-value x0-p))))
 
 (defmfun simulated-annealing-int
     (parameters generator x0-p
@@ -146,7 +152,9 @@
    ((cffi:get-callback energy-function) :pointer)
    ((cffi:get-callback step-function) :pointer)
    ((cffi:get-callback metric-function) :pointer)
-   ((cffi:get-callback print-function) :pointer)
+   ;; ((cffi:get-callback print-function) :pointer)
+   ;; Ignore the print function:
+   ((cffi:null-pointer) :pointer)
    ((cffi:get-callback 'sa-copy-function) :pointer)
    ((cffi:get-callback 'sa-copy-constructor-function) :pointer)
    ((cffi:get-callback 'sa-destroy-function) :pointer)
@@ -154,6 +162,7 @@
    (parameters simulated-annealing-parameters))
   :c-return :void
   :export nil
+  :index simulated-annealing
   :documentation			; FDL
   "Perform a simulated annealing search through a given
    space.  The space is specified by providing the functions energy-function and
@@ -192,30 +201,37 @@
 ;;;;****************************************************************************
 
 ;;; Trivial example, Sec. 24.3.1
-;;; This does not work.
 
 (defun trivial-example-energy (state)
-  (let ((x (aref state 0)))
+  (let ((x (maref state 0)))
     (* (exp (- (expt (1- x) 2))) (sin (* 8 x)))))
 
 (defun trivial-example-step (generator state step-size)
-  (let ((rand (uniform generator))
-	(x (aref state 0)))
-    (setf x (+ x (- (* 2 rand step-size) step-size)))))
+  (symbol-macrolet ((x (maref state 0)))
+    (let ((rand (uniform generator)))
+      (setf x (+ x (- (* 2 rand step-size) step-size))))))
 
 (defun trivial-example-metric (state1 state2)
-    (abs (- (aref state1 0) (aref state2 0))))
+    (abs (- (maref state1 0) (maref state2 0))))
 
+;;; This is unused due to the lack of useful information with an
+;;; excess of noise.
 (defun trivial-example-print (state)
-  (princ (aref state 0)))
+  (princ (maref state 0))
+  (fresh-line))
 
 (defun simulated-annealing-example ()
   (simulated-annealing
    (list 15.5d0)
-   (list 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6) ; parameters
+   ;; Parameters given in documentation
+   ;;(list 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6) ; parameters
+   ;; Parameters given in doc/examples/siman.c
+   (list 200 1000 1.0d0 1.0d0 0.008d0 1.003d0 2.0d-6) ; parameters
    (make-random-number-generator +mt19937+ 0)
-   (lambda (initial)
-     (make-marray 'double-float :dimensions 1 :initial-contents initial))
+   (lambda (&optional initial)
+     (if initial
+	 (make-marray 'double-float :dimensions 1 :initial-contents initial)
+	 (make-marray 'double-float :dimensions 1)))
    'trivial-example-energy
    'trivial-example-step
    'trivial-example-metric
