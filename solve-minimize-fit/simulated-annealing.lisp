@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-05-20 12:56:25EDT simulated-annealing.lisp>
+;; Time-stamp: <2009-05-23 21:49:10EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -110,7 +110,8 @@
 
 (export 'simulated-annealing)
 (defun simulated-annealing
-    (state-values parameters
+    (state-values
+     n-tries iterations-fixed-T step-size k t-initial mu-t t-min
      generator
      state-maker-function energy-function
      step-function metric-function copy-function)
@@ -119,12 +120,13 @@
    metric-function.  The simulated annealing steps are generated using
    the random number generator and the function step-function.  The
    starting configuration of the system should be given by
-   state-values.  The parameters list controls the run by providing
+   state-values.  The parameters n-tries, iterations-fixed-T,
+   step-size, k, t-initial, mu-t, t-min control the run by providing
    the temperature schedule and other tunable parameters to the
    algorithm.  On exit the best result achieved during the search is
    returned.  If the annealing process has been successful this should
-   be a good approximation to the optimal point in the space.
-   The simulated annealing routines require several user-specified
+   be a good approximation to the optimal point in the space.  The
+   simulated annealing routines require several user-specified
    functions to define the configuration space and energy function."
   (let ((sa-state-counter 0)
 	(user-state-maker-function state-maker-function)
@@ -140,7 +142,7 @@
     (make-sa-states 4)
     (let ((x0-p (make-new-sa-state state-values)))
       (simulated-annealing-int
-       parameters
+       (list n-tries iterations-fixed-T step-size k t-initial mu-t t-min)
        generator
        x0-p
        'sa-energy-function
@@ -193,9 +195,9 @@
   (simulated-annealing
    (list 15.5d0)
    ;; Parameters given in documentation
-   ;;(list 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6) ; parameters
+   ;; 200 10 10.0d0 1.0d0 0.002d0 1.005d0 2.0d-6 ; parameters
    ;; Parameters given in doc/examples/siman.c
-   (list 200 1000 1.0d0 1.0d0 0.008d0 1.003d0 2.0d-6) ; parameters
+   200 1000 1.0d0 1.0d0 0.008d0 1.003d0 2.0d-6 ; parameters
    (make-random-number-generator +mt19937+ 0)
    (lambda (&optional initial)
      (make-marray 'double-float :dimensions 1 :initial-contents initial))
