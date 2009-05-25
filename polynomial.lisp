@@ -1,6 +1,6 @@
 ;; Polynomials
 ;; Liam Healy, Tue Mar 21 2006 - 18:33
-;; Time-stamp: <2009-05-03 09:37:35EDT polynomial.lisp>
+;; Time-stamp: <2009-05-25 12:42:18EDT polynomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -159,8 +159,8 @@
     (coefficients
      &optional
      (answer (make-marray '(complex double-float)
-			  :dimensions (1- (total-size coefficients))))
-     (workspace (make-polynomial-complex-workspace (total-size coefficients))))
+			  :dimensions (1- (size coefficients))))
+     (workspace (make-polynomial-complex-workspace (size coefficients))))
   "gsl_poly_complex_solve"
   (((c-pointer coefficients) :pointer) ((dim0 coefficients) sizet)
    ((mpointer workspace) :pointer) ((c-pointer answer) :pointer))

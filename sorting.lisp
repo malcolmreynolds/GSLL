@@ -1,6 +1,6 @@
 ;; Sorting
 ;; Liam Healy, Fri Apr 14 2006 - 20:20
-;; Time-stamp: <2008-12-27 11:36:24EST sorting.lisp>
+;; Time-stamp: <2009-05-25 12:42:20EDT sorting.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -60,7 +60,7 @@
 
 (defmfun msort ((v both))
   ("gsl_sort" :type)
-  (((c-pointer v) :pointer) (1 sizet) ((total-size v) sizet))
+  (((c-pointer v) :pointer) (1 sizet) ((size v) sizet))
   :definition :generic
   :element-types :no-complex
   :c-return :void
@@ -136,10 +136,10 @@
 
 (defmfun sort-smallest (dest (v both))
   ("gsl_sort" :type "_smallest")
-  (((c-pointer dest) :pointer) ((total-size dest) sizet)
+  (((c-pointer dest) :pointer) ((size dest) sizet)
    ((c-pointer v) :pointer)
    (1 sizet)				; stride, set to 1 for now
-   ((total-size v) sizet))
+   ((size v) sizet))
   :definition :generic
   :element-types :no-complex
   :c-return :void
@@ -151,7 +151,7 @@
 
 (defmfun sort-vector-smallest-index (combination (v vector))
   ("gsl_sort_vector" :type "_smallest_index")
-  (((c-pointer combination) :pointer) ((total-size combination) sizet)
+  (((c-pointer combination) :pointer) ((size combination) sizet)
    ((mpointer v) :pointer)
    (1 sizet)				; stride, set to 1 for now
    ((first (dimensions combination)) sizet))
@@ -169,7 +169,7 @@
 
 (defmfun sort-smallest-index (combination (v vector))
   ("gsl_sort" :type "_smallest_index")
-  (((c-pointer combination) :pointer) ((total-size combination) sizet)
+  (((c-pointer combination) :pointer) ((size combination) sizet)
    ((c-pointer v) :pointer)
    (1 sizet)				; stride, set to 1 for now
    ((first (dimensions combination)) sizet))
@@ -200,10 +200,10 @@
 
 (defmfun sort-largest (dest (v both))
   ("gsl_sort" :type "_largest")
-  (((c-pointer dest) :pointer) ((total-size dest) sizet)
+  (((c-pointer dest) :pointer) ((size dest) sizet)
    ((c-pointer v) :pointer)
    (1 sizet)				; stride, set to 1 for now
-   ((total-size v) sizet))
+   ((size v) sizet))
   :definition :generic
   :element-types :no-complex
   :c-return :void
@@ -215,7 +215,7 @@
 
 (defmfun sort-vector-largest-index (combination (v vector))
   ("gsl_sort_vector" :type "_largest_index")
-  (((c-pointer combination) :pointer) ((total-size combination) sizet)
+  (((c-pointer combination) :pointer) ((size combination) sizet)
    ((mpointer v) :pointer)
    (1 sizet)				; stride, set to 1 for now
    ((first (dimensions combination)) sizet))
@@ -233,7 +233,7 @@
 
 (defmfun sort-largest-index (combination (v vector))
   ("gsl_sort" :type "_largest_index")
-  (((c-pointer combination) :pointer) ((total-size combination) sizet)
+  (((c-pointer combination) :pointer) ((size combination) sizet)
    ((c-pointer v) :pointer)
    (1 sizet)				; stride, set to 1 for now
    ((first (dimensions combination)) sizet))

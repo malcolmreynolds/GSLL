@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2009-03-20 17:20:00EDT marray.lisp>
+;; Time-stamp: <2009-05-25 12:42:21EDT marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,7 +10,8 @@
 ;;;;****************************************************************************
 
 (defclass marray (mobject foreign-array)
-  ((block-pointer :initarg :block-pointer :reader block-pointer))
+  ((block-pointer :initarg :block-pointer :reader block-pointer)
+   (total-size :reader size))
   (:documentation
    "A superclass for arrays represented in GSL and CL."))
 
@@ -33,7 +34,7 @@
   (unless (and (slot-boundp object 'mpointer) (mpointer object))
     (let ((blockptr (cffi:foreign-alloc 'gsl-block-c)))
       (setf (cffi:foreign-slot-value blockptr 'gsl-block-c 'size)
-	    (total-size object)
+	    (size object)
 	    (slot-value object 'block-pointer)
 	    blockptr)
       (let ((array-struct (alloc-from-block object blockptr)))
@@ -77,7 +78,7 @@
     ',(loop for elt across
 	   (subseq (original-array object)
 		   (offset object)
-		   (+ (offset object) (total-size object)))
+		   (+ (offset object) (size object)))
 	   collect elt)))
 
 ;;;;****************************************************************************
@@ -168,8 +169,8 @@
 (defun component-size (object)
   (if (subtypep (element-type object) 'complex)
       ;; complex: make array twice as long
-      (* 2 (total-size object))
-      (total-size object)))
+      (* 2 (size object))
+      (size object)))
 
 ;;;;****************************************************************************
 ;;;; Copy to and from bare mpointers 
