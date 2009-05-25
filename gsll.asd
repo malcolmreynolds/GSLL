@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-05-19 21:06:12EDT gsll.asd>
+;; Time-stamp: <2009-05-24 16:07:08EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
@@ -172,7 +172,7 @@
 	     ;; minimum and maximum values provided in vector.lisp
 	     (:file "median-percentile")))
    (:module histogram
-	    :depends-on (init linear-algebra)
+	    :depends-on (init linear-algebra random)
 	    :components
 	    ((:file "histogram")
 	     (:file "updating-accessing" :depends-on (histogram))

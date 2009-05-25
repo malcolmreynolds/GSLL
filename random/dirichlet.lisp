@@ -1,19 +1,22 @@
 ;; Dirichlet distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2009-02-16 10:10:31EST dirichlet.lisp>
+;; Time-stamp: <2009-05-24 22:55:07EDT dirichlet.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_randist.h
 
-(defmfun dirichlet (generator alpha theta)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'dirichlet))
+     &key alpha (theta (vdf (dim0 alpha))))
   "gsl_ran_dirichlet"
   (((mpointer generator) :pointer)
    ((dim0 alpha) sizet)
    ((c-pointer alpha) :pointer)
    ;; theta had better be at least as long as alpha, or they'll be trouble
    ((c-pointer theta) :pointer))
+  :definition :method
   :inputs (alpha)
   :outputs (theta)
   :c-return :void
@@ -64,10 +67,8 @@
 ;;; Examples and unit test
 (save-test dirichlet
  (let ((rng (make-random-number-generator +mt19937+ 0))
-       (alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
-       (theta (make-marray 'double-float :dimensions 4)))
-   (dirichlet rng alpha theta)
-   (cl-array theta))
+       (alpha #m(1.0d0 2.0d0 3.0d0 4.0d0)))
+   (cl-array (sample rng 'dirichlet :alpha alpha)))
  (let ((alpha #m(1.0d0 2.0d0 3.0d0 4.0d0))
        (theta #m(1.0d0 2.0d0 3.0d0 4.0d0)))
    (dirichlet-pdf alpha theta))

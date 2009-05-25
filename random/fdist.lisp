@@ -1,6 +1,6 @@
 ;; Fdist distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2009-02-16 10:08:13EST fdist.lisp>
+;; Time-stamp: <2009-05-24 20:24:40EDT fdist.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,9 +8,11 @@
 ;;; /usr/include/gsl/gsl_randist.h
 ;;; /usr/include/gsl/gsl_cdf.h
 
-(defmfun fdist (generator nu1 nu2)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'fdist)) &key nu1 nu2)
   "gsl_ran_fdist"
   (((mpointer generator) :pointer) (nu1 :double) (nu2 :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the F-distribution with degrees of freedom nu1
@@ -67,7 +69,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (fdist rng 1.0d0 2.0d0)))
+	    (sample rng 'fdist :nu1 1.0d0 :nu2 2.0d0)))
   (fdist-pdf 1.2d0 1.0d0 2.0d0)
   (fdist-P 1.2d0 1.0d0 2.0d0)
   (fdist-Q 1.2d0 1.0d0 2.0d0)

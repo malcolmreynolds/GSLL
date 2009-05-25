@@ -1,6 +1,6 @@
 ;; Simulated Annealing
 ;; Liam Healy Sun Feb 11 2007 - 17:23
-;; Time-stamp: <2009-05-23 21:49:10EDT simulated-annealing.lisp>
+;; Time-stamp: <2009-05-24 23:17:07EDT simulated-annealing.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -75,7 +75,7 @@
 
 ;;; The user-step-function should take a rng pointer, a state pointer,
 ;;; and a double-float, and return nothing.  The rng pointer should be
-;;; used in call to one of the distribution functions like #'uniform.
+;;; used in call to one of the distribution functions like 'uniform.
 ;;; typedef void (*gsl_siman_step_t) (const gsl_rng *r, void *xp, double step_size);
 (cffi:defcallback sa-step-function :void
     ((rng :pointer) (state :pointer) (step-size :double))
@@ -182,7 +182,7 @@
 (defun trivial-example-step (generator state step-size)
   (declare (type double-float step-size) (optimize (speed 3) (safety 1)))
   (symbol-macrolet ((x (maref state 0)))
-    (let ((rand (uniform generator)))
+    (let ((rand (sample generator 'uniform)))
       (declare (type double-float rand))
       (setf x (+  (the double-float x) (- (* 2.0d0 rand step-size) step-size))))))
 
@@ -218,7 +218,7 @@
 (defun simulated-annealing-test (initial-value)
   (simulated-annealing
    (list initial-value)
-   (list 200 1000 1.0d0 1.0d0 0.008d0 1.003d0 2.0d-6) ; parameters
+   200 1000 1.0d0 1.0d0 0.008d0 1.003d0 2.0d-6 ; parameters
    (make-random-number-generator +mt19937+ 0)
    (lambda (&optional initial)
      (make-marray 'double-float :dimensions 1 :initial-contents initial))

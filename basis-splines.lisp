@@ -1,6 +1,6 @@
 ;; Basis splines.
 ;; Liam Healy 2008-02-18 14:43:20EST basis-splines.lisp
-;; Time-stamp: <2009-02-21 16:46:31EST basis-splines.lisp>
+;; Time-stamp: <2009-05-24 22:58:41EDT basis-splines.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -109,7 +109,7 @@
     (dotimes (i ndata)
       (let* ((xi (coerce (* i (/ 15 (1- ndata))) 'double-float))
 	     (yi (+ (* (cos xi) (exp (* -0.1d0 xi)))
-		    (gaussian rng sigma))))
+		    (sample rng 'gaussian :sigma sigma))))
 	(setf (maref x i) xi
 	      (maref y i) yi
 	      (maref w i) (/ (expt sigma 2)))))

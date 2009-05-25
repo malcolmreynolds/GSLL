@@ -1,6 +1,6 @@
 ;; Gamma distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2009-02-16 10:08:11EST gamma.lisp>
+;; Time-stamp: <2009-05-24 20:16:57EDT gamma.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,10 +8,11 @@
 ;;; /usr/include/gsl/gsl_randist.h
 ;;; /usr/include/gsl/gsl_cdf.h
 
-(defmfun gamma-rd (generator a b)
-  ;; Named #'gamma-rd to avoid confusion with the special function #'gamma.
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'gamma)) &key a b)
   "gsl_ran_gamma"
   (((mpointer generator) :pointer) (a :double) (b :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the gamma distribution.
@@ -21,9 +22,11 @@
    is known as the Erlang distribution.  The variates are computed using
    the algorithms from Knuth (vol 2).")
 
-(defmfun gamma-mt (generator a b)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'gamma-mt)) &key a b)
   "gsl_ran_gamma_mt"
   (((mpointer generator) :pointer) (a :double) (b :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A gamma variate using the Marsaglia-Tsang fast gamma method.")
@@ -69,11 +72,11 @@
  (let ((rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
 	 collect
-	 (gamma-rd rng 1.0d0 2.0d0)))
+	 (sample rng 'gamma :a 1.0d0 :b 2.0d0)))
  (let ((rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
 	 collect
-	 (gamma-mt rng 1.0d0 2.0d0)))
+	 (sample rng 'gamma-mt :a 1.0d0 :b 2.0d0)))
  (gamma-pdf 0.1d0 1.0d0 2.0d0)
  (gamma-P 0.1d0 1.0d0 2.0d0)
  (gamma-Q 0.1d0 1.0d0 2.0d0)

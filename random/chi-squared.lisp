@@ -1,6 +1,6 @@
 ;; Chi-squared distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2009-02-16 10:10:33EST chi-squared.lisp>
+;; Time-stamp: <2009-05-24 20:23:33EDT chi-squared.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,9 +8,11 @@
 ;;; /usr/include/gsl/gsl_randist.h
 ;;; /usr/include/gsl/gsl_cdf.h
 
-(defmfun chi-squared (generator nu)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'chi-squared)) &key nu)
   "gsl_ran_chisq"
   (((mpointer generator) :pointer) (nu :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the chi-squared distribution
@@ -59,7 +61,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (chi-squared rng 10.0d0)))
+	    (sample rng 'chi-squared :nu 10.0d0)))
   (chi-squared-pdf 0.5d0 1.0d0)
   (chi-squared-P 0.5d0 1.0d0)
   (chi-squared-Q 0.5d0 1.0d0)

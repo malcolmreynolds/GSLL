@@ -1,6 +1,6 @@
 ;; Hypergeometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2009-02-16 10:08:12EST hypergeometric.lisp>
+;; Time-stamp: <2009-05-24 22:31:19EDT hypergeometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,9 +8,12 @@
 ;;; /usr/include/gsl/gsl_randist.h
 ;;; /usr/include/gsl/gsl_cdf.h
 
-(defmfun hypergeometric (generator n1 n2 tt)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'hypergeometric))
+     &key n1 n2 tt)
   "gsl_ran_hypergeometric"
   (((mpointer generator) :pointer) (n1 :uint) (n2 :uint)(tt :uint))
+  :definition :method
   :c-return :uint
   :documentation			; FDL
   "A random integer from the hypergeometric
@@ -41,7 +44,7 @@
   "The cumulative distribution functions P(k) for the
    hypergeometric distribution with parameters n1, n2 and tt.")
 
-(defmfun hypergeometric-Q  (k n1 n2 tt)
+(defmfun hypergeometric-Q (k n1 n2 tt)
   "gsl_cdf_hypergeometric_Q"  ((k :uint) (n1 :uint) (n2 :uint)(tt :uint))
   :c-return :double
   :documentation			; FDL
@@ -53,9 +56,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
      (loop for i from 0 to 10
 	   collect
-	   (hypergeometric rng 3 6 3)))
+	   (sample rng 'hypergeometric :n1 3 :n2 6 :tt 3)))
   (hypergeometric-pdf 0 2 6 3)
   (hypergeometric-P 1 2 6 3)
   (hypergeometric-Q 1 2 6 3))
-
-

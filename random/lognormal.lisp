@@ -1,13 +1,16 @@
 ;; Lognormal distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2009-02-16 10:08:15EST lognormal.lisp>
+;; Time-stamp: <2009-05-24 20:22:32EDT lognormal.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun lognormal (generator zeta sigma)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'lognormal))
+     &key zeta sigma)
   "gsl_ran_lognormal"
   (((mpointer generator) :pointer) (zeta :double) (sigma :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the lognormal distribution.
@@ -59,7 +62,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (lognormal rng 1.0d0 2.0d0)))
+	    (sample rng 'lognormal :zeta 1.0d0 :sigma 2.0d0)))
   (lognormal-pdf 1.2d0 1.0d0 2.0d0)
   (lognormal-P 1.2d0 1.0d0 2.0d0)
   (lognormal-Q 1.2d0 1.0d0 2.0d0)

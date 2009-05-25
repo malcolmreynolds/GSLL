@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-05-07 22:42:30EDT generators.lisp>
+;; Time-stamp: <2009-05-24 22:50:40EDT generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -56,8 +56,14 @@
    values of min and max can determined using the auxiliary
    functions #'rng-max and #'rng-min.")
 
-(defmfun uniform (generator)
-  "gsl_rng_uniform" (((mpointer generator) :pointer))
+(export 'sample)
+(defgeneric sample (source distribution &key #+sbcl &allow-other-keys)
+  (:documentation
+   "Sample from the probability distribution."))
+
+(defmfun sample ((source random-number-generator) (type (eql 'uniform)) &key)
+  "gsl_rng_uniform" (((mpointer source) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A double precision floating point number uniformly
@@ -69,19 +75,23 @@
    (the maximum number of bits that can be portably represented in a single
    :ulong.")
 
-(defmfun uniform>0 (generator)
-  "gsl_rng_uniform_pos" (((mpointer generator) :pointer))
+(defmfun sample ((source random-number-generator) (type (eql 'uniform>0)) &key)
+  "gsl_rng_uniform_pos" (((mpointer source) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
-  "Return a positive double precision floating point number
-   uniformly distributed in the range (0,1), excluding both 0.0 and 1.0.
-   The number is obtained by sampling the generator with the algorithm of
-   #'uniform until a non-zero value is obtained.  You can use
-   this function if you need to avoid a singularity at 0.0.")
+  "Return a positive double precision floating point number uniformly
+   distributed in the range (0,1), excluding both 0.0 and 1.0.  The
+   number is obtained by sampling the generator with the algorithm for
+   type 'uniform until a non-zero value is obtained.  You can use this
+   function if you need to avoid a singularity at 0.0.")
 
-(defmfun uniform-fixnum (generator upperbound)
+(defmfun sample
+    ((source random-number-generator) (type (eql 'uniform-fixnum))
+     &key upperbound)
   "gsl_rng_uniform_int"
-  (((mpointer generator) :pointer) (upperbound :ulong))
+  (((mpointer source) :pointer) (upperbound :ulong))
+  :definition :method
   :c-return :ulong
   :documentation			; FDL
   "Generate a random integer from 0 to upperbound-1 inclusive.
@@ -181,6 +191,6 @@
  (let ((rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
 	 collect
-	 (uniform-fixnum rng 1000)))
+	 (sample rng 'uniform-fixnum :upperbound 1000)))
  (let ((rng (make-random-number-generator *cmrg* 0)))
-   (loop for i from 0 to 10 collect (uniform rng))))
+   (loop for i from 0 to 10 collect (sample rng 'uniform))))

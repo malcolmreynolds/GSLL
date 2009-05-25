@@ -1,6 +1,6 @@
 ;; Discrete random variables
 ;; Liam Healy, Sat Nov 11 2006 - 21:51
-;; Time-stamp: <2009-02-16 10:08:14EST discrete.lisp>
+;; Time-stamp: <2009-05-24 21:56:42EDT discrete.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -20,9 +20,12 @@
   generally as ``weights'')---the preprocessor will normalize appropriately.
   This return value is used as an argument to #'discrete.")
 
-(defmfun discrete (generator table)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'discrete))
+     &key table)
   "gsl_ran_discrete"
   (((mpointer generator) :pointer) ((mpointer table) :pointer))
+  :definition :method
   :c-return sizet
   :documentation
   "Generate discrete random numbers.")
@@ -46,7 +49,7 @@
 	(rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
       collect
-      (discrete rng table)))
+      (sample rng 'discrete :table table)))
  (let* ((probabilities #m(0.25d0 0.5d0 0.25d0))
 	(table (make-discrete-random probabilities)))
    (discrete-pdf 1 table)))

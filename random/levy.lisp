@@ -1,15 +1,17 @@
 ;; Levy distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2009-02-16 10:08:11EST levy.lisp>
+;; Time-stamp: <2009-05-24 20:10:32EDT levy.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_randist.h
 
-(defmfun levy (generator c alpha)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'levy)) &key c alpha)
   "gsl_ran_levy"
   (((mpointer generator) :pointer) (c :double) (alpha :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the Levy symmetric stable
@@ -23,9 +25,12 @@
    For \alpha < 1 the tails of the distribution become extremely wide.
    The algorithm only works for 0 < alpha <= 2.")
 
-(defmfun levy-skew (generator c alpha beta)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'levy-skew))
+     &key c alpha beta)
   "gsl_ran_levy_skew"
   (((mpointer generator) :pointer) (c :double) (alpha :double) (beta :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the Levy skew stable
@@ -49,8 +54,8 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (levy rng 1.0d0 2.0d0)))
+	    (sample rng 'levy :c 1.0d0 :alpha 2.0d0)))
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (levy-skew rng 1.0d0 2.0d0 1.0d0))))
+	    (sample rng 'levy-skew :c 1.0d0 :alpha 2.0d0 :beta 1.0d0))))

@@ -1,6 +1,6 @@
 ;; Spherical Vector distribution
 ;; Liam Healy, Sun Oct  22 2006
-;; Time-stamp: <2009-04-26 23:08:37EDT spherical-vector.lisp>
+;; Time-stamp: <2009-05-24 21:41:40EDT spherical-vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,30 +9,36 @@
 
 ;;; No test for #'direction-Nd yet.
 
-(defmfun direction-2d (generator)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'direction-2d)) &key)
   "gsl_ran_dir_2d"
   (((mpointer generator) :pointer)
    (x (:pointer :double)) (y (:pointer :double)))
+  :definition :method
   :c-return :void
   :documentation			; FDL
   "A random direction vector v = (x,y) in
    two dimensions.  The vector is normalized such that
    |v|^2 = x^2 + y^2 = 1.")
 
-(defmfun direction-2d-trig-method (generator)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'direction-2d-trig-method)) &key)
   "gsl_ran_dir_2d_trig_method"
   (((mpointer generator) :pointer)
    (x (:pointer :double)) (y (:pointer :double)))
+  :definition :method
   :c-return :void
   :documentation			; FDL
   "A random direction vector v = (x,y) in
    two dimensions.  The vector is normalized such that
    |v|^2 = x^2 + y^2 = 1.  Uses trigonometric functions.")
 
-(defmfun direction-3d (generator)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'direction-3d)) &key)
   "gsl_ran_dir_3d"
   (((mpointer generator) :pointer)
    (x (:pointer :double)) (y (:pointer :double)) (z (:pointer :double)))
+  :definition :method
   :c-return :void
   :documentation			; FDL
   "A random direction vector v =
@@ -43,10 +49,12 @@
   projected along any axis is actually uniform (this is only true for 3
   dimensions).")
 
-(defmfun direction-Nd (generator vector)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'direction-Nd)) &key vector)
   "gsl_ran_dir_nd"
   (((mpointer generator) :pointer) ((dim0 vector) sizet)
    ((c-pointer vector) :pointer))
+  :definition :method
   :c-return :void
   :outputs (vector)
   :return (vector)
@@ -65,12 +73,12 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 4
 	    append
-	    (multiple-value-list (direction-2d rng))))
+	    (multiple-value-list (sample rng 'direction-2d))))
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 4
 	    append
-	    (multiple-value-list (direction-2d-trig-method rng))))
+	    (multiple-value-list (sample rng 'direction-2d-trig-method))))
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 2
 	    append
-	    (multiple-value-list (direction-3d rng)))))
+	    (multiple-value-list (sample rng 'direction-3d)))))

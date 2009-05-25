@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-04-04 22:30:04EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-05-24 22:56:35EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -294,7 +294,8 @@
 	 (rng (make-random-number-generator +mt19937+ 0)))
      (dotimes (i number-of-observations arr)
        (setf (maref arr i)
-	     (+ 1 (* 5 (exp (* -1/10 i))) (gaussian rng 0.1d0)))))
+	     (+ 1 (* 5 (exp (* -1/10 i)))
+		(sample rng 'gaussian :sigma 0.1d0)))))
    :sigma
    (make-marray
     'double-float :dimensions number-of-observations :initial-element 0.1d0)))

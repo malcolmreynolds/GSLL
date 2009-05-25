@@ -1,6 +1,6 @@
 ;; The Gumbel type 2 random number distribution
 ;; Liam Healy, Sun Oct 29 2006
-;; Time-stamp: <2009-02-16 10:08:12EST gumbel2.lisp>
+;; Time-stamp: <2009-05-24 21:47:03EDT gumbel2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,9 +8,11 @@
 ;;; /usr/include/gsl/gsl_randist.h
 ;;; /usr/include/gsl/gsl_cdf.h
 
-(defmfun gumbel2 (generator a b)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'gumbel2)) &key a b)
   "gsl_ran_gumbel2"
   (((mpointer generator) :pointer) (a :double) (b :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the Type-2 Gumbel
@@ -61,7 +63,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (gumbel2 rng 1.0d0 2.0d0)))
+	    (sample rng 'gumbel2 :a 1.0d0 :b 2.0d0)))
   (gumbel2-pdf 5.0d0 1.0d0 2.0d0)
   (gumbel2-P 10.0d0 1.0d0 2.0d0)
   (gumbel2-Q 10.0d0 1.0d0 2.0d0)

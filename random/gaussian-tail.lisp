@@ -1,15 +1,18 @@
 ;; Gaussian tail distribution
 ;; Liam Healy, Mon Aug 21 2006 - 21:52
-;; Time-stamp: <2009-02-16 10:08:12EST gaussian-tail.lisp>
+;; Time-stamp: <2009-05-24 16:53:42EDT gaussian-tail.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_randist.h
 
-(defmfun gaussian-tail (generator a sigma)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'gaussian-tail))
+     &key a sigma)
   "gsl_ran_gaussian_tail"
   (((mpointer generator) :pointer) (a :double) (sigma :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "Random variates from the upper tail of a Gaussian
@@ -32,9 +35,12 @@
   for a Gaussian tail distribution with standard deviation sigma and
   lower limit a, using the formula given for gaussian-tail.")
 
-(defmfun ugaussian-tail (generator a)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'ugaussian-tail))
+     &key a)
   "gsl_ran_ugaussian_tail"
   (((mpointer generator) :pointer) (a :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "Equivalent to gaussian-tail with sigma=1.")
@@ -51,10 +57,10 @@
  (let ((rng (make-random-number-generator +mt19937+ 0)))
    (loop for i from 0 to 10
 	 collect
-	 (gaussian-tail rng 50.0d0 10.0d0)))
+	 (sample rng 'gaussian-tail :a 50.0d0 :sigma 10.0d0)))
  (gaussian-tail-pdf 52.0d0 50.0d0 10.0d0)
  (let ((rng (make-random-number-generator +mt19937+ 0)))
      (loop for i from 0 to 10
 	   collect
-	   (ugaussian-tail rng 5.0d0)))
+	   (sample rng 'ugaussian-tail :a 5.0d0)))
  (ugaussian-tail-pdf 5.2d0 5.0d0))

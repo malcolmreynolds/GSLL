@@ -1,15 +1,18 @@
 ;; Geometric distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2009-02-16 10:08:14EST geometric.lisp>
+;; Time-stamp: <2009-05-24 22:28:31EDT geometric.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_randist.h
 
-(defmfun geometric (generator p)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'geometric))
+     &key probability)
   "gsl_ran_geometric"
-  (((mpointer generator) :pointer) (p :double))
+  (((mpointer generator) :pointer) (probability :double))
+  :definition :method
   :c-return :uint
   :documentation			; FDL
   "A random integer from the geometric distribution,
@@ -47,7 +50,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
      (loop for i from 0 to 10
 	   collect
-	   (geometric rng 0.4d0)))
+	   (sample rng 'geometric :probability 0.4d0)))
   (geometric-pdf 2 0.4d0)
   (geometric-P 2 0.4d0)
   (geometric-Q 2 0.4d0))

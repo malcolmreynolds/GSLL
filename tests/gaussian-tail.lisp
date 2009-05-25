@@ -14,7 +14,7 @@
                         (MULTIPLE-VALUE-LIST
                          (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
-                                 (GAUSSIAN-TAIL RNG 50.0d0 10.0d0)))))
+                                 (sample rng 'gaussian-tail :a 50.0d0 :sigma 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.18702270877331703d0)
                         (MULTIPLE-VALUE-LIST
@@ -30,7 +30,7 @@
                         (MULTIPLE-VALUE-LIST
                          (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
-                                 (UGAUSSIAN-TAIL RNG 5.0d0)))))
+                                 (sample rng 'ugaussian-tail :a 5.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 1.8702270877331704d0)
                         (MULTIPLE-VALUE-LIST (UGAUSSIAN-TAIL-PDF 5.2d0 5.0d0))))

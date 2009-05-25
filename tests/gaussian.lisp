@@ -14,7 +14,7 @@
                         (MULTIPLE-VALUE-LIST
                          (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
-                                 (GAUSSIAN RNG 10.0d0)))))
+                                 (sample rng 'gaussian :sigma 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.039894228040143274d0)
                         (MULTIPLE-VALUE-LIST (GAUSSIAN-PDF 0.0d0 10.0d0)))
@@ -29,7 +29,7 @@
                         (MULTIPLE-VALUE-LIST
                          (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
-                                 (GAUSSIAN-ZIGGURAT RNG 10.0d0)))))
+                                 (sample rng 'gaussian-ziggurat :sigma 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
                         (LIST 0.9772498680518208d0)
                         (MULTIPLE-VALUE-LIST (UGAUSSIAN-P 2.0d0)))

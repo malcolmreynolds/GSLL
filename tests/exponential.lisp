@@ -14,7 +14,7 @@
                         (MULTIPLE-VALUE-LIST
                          (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
-                                 (EXPONENTIAL RNG 10.0d0)))))
+                                 (sample rng 'exponential :mu 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 0.1d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (EXPONENTIAL-PDF

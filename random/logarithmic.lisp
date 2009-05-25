@@ -1,15 +1,18 @@
 ;; Logarithmic distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2009-02-16 10:08:16EST logarithmic.lisp>
+;; Time-stamp: <2009-05-24 22:49:00EDT logarithmic.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_randist.h
 
-(defmfun logarithmic (generator p)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'logarithmic))
+     &key probability)
   "gsl_ran_logarithmic"
-  (((mpointer generator) :pointer) (p :double))
+  (((mpointer generator) :pointer) (probability :double))
+  :definition :method
   :c-return :uint
   :documentation			; FDL
   "A random integer from the logarithmic distribution.
@@ -30,5 +33,5 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
      (loop for i from 0 to 10
 	   collect
-	   (logarithmic rng 0.9d0)))
+	   (sample rng 'logarithmic :probability 0.9d0)))
   (logarithmic-pdf 2 0.4d0))

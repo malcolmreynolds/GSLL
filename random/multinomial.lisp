@@ -1,28 +1,33 @@
 ;; Multinomial distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:00
-;; Time-stamp: <2009-02-16 10:10:33EST multinomial.lisp>
+;; Time-stamp: <2009-05-24 23:00:01EDT multinomial.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 ;;; /usr/include/gsl/gsl_randist.h
 
-(defmfun multinomial (generator sum p n)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'multinomial))
+     &key sum probabilities
+     (n (make-marray
+	 '(signed-byte 32) :dimensions (dim0 probabilities))))
   "gsl_ran_multinomial"
   (((mpointer generator) :pointer) 
-   ((dim0 p) sizet)
+   ((dim0 probabilities) sizet)
    (sum sizet)
-   ((c-pointer p) :pointer)
+   ((c-pointer probabilities) :pointer)
    ;; technically, n should be a uint array, but integers work
    ((c-pointer n) :pointer))
+  :definition :method
   :inputs (p)
   :outputs (n)
   :return (n)
   :c-return :void
   :documentation			; FDL
-  "Returns an array n of K random variates from a 
+  "Returns an array n of (dim0 probabilities) random variates from a 
    multinomial distribution.  The sum of the array n is specified
-   by sum=N.  The distribution function is
+   by sum.  The distribution function is
    P(n_1, n_2, ..., n_K) = 
    (N!/(n_1! n_2! ... n_K!)) p_1^n_1 p_2^n_2 ... p_K^n_K
    where (n_1, n_2, ..., n_K) are nonnegative integers with 
@@ -57,13 +62,11 @@
 ;;; Examples and unit test
 (save-test multinomial
  (let ((rng (make-random-number-generator +mt19937+ 0))
-	(p #m(0.1d0 0.2d0 0.3d0 0.4d0))
-	(n (make-marray '(signed-byte 32) :dimensions 4)))
-   (multinomial rng 8 p n)
-   (cl-array n))
+       (p #m(0.1d0 0.2d0 0.3d0 0.4d0)))
+   (cl-array (sample rng 'multinomial :sum 8 :probabilities p)))
  (let ((p #m(0.1d0 0.2d0 0.3d0 0.4d0))
-	(n #31m(5 0 1 2)))
+       (n #31m(5 0 1 2)))
    (multinomial-pdf p N))
  (let ((p #m(0.1d0 0.2d0 0.3d0 0.4d0))
-	(n #31m(5 0 1 2)))
+       (n #31m(5 0 1 2)))
    (multinomial-log-pdf p n)))

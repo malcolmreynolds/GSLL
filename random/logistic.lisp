@@ -1,6 +1,6 @@
 ;; Logistic distribution
 ;; Liam Healy, Sat Oct  7 2006 - 16:13
-;; Time-stamp: <2009-02-16 10:08:10EST logistic.lisp>
+;; Time-stamp: <2009-05-24 21:36:39EDT logistic.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,9 +8,11 @@
 ;;; /usr/include/gsl/gsl_randist.h
 ;;; /usr/include/gsl/gsl_cdf.h
 
-(defmfun logistic (generator a)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'logistic)) &key a)
   "gsl_ran_logistic"
   (((mpointer generator) :pointer) (a :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the logistic distribution.  The distribution function is
@@ -58,7 +60,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (logistic rng 10.0d0)))
+	    (sample rng 'logistic :a 10.0d0)))
   (logistic-pdf 0.5d0 1.0d0)
   (logistic-P 0.5d0 1.0d0)
   (logistic-Q 0.5d0 1.0d0)

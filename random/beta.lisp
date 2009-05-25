@@ -1,14 +1,15 @@
 ;; Beta distribution
 ;; Liam Healy, Sat Sep 30 2006
-;; Time-stamp: <2009-02-16 10:10:32EST beta.lisp>
+;; Time-stamp: <2009-05-24 21:34:36EDT beta.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-(defmfun beta-rd (generator a b)
-  ;; Named #'beta-rd to avoid confusion with the special function #'beta.
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'beta)) &key a b)
   "gsl_ran_beta"
   (((mpointer generator) :pointer) (a :double) (b :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the beta distribution.  The distribution function is
@@ -56,7 +57,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (beta-rd rng 1.0d0 2.0d0)))
+	    (sample rng 'beta :a 1.0d0 :b 2.0d0)))
   (beta-pdf 0.1d0 1.0d0 2.0d0)
   (beta-P 0.1d0 1.0d0 2.0d0)
   (beta-Q 0.1d0 1.0d0 2.0d0)

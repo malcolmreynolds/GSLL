@@ -1,6 +1,6 @@
 ;; Weibull distribution
 ;; Liam Healy, Sun Oct 22 2006
-;; Time-stamp: <2009-02-16 10:08:16EST weibull.lisp>
+;; Time-stamp: <2009-05-24 21:43:44EDT weibull.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,9 +8,11 @@
 ;;; /usr/include/gsl/gsl_randist.h
 ;;; /usr/include/gsl/gsl_cdf.h
 
-(defmfun weibull (generator a b)
+(defmfun sample
+    ((generator random-number-generator) (type (eql 'weibull)) &key a b)
   "gsl_ran_weibull"
   (((mpointer generator) :pointer) (a :double) (b :double))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A random variate from the Weibull distribution.  The distribution function is
@@ -58,7 +60,7 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
       (loop for i from 0 to 10
 	    collect
-	    (weibull rng 1.0d0 2.0d0)))
+	    (sample rng 'weibull :a 1.0d0 :b 2.0d0)))
   (weibull-pdf 1.5d0 1.3d0 1.0d0)
   (weibull-P 3.5d0 1.3d0 2.0d0)
   (weibull-Q 3.5d0 1.3d0 2.0d0)

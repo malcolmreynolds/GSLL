@@ -1,6 +1,6 @@
 ;; Macro for defining GSL functions.
 ;; Liam Healy 2008-04-16 20:49:50EDT defmfun.lisp
-;; Time-stamp: <2009-05-03 15:38:45EDT defmfun.lisp>
+;; Time-stamp: <2009-05-24 16:54:33EDT defmfun.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -171,7 +171,7 @@
     (if (listp gsl-name)
 	(mapc (lambda (n) (push n indexed-functions)) gsl-name)
 	(push gsl-name indexed-functions))
-    (remf key-args :documentation)
+    ;;(remf key-args :documentation)
       (complete-definition
        'cl:defmethod
        name

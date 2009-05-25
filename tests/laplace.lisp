@@ -14,7 +14,7 @@
                         (MULTIPLE-VALUE-LIST
                          (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
                            (LOOP FOR I FROM 0 TO 10 COLLECT
-                                 (LAPLACE RNG 10.0d0)))))
+                                 (sample rng 'laplace :a 10.0d0)))))
                        (LISP-UNIT::ASSERT-NUMERICAL-EQUAL (LIST 0.05d0)
                                                           (MULTIPLE-VALUE-LIST
                                                            (LAPLACE-PDF 0.0d0
