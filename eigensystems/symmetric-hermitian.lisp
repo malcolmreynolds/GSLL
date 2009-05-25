@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2009-02-16 12:52:43EST symmetric-hermitian.lisp>
+;; Time-stamp: <2009-05-25 14:08:27EDT symmetric-hermitian.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -118,10 +118,6 @@
 ;;;;****************************************************************************
 ;;;; Sorting Eigenvalues and Eigenvectors
 ;;;;****************************************************************************
-
-(cffi:defcenum eigen-sort-type
-  ;; gsl_eigen_sort_t from /usr/include/gsl/gsl_eigen.h.
-  :value-ascending :value-descending :absolute-ascending :absolute-descending)
 
 (defmfun sort-eigenvalues-eigenvectors
     ((eigenvalues vector) (eigenvectors matrix) sort-type)

@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-05-06 16:07:03EDT blas3.lisp>
+;; Time-stamp: <2009-05-25 14:26:09EDT blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,10 +10,6 @@
 ;;;;****************************************************************************
 ;;;; Options
 ;;;;****************************************************************************
-
-(cffi:defcenum cblas-side
-  "/usr/include/gsl/gsl_cblas.h."
-  (:left 141) :right)
 
 #+fsbv
 (fsbv:defcenum-aux cblas-side)

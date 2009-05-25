@@ -1,6 +1,6 @@
 ;; Adaptive step-size control
 ;; Liam Healy 2008-02-17 17:30:04EST control.lisp
-;; Time-stamp: <2009-01-25 17:09:29EST control.lisp>
+;; Time-stamp: <2009-05-25 14:52:26EDT control.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -117,9 +117,6 @@
    control function of type control-type.  This function is only needed for
    defining new types of control functions.  For most purposes the standard
    control functions described above should be sufficient.")
-
-(cffi:defcenum step-size-adjustment
-  (:step-size-decreased -1) :step-size-unchanged :step-size-increased)
 
 (defmfun adjust-stepsize (control stepper current-y y-error dydt step-size)
   "gsl_odeiv_control_hadjust"

@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-05-24 16:07:08EDT gsll.asd>
+;; Time-stamp: <2009-05-25 13:54:01EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
@@ -17,6 +17,7 @@
   ((:module init
 	    :components
 	    ((:file "init")
+	     (cffi-grovel:grovel-file "libgsl" :pathname #+unix "libgsl-unix")
 	     (:file "utility")
 	     (:file "forms")
 	     (:file "conditions" :depends-on (init))

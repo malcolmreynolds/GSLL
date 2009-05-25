@@ -1,6 +1,6 @@
 ;; Numerical integration techniques that require tables
 ;; Liam Healy 2009-04-04 15:24:05EDT 
-;; Time-stamp: <2009-04-26 23:20:16EDT numerical-integration-with-tables.lisp>
+;; Time-stamp: <2009-05-25 13:22:13EDT numerical-integration-with-tables.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -68,9 +68,6 @@
 ;;;;****************************************************************************
 ;;;; QAWO adaptive integration for oscillatory functions
 ;;;;****************************************************************************
-
-(cffi:defcenum integrate-sine-cosine
-  :cosine :sine)
 
 (defmobject qawo-table
     "gsl_integration_qawo_table"

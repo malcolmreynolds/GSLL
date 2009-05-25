@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2009-03-23 12:27:09EDT conditions.lisp>
+;; Time-stamp: <2009-05-25 14:52:25EDT conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -8,16 +8,6 @@
 ;;;;****************************************************************************
 ;;;; Define non-error and error C return codes 
 ;;;;****************************************************************************
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (cffi:defcenum gsl-errorno
-    "Error codes for GSL, from /usr/include/gsl/gsl_errno.h."
-    (:CONTINUE -2)
-    :FAILURE :SUCCESS :EDOM :ERANGE :EFAULT :EINVAL :EFAILED :EFACTOR  
-    :ESANITY :ENOMEM :EBADFUNC :ERUNAWAY :EMAXITER :EZERODIV :EBADTOL  
-    :ETOL :EUNDRFLW :EOVRFLW :ELOSS :EROUND :EBADLEN :ENOTSQR :ESING    
-    :EDIVERGE :EUNSUP :EUNIMPL :ECACHE :ETABLE :ENOPROG :ENOPROGJ 
-    :ETOLF :ETOLX :ETOLG :EOF))
 
 #.(cons 'progn
 	(loop for i from (cffi:foreign-enum-value 'gsl-errorno :continue)

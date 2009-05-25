@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-05-03 12:38:28EDT blas2.lisp>
+;; Time-stamp: <2009-05-25 14:23:16EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -11,23 +11,11 @@
 ;;;; Options
 ;;;;****************************************************************************
 
-(cffi:defcenum cblas-transpose
-  "CBLAS_TRANSPOSE from /usr/include/gsl/gsl_cblas.h."
-  (:notrans 111) :trans :conjtrans)
-
 #+fsbv
 (fsbv:defcenum-aux cblas-transpose)
 
-(cffi:defcenum cblas-uplo
-  "/usr/include/gsl/gsl_cblas.h."
-  (:upper 121) :lower)
-
 #+fsbv
 (fsbv:defcenum-aux cblas-uplo)
-
-(cffi:defcenum cblas-diag
-  "/usr/include/gsl/gsl_cblas.h."
- (:nonunit 131) :unit)
 
 #+fsbv
 (fsbv:defcenum-aux cblas-diag)

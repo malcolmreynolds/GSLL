@@ -1,6 +1,6 @@
 ;; Numerical integration
 ;; Liam Healy, Wed Jul  5 2006 - 23:14
-;; Time-stamp: <2009-04-26 23:19:49EDT numerical-integration.lisp>
+;; Time-stamp: <2009-05-25 13:22:13EDT numerical-integration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -60,10 +60,6 @@
     :documentation			; FDL
     "Make a workspace sufficient to hold n double
      precision intervals, their integration results and error estimates.")
-
-(cffi:defcenum integrate-method
-  :gauss15 :gauss21 :gauss31
-  :gauss41 :gauss51 :gauss61)
 
 (defmfun integration-QAG
     (function a b method

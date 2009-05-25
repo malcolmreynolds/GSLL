@@ -1,6 +1,6 @@
 ;; Structures returned by special functions.
 ;; Liam Healy, Mon Jan  1 2007 - 11:35
-;; Time-stamp: <2009-05-25 12:42:19EDT return-structures.lisp>
+;; Time-stamp: <2009-05-25 14:43:47EDT return-structures.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,13 +22,6 @@
   (val :double)
   (err :double)
   (e10 :int))
-
-(cffi:defcenum sf-mode
-  "Numerical precision modes with which to calculate special functions."
-  ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC62
-  :double
-  :single
-  :approx)
 
 (defun val (sf-result &optional (type 'sf-result))
   (cffi:foreign-slot-value sf-result type 'val))

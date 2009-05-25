@@ -1,6 +1,6 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2009-04-04 09:55:29EDT init.lisp>
+;; Time-stamp: <2009-05-25 16:32:45EDT init.lisp>
 ;; $Id$
 
 (defpackage gsll
