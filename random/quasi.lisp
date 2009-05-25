@@ -1,6 +1,6 @@
 ;; Quasi-random sequences in arbitrary dimensions.
 ;; Liam Healy, Sun Jul 16 2006 - 15:54
-;; Time-stamp: <2009-02-17 21:14:50EST quasi.lisp>
+;; Time-stamp: <2009-05-25 09:44:53EDT quasi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -36,15 +36,15 @@
 
 (defmfun rng-state ((instance quasi-random-number-generator))
   "gsl_qrng_state" (((mpointer instance) :pointer))
-  :c-return :pointer
   :definition :method
+  :c-return :pointer
   :export nil
   :index gsl-random-state)
 
-(defmfun rng-size ((instance quasi-random-number-generator))
+(defmfun size ((instance quasi-random-number-generator))
   "gsl_qrng_size" (((mpointer instance) :pointer))
-  :c-return sizet
   :definition :method
+  :c-return sizet
   :export nil
   :index gsl-random-state)
 

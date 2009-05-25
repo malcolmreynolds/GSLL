@@ -1,6 +1,6 @@
 ;; Chebyshev Approximations
 ;; Liam Healy Sat Nov 17 2007 - 20:36
-;; Time-stamp: <2009-04-26 23:25:30EDT chebyshev.lisp>
+;; Time-stamp: <2009-05-25 09:44:54EDT chebyshev.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -30,9 +30,10 @@
   :c-return sizet
   :gsl-version (1 12))
 
-(defmfun size (chebyshev)
+(defmfun size ((chebyshev chebyshev))
   "gsl_cheb_size"
   (((mpointer chebyshev) :pointer))
+  :definition :method
   :c-return sizet
   :gsl-version (1 12))
 

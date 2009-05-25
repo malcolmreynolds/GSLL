@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-04-04 22:29:11EDT minimization-multi.lisp>
+;; Time-stamp: <2009-05-25 10:04:32EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -153,9 +153,10 @@
   :documentation			; FDL
   "The current best estimate of the value of the minimum.")
 
-(defmfun mfminimizer-size (minimizer)
+(defmfun size ((minimizer multi-dimensional-minimizer-f))
   "gsl_multimin_fminimizer_size"
   (((mpointer minimizer) :pointer))
+  :definition :method
   :c-return :double
   :documentation			; FDL
   "A minimizer-specific characteristic size for the minimizer.")
@@ -362,7 +363,7 @@
 	 while status
 	 do (iterate minimizer)
 	 (setf size
-	       (mfminimizer-size minimizer)
+	       (size minimizer)
 	       status
 	       (not (min-test-size size 1.0d-2)))
 	 (when print-steps

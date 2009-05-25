@@ -1,6 +1,6 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2009-01-12 09:40:18EST combination.lisp>
+;; Time-stamp: <2009-05-25 10:04:32EDT combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -104,9 +104,10 @@
   :documentation			; FDL
   "The range (n) of the combination c.")
 
-(defmfun combination-size (c)
+(defmfun size ((c combination))
   "gsl_combination_k"
   (((mpointer c) :pointer))
+  :definition :method
   :c-return sizet
   :inputs (c)
   :documentation			; FDL
@@ -168,8 +169,8 @@
 (save-test combination
  (let ((comb (make-combination 4 2)))	; combination-range
    (combination-range comb))
- (let ((comb (make-combination 4 2)))	; combination-size
-   (combination-size comb))
+ (let ((comb (make-combination 4 2)))	; size
+   (size comb))
  (let ((comb (make-combination 4 2)))	; init-first, combination-next
    (init-first comb)
    (loop collect (copy-seq (cl-array comb))

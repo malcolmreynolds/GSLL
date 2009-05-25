@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-05-24 22:50:40EDT generators.lisp>
+;; Time-stamp: <2009-05-25 10:07:43EDT generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -136,15 +136,10 @@
   :definition :method
   :index gsl-random-state)
 
-(export 'rng-size)
-(defgeneric rng-size (rng-instance)
-  (:documentation			; FDL
-   "The size of the generator."))
-
-(defmfun rng-size ((rng-instance random-number-generator))
+(defmfun size ((rng-instance random-number-generator))
   "gsl_rng_size" (((mpointer rng-instance) :pointer))
-  :c-return sizet
   :definition :method
+  :c-return sizet
   :index gsl-random-state)
 
 (export 'gsl-random-state)
@@ -153,7 +148,7 @@
    as a vector of bytes."
   (let* ((gen rng-instance)
 	 (ans
-	  (make-array (rng-size gen)
+	  (make-array (size gen)
 		      :element-type '(unsigned-byte 8))))
     (loop for i from 0 below (length ans)
        do

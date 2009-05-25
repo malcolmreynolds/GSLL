@@ -1,6 +1,6 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2009-04-26 22:47:28EDT permutation.lisp>
+;; Time-stamp: <2009-05-25 09:47:14EDT permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -90,9 +90,10 @@
 ;;;; Permutation properties
 ;;;;****************************************************************************
 
-(defmfun permutation-size (p)
+(defmfun size ((p permutation))
   "gsl_permutation_size"
   (((mpointer p) :pointer))
+  :definition :method
   :c-return sizet
   :inputs (p)
   :documentation			; FDL
