@@ -1,14 +1,15 @@
 ;; Bernoulli distribution
 ;; Liam Healy, Sat Nov 25 2006 - 16:59
-;; Time-stamp: <2009-05-24 22:16:20EDT bernoulli.lisp>
+;; Time-stamp: <2009-05-26 22:56:49EDT bernoulli.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
 (defmfun sample
-    ((generator random-number-generator) (type (eql 'bernoulli)) &key p)
+    ((generator random-number-generator) (type (eql 'bernoulli))
+     &key probability)
   "gsl_ran_bernoulli"
-  (((mpointer generator) :pointer) (p :double))
+  (((mpointer generator) :pointer) (probability :double))
   :definition :method
   :c-return :uint
   :documentation			; FDL
@@ -31,5 +32,5 @@
   (let ((rng (make-random-number-generator +mt19937+ 0)))
      (loop for i from 0 to 10
 	   collect
-	   (sample rng 'bernoulli :p 0.5d0)))
+	   (sample rng 'bernoulli :probability 0.5d0)))
   (bernoulli-pdf 0 0.5d0))

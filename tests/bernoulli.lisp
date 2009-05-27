@@ -8,7 +8,7 @@
    (MULTIPLE-VALUE-LIST
     (LET ((RNG (MAKE-RANDOM-NUMBER-GENERATOR +MT19937+ 0)))
       (LOOP FOR I FROM 0 TO 10 COLLECT
-	   (sample rng 'bernoulli :p 0.5d0)))))
+	   (sample rng 'bernoulli :probability 0.5d0)))))
   (LISP-UNIT::ASSERT-NUMERICAL-EQUAL
    (LIST 0.5d0)
    (MULTIPLE-VALUE-LIST (BERNOULLI-PDF 0 0.5d0))))
