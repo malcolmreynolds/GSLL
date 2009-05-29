@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-05-25 17:03:53EDT gsll.asd>
+;; Time-stamp: <2009-05-28 23:02:03EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
@@ -224,4 +224,6 @@
    (:file "basis-splines" :depends-on (init data random))
    (:module physical-constants
 	    :components
-	    ((cffi-grovel:grovel-file "mksa")))))
+	    ((cffi-grovel:grovel-file "mksa")
+	     (cffi-grovel:grovel-file "cgsm")
+	     (:file export)))))
