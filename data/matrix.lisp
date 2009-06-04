@@ -1,6 +1,6 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2009-03-20 17:20:57EDT matrix.lisp>
+;; Time-stamp: <2009-06-02 22:51:24EDT matrix.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,6 +9,7 @@
 ;;;; Matrix structure and CL object
 ;;;;****************************************************************************
 
+(export 'matrix)
 (defclass matrix (marray)
   ()
   (:documentation "GSL matrices."))

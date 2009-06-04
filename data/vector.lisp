@@ -1,6 +1,6 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
-;; Time-stamp: <2009-03-20 17:20:40EDT vector.lisp>
+;; Time-stamp: <2009-06-02 22:51:23EDT vector.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,6 +9,7 @@
 ;;;; Vector structure, CL object, and allocation
 ;;;;****************************************************************************
 
+(export 'mvector)
 (defclass mvector (marray)
   ()
   (:documentation "GSL vectors."))
