@@ -115,9 +115,17 @@ version 0.10.4 or newer; callbacks and <code>foreign-funcall</code> must be supp
 <li><a href="http://www.cliki.net/asdf">ASDF</a></li>
 <li><a href="http://repo.or.cz/w/lisp-unit.git">lisp-unit</a>, <i>(Optional)</i> necessary 
    to run <code>gsll-tests</code>
+</li>
 <li><a href="http://repo.or.cz/w/fsbv.git">FSBV</a>, <i>(Optional)</i> necessary 
    for functions using complex scalars or simulated annealing
 </li>
+<li>
+  <a href="http://common-lisp.net/project/iterate/">iterate</a>
+  and
+  <a href="http://common-lisp.net/project/asdf-system-connections/">asdf-system-connnections</a>,
+  <i>(Optional)</i> 
+  provides a convenient way to iterate over elements or indices of
+  vectors or matrices.
 </ul>
 
 <p>GSLL has been tested with
@@ -138,6 +146,7 @@ version 0.10.4 or newer; callbacks and <code>foreign-funcall</code> must be supp
   <ul>
     <li><code>git clone git://repo.or.cz/gsll.git</code></li>
     <li><code>git clone git://repo.or.cz/fsbv.git</code></li>
+    <li><code>darcs get http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
     <li><code>git pull</code> in the <code>gsll</code> and
       <code>fsbv</code> directories
     afterwards to update</li> 
@@ -183,14 +192,16 @@ from within the clbuild directory:
   </ul>
  <h3>With Debian or Ubuntu</h3>
   <ul>
-    <li><code>sudo aptitude install libgsl0-dev cl-cffi libffi-dev</code></li>
+    <li><code>sudo aptitude install libgsl0-dev cl-cffi libffi-dev cl-iterate</code></li>
     <li><code>git clone git://repo.or.cz/gsll.git</code></li>
     <li><code>git clone git://repo.or.cz/fsbv.git</code></li>
     <li><code>darcs get http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
-    <li><code>clc-register-user-package trivial-garbage/trivial-garbage.asd</code></li>
+    <li><code>darcs get http://common-lisp.net/project/asdf-system-connections</code></li>
     <li><code>clc-register-user-package gsll/gsll.asd</code></li>
     <li><code>clc-register-user-package gsll/gsll-tests.asd</code></li>
+    <li><code>clc-register-user-package trivial-garbage/trivial-garbage.asd</code></li>
     <li><code>clc-register-user-package fsbv/fsbv.asd</code></li>
+    <li><code>clc-register-user-package asdf-system-connections/asdf-system-connections.asd</li>
   </ul>
 <p>
   After starting your Lisp implementation,
@@ -313,6 +324,20 @@ area of memory.</p>
   e.g. solving, minimizing or fitting) that need to set a GSL vector
   or matrix, because one can simply copy into the passed-in pointer.
 </p>
+<p>If you use <a href="">iterate</a>, there are extensions defined
+  that make it easier to iterate over.  These are:
+  <ul>
+    <li><code>matrix-row</code>, <code>matrix-row-index</code></li>
+    <li><code>matrix-column</code>, <code>matrix-column-index</code></li>
+    <li><code>vector-element</code>, <code>vector-element-index</code></li>
+    <li><code>matrix-element</code>, <code>matrix-element-index</code></li>
+  </ul>
+  <p>For example,
+<pre>
+(defparameter m1 #m((1 2 3) (0 6 8)))
+(iter:iter (iter:for e :matrix-element m1) (princ e) (princ " "))
+1.0 2.0 3.0 0.0 0.0 6.0 8.0
+</pre>
  <h3>Passing functions</h3>
  <p>
  Functions that are passed to GSL functions (known as <i>callbacks</i>
@@ -393,7 +418,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-05-25 16:43:40EDT index.html>
+Time-stamp: <2009-06-04 17:55:26EDT index.html>
 </small>
 <!-- hhmts end -->
  </div>

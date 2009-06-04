@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-05-25 13:54:01EDT gsll.asd>
+;; Time-stamp: <2009-06-04 08:48:54EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
@@ -222,3 +222,11 @@
 	     #+fsbv
 	     (:file "simulated-annealing")))
    (:file "basis-splines" :depends-on (init data random))))
+
+#+asdf-system-connections 
+(asdf:defsystem-connection gsll-iterate-extension
+    :requires (gsll iterate)
+    :components ((:module
+		  "gsll-iterate"
+		  :pathname "data/"
+		  :components ((:file "iterate")))))
