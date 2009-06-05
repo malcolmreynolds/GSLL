@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2009-05-25 14:08:27EDT symmetric-hermitian.lisp>
+;; Time-stamp: <2009-06-04 23:10:16EDT symmetric-hermitian.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -155,9 +155,9 @@
 (defun eigenvalue-eigenvectors-example ()
   (let ((evecs (make-marray 'double-float :dimensions '(3 3)))
 	(evals (make-marray 'double-float :dimensions 3))
-	(mat #m((20.0d0 -10.0d0 0.0d0)
-		(-10.0d0 30.0d0 0.0d0)
-		(0.0d0 0.0d0 40.0d0))))
+	(mat #m(20.0d0 -10.0d0 0.0d0 ^
+		-10.0d0 30.0d0 0.0d0 ^
+		0.0d0 0.0d0 40.0d0)))
     (eigenvalues-eigenvectors mat evals evecs)
     (values (cl-array evals) (cl-array evecs))))
 

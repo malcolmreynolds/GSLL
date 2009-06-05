@@ -1,6 +1,6 @@
 ;; Complex number types
 ;; Liam Healy 2009-01-13 21:24:05EST complex-types.lisp
-;; Time-stamp: <2009-05-03 10:00:23EDT complex-types.lisp>
+;; Time-stamp: <2009-06-04 22:53:39EDT complex-types.lisp>
 ;; $Id: $
 
 (in-package :gsl)
@@ -65,3 +65,5 @@
       (second eltype)
       eltype))
 
+(defun component-type (eltype)
+  (cl-cffi (component-float-type eltype)))

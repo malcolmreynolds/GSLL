@@ -1,12 +1,12 @@
 ;; Iterate
 ;; Norman Werner 2009-05-26 22:23:40EDT iterate.lisp
-;; Time-stamp: <2009-06-03 23:22:29EDT iterate.lisp>
+;; Time-stamp: <2009-06-04 23:10:41EDT iterate.lisp>
 
 (in-package :iter)
 
 #|
 As an example try:
-(defparameter m1 #m((1 2 3) (0 6 8)))
+(defparameter m1 #m(1 2 3 ^ 0 6 8))
 
 (iter:iter (iter:for e :matrix-element m1) (format t "~A " e))
 

@@ -112,6 +112,8 @@ combination for which the following are supported:</p>
 version 0.10.4 or newer; callbacks and <code>foreign-funcall</code> must be supported
 </li>
 <li><a href="http://www.cliki.net/trivial-garbage">trivial-garbage</a>
+<li><a href="http://common-lisp.net/project/cl-utilities/">cl-utilities</a>
+</li>
 <li><a href="http://www.cliki.net/asdf">ASDF</a></li>
 <li><a href="http://repo.or.cz/w/lisp-unit.git">lisp-unit</a>, <i>(Optional)</i> necessary 
    to run <code>gsll-tests</code>
@@ -179,10 +181,11 @@ Then in Lisp, load the system:
     <li><code>gsll get_git git://repo.or.cz/gsll.git</code></li>
     <li><code>fsbv get_git git://repo.or.cz/fsbv.git</code></li>
     <li><code>trivial-garbage get_darcs http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
+    <li><code>cl-utilities get_cvs_clnet</code></li>
   </ul>
 <p>and add
   <ul>
-    <li><code>gsll cffi trivial-garbage</code></li>
+    <li><code>gsll cffi trivial-garbage cl-utilities</code></li>
   </ul>
 <p>
 to <code>dependencies</code> and execute
@@ -192,7 +195,7 @@ from within the clbuild directory:
   </ul>
  <h3>With Debian or Ubuntu</h3>
   <ul>
-    <li><code>sudo aptitude install libgsl0-dev cl-cffi libffi-dev cl-iterate</code></li>
+    <li><code>sudo aptitude install libgsl0-dev cl-cffi cl-utilities libffi-dev cl-iterate</code></li>
     <li><code>git clone git://repo.or.cz/gsll.git</code></li>
     <li><code>git clone git://repo.or.cz/fsbv.git</code></li>
     <li><code>darcs get http://common-lisp.net/~loliveira/darcs/trivial-garbage</code></li>
@@ -280,10 +283,10 @@ area of memory.</p>
  element type double-float, which is the most common type needed for
  GSL functions.  It optionally takes a numeric argument prefix as in
  the example above to make an array with a different element type; a
- guide to the numeric argument is given below.  If the macro is
- followed by a list of numbers, a vector is created, if it is followed
- by a list of lists of numbers, each of the same length, a matrix is
- created. 
+ guide to the numeric argument is given below.  It should be 
+ followed by a list; this list will be evaluated.  If the list
+ contains <code>^</code>, the object created will be a matrix
+ and each row is ended with that symbol.
  <p>
  Classes of vectors and matrices are named by appending the element
  type as hypenated words to "vector" or "matrix".  The following table
@@ -418,7 +421,7 @@ and arrays used internally or for function return.
 <!-- Created: Feb 25 2005 -->
 <!-- hhmts start -->
 <small>
-Time-stamp: <2009-06-04 17:55:26EDT index.html>
+Time-stamp: <2009-06-04 23:01:25EDT index.html>
 </small>
 <!-- hhmts end -->
  </div>
