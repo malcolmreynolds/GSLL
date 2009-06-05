@@ -1,6 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2009-06-04 22:53:41EDT marray.lisp>
+;; Time-stamp: <2009-06-05 08:45:44EDT marray.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -176,6 +176,7 @@
       s))
 
 (defvar *row-separator* '^)
+(export *row-separator*)
 
 (defun conslist (l) (cons 'list l))
 
