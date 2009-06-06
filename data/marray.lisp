@@ -1,7 +1,6 @@
 ;; A "marray" is an array in both GSL and CL
 ;; Liam Healy 2008-04-06 21:23:41EDT
-;; Time-stamp: <2009-06-05 08:45:44EDT marray.lisp>
-;; $Id$
+;; Time-stamp: <2009-06-06 09:58:56EDT marray.lisp>
 
 (in-package :gsl)
 
@@ -14,10 +13,6 @@
    (total-size :reader size))
   (:documentation
    "A superclass for arrays represented in GSL and CL."))
-
-(cffi:defcstruct gsl-block-c		; The GSL struct
-  (size sizet)
-  (data :pointer))
 
 ;;; We don't allocate or free the C array data, because that is
 ;;; handled by foreign-array.  We can use the GSL functions

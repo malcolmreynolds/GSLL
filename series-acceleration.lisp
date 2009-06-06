@@ -1,6 +1,6 @@
 ;; Series acceleration.
 ;; Liam Healy, Wed Nov 21 2007 - 18:41
-;; Time-stamp: <2009-04-26 23:27:40EDT series-acceleration.lisp>
+;; Time-stamp: <2009-06-06 11:12:37EDT series-acceleration.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -10,18 +10,6 @@
 ;;;;****************************************************************************
 ;;;; Creation and calculation of Levin series acceleration
 ;;;;****************************************************************************
-
-(cffi:defcstruct levin-c
-  "The definition of Levin series acceleration for GSL."
-  (size sizet)
-  (position-in-array sizet)
-  (terms-used sizet)
-  (sum-plain :double)
-  (q-num :pointer)
-  (q-den :pointer)
-  (dq-num :pointer)
-  (dq-den :pointer)
-  (dsum :pointer))
 
 (defun levin-value (levin slot)
   (cffi:foreign-slot-value (mpointer levin) 'levin-c slot))

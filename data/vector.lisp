@@ -1,9 +1,10 @@
 ;; Vectors
 ;; Liam Healy 2008-04-13 09:39:02EDT vector.lisp
-;; Time-stamp: <2009-06-02 22:51:23EDT vector.lisp>
-;; $Id$
+;; Time-stamp: <2009-06-06 10:04:13EDT vector.lisp>
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_vector_double.h
 
 ;;;;****************************************************************************
 ;;;; Vector structure, CL object, and allocation
@@ -13,14 +14,6 @@
 (defclass mvector (marray)
   ()
   (:documentation "GSL vectors."))
-
-;;; GSL-vector definition
-(cffi:defcstruct gsl-vector-c
-  (size sizet)
-  (stride sizet)
-  (data :pointer)
-  (block :pointer)
-  (owner :int))
 
 ;;; Define all supported mvector subclasses
 #.(data-defclass 'vector 'mvector)

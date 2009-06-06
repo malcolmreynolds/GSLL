@@ -1,9 +1,10 @@
 ;; Matrices
 ;; Liam Healy 2008-04-15 21:57:52EDT matrix.lisp
-;; Time-stamp: <2009-06-02 22:51:24EDT matrix.lisp>
-;; $Id$
+;; Time-stamp: <2009-06-06 10:07:26EDT matrix.lisp>
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_matrix_double.h
 
 ;;;;****************************************************************************
 ;;;; Matrix structure and CL object
@@ -13,15 +14,6 @@
 (defclass matrix (marray)
   ()
   (:documentation "GSL matrices."))
-
-;;; GSL-matrix definition
-(cffi:defcstruct gsl-matrix-c
-  (size0 sizet)
-  (size1 sizet)
-  (tda sizet)
-  (data :pointer)
-  (block :pointer)
-  (owner :int))
 
 ;;; Define all supported matrix subclasses
 #.(data-defclass 'matrix 'matrix)

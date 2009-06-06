@@ -1,6 +1,6 @@
 ;; Monte Carlo Integration
 ;; Liam Healy Sat Feb  3 2007 - 17:42
-;; Time-stamp: <2009-04-26 23:21:18EDT monte-carlo.lisp>
+;; Time-stamp: <2009-06-06 09:27:29EDT monte-carlo.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,10 +22,6 @@
   "Make and initialize a workspace for Monte Carlo integration in dimension dim."
   :initialize-suffix "init"
   :initialize-args nil)
-
-(cffi:defcstruct plain-state
-  (dim sizet)
-  (x :pointer))
 
 (defparameter *monte-carlo-default-samples-per-dimension* 150000)
 
@@ -80,31 +76,6 @@
    the state of the integration."
   :initialize-suffix "init"
   :initialize-args nil)
-
-(cffi:defcstruct miser-state
-  (min-calls sizet)
-  (min-calls-per-bisection sizet)
-  (dither :double)
-  (estimate-frac :double)
-  (alpha :double)
-  (dim sizet)
-  (estimate-style :int)
-  (depth :int)
-  (verbose :int)
-  (x :pointer)
-  (xmid :pointer)
-  (sigma-l :pointer)
-  (sigma-r :pointer)
-  (fmax-l :pointer)
-  (fmax-r :pointer)
-  (fmin-l :pointer)
-  (fmin-r :pointer)
-  (fsum-l :pointer)
-  (fsum-r :pointer)
-  (fsum2-l :pointer)
-  (fsum2-r :pointer)
-  (hits-l :pointer)
-  (hits-r :pointer))
 
 (export 'miser-parameter)
 (defmacro miser-parameter (workspace parameter)
@@ -166,41 +137,6 @@
    the state of the integration.  Returns a pointer to vegas-state."
   :initialize-suffix "init"
   :initialize-args nil)
-
-(cffi:defcstruct vegas-state
-  ;; grid 
-  (dim sizet)
-  (bins-max sizet)
-  (bins :uint)				; uint
-  (boxes :uint)		       ; these are both counted along the axes
-  (xi :pointer)
-  (xin :pointer)
-  (delx :pointer)
-  (weight :pointer)
-  (vol :double)
-  (x :pointer)
-  (bin :pointer)
-  (box :pointer)
-  (d :pointer)				; distribution
-  ;; control variables
-  (alpha :double)
-  (mode :int)
-  (verbose :int)
-  (iterations :uint)
-  (stage :int)
-  ;; scratch variables preserved between calls to vegas1/2/3
-  (jac :double)
-  (wtd-int-sum :double)
-  (sum-wgts :double)
-  (chi-sum :double)
-  (chisq :double)
-  (result :double)
-  (sigma :double)
-  (it-start :uint)
-  (it-num :uint)
-  (samples :uint)
-  (calls-per-box :uint)
-  (ostream :pointer))
 
 (export 'vegas-parameter)
 (defmacro vegas-parameter (workspace parameter)

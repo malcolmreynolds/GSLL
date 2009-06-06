@@ -1,6 +1,6 @@
 ;; Nonlinear least squares fitting.
 ;; Liam Healy, 2008-02-09 12:59:16EST nonlinear-least-squares.lisp
-;; Time-stamp: <2009-05-24 22:56:35EDT nonlinear-least-squares.lisp>
+;; Time-stamp: <2009-06-06 16:47:47EDT nonlinear-least-squares.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -70,18 +70,6 @@
 		      (:output :double :marray dim0 dim1)))
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial-guess) :pointer)))
-
-(cffi:defcstruct gsl-fdffit-solver
-  ;; See /usr/include/gsl/gsl_multifit_nlin.h
-  "The definition of a solver instance and state
-   for nonlinear least squares fitting in GSL."
-  (type :pointer)
-  (fdf :pointer)
-  (x :pointer)
-  (f :pointer)
-  (jacobian :pointer)
-  (dx :pointer)
-  (state :pointer))
 
 (defmfun name ((solver nonlinear-fdffit))
   "gsl_multifit_fdfsolver_name"

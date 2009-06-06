@@ -1,9 +1,11 @@
 ;; Combinations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2009-05-25 10:04:32EDT combination.lisp>
+;; Time-stamp: <2009-06-06 09:53:02EDT combination.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_combination.h
 
 ;;;;****************************************************************************
 ;;;; Combination structure and CL object
@@ -18,11 +20,6 @@
    (choice-of :initarg :choice-of :reader choice-of :type (integer 0)
 	      :documentation "Maximum possible value; n in the (n k) notation."))
   (:documentation "GSL combinations."))
-
-(cffi:defcstruct gsl-combination-c	; The GSL struct
-  (choice-of sizet)			; n
-  (size sizet)				; k
-  (data :pointer))
 
 (defmethod initialize-instance :after
     ((object combination) &key choice-of dimensions &allow-other-keys)

@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-04-04 22:29:12EDT roots-multi.lisp>
+;;; Time-stamp: <2009-06-06 16:53:34EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -189,14 +189,6 @@
 ;;; The only place we need to pick apart the gsl_multiroot_fsolver
 ;;; struct is here.  We could use last-step etc., but then we'd have
 ;;; to discriminate on mfsolver vs. mfdfsolver.
-(cffi:defcstruct gsl-multiroot-fsolver
-  ;; See /usr/include/gsl/gsl_multiroots.h
-  (type :pointer)
-  (function :pointer)
-  (x :pointer)
-  (f :pointer)
-  (dx :pointer)
-  (state :pointer))
 
 (defun multiroot-slot (solver slot)
   (cffi:foreign-slot-value (mpointer solver) 'gsl-multiroot-fsolver slot))

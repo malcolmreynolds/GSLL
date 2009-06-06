@@ -1,27 +1,12 @@
 ;; Structures returned by special functions.
 ;; Liam Healy, Mon Jan  1 2007 - 11:35
-;; Time-stamp: <2009-05-25 14:43:47EDT return-structures.lisp>
-;; $Id$
+;; Time-stamp: <2009-06-06 10:32:44EDT return-structures.lisp>
 
 (in-package :gsl)
 
 ;;;;****************************************************************************
 ;;;; Result from special functions
 ;;;;****************************************************************************
-
-(cffi:defcstruct sf-result
-  "Results from special functions with value and error estimate."
-  ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC61
-  (val :double)
-  (err :double))
-
-(cffi:defcstruct sf-result-e10
-  "Results from special functions with value, error estimate
-   and a scaling exponent e10, such that the value is val*10^e10."
-  ;; file:///usr/share/doc/gsl-ref-html/gsl-ref_7.html#SEC61
-  (val :double)
-  (err :double)
-  (e10 :int))
 
 (defun val (sf-result &optional (type 'sf-result))
   (cffi:foreign-slot-value sf-result type 'val))

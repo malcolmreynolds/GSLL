@@ -1,6 +1,6 @@
 ;; Eigenvectors and eigenvalues
 ;; Liam Healy, Sun May 21 2006 - 19:52
-;; Time-stamp: <2009-06-04 23:10:16EDT symmetric-hermitian.lisp>
+;; Time-stamp: <2009-06-06 11:01:44EDT symmetric-hermitian.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -22,15 +22,6 @@
     "Make a workspace for computing eigenvalues of
   n-by-n real symmetric matrices.  The size of the workspace
   is O(2n).")
-
-(cffi:defcstruct gsl-nonsymm-ws
-  (size sizet)		     ; size of matrices
-  (diag :pointer)	     ; diagonal matrix elements from balancing
-  (tau :pointer)	     ; Householder coefficients
-  (Z :pointer)		     ; pointer to Z matrix
-  (balancep :int)	     ; perform balancing transformation?
-  (n-evals sizet)	     ; number of eigenvalues found
-  (francis-ws :pointer))
 
 (defmobject eigen-symmv
     "gsl_eigen_symmv" ((n sizet))

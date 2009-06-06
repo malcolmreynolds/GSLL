@@ -1,9 +1,11 @@
 ;; Permutations
 ;; Liam Healy, Sun Mar 26 2006 - 11:51
-;; Time-stamp: <2009-05-25 09:47:14EDT permutation.lisp>
+;; Time-stamp: <2009-06-06 09:49:18EDT permutation.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_permutation.h
 
 ;;;;****************************************************************************
 ;;;; Permutation structure and CL object
@@ -16,10 +18,6 @@
     #+int32 '(unsigned-byte 32)
     :reader element-type :allocation :class))
   (:documentation "GSL permutations."))
-
-(cffi:defcstruct gsl-permutation-c	; The GSL struct
-  (size sizet)
-  (data :pointer))
 
 (defmethod initialize-instance :after
     ((object permutation) &key dimensions &allow-other-keys)

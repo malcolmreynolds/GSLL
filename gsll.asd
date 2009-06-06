@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-06-04 22:58:44EDT gsll.asd>
+;; Time-stamp: <2009-06-06 17:05:47EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
@@ -28,7 +28,7 @@
 	     (:file "callback"
 		    :depends-on (init utility forms number-conversion callback-included))
 	     (:file "types" :depends-on (init))
-	     (:file "callback-struct" :depends-on (types))
+	     (cffi-grovel:grovel-file "callback-struct" :depends-on (types))
 	     (:file "funcallable" :depends-on (utility))
 	     (:file "complex-types" :depends-on (types))
 	     (:file "element-types" :depends-on (init complex-types))
@@ -55,20 +55,22 @@
 	    :components
 	    ((:file "foreign-friendly")
 	     (:file "foreign-array" :depends-on (foreign-friendly))
-	     (:file "marray" :depends-on (foreign-array))
-	     (:file "vector" :depends-on (marray))
-	     (:file "matrix" :depends-on (marray vector))
+	     (cffi-grovel:grovel-file "array-structs")
+	     (:file "marray" :depends-on (foreign-array array-structs))
+	     (:file "vector" :depends-on (marray array-structs))
+	     (:file "matrix" :depends-on (marray vector array-structs))
 	     (:file "maref" :depends-on (marray vector matrix))
 	     (:file "both" :depends-on (marray vector matrix))
 	     (:file "copy-cl")
 	     (:file "array-tests" :depends-on (both))
-	     (:file "permutation" :depends-on (marray))
-	     (:file "combination" :depends-on (marray))))
+	     (:file "permutation" :depends-on (marray array-structs))
+	     (:file "combination" :depends-on (marray array-structs))))
    (:file "polynomial" :depends-on (init data))
    (:module special-functions
 	    :depends-on (init)
 	    :components
-	    ((:file "return-structures")
+	    ((cffi-grovel:grovel-file "sf-result")
+	     (:file "return-structures" :depends-on (sf-result))
 	     (:file "airy" :depends-on (return-structures))
 	     (:file "bessel" :depends-on (return-structures))
 	     (:file "clausen" :depends-on (return-structures))
@@ -117,7 +119,8 @@
 	    :depends-on (init data)
 	    :components
 	    ((:file "symmetric-hermitian")
-	     (:file "nonsymmetric")
+	     (cffi-grovel:grovel-file "eigen-struct")
+	     (:file "nonsymmetric" :depends-on (eigen-struct))
 	     (:file "generalized")
 	     (:file "nonsymmetric-generalized")))
    ;; Skip fft for now, I'm not sure how it works in C
@@ -187,13 +190,15 @@
 	    ((:file "numerical-integration")
 	     (:file "numerical-integration-with-tables"
 		    :depends-on (numerical-integration))
+	     (cffi-grovel:grovel-file "monte-carlo-structs")
 	     (:file "monte-carlo")
 	     (:file "numerical-differentiation")))
    (:module ordinary-differential-equations
 	    :depends-on (init)
 	    :components
 	    ((:file "ode-system")
-	     (:file "stepping")
+	     (cffi-grovel:grovel-file "ode-struct")
+	     (:file "stepping" :depends-on (ode-struct))
 	     (:file "control")
 	     (:file "evolution")
 	     (:file "ode-example" :depends-on (ode-system stepping))))
@@ -206,19 +211,22 @@
 	     (:file "evaluation")
 	     (:file "spline-example" :depends-on (types))))
    (:file "chebyshev" :depends-on (init))
-   (:file "series-acceleration" :depends-on (init))
+   (cffi-grovel:grovel-file "series-struct")
+   (:file "series-acceleration" :depends-on (init series-struct))
    (:file "wavelet" :depends-on (init data))
    (:file "hankel" :depends-on (init data))
    (:module solve-minimize-fit
 	    :depends-on (init data random)
 	    :components
 	    ((:file "generic")
+	     (cffi-grovel:grovel-file "solver-struct")
 	     (:file "roots-one" :depends-on (generic))
 	     (:file "minimization-one" :depends-on (generic))
-	     (:file "roots-multi" :depends-on (roots-one generic))
+	     (:file "roots-multi" :depends-on (roots-one generic solver-struct))
 	     (:file "minimization-multi" :depends-on (generic))
 	     (:file "linear-least-squares")
-	     (:file "nonlinear-least-squares" :depends-on (generic))
+	     (:file "nonlinear-least-squares"
+		    :depends-on (generic solver-struct))
 	     #+fsbv
 	     (:file "simulated-annealing")))
    (:file "basis-splines" :depends-on (init data random))))
