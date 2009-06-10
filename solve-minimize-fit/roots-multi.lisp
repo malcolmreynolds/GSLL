@@ -1,6 +1,6 @@
 ;;; Multivariate roots.                
 ;;; Liam Healy 2008-01-12 12:49:08
-;;; Time-stamp: <2009-06-06 16:53:34EDT roots-multi.lisp>
+;;; Time-stamp: <2009-06-09 22:30:12EDT roots-multi.lisp>
 ;;; $Id$
 
 (in-package :gsl)
@@ -25,7 +25,7 @@
    the specified number of dimensions.  Optionally
    set or reset an existing solver to use the function and the
    initial guess gsl-vector.  If scalarsp is T, the functions will
-   be supplied, and should return scalars."
+   be supplied scalars, and should return scalars."
   :initialize-suffix "set"
   :initialize-args ((callback :pointer) ((mpointer initial) :pointer))
   :callbacks

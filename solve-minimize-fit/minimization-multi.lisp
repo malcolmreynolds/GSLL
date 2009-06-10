@@ -1,6 +1,6 @@
 ;; Multivariate minimization.
 ;; Liam Healy  <Tue Jan  8 2008 - 21:28>
-;; Time-stamp: <2009-05-25 10:04:32EDT minimization-multi.lisp>
+;; Time-stamp: <2009-06-09 23:02:27EDT minimization-multi.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -66,11 +66,11 @@
 	    (function :double (:input :double :marray dim0) :slug)
 	    (df :void
 		(:input :double :marray dim0) :slug
-		(:output :double :marray dim0 dim0))
+		(:output :double :marray dim0))
 	    (fdf :void
 		 (:input :double :marray dim0) :slug
-		 (:output :double :cvector dim0)
-		 (:output :double :marray dim0 dim0)))
+		 (:output :double :cvector 1)
+		 (:output :double :marray dim0)))
   :initialize-suffix "set"
   :initialize-args
   ((callback :pointer) ((mpointer initial) :pointer)
@@ -439,9 +439,51 @@
 	 (let ((x (solution minimizer)))
 	   (values (maref x 0) (maref x 1) (function-value minimizer)))))))
 
+(defun paraboloid-derivative-scalar (x y)
+  (let ((dp0 (aref *paraboloid-center* 0))
+	(dp1 (aref *paraboloid-center* 1)))
+    (values
+     (* 20 (- x dp0))
+     (* 40 (- y dp1)))))
+
+(defun paraboloid-and-derivative-scalar (x y)
+  (values-list
+   (cons (paraboloid-scalar x y)
+	 (multiple-value-list (paraboloid-derivative-scalar x y)))))
+
+(defun multimin-example-derivative-scalars
+    (&optional (method +conjugate-fletcher-reeves+) (print-steps t))
+  (let* ((initial #m(5.0d0 7.0d0))
+	 (minimizer
+	  (make-multi-dimensional-minimizer-fdf
+	   method 2
+	   '(paraboloid-scalar paraboloid-derivative-scalar paraboloid-and-derivative-scalar)
+	   initial 0.01d0 1.0d-4 t)))
+    (loop with status = T
+       for iter from 0 below 100
+       while status
+       do
+       (iterate minimizer)
+       (setf status
+	     (not (min-test-gradient
+		   (mfdfminimizer-gradient minimizer)
+		   1.0d-3)))
+       (when print-steps
+	 (let ((x (solution minimizer)))
+	   (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f~&"
+		   iter (maref x 0) (maref x 1)
+		   (function-value minimizer))))
+       finally
+       (return
+	 (let ((x (solution minimizer)))
+	   (values (maref x 0) (maref x 1) (function-value minimizer)))))))
+
+
+
 (save-test minimization-multi
  (multimin-example-no-derivative +simplex-nelder-mead-on2+ nil)
  (multimin-example-derivative +conjugate-fletcher-reeves+ nil)
  (multimin-example-derivative +conjugate-polak-ribiere+ nil)
  (multimin-example-derivative +vector-bfgs+ nil)
- (multimin-example-derivative +vector-bfgs2+ nil))
+ (multimin-example-derivative +vector-bfgs2+ nil)
+ (multimin-example-derivative-scalars +vector-bfgs2+ nil))
