@@ -1,6 +1,6 @@
 ;; GSL structures for holding functions
 ;; Liam Healy 2009-04-04 22:15:56EDT callback-struct.lisp
-;; Time-stamp: <2009-06-06 10:50:41EDT callback-struct.lisp>
+;; Time-stamp: <2009-06-06 21:48:50EDT callback-struct.lisp>
 
 #+linux
 (define "_GNU_SOURCE")
@@ -10,6 +10,8 @@
 (include "gsl/gsl_math.h")
 
 ;;; Only the function
+;;; also in /usr/include/gsl/gsl_ntuple.h as gsl_ntuple_select_fn and
+;;; gsl_ntuple_value_fn.
 (cstruct fnstruct "gsl_function"
   (function "function" :type :pointer)
   (parameters "params" :type :pointer))

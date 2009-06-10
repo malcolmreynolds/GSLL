@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-06-06 17:05:47EDT gsll.asd>
+;; Time-stamp: <2009-06-07 08:33:27EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
@@ -183,7 +183,8 @@
 	     (:file "statistics" :depends-on (histogram))
 	     (:file "operations" :depends-on (histogram))
 	     (:file "probability-distribution" :depends-on (histogram))
-	     (:file "ntuple")))
+	     ;;(:file "ntuple")
+	     ))
    (:module calculus
 	    :depends-on (init data random)
 	    :components

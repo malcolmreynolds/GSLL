@@ -1,12 +1,14 @@
 ;; N-tuples
 ;; Liam Healy Sat Feb  3 2007 - 12:53
-;; Time-stamp: <2008-08-17 09:39:34EDT ntuple.lisp>
+;; Time-stamp: <2009-06-06 23:54:34EDT ntuple.lisp>
 ;; $Id$
 
 (in-package :gsl)
 
-;;; The basic definitions are here, but a smooth interface to CL 
-;;; has not been created, and it has not been tested.  
+;;; /usr/include/gsl/gsl_ntuple.h
+
+;;; This requires two callback structs in :callbacks.
+
 
 ;;; Writing a file
 (defmfun create-ntuple (filename data size)
@@ -59,14 +61,18 @@
   "gsl_ntuple_close"
   ((ntuple :pointer))
   :documentation			; FDL
-  "Closes the ntuple file ntupe and frees its
-   associated allocated memory.")
+  "Closes the ntuple file and frees its associated allocated memory.")
 
 ;;; Histogramming ntuple values
 (defmfun project-ntuple (histogram ntuple value-function select-function)
   "gsl_ntuple_project"
   ((histogram :pointer) (ntuple :pointer)
-   (value-function :pointer) (select-function :pointer))
+   (valfn :pointer) (selfn :pointer))
+  :callbacks
+  (valfn fnstruct nil (function :pointer (:input :pointer) :slug))
+  ;; Need a second cbstruct definition:
+  ;;(selfn fnstruct nil (function :pointer (:input :pointer) :slug))
+  :callback-dynamic (nil (function))
   :documentation			; FDL
   "Update the histogram the ntuple
    using the functions value-function and select-function. For each
@@ -79,19 +85,14 @@
 
 ;;; Callback definitions
 
-(export '(def-ntuple-select-function def-ntuple-value-function))
-
-(defmacro def-ntuple-select-function (name arg)
+#|
   ;; FDL
   "The selection function determines which ntuple rows are selected
    for histogramming. The struct component function should return a
    non-zero value for each ntuple row that is to be included in the
    histogram. "
-  `(def-single-function ,name ,arg :int :pointer))
-
-(defmacro def-ntuple-value-function (name arg)
   ;; FDL
   "The value function computes scalar values for those ntuple rows
    selected by the selection function which should return the value
    to be added to the histogram."
-  `(def-single-function ,name ,arg :double :pointer))
+|#
