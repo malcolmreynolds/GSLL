@@ -1,10 +1,13 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-06-14 23:31:29EDT gsll.asd>
+;; Time-stamp: <2009-06-16 09:15:48EDT gsll.asd>
 ;; $Id$
 
 (when (asdf:find-system :fsbv nil)
   (pushnew :fsbv *features*))
+
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (asdf:oos 'asdf:load-op :cffi-grovel))
 
 (asdf:defsystem "gsll"
   :name "gsll"
