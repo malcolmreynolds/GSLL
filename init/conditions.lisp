@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2009-05-25 14:52:25EDT conditions.lisp>
+;; Time-stamp: <2009-06-15 21:46:41EDT conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -9,12 +9,12 @@
 ;;;; Define non-error and error C return codes 
 ;;;;****************************************************************************
 
-#.(cons 'progn
-	(loop for i from (cffi:foreign-enum-value 'gsl-errorno :continue)
-	    to (cffi:foreign-enum-value 'gsl-errorno :eof)
-	    for name = (string (cffi:foreign-enum-keyword 'gsl-errorno i))
-	    collect
-	    `(defconstant ,(intern (format nil "+~:@(~a~)+" name) :gsll) ,i)))
+#.(append '(eval-when (:compile-toplevel :load-toplevel :execute))
+	  (loop for i from (cffi:foreign-enum-value 'gsl-errorno :continue)
+	     to (cffi:foreign-enum-value 'gsl-errorno :eof)
+	     for name = (string (cffi:foreign-enum-keyword 'gsl-errorno i))
+	     collect
+	     `(defconstant ,(intern (format nil "+~:@(~a~)+" name) :gsll) ,i)))
 
 ;;;;****************************************************************************
 ;;;; GSL conditions
