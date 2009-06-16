@@ -1,7 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-06-16 09:15:48EDT gsll.asd>
-;; $Id$
+;; Time-stamp: <2009-06-16 19:11:10EDT gsll.asd>
 
 (when (asdf:find-system :fsbv nil)
   (pushnew :fsbv *features*))
@@ -232,7 +231,12 @@
 		    :depends-on (generic solver-struct))
 	     #+fsbv
 	     (:file "simulated-annealing")))
-   (:file "basis-splines" :depends-on (init data random))))
+   (:file "basis-splines" :depends-on (init data random))
+   (:module physical-constants
+	    :components
+	    ((cffi-grovel:grovel-file "mksa")
+	     (cffi-grovel:grovel-file "cgsm")
+	     (:file export)))))
 
 #+asdf-system-connections 
 (asdf:defsystem-connection gsll-iterate-extension
