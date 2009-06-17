@@ -1,7 +1,6 @@
 ;; N-tuples
 ;; Liam Healy Sat Feb  3 2007 - 12:53
-;; Time-stamp: <2009-06-10 22:52:05EDT ntuple.lisp>
-;; $Id$
+;; Time-stamp: <2009-06-16 23:07:03EDT ntuple.lisp>
 
 (in-package :gsl)
 
@@ -23,7 +22,7 @@
 
 ;;; Reading a file
 (defmfun open-ntuple (filename data foreign-type)
-  "gsl_ntuple_create"
+  "gsl_ntuple_open"
   ((filename :string) (data :pointer)
    ((cffi:foreign-type-size foreign-type) sizet))
   :c-return :pointer
@@ -148,16 +147,45 @@
   (y :double)
   (z :double))
 
-(defun make-ntuple-example-data ()
+(defun ntuple-example-values (i)
+  (let ((xi (/ (+ i 1.5d0))))
+    (values xi (expt xi 2) (expt xi 3))))
+
+(defun make-ntuple-example-data (&optional (filename "test.dat"))
   (cffi:with-foreign-object (data 'ntuple-data)
-    (let ((ntuple (create-ntuple "test.dat" data 'ntuple-data)))
+    (let ((ntuple (create-ntuple filename data 'ntuple-data))
+	  (answer (make-array 100 :element-type 'fixnum :initial-element 0))
+	  (scale 1.5d0))
       (dotimes (row 1000)
-	(let* ((xi (/ (+ row 1.5d0)))
-	       (yi (expt xi 2))
-	       (zi (expt xi 3)))
+	(multiple-value-bind (xi yi zi)
+	    (ntuple-example-values row)
 	  (setf (cffi:foreign-slot-value data 'ntuple-data 'num) row
 		(cffi:foreign-slot-value data 'ntuple-data 'x) xi
 		(cffi:foreign-slot-value data 'ntuple-data 'y) yi
-		(cffi:foreign-slot-value data 'ntuple-data 'z) zi))
+		(cffi:foreign-slot-value data 'ntuple-data 'z) zi)
+	  (when (< (* xi scale) 0.1d0)
+	    (incf (aref answer (truncate (* 100 scale (+ xi yi zi)))))))
 	(bookdata-ntuple ntuple))
-      (close-ntuple ntuple))))
+      (close-ntuple ntuple)
+      answer)))
+
+(defun ntuple-example-read (&optional (filename "test.dat"))
+  (cffi:with-foreign-object (data 'ntuple-data)
+    (let ((ntuple (open-ntuple filename data 'ntuple-data)))
+      (dotimes (row 1000)
+	(multiple-value-bind (xi yi zi)
+	    (ntuple-example-values row)
+	  (read-ntuple ntuple)
+	  (unless
+	      (and (eql row (cffi:foreign-slot-value data 'ntuple-data 'num))
+		   (eql xi (cffi:foreign-slot-value data 'ntuple-data 'x))
+		   (eql yi (cffi:foreign-slot-value data 'ntuple-data 'y))
+		   (eql zi (cffi:foreign-slot-value data 'ntuple-data 'z)))
+	    (error "Ntuple test failed."))))
+      (close-ntuple ntuple)
+      T)))
+
+(defun ntuple-example-histogramming (&optional (filename "test.dat"))
+  (cffi:with-foreign-object (data 'ntuple-data)
+    (let ((ntuple (open-ntuple filename data 'ntuple-data)))
+  ))
