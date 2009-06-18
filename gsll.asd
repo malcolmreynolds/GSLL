@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-06-16 19:11:10EDT gsll.asd>
+;; Time-stamp: <2009-06-17 22:23:18EDT gsll.asd>
 
 (when (asdf:find-system :fsbv nil)
   (pushnew :fsbv *features*))
@@ -22,15 +22,15 @@
 	     (cffi-grovel:grovel-file "libgsl" :pathname #+unix "libgsl-unix")
 	     (:file "utility")
 	     (:file "forms")
-	     (:file "conditions" :depends-on (init))
-	     (:file "number-conversion" :depends-on (init))
+	     (:file "conditions" :depends-on (init libgsl))
+	     (:file "number-conversion" :depends-on (init libgsl))
 	     (:file "callback-compile-defs" :depends-on (init))
 	     (:file "mobject" :depends-on (init callback-compile-defs))
 	     (:file "callback-included" :depends-on (mobject))
 	     (:file "callback"
 		    :depends-on (init utility forms number-conversion callback-included))
-	     (:file "types" :depends-on (init))
-	     (cffi-grovel:grovel-file "callback-struct" :depends-on (types))
+	     (:file "types" :depends-on (init libgsl))
+	     (cffi-grovel:grovel-file "callback-struct" :depends-on (types libgsl))
 	     (:file "funcallable" :depends-on (utility))
 	     (:file "complex-types" :depends-on (types))
 	     (:file "element-types" :depends-on (init complex-types))
