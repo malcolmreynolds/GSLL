@@ -1,6 +1,6 @@
 ;; N-tuples
 ;; Liam Healy Sat Feb  3 2007 - 12:53
-;; Time-stamp: <2009-06-16 23:07:03EDT ntuple.lisp>
+n;; Time-stamp: <2009-07-04 22:20:15EDT ntuple.lisp>
 
 (in-package :gsl)
 
@@ -69,7 +69,7 @@
 
 (defmfun project-ntuple (histogram ntuple value-function select-function)
   "gsl_ntuple_project"
-  ((histogram :pointer) (ntuple :pointer)
+  (((mpointer histogram) :pointer) (ntuple :pointer)
    (valfn :pointer) (selfn :pointer))
   :callbacks
   ;; (valfn fnstruct nil (value-function :pointer (:input :pointer) :slug))
@@ -112,7 +112,7 @@
       (SET-CBSTRUCT SELFN 'FNSTRUCT NIL (LIST 'FUNCTION 'PROJECT-NTUPLE-CBFN1))
       (LET ((CRETURN
 	     (FOREIGN-FUNCALL "gsl_ntuple_project" :POINTER
-			      HISTOGRAM :POINTER NTUPLE
+			      (MPOINTER HISTOGRAM) :POINTER NTUPLE
 			      :POINTER VALFN :POINTER SELFN
 			      :INT)))
 	(CHECK-GSL-STATUS CRETURN 'PROJECT-NTUPLE)
@@ -147,6 +147,8 @@
   (y :double)
   (z :double))
 
+(defvar *ntuple-example-scale* 1.5d0)
+
 (defun ntuple-example-values (i)
   (let ((xi (/ (+ i 1.5d0))))
     (values xi (expt xi 2) (expt xi 3))))
@@ -154,8 +156,7 @@
 (defun make-ntuple-example-data (&optional (filename "test.dat"))
   (cffi:with-foreign-object (data 'ntuple-data)
     (let ((ntuple (create-ntuple filename data 'ntuple-data))
-	  (answer (make-array 100 :element-type 'fixnum :initial-element 0))
-	  (scale 1.5d0))
+	  (answer (make-array 100 :element-type 'fixnum :initial-element 0)))
       (dotimes (row 1000)
 	(multiple-value-bind (xi yi zi)
 	    (ntuple-example-values row)
@@ -163,8 +164,8 @@
 		(cffi:foreign-slot-value data 'ntuple-data 'x) xi
 		(cffi:foreign-slot-value data 'ntuple-data 'y) yi
 		(cffi:foreign-slot-value data 'ntuple-data 'z) zi)
-	  (when (< (* xi scale) 0.1d0)
-	    (incf (aref answer (truncate (* 100 scale (+ xi yi zi)))))))
+	  (when (< (* xi *ntuple-example-scale*) 0.1d0)
+	    (incf (aref answer (truncate (* 100 *ntuple-example-scale* (+ xi yi zi)))))))
 	(bookdata-ntuple ntuple))
       (close-ntuple ntuple)
       answer)))
@@ -185,7 +186,28 @@
       (close-ntuple ntuple)
       T)))
 
+(defun ntuple-example-sel-func (ntuple-data)
+  (< (* (cffi:foreign-slot-value ntuple-data 'ntuple-data 'x)
+	*ntuple-example-scale*)
+     0.1d0))
+
+(defun ntuple-example-val-func (ntuple-data)
+  (< (* (+ (cffi:foreign-slot-value ntuple-data 'ntuple-data 'x)
+	   (cffi:foreign-slot-value ntuple-data 'ntuple-data 'y)
+	   (cffi:foreign-slot-value ntuple-data 'ntuple-data 'z))
+	*ntuple-example-scale*)
+     0.1d0))
+
 (defun ntuple-example-histogramming (&optional (filename "test.dat"))
   (cffi:with-foreign-object (data 'ntuple-data)
-    (let ((ntuple (open-ntuple filename data 'ntuple-data)))
-  ))
+    (let ((histo (make-histogram 100))
+	  (ntuple (open-ntuple filename data 'ntuple-data))
+	  (answer (make-ntuple-example-data filename)))
+      (set-ranges-uniform histo 0.0d0 1.0d0)
+      (project-ntuple
+       histo ntuple 'ntuple-example-sel-func 'ntuple-example-val-func)
+      (close-ntuple ntuple)
+      ;; Check the histogram to see if it matches ntuple-example-values
+      (dotimes (row 100)
+	(unless (eql (maref histo row) (aref answer row))
+	  (error "Histogramming ntuple test failed for row=~d." row))))))
