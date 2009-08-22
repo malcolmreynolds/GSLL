@@ -1,6 +1,6 @@
 ;; GSL errors                                
 ;; Liam Healy Sat Mar  4 2006 - 18:33
-;; Time-stamp: <2009-06-15 21:46:41EDT conditions.lisp>
+;; Time-stamp: <2009-08-22 15:19:52EDT conditions.lisp>
 ;; $Id$
 
 (in-package :gsl)
