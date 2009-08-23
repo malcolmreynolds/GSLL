@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-04-04 22:27:15EDT minimization-one.lisp>
+;; Time-stamp: <2009-08-23 16:06:40EDT minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -32,8 +32,9 @@
 	       f-minimum f-lower f-upper)
   "gsl_min_fminimizer_set_with_values"
   (((mpointer minimizer) :pointer) (function :pointer)
-   (x-minimum :double) (x-lower :double) (x-upper :double)
-   (f-minimum :double) (f-lower :double) (f-upper :double))
+   (x-minimum :double) (f-minimum :double)
+   (x-lower :double) (f-lower :double)
+   (x-upper :double) (f-upper :double))
   :documentation			; FDL
   "Set, or reset, an existing minimizer to use the
    function and the initial search interval [lower,
