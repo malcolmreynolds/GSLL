@@ -1,17 +1,11 @@
 ;; Load GSL
 ;; Liam Healy Sat Mar  4 2006 - 18:53
-;; Time-stamp: <2009-08-22 16:19:52EDT init.lisp>
+;; Time-stamp: <2009-08-23 10:15:53EDT init.lisp>
 ;; $Id$
 
 (defpackage gsll
   (:nicknames :gsl)
   (:use :common-lisp :cffi))
-
-;;; When installed through Mac Ports, GSL .h files will be found
-;;; in /opt/local/include.
-#+darwin
-(setf cffi-grovel::*cc-flags*
-      (append '("-I" "/opt/local/include/") cffi-grovel::*cc-flags*))
 
 (cffi:define-foreign-library libgslcblas
     (:darwin

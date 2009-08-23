@@ -1,12 +1,17 @@
 ;; Physical constants in the CGSM system
 ;; Liam Healy 2009-05-25 17:01:32EDT cgsm.lisp
-;; Time-stamp: <2009-06-08 09:59:10EDT cgsm.lisp>
+;; Time-stamp: <2009-08-23 10:24:52EDT cgsm.lisp>
 ;; $Id: $
+
+(in-package :gsl)
 
 #+linux
 (define "_GNU_SOURCE")
 
-(in-package :gsl)
+;;; When installed through Mac Ports, GSL .h files will be found
+;;; in /opt/local/include.
+#+darwin
+(cc-flags "-I/opt/local/include/")
 
 (include "gsl/gsl_const_cgsm.h")
 

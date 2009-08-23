@@ -1,11 +1,16 @@
 ;; CFFI-Grovel definitions for unix systems.
 ;; Liam Healy 2009-06-06 09:36:29EDT array-structs.lisp
-;; Time-stamp: <2009-06-06 10:16:51EDT array-structs.lisp>
+;; Time-stamp: <2009-08-23 10:15:51EDT array-structs.lisp>
+
+(in-package :gsl)
 
 #+linux
 (define "_GNU_SOURCE")
 
-(in-package :gsl)
+;;; When installed through Mac Ports, GSL .h files will be found
+;;; in /opt/local/include.
+#+darwin
+(cc-flags "-I/opt/local/include/")
 
 (include "gsl/gsl_block_double.h")
 
