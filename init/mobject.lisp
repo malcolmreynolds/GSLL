@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-05-25 09:59:03EDT mobject.lisp>
+;; Time-stamp: <2009-08-23 19:45:04EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -52,6 +52,8 @@
 ;;; singular
 ;;;   Where a list of several objects like 'functions is specified, this permits
 ;;;   a single one with the singular form, like 'function.
+;;; switch
+;;;   Same as for defmfun.
 
 (defmacro defmobject
     (class prefix allocation-args description 
@@ -59,7 +61,7 @@
      arglists-function inputs gsl-version allocator allocate-inputs freer
      ((:callbacks cbinfo))
      (superclasses (if cbinfo '(callback-included) '(mobject)))
-     singular)
+     singular switch)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   (let* ((settingp (make-symbol "SETTINGP"))
@@ -71,7 +73,10 @@
 	 (cl-initialize-args
 	  (callback-replace-arg
 	   'functions
-	   (variables-used-in-c-arguments initialize-args)
+	   (variables-used-in-c-arguments
+	    (if (initialize-suffix-switched-foreign initialize-suffix)
+		(second initialize-args)
+		initialize-args))
 	   cbinfo))
 	 (initializerp (or initialize-name initialize-suffix)))
     ;; Need callback information for macroexpansion make-cbstruct-object
@@ -105,7 +110,8 @@
 		    class cl-initialize-args initialize-name prefix
 		    initialize-suffix initialize-args inputs
 		    cbinfo
-		    superclasses))
+		    superclasses
+		    switch))
 	   (export '(,maker ,class))
 	   ,@(when cbinfo `((record-callbacks-for-class ',class ',cbinfo)))
 	   ,@(when cbinfo (make-mobject-defmcallbacks cbinfo class))
@@ -138,44 +144,71 @@
 		     ,(or freer (format nil "~a_free" prefix))
 		     :pointer mpointer :void)))))
 
+(defun initialize-suffix-switched-foreign (initialize-suffix)
+  "The specified initialize-suffix indicates that there are two
+   foreign functions that can be called; which one is called
+   is dependent on the presence or absense of certain arguments."
+  (and initialize-suffix
+       (listp initialize-suffix)
+       (every 'stringp initialize-suffix)))
+
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     cbinfo superclasses)
+     cbinfo superclasses switch)
   "Expand the reinitialize-instance form."
-  (let ((cbstruct (make-symbol "CBSTRUCT")))
-    `((defmfun reinitialize-instance
-	  ((object ,class)
-	   &key
-	   ,@cl-initialize-args
-	   ,@(when cbinfo
-		   `(&aux (,cbstruct ,(make-cbstruct-object class)))))
-	,(or initialize-name
-	     (format nil "~a_~a" prefix
-		     (if (listp initialize-suffix)
-			 (first initialize-suffix)
-			 initialize-suffix)))
-	(((mpointer object) :pointer)
-	 ,@(callback-replace-arg cbstruct initialize-args cbinfo))
-	:definition :method
-	,@(when cbinfo '(:callback-object object))
-	:qualifier :after
-	,@(when (and initialize-suffix (listp initialize-suffix))
-		`(:c-return ,(second initialize-suffix)))
-	:return (object)
-	,@(when inputs `(:inputs ,inputs))
-	,@(when cbinfo
-		`(:before
-		  (,@(when (member 'callback-included-cl superclasses)
-			   `((setf (slot-value object 'callback) ,cbstruct)))
-		   (make-funcallables-for-object object))
-		  :after
-		  ((trivial-garbage:finalize 
-		    object
-		    (lambda ()
-		      (cffi:foreign-free ,cbstruct))))))
-	:export nil
-	:index (reinitialize-instance ,class)))))
+  (flet ((add-suffix (suffix) (format nil "~a_~a" prefix suffix)))
+    (let* ((cbstruct (make-symbol "CBSTRUCT"))
+	   (initialize-suffix-with-creturn
+	    ;; If initialize-suffix is a list, the second value
+	    ;; gives the return type.  See random/quasi.lisp
+	    ;; defmobject quasi-random-number-generator for an
+	    ;; example.
+	    (and initialize-suffix
+		 (listp initialize-suffix)
+		 (symbolp (second initialize-suffix))))
+	   (initialize-suffix-switched-foreign
+	    (initialize-suffix-switched-foreign initialize-suffix)))
+      `((defmfun reinitialize-instance
+	    ((object ,class)
+	     &key
+	     ,@cl-initialize-args
+	     ,@(when cbinfo
+		     `(&aux (,cbstruct ,(make-cbstruct-object class)))))
+	  ,(or initialize-name
+	       (if initialize-suffix-switched-foreign
+		   (mapcar #'add-suffix initialize-suffix)
+		   (add-suffix
+		    (if initialize-suffix-with-creturn
+			(first initialize-suffix)
+			initialize-suffix))))
+	  ,(if initialize-suffix-switched-foreign
+	       (mapcar (lambda (ia)
+			 `(((mpointer object) :pointer)
+			   ,@(callback-replace-arg cbstruct ia cbinfo)))
+		       initialize-args)
+	       `(((mpointer object) :pointer)
+		,@(callback-replace-arg cbstruct initialize-args cbinfo)))
+	  :definition :method
+	  ,@(when cbinfo '(:callback-object object))
+	  :qualifier :after
+	  ,@(when initialize-suffix-with-creturn
+		  `(:c-return ,(second initialize-suffix)))
+	  ,@(when switch (list :switch switch))
+	  :return (object)
+	  ,@(when inputs `(:inputs ,inputs))
+	  ,@(when cbinfo
+		  `(:before
+		    (,@(when (member 'callback-included-cl superclasses)
+			     `((setf (slot-value object 'callback) ,cbstruct)))
+		       (make-funcallables-for-object object))
+		    :after
+		    ((trivial-garbage:finalize 
+		      object
+		      (lambda ()
+			(cffi:foreign-free ,cbstruct))))))
+	  :export nil
+	  :index (reinitialize-instance ,class))))))
 
 (defun mobject-maker
     (maker arglists class cl-alloc-args cl-initialize-args

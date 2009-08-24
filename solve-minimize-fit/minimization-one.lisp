@@ -1,6 +1,6 @@
 ;; Univariate minimization
 ;; Liam Healy Tue Jan  8 2008 - 21:02
-;; Time-stamp: <2009-08-23 16:06:40EDT minimization-one.lisp>
+;; Time-stamp: <2009-08-23 21:04:05EDT minimization-one.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -17,29 +17,30 @@
   ((type :pointer))
   "one-dimensional minimizer"
   :documentation			; FDL
-  "Make an instance of a minimizer of tphe given type.  Optionally
+  "Make an instance of a minimizer of the given type.  Optionally
    set to use the function and the initial search interval [lower,
    upper], with a guess for the location of the minimum."
   :callbacks
   (callback fnstruct nil (function :double (:input :double) :slug))
-  :initialize-suffix "set"		; should use set_with_values?
+  :initialize-suffix ("set" "set_with_values")
   :initialize-args
-  ((callback :pointer) (minimum :double) (lower :double) (upper :double))
-  :singular (function))
-
-(defmfun set-fminimizer-with-values
-    (minimizer function x-minimum x-lower x-upper
-	       f-minimum f-lower f-upper)
-  "gsl_min_fminimizer_set_with_values"
-  (((mpointer minimizer) :pointer) (function :pointer)
-   (x-minimum :double) (f-minimum :double)
-   (x-lower :double) (f-lower :double)
-   (x-upper :double) (f-upper :double))
-  :documentation			; FDL
-  "Set, or reset, an existing minimizer to use the
-   function and the initial search interval [lower,
-   upper], with a guess for the location of the minimum, using
-   supplied rather than computed values of the function.")
+  (((callback :pointer) (x-minimum :double)
+    (x-lower :double) (x-upper :double))
+   ((callback :pointer)
+    (x-minimum :double) (f-minimum :double)
+    (x-lower :double) (f-lower :double)
+    (x-upper :double) (f-upper :double)))
+  :switch (f-minimum f-lower f-upper)
+  :singular (function)
+  :arglists-function
+  (lambda (set)
+    `((type &optional (function nil ,set)
+	    x-minimum x-lower x-upper f-minimum f-lower f-upper)
+      (:type type)
+      (:functions (list function) :x-minimum
+		  x-minimum :f-minimum f-minimum :x-lower x-lower
+		  :f-lower f-lower :x-upper x-upper :f-upper
+		  f-upper))))
 
 (defmfun name ((minimizer one-dimensional-minimizer))
   "gsl_min_fminimizer_name"
