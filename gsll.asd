@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-08-23 10:31:19EDT gsll.asd>
+;; Time-stamp: <2009-08-24 09:53:37EDT gsll.asd>
 
 (when (asdf:find-system :fsbv nil)
   (pushnew :fsbv *features*))
@@ -49,18 +49,18 @@
 	     (:file "body-expand" :depends-on ("defmfun" "mobject" "callback"))
 	     (:file "generate-examples" :depends-on ("init"))))
    (:module floating-point
-	    :depends-on ("init")
+	    :depends-on (init)
 	    :components
 	    ((:file "ieee-modes")
 	     (:file "floating-point")))
    (:module mathematical
-	    :depends-on ("init")
+	    :depends-on (init)
 	    :components
 	    ((:file "mathematical")
 	     #+fsbv
 	     (:file "complex")))
    (:module data
-	    :depends-on ("init")
+	    :depends-on (init)
 	    :components
 	    ((:file "foreign-friendly")
 	     (:file "foreign-array" :depends-on ("foreign-friendly"))
@@ -74,9 +74,9 @@
 	     (:file "array-tests" :depends-on ("both"))
 	     (:file "permutation" :depends-on ("marray" "array-structs"))
 	     (:file "combination" :depends-on ("marray" "array-structs"))))
-   (:file "polynomial" :depends-on ("init" "data"))
+   (:file "polynomial" :depends-on (init data))
    (:module special-functions
-	    :depends-on ("init")
+	    :depends-on (init)
 	    :components
 	    ((cffi-grovel:grovel-file "sf-result")
 	     (:file "return-structures" :depends-on ("sf-result"))
@@ -109,9 +109,9 @@
 	     (:file "transport" :depends-on ("return-structures"))
 	     (:file "trigonometry" :depends-on ("return-structures"))
 	     (:file "zeta" :depends-on ("return-structures"))))
-   (:file "sorting" :depends-on ("init" "data"))
+   (:file "sorting" :depends-on (init data))
    (:module linear-algebra
-	    :depends-on ("init" "data" "special-functions")
+	    :depends-on (init data special-functions)
 	    :components
 	    ((:file "blas1")
 	     (:file "blas2")
@@ -125,7 +125,7 @@
 	     (:file "diagonal")
 	     (:file "householder")))
    (:module eigensystems
-	    :depends-on ("init" "data")
+	    :depends-on (init data)
 	    :components
 	    ((:file "symmetric-hermitian")
 	     (cffi-grovel:grovel-file "eigen-struct")
@@ -134,7 +134,7 @@
 	     (:file "nonsymmetric-generalized")))
    ;; Skip fft for now, I'm not sure how it works in C
    (:module random
-	    :depends-on ("init" "data")
+	    :depends-on (init data)
 	    :components
 	    ((:file "rng-types")
 	     (:file "generators" :depends-on ("rng-types"))
@@ -175,7 +175,7 @@
 	     (:file "logarithmic" :depends-on ("rng-types"))
 	     (:file "shuffling-sampling" :depends-on ("rng-types"))))
    (:module statistics
-	    :depends-on ("init" "data")
+	    :depends-on (init data)
 	    :components
 	    ((:file "mean-variance")
 	     (:file "absolute-deviation")
@@ -185,7 +185,7 @@
 	     ;; minimum and maximum values provided in vector.lisp
 	     (:file "median-percentile")))
    (:module histogram
-	    :depends-on ("init" "linear-algebra" "random")
+	    :depends-on (init linear-algebra random)
 	    :components
 	    ((:file "histogram")
 	     (:file "updating-accessing" :depends-on ("histogram"))
@@ -194,7 +194,7 @@
 	     (:file "probability-distribution" :depends-on ("histogram"))
 	     (:file "ntuple")))
    (:module calculus
-	    :depends-on ("init" "data" "random")
+	    :depends-on (init data random)
 	    :components
 	    ((:file "numerical-integration")
 	     (:file "numerical-integration-with-tables"
@@ -203,7 +203,7 @@
 	     (:file "monte-carlo")
 	     (:file "numerical-differentiation")))
    (:module ordinary-differential-equations
-	    :depends-on ("init")
+	    :depends-on (init)
 	    :components
 	    ((:file "ode-system")
 	     (cffi-grovel:grovel-file "ode-struct")
@@ -212,20 +212,20 @@
 	     (:file "evolution")
 	     (:file "ode-example" :depends-on ("ode-system" "stepping"))))
    (:module interpolation
-	    :depends-on ("init")
+	    :depends-on (init)
 	    :components
 	    ((:file "interpolation")
 	     (:file "types" :depends-on ("interpolation"))
 	     (:file "lookup")
 	     (:file "evaluation")
 	     (:file "spline-example" :depends-on ("types"))))
-   (:file "chebyshev" :depends-on ("init"))
+   (:file "chebyshev" :depends-on (init))
    (cffi-grovel:grovel-file "series-struct")
-   (:file "series-acceleration" :depends-on ("init" "series-struct"))
-   (:file "wavelet" :depends-on ("init" "data"))
-   (:file "hankel" :depends-on ("init" "data"))
+   (:file "series-acceleration" :depends-on (init "series-struct"))
+   (:file "wavelet" :depends-on (init data))
+   (:file "hankel" :depends-on (init data))
    (:module solve-minimize-fit
-	    :depends-on ("init" "data" "random")
+	    :depends-on (init data random)
 	    :components
 	    ((:file "generic")
 	     (cffi-grovel:grovel-file "solver-struct")
@@ -238,7 +238,7 @@
 		    :depends-on ("generic" "solver-struct"))
 	     #+fsbv
 	     (:file "simulated-annealing")))
-   (:file "basis-splines" :depends-on ("init" "data" "random"))
+   (:file "basis-splines" :depends-on (init data random))
    (:module physical-constants
 	    :components
 	    ((cffi-grovel:grovel-file "mksa")
