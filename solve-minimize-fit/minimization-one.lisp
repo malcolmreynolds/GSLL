@@ -184,33 +184,43 @@
 ;;; than given there.
 
 (defun minimization-one-example
-    (&optional (minimizer-type +brent-fminimizer+) (print-steps t))
+    (&optional (minimizer-type +brent-fminimizer+) 
+               (print-steps t) 
+               (with-values t))
   "Solving a minimum, the example given in Sec. 33.8 of the GSL manual."
-  (let ((max-iter 100)
-	(minimizer
-	 (make-one-dimensional-minimizer
-	  minimizer-type (lambda (x) (1+ (cos x))) 2.0d0 0.0d0 6.0d0)))
-    (when print-steps
-      (format
-       t
-       "iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower~&"))
-    (loop for iter from 0
-       for min = (solution minimizer)
-       for lower = (fminimizer-x-lower minimizer)
-       for upper = (fminimizer-x-upper minimizer)
-       do (iterate minimizer)
-       (when print-steps
-	 (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g~&"
-		 iter lower upper
-		 min (- min pi)
-		 (- upper lower)))
+  (flet ((f (x) (1+ (cos x))))
+   (let ((max-iter 100)
+         (minimizer
+           (if with-values
+             (make-one-dimensional-minimizer 
+               minimizer-type #'f 
+               2.0d0 0.0d0 6.0d0 
+               (f 2.0d0) (f 0.0d0) (f 6.0d0))
+             (make-one-dimensional-minimizer
+               minimizer-type #'f 2.0d0 0.0d0 6.0d0))))
+     (when print-steps
+       (format
+        t
+        "iter ~6t   [lower ~24tupper] ~36tmin ~44tmin err ~54tupper-lower~&"))
+     (loop for iter from 0
+        for min = (solution minimizer)
+        for lower = (fminimizer-x-lower minimizer)
+        for upper = (fminimizer-x-upper minimizer)
+        do (iterate minimizer)
+        (when print-steps
+          (format t "~d~6t~10,6f~18t~10,6f~28t~12,9f ~44t~10,4g ~10,4g~&"
+                  iter lower upper
+                  min (- min pi)
+                  (- upper lower)))
 
-       while  (and (< iter max-iter)
-		   ;; abs and rel error swapped in example?
-		   (not (min-test-interval lower upper 0.001d0 0.0d0)))
-       finally
-       (return (values iter lower upper min (- min pi) (- upper lower))))))
+        while  (and (< iter max-iter)
+                    ;; abs and rel error swapped in example?
+                    (not (min-test-interval lower upper 0.001d0 0.0d0)))
+        finally
+        (return (values iter lower upper min (- min pi) (- upper lower)))))))
 
 (save-test minimization-one
- (minimization-one-example +brent-fminimizer+ nil)
- (minimization-one-example +golden-section-fminimizer+ nil))
+ (minimization-one-example +brent-fminimizer+ nil nil)
+ (minimization-one-example +golden-section-fminimizer+ nil nil)
+ (minimization-one-example +brent-fminimizer+ nil t)
+ (minimization-one-example +golden-section-fminimizer+ nil t))
