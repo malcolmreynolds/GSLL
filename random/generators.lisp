@@ -1,6 +1,6 @@
 ;; Generators of random numbers.
 ;; Liam Healy, Sat Jul 15 2006 - 14:43
-;; Time-stamp: <2009-05-25 10:07:43EDT generators.lisp>
+;; Time-stamp: <2009-08-25 19:38:06EDT generators.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -26,7 +26,8 @@
    For example, the original Fortran source code for the *ranlux*
    generator used a seed of 314159265, and so choosing s equal to zero
    reproduces this when using *ranlux*."
-  :initialize-suffix ("set" :void)
+  :initialize-suffix "set"
+  :ri-c-return :void
   :initialize-args ((value :ulong)))
 
 (defmethod print-object ((object random-number-generator) stream)

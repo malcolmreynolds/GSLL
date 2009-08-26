@@ -1,6 +1,6 @@
 ;; Definition of GSL objects and ways to use them.
 ;; Liam Healy, Sun Dec  3 2006 - 10:21
-;; Time-stamp: <2009-08-23 19:45:04EDT mobject.lisp>
+;; Time-stamp: <2009-08-25 20:45:31EDT mobject.lisp>
 
 ;;; GSL objects are represented in GSLL as and instance of a 'mobject.
 ;;; The macro demobject takes care of defining the appropriate
@@ -54,6 +54,8 @@
 ;;;   a single one with the singular form, like 'function.
 ;;; switch
 ;;;   Same as for defmfun.
+;;; ri-c-return
+;;;   The c-return for the reinitialize-instance function.
 
 (defmacro defmobject
     (class prefix allocation-args description 
@@ -61,7 +63,7 @@
      arglists-function inputs gsl-version allocator allocate-inputs freer
      ((:callbacks cbinfo))
      (superclasses (if cbinfo '(callback-included) '(mobject)))
-     singular switch)
+     singular switch ri-c-return)
   "Define the class, the allocate, initialize-instance and
    reinitialize-instance methods, and the make-* function for the GSL object."
   (let* ((settingp (make-symbol "SETTINGP"))
@@ -111,7 +113,7 @@
 		    initialize-suffix initialize-args inputs
 		    cbinfo
 		    superclasses
-		    switch))
+		    switch ri-c-return))
 	   (export '(,maker ,class))
 	   ,@(when cbinfo `((record-callbacks-for-class ',class ',cbinfo)))
 	   ,@(when cbinfo (make-mobject-defmcallbacks cbinfo class))
@@ -126,6 +128,12 @@
 	     (error 'obsolete-gsl-version
 		    :name ',class :gsl-name ,prefix
 		    :gsl-version ',gsl-version))))))
+
+(defun initialize-suffix-switched-foreign (initialize-suffix)
+  "The specified initialize-suffix indicates that there are two
+   foreign functions that can be called; which one is called
+   is dependent on the presence or absense of certain arguments."
+  (and initialize-suffix (listp initialize-suffix)))
 
 (defun make-initialize-instance
     (class cl-alloc-args cl-initialize-args prefix freer)
@@ -144,29 +152,13 @@
 		     ,(or freer (format nil "~a_free" prefix))
 		     :pointer mpointer :void)))))
 
-(defun initialize-suffix-switched-foreign (initialize-suffix)
-  "The specified initialize-suffix indicates that there are two
-   foreign functions that can be called; which one is called
-   is dependent on the presence or absense of certain arguments."
-  (and initialize-suffix
-       (listp initialize-suffix)
-       (every 'stringp initialize-suffix)))
-
 (defun make-reinitialize-instance
     (class cl-initialize-args initialize-name prefix
      initialize-suffix initialize-args inputs
-     cbinfo superclasses switch)
+     cbinfo superclasses switch ri-c-return)
   "Expand the reinitialize-instance form."
   (flet ((add-suffix (suffix) (format nil "~a_~a" prefix suffix)))
     (let* ((cbstruct (make-symbol "CBSTRUCT"))
-	   (initialize-suffix-with-creturn
-	    ;; If initialize-suffix is a list, the second value
-	    ;; gives the return type.  See random/quasi.lisp
-	    ;; defmobject quasi-random-number-generator for an
-	    ;; example.
-	    (and initialize-suffix
-		 (listp initialize-suffix)
-		 (symbolp (second initialize-suffix))))
 	   (initialize-suffix-switched-foreign
 	    (initialize-suffix-switched-foreign initialize-suffix)))
       `((defmfun reinitialize-instance
@@ -178,22 +170,18 @@
 	  ,(or initialize-name
 	       (if initialize-suffix-switched-foreign
 		   (mapcar #'add-suffix initialize-suffix)
-		   (add-suffix
-		    (if initialize-suffix-with-creturn
-			(first initialize-suffix)
-			initialize-suffix))))
+		   (add-suffix initialize-suffix)))
 	  ,(if initialize-suffix-switched-foreign
 	       (mapcar (lambda (ia)
 			 `(((mpointer object) :pointer)
 			   ,@(callback-replace-arg cbstruct ia cbinfo)))
 		       initialize-args)
 	       `(((mpointer object) :pointer)
-		,@(callback-replace-arg cbstruct initialize-args cbinfo)))
+		 ,@(callback-replace-arg cbstruct initialize-args cbinfo)))
 	  :definition :method
 	  ,@(when cbinfo '(:callback-object object))
 	  :qualifier :after
-	  ,@(when initialize-suffix-with-creturn
-		  `(:c-return ,(second initialize-suffix)))
+	  ,@(when ri-c-return `(:c-return ,ri-c-return))
 	  ,@(when switch (list :switch switch))
 	  :return (object)
 	  ,@(when inputs `(:inputs ,inputs))
