@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-08-24 09:53:37EDT gsll.asd>
+;; Time-stamp: <2009-08-26 21:26:40EDT gsll.asd>
 
 (when (asdf:find-system :fsbv nil)
   (pushnew :fsbv *features*))

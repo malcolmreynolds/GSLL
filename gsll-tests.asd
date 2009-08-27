@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-05-03 16:59:16EDT gsll-tests.asd>
+;; Time-stamp: <2009-08-26 21:04:08EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -125,6 +125,7 @@
 	     (:file "multinomial")
 	     (:file "negative-binomial")
 	     (:file "nonlinear-least-squares")
+	     (:file "ntuple")
 	     (:file "numerical-differentiation")
 	     (:file "numerical-integration")
 	     (:file "ode")
