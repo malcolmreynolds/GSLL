@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-08-26 21:04:08EDT gsll-tests.asd>
+;; Time-stamp: <2009-09-18 16:26:18EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -159,6 +159,7 @@
 	     (:file "sort-vector-smallest-index")
 	     (:file "sort-vector-smallest")
 	     (:file "spherical-vector")
+	     (:file "svd")
 	     (:file "swap-columns")
 	     (:file "swap-elements")
 	     (:file "swap-row-column")
