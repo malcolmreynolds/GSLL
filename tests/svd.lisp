@@ -1,4 +1,4 @@
-;; Regression test SVD for GSLL, aputomatically generated
+;; Regression test SVD for GSLL, automatically generated
 
 (in-package :gsl)
 

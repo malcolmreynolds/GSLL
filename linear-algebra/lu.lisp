@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2009-04-26 23:04:02EDT lu.lisp>
+;; Time-stamp: <2009-09-20 14:55:07EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -62,7 +62,9 @@
   if it is T, an appropriate vector will be created and the solution
   will be computed there.  Otherwise it should be a supplied vector.")
 
-(defmfun LU-refine ((A matrix) LU p (b vector) (x vector) residual)
+(defmfun LU-refine
+    ((A matrix) LU p (b vector) (x vector)
+     &optional (residual (make-marray element-type :dimensions (dim0 A))))
   ("gsl_linalg" :complex "_LU_refine")
   (((mpointer A) :pointer) ((mpointer LU) :pointer)
    ((mpointer p) :pointer)
@@ -131,8 +133,7 @@
   "Compute the sign or phase factor of the determinant of a matrix A,
   det(A)/|det(A)|, from its LU decomposition, LU.")
 
-;;; Examples and unit test
-
+;;; Invert a matrix using LU
 (export 'invert-matrix)
 (defun invert-matrix (mat)
   "Invert the matrix."
@@ -141,6 +142,10 @@
 	 (inv (make-marray 'double-float :dimensions (list dim dim))))
     (LU-decomposition mat per)
     (lu-invert mat per inv)))
+
+;;; Examples and unit test
+
+;;; These are direct tests of matrix inversion
 
 (save-test
  lu
@@ -164,4 +169,28 @@
 	 (matrix-product-triangular matrix x 1 :upper :notrans :nonunit)
 	 1 :lower :notrans :unit)))))))
 
+;;; From linalg/test.c
 
+(defun test-lu-solve-dim (matrix &optional vector)
+  "Solve the linear equation using LU with the supplied matrix and
+   a right-hand side vector which is the reciprocal of one more than
+   the index."
+  (let* ((dim (dim0 matrix))
+	 (rhs (or vector
+		  (create-rhs-vector dim (element-type matrix)))))
+    (multiple-value-bind (upper permutation signum)
+	(LU-decomposition (copy matrix))
+      (declare (ignore signum))
+      (let ((initial-solution (LU-solve upper rhs permutation T)))
+	(LU-refine matrix upper permutation rhs initial-solution)))))
+
+(save-test lu
+ (test-lu-solve-dim (create-hilbert-matrix 2))
+ (test-lu-solve-dim (create-hilbert-matrix 3))
+ (test-lu-solve-dim (create-hilbert-matrix 4))
+ (test-lu-solve-dim (create-hilbert-matrix 12))
+ (test-lu-solve-dim (create-vandermonde-matrix 2))
+ (test-lu-solve-dim (create-vandermonde-matrix 3))
+ (test-lu-solve-dim (create-vandermonde-matrix 4))
+ (test-lu-solve-dim (create-vandermonde-matrix 12))
+ (test-lu-solve-dim (create-complex-matrix 7)))

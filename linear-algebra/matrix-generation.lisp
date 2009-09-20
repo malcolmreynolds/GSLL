@@ -1,6 +1,6 @@
 ;; Generate matrices used in tests of linear algebra functions
 ;; Liam Healy 2009-09-19 18:28:31EDT matrix-generation.lisp
-;; Time-stamp: <2009-09-19 21:51:22EDT matrix-generation.lisp>
+;; Time-stamp: <2009-09-19 22:39:15EDT matrix-generation.lisp>
 
 (in-package :gsl)
 
@@ -10,18 +10,42 @@
 
 ;;; See linalg/test.c.
 
+;;;;****************************************************************************
+;;;; General array creation from indices
+;;;;****************************************************************************
+
 ;;; Maybe this should be exported.  Come to think of it, didn't Glen
 ;;; have something more general than this?
 (defun create-matrix
-    (function dim0 &optional (dim1 dim0) (eltype 'double-float))
+    (function dim0 &optional (dim1 dim0) (element-type 'double-float))
   "Make a matrix of the specified dimensions, with contents
    based on a function of the element indices i, j."
   (let ((matrix
-	 (make-marray (cl-single eltype) :dimensions (list dim0 dim1))))
+	 (make-marray (cl-single element-type) :dimensions (list dim0 dim1))))
     (dotimes (i dim0 matrix)
       (dotimes (j dim1)
 	(setf (maref matrix i j)
-	      (coerce (funcall function i j) eltype))))))
+	      (coerce (funcall function i j) element-type))))))
+
+(defun create-vector
+    (function dim &optional (element-type 'double-float))
+  "Make a vector of the specified dimension, with contents
+   based on a function of the element index."
+  (let ((vector
+	 (make-marray (cl-single element-type) :dimensions dim)))
+    (dotimes (i dim vector)
+      (setf (maref vector i)
+	    (coerce (funcall function i) element-type)))))
+
+(defun create-diagonal-matrix (vector)
+  "Place the vector along the diagonal of square matrix."
+  (create-matrix
+   (lambda (i j) (if (= i j) (maref vector i) 0))
+   (dim0 vector)))
+
+;;;;****************************************************************************
+;;;; Specific arrays used in linear algebra tests
+;;;;****************************************************************************
 
 (defun create-general-matrix (dim0 dim1)
   (create-matrix (lambda (i j) (/ (+ 1 i j))) dim0 dim1))
@@ -41,21 +65,14 @@
   ;; This would be better named a column matrix, but they call it a row.
   (create-matrix (lambda (i j) (if (zerop j) (/ (1+ i)) 0)) dim0 dim1))
 
-;;; This should be exported too.
-(defun create-diagonal-matrix (vector)
-  "Place the vector along the diagonal of square matrix."
-  (create-matrix
-   (lambda (i j) (if (= i j) (maref vector i) 0))
-   (dim0 vector)))
-
 (defun create-complex-matrix (dim)
   (create-matrix
    (lambda (i j)
      (complex (/ (+ 1 i j)) (+ 1/2 (expt i 2) (expt j 2))))
    dim dim '(complex double-float)))
 
-;;; Create a vector too
-(defun create-vector (dim)
-  (let ((vec (make-marray 'double-float :dimensions dim)))
-    (dotimes (i dim vec)
-      (setf (maref vec i) (coerce (1+ i) 'double-float)))))
+(defun create-rhs-vector (dim &optional (element-type 'double-float))
+  (if (subtypep element-type 'complex)
+      (create-vector
+       (lambda (i) (complex (1+ (* 2 i)) (+ 2 (* 2 i)))) 7 element-type)
+      (create-vector '1+ dim element-type)))
