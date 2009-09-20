@@ -1,7 +1,6 @@
 ;; Singular Value Decomposition
 ;; Liam Healy, Tue May  2 2006 - 12:15
-;; Time-stamp: <2009-09-18 16:07:28EDT svd.lisp>
-;; $Id$
+;; Time-stamp: <2009-09-19 19:15:31EDT svd.lisp>
 
 (in-package :gsl)
 
@@ -108,35 +107,15 @@
    x which minimizes ||A x - b||_2.")
 
 ;;; Examples and unit test, from linalg/test.c
-;;; These are general to all the linear solver techniques, so
-;;; more tests need to be made.
-
-(defun create-hilbert-matrix (dim)
-  "Make Hilbert matrix used to test linear algebra functions."
-  (let ((matrix (make-marray 'double-float :dimensions (list dim dim))))
-    (dotimes (i dim matrix)
-      (dotimes (j dim)
-	(setf (maref matrix i j) (coerce (/ (+ 1 i j)) 'double-float))))))
-
-(defun create-vandermonde-matrix (dim)
-  "Make Van der Monde matrix used to test linear algebra functions."
-  (let ((matrix (make-marray 'double-float :dimensions (list dim dim))))
-    (dotimes (i dim matrix)
-      (dotimes (j dim)
-	(setf (maref matrix i j)
-	      (coerce (expt (1+ i) (- dim j 1)) 'double-float))))))
 
 (defun test-sv-solve-dim (matrix)
   "Solve the linear equation using SVD with the supplied matrix and
    a right-hand side vector which is the reciprocal of one more than
    the index."
-  (let* ((dim (dim0 matrix))
-	 (rhs (make-marray 'double-float :dimensions dim)))
-    (dotimes (i dim)
-      (setf (maref rhs i) (coerce (1+ i) 'double-float)))
+  (let ((dim (dim0 matrix)))
     (multiple-value-bind (u q d)
 	(SV-decomposition (copy matrix))
-      (SV-solve u q d rhs))))
+      (SV-solve u q d (create-vector dim)))))
 
 (save-test svd
  (test-sv-solve-dim (create-hilbert-matrix 2))

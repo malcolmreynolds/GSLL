@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-08-26 21:26:40EDT gsll.asd>
+;; Time-stamp: <2009-09-19 18:54:29EDT gsll.asd>
 
 (when (asdf:find-system :fsbv nil)
   (pushnew :fsbv *features*))
@@ -116,6 +116,7 @@
 	    ((:file "blas1")
 	     (:file "blas2")
 	     (:file "blas3" :depends-on ("blas2"))
+	     (:file "matrix-generation")
 	     (:file "exponential")
 	     (:file "lu")
 	     (:file "qr")
