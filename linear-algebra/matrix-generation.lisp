@@ -1,6 +1,6 @@
 ;; Generate matrices used in tests of linear algebra functions
 ;; Liam Healy 2009-09-19 18:28:31EDT matrix-generation.lisp
-;; Time-stamp: <2009-09-19 22:39:15EDT matrix-generation.lisp>
+;; Time-stamp: <2009-09-20 23:13:47EDT matrix-generation.lisp>
 
 (in-package :gsl)
 
@@ -14,18 +14,21 @@
 ;;;; General array creation from indices
 ;;;;****************************************************************************
 
-;;; Maybe this should be exported.  Come to think of it, didn't Glen
+;;; These should be exported.  Come to think of it, didn't Glen
 ;;; have something more general than this?
+(defun set-matrix (matrix function)
+  (dotimes (i (dim0 matrix) matrix)
+    (dotimes (j (dim1 matrix))
+      (setf (maref matrix i j)
+	    (coerce (funcall function i j) (element-type matrix))))))
+
 (defun create-matrix
     (function dim0 &optional (dim1 dim0) (element-type 'double-float))
   "Make a matrix of the specified dimensions, with contents
    based on a function of the element indices i, j."
-  (let ((matrix
-	 (make-marray (cl-single element-type) :dimensions (list dim0 dim1))))
-    (dotimes (i dim0 matrix)
-      (dotimes (j dim1)
-	(setf (maref matrix i j)
-	      (coerce (funcall function i j) element-type))))))
+  (set-matrix
+   (make-marray (cl-single element-type) :dimensions (list dim0 dim1))
+   function))
 
 (defun create-vector
     (function dim &optional (element-type 'double-float))
@@ -42,6 +45,12 @@
   (create-matrix
    (lambda (i j) (if (= i j) (maref vector i) 0))
    (dim0 vector)))
+
+(defun constant-matrix
+    (constant dim0 &optional (dim1 dim0) (element-type 'double-float))
+  (let ((cst (coerce constant element-type)))
+    (create-matrix (lambda (i j) (declare (ignore i j)) cst)
+		   dim0 dim1 element-type)))
 
 ;;;;****************************************************************************
 ;;;; Specific arrays used in linear algebra tests
@@ -76,3 +85,43 @@
       (create-vector
        (lambda (i) (complex (1+ (* 2 i)) (+ 2 (* 2 i)))) 7 element-type)
       (create-vector '1+ dim element-type)))
+
+(defparameter *hilb2* (create-hilbert-matrix 2))
+(defparameter *hilb3* (create-hilbert-matrix 3))
+(defparameter *hilb4* (create-hilbert-matrix 4))
+(defparameter *hilb12* (create-hilbert-matrix 12))
+
+(defparameter *hilb2-soln*
+  (make-marray 'double-float :initial-contents '(-8.0d0 18.0d0)))
+(defparameter *hilb3-soln*
+  (make-marray 'double-float :initial-contents '(27.0d0 -192.0d0 210.0d0)))
+(defparameter *hilb4-soln*
+  (make-marray 'double-float
+	       :initial-contents '(-64.0d0 900.0d0 -2520.0d0 1820.0d0)))
+(defparameter *hilb12-soln*
+  (make-marray 'double-float :initial-contents
+	       '(-1728.0d0 245388.0d0 -8528520.0d0
+		 127026900.0d0 -1009008000.0d0 4768571808.0d0
+		 -14202796608.0d0 27336497760.0d0 -33921201600.0d0
+		 26189163000.0d0 -11437874448.0d0 2157916488.0d0)))
+
+(defparameter *vander2* (create-vandermonde-matrix 2))
+(defparameter *vander3* (create-vandermonde-matrix 3))
+(defparameter *vander4* (create-vandermonde-matrix 4))
+(defparameter *vander12* (create-vandermonde-matrix 12))
+
+(defparameter *vander2-soln*
+  (make-marray 'double-float :initial-contents '(1.0d0 0.0d0)))
+(defparameter *vander3-soln*
+  (make-marray 'double-float :initial-contents
+	       '(0.0d0 1.0d0 0.0d0)))
+(defparameter *vander4-soln*
+  (make-marray 'double-float :initial-contents
+	       '(0.0d0 0.0d0 1.0d0 0.0d0)))
+(defparameter *vander12-soln*
+  (make-marray 'double-float :initial-contents
+	       '(0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0
+		 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0 0.0d0)))
+
+(defparameter *m35* (create-general-matrix 3 5))
+(defparameter *m53* (create-general-matrix 5 3))

@@ -1,6 +1,6 @@
 ;; Singular Value Decomposition
 ;; Liam Healy, Tue May  2 2006 - 12:15
-;; Time-stamp: <2009-09-19 22:24:15EDT svd.lisp>
+;; Time-stamp: <2009-09-20 19:35:07EDT svd.lisp>
 
 (in-package :gsl)
 
@@ -118,11 +118,11 @@
       (SV-solve u q d (create-rhs-vector dim)))))
 
 (save-test svd
- (test-sv-solve-dim (create-hilbert-matrix 2))
- (test-sv-solve-dim (create-hilbert-matrix 3))
- (test-sv-solve-dim (create-hilbert-matrix 4))
- (test-sv-solve-dim (create-hilbert-matrix 12))
- (test-sv-solve-dim (create-vandermonde-matrix 2))
- (test-sv-solve-dim (create-vandermonde-matrix 3))
- (test-sv-solve-dim (create-vandermonde-matrix 4))
- (test-sv-solve-dim (create-vandermonde-matrix 12)))
+ (test-sv-solve-dim *hilb2*)
+ (test-sv-solve-dim *hilb3*)
+ (test-sv-solve-dim *hilb4*)
+ (test-sv-solve-dim *hilb12*)
+ (test-sv-solve-dim *vander2*)
+ (test-sv-solve-dim *vander3*)
+ (test-sv-solve-dim *vander4*)
+ (test-sv-solve-dim *vander12*))

@@ -1,9 +1,11 @@
 ;; QR decomposition
 ;; Liam Healy 2008-02-17 11:05:20EST qr.lisp
-;; Time-stamp: <2009-02-23 21:42:14EST qr.lisp>
+;; Time-stamp: <2009-09-20 22:26:14EDT qr.lisp>
 ;; $Id$
 
 (in-package :gsl)
+
+;;; /usr/include/gsl/gsl_linalg.h
 
 ;;; FDL
 ;;; A general rectangular M-by-N matrix A has a
@@ -18,7 +20,10 @@
 ;;; columns of Q form an orthonormal basis for the range of A,
 ;;; ran(A), when A has full column rank.
 
-(defmfun QR-decomposition (A tau)
+(defmfun QR-decomposition
+    (A
+     &optional
+     (tau (make-marray 'double-float :dimensions (min (dim0 A) (dim1 A)))))
   "gsl_linalg_QR_decomp"
   (((mpointer A) :pointer) ((mpointer tau) :pointer))
   :inputs (A)
@@ -64,8 +69,10 @@
    modified.  The solution is returned from the function call.")
 
 (defmfun QR-solve-least-squares
-    (QR tau b x
-	&optional (residual (make-marray 'double-float :dimensions (dimensions b))))
+    (QR tau b
+	&optional
+	 (x (make-marray 'double-float :dimensions (dim1 QR)))
+	 (residual (make-marray 'double-float :dimensions (dim0 QR))))
   "gsl_linalg_QR_lssolve"
   (((mpointer QR) :pointer) ((mpointer tau) :pointer)
    ((mpointer b) :pointer) ((mpointer x) :pointer)
@@ -127,7 +134,11 @@
    x-spec is non-NIL, on output the solution is stored in x and b is
    not modified.  The solution is returned from the function call.")
 
-(defmfun QR-unpack (QR tau Q R)
+(defmfun QR-unpack
+    (QR tau
+     &optional
+     (Q (make-marray 'double-float :dimensions (list (dim0 QR) (dim0 QR))))
+     (R (make-marray 'double-float :dimensions (dimensions QR))))
   "gsl_linalg_QR_unpack"
   (((mpointer QR) :pointer) ((mpointer tau) :pointer)
    ((mpointer Q) :pointer) ((mpointer R) :pointer))
@@ -138,7 +149,8 @@
   (QR, tau) into the matrices Q and R where
   Q is M-by-M and R is M-by-N.")
 
-(defmfun QR-QRsolve (Q R b x)
+(defmfun QR-QRsolve
+    (Q R b &optional (x (make-marray 'double-float :dimensions (dim0 b))))
   "gsl_linalg_QR_QRsolve"
   (((mpointer Q) :pointer) ((mpointer R) :pointer)
    ((mpointer b) :pointer) ((mpointer x) :pointer))
@@ -184,3 +196,121 @@
   returned in it.  If x-spec is non-NIL, on output the solution is
   stored in x and b is not modified.  The solution is returned from
   the function call.")
+
+;;; Examples and unit test, from linalg/test.c
+
+(defun test-qr-solve-dim (matrix)
+  "Solve the linear equation using QR with the supplied matrix and
+   a right-hand side vector which is the reciprocal of one more than
+   the index."
+  (let ((dim (dim0 matrix)))
+    (multiple-value-bind (QR tau)
+	(QR-decomposition (copy matrix))
+      (QR-solve QR tau (create-rhs-vector dim) T))))
+
+(defun test-qr-qrsolve-dim (matrix)
+  "Solve the linear equation using QR with the supplied matrix and
+   a right-hand side vector which is the reciprocal of one more than
+   the index."
+  (let ((dim (dim0 matrix)))
+    (multiple-value-bind (QR tau)
+	(QR-decomposition (copy matrix))
+      (multiple-value-bind (Q R)
+	  (QR-unpack QR tau)
+	(QR-QRsolve Q R (create-rhs-vector dim))))))
+
+(defun test-qr-lssolve-dim (matrix)
+  "Solve the linear equation using QR least squares with the supplied
+   matrix and a right-hand side vector which is the reciprocal of one
+   more than the index.  Returns the solution and the residual."
+  (let ((dim (dim0 matrix)))
+    (multiple-value-bind (QR tau)
+	(QR-decomposition (copy matrix))
+      ;; Residual not checked.
+      (QR-solve-least-squares QR tau (create-rhs-vector dim)))))
+
+(defun test-qr-decomp-dim (matrix)
+  "Solve the QR decomposition with the supplied
+   matrix and a right-hand side vector which is the reciprocal of one
+   more than the index."
+  (multiple-value-bind (QR tau)
+      (QR-decomposition (copy matrix))
+    (multiple-value-bind (Q R)
+	(QR-unpack QR tau)
+      (matrix-product Q R))))
+
+(defun test-qr-update-dim (matrix)
+  "Test QR rank-1 update; this should return a matrix with all
+   elements near zero."
+  (let* ((dim0 (dim0 matrix)) (dim1 (dim1 matrix))
+	 (u (create-vector (lambda (i) (sin (1+ i))) dim0))
+	 (v (create-vector
+	     (lambda (i) (+ (cos (+ 2 i)) (sin (+ 3 (expt i 2)))))
+	     dim1))
+	 (qr1
+	  (create-matrix
+	   (lambda (i j) (+ (maref matrix i j) (* (maref u i) (maref v j))))
+	   dim0 dim1))
+	 (qr2 (copy matrix))
+	 (w (make-marray 'double-float :dimensions dim0)))
+    (multiple-value-bind (QR2 tau)
+	(QR-decomposition qr2)
+      (multiple-value-bind (Q2 R2)
+	  (QR-unpack QR2 tau)
+	;; compute w = Q^T u
+	(matrix-product Q2 u w 1.0d0 0.0d0 :trans)
+	(QR-update Q2 R2 w v)
+	(matrix-product Q2 R2 qr2 1.0d0 0.0d0)
+	(elt- qr1 qr2)))))
+
+(save-test qr
+ ;; test_QR_solve
+ (test-qr-solve-dim *hilb2*)
+ (test-qr-solve-dim *hilb3*)
+ (test-qr-solve-dim *hilb4*)
+ (test-qr-solve-dim *hilb12*)
+ (test-qr-solve-dim *vander2*)
+ (test-qr-solve-dim *vander3*)
+ (test-qr-solve-dim *vander4*)
+ (test-qr-solve-dim *vander12*)
+ ;; test_QR_QRsolve
+ (test-qr-qrsolve-dim *hilb2*)
+ (test-qr-qrsolve-dim *hilb3*)
+ (test-qr-qrsolve-dim *hilb4*)
+ (test-qr-qrsolve-dim *hilb12*)
+ (test-qr-qrsolve-dim *vander2*)
+ (test-qr-qrsolve-dim *vander3*)
+ (test-qr-qrsolve-dim *vander4*)
+ (test-qr-qrsolve-dim *vander12*)
+ ;; test_QR_lssolve
+ (test-qr-lssolve-dim *m53*)
+ (test-qr-lssolve-dim *hilb2*)
+ (test-qr-lssolve-dim *hilb3*)
+ (test-qr-lssolve-dim *hilb4*)
+ (test-qr-lssolve-dim *hilb12*)
+ (test-qr-lssolve-dim *vander2*)
+ (test-qr-lssolve-dim *vander3*)
+ (test-qr-lssolve-dim *vander4*)
+ (test-qr-lssolve-dim *vander12*)
+ ;; test_QR_decomp
+ (test-qr-decomp-dim *m35*)
+ (test-qr-decomp-dim *m53*)
+ (test-qr-decomp-dim *hilb2*)
+ (test-qr-decomp-dim *hilb3*)
+ (test-qr-decomp-dim *hilb4*)
+ (test-qr-decomp-dim *hilb12*)
+ (test-qr-decomp-dim *vander2*)
+ (test-qr-decomp-dim *vander3*)
+ (test-qr-decomp-dim *vander4*)
+ (test-qr-decomp-dim *vander12*)
+ ;; test_QR_update
+ (test-qr-update-dim *m35*)
+ (test-qr-update-dim *m53*)
+ (test-qr-update-dim *hilb2*)
+ (test-qr-update-dim *hilb3*)
+ (test-qr-update-dim *hilb4*)
+ (test-qr-update-dim *hilb12*)
+ (test-qr-update-dim *vander2*)
+ (test-qr-update-dim *vander3*)
+ (test-qr-update-dim *vander4*)
+ (test-qr-update-dim *vander12*))

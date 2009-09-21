@@ -1,6 +1,6 @@
 ;; LU decomposition
 ;; Liam Healy, Thu Apr 27 2006 - 12:42
-;; Time-stamp: <2009-09-20 14:55:07EDT lu.lisp>
+;; Time-stamp: <2009-09-20 19:35:33EDT lu.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -185,12 +185,12 @@
 	(LU-refine matrix upper permutation rhs initial-solution)))))
 
 (save-test lu
- (test-lu-solve-dim (create-hilbert-matrix 2))
- (test-lu-solve-dim (create-hilbert-matrix 3))
- (test-lu-solve-dim (create-hilbert-matrix 4))
- (test-lu-solve-dim (create-hilbert-matrix 12))
- (test-lu-solve-dim (create-vandermonde-matrix 2))
- (test-lu-solve-dim (create-vandermonde-matrix 3))
- (test-lu-solve-dim (create-vandermonde-matrix 4))
- (test-lu-solve-dim (create-vandermonde-matrix 12))
+ (test-lu-solve-dim *hilb2*)
+ (test-lu-solve-dim *hilb3*)
+ (test-lu-solve-dim *hilb4*)
+ (test-lu-solve-dim *hilb12*)
+ (test-lu-solve-dim *vander2*)
+ (test-lu-solve-dim *vander3*)
+ (test-lu-solve-dim *vander4*)
+ (test-lu-solve-dim *vander12*)
  (test-lu-solve-dim (create-complex-matrix 7)))

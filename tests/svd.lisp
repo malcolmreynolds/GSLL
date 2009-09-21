@@ -8,53 +8,35 @@
 (LISP-UNIT:DEFINE-TEST SVD
   (let ((lisp-unit:*epsilon* (* 2 16 double-float-epsilon)))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST
-      (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS '(-8.0d0 18.0d0)))
+     (LIST *hilb2-soln*)
      (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-HILBERT-MATRIX 2)))))
+      (TEST-SV-SOLVE-DIM *HILB2*))))
   (let ((lisp-unit:*epsilon* (* 2 128 double-float-epsilon)))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST
-      (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS '(27.0d0 -192.0d0 210.0d0)))
+     (LIST *hilb3-soln*)
      (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-HILBERT-MATRIX 3)))))
+      (TEST-SV-SOLVE-DIM *HILB3*))))
   (let ((lisp-unit:*epsilon* (* 2 2048 double-float-epsilon)))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST
-      (MAKE-MARRAY 'DOUBLE-FLOAT
-		   :INITIAL-CONTENTS '(-64.0d0 900.0d0 -2520.0d0 1820.0d0)))
-     (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-HILBERT-MATRIX 4)))))
+     (LIST *hilb4-soln*)
+     (MULTIPLE-VALUE-LIST (TEST-SV-SOLVE-DIM *hilb4*))))
   (let ((lisp-unit:*epsilon* 0.5d0))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST
-      (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS
-		   '(-1728.0d0 245388.0d0 -8528520.0d0
-		     127026900.0d0 -1009008000.0d0 4768571808.0d0
-		     -14202796608.0d0 27336497760.0d0 -33921201600.0d0
-		     26189163000.0d0 -11437874448.0d0 2157916488.0d0)))
-     (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-HILBERT-MATRIX 12)))))
+     (LIST *hilb12-soln*)
+     (MULTIPLE-VALUE-LIST (TEST-SV-SOLVE-DIM *hilb12*))))
   (let ((lisp-unit:*epsilon* (* 2 64 double-float-epsilon)))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS '(1.0d0 0.0d0)))
-     (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-VANDERMONDE-MATRIX 2)))))
+     (LIST *vander2-soln*)
+     (MULTIPLE-VALUE-LIST (TEST-SV-SOLVE-DIM *vander2*))))
   (let ((lisp-unit:*epsilon* (* 2 64 double-float-epsilon)))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS '(0.0d0 1.0d0 0.0d0)))
-     (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-VANDERMONDE-MATRIX 3)))))
+     (LIST *vander3-soln*)
+     (MULTIPLE-VALUE-LIST (TEST-SV-SOLVE-DIM *vander3*))))
   (let ((lisp-unit:*epsilon* (* 2 1024 double-float-epsilon)))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST (MAKE-MARRAY 'DOUBLE-FLOAT :INITIAL-CONTENTS '(0.0d0 0.0d0 1.0d0  0.0d0)))
-     (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-VANDERMONDE-MATRIX 4)))))
+     (LIST *vander4-soln*)
+     (MULTIPLE-VALUE-LIST (TEST-SV-SOLVE-DIM *vander4*))))
   (let ((lisp-unit:*epsilon* 0.05d0))
     (LISP-UNIT:ASSERT-NUMERICAL-EQUAL
-     (LIST
-      (MAKE-MARRAY
-       'DOUBLE-FLOAT :INITIAL-CONTENTS
-       '(0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 1.0d0  0.0d0)))
-     (MULTIPLE-VALUE-LIST
-      (TEST-SV-SOLVE-DIM (CREATE-VANDERMONDE-MATRIX 12))))))
+     (LIST *vander12-soln*)
+     (MULTIPLE-VALUE-LIST (TEST-SV-SOLVE-DIM *vander12*)))))
