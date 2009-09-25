@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-09-20 21:52:19EDT gsll-tests.asd>
+;; Time-stamp: <2009-09-24 22:22:50EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -70,6 +70,7 @@
 	     (:file "hankel")
 	     (:file "higher-moments")
 	     (:file "histogram")
+	     (:file "householder")
 	     (:file "hypergeometric")
 	     (:file "hypergeometric-randist")
 	     (:file "index-max")

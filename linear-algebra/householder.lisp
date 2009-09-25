@@ -1,6 +1,6 @@
 ;; Householder Transformations
 ;; Liam Healy, Wed May 10 2006 - 10:03
-;; Time-stamp: <2009-02-23 21:09:50EST householder.lisp>
+;; Time-stamp: <2009-09-24 22:18:00EDT householder.lisp>
 ;; $Id$
 
 ;;; For householder-transform, it would be nice to be able to pick the
@@ -91,3 +91,23 @@
    stored in x and b is not modified.  The matrix A is destroyed by
    the Householder transformations.  The solution is returned from the
    function call.")
+
+;;;;****************************************************************************
+;;;; Examples and unit test, from linalg/test.c
+;;;;****************************************************************************
+
+(defun test-hh-solve-dim (matrix)
+  "Solve the linear equation using Householder with the supplied
+   matrix and a right-hand side vector which is the reciprocal of one
+   more than the index."
+  (householder-solve (copy matrix) (create-rhs-vector (dim0 matrix)) T))
+
+(save-test householder
+ (test-hh-solve-dim *hilb2*)
+ (test-hh-solve-dim *hilb3*)
+ (test-hh-solve-dim *hilb4*)
+ (test-hh-solve-dim *hilb12*)
+ (test-hh-solve-dim *vander2*)
+ (test-hh-solve-dim *vander3*)
+ (test-hh-solve-dim *vander4*)
+ (test-hh-solve-dim *vander12*))
