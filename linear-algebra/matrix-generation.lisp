@@ -1,6 +1,6 @@
 ;; Generate matrices used in tests of linear algebra functions
 ;; Liam Healy 2009-09-19 18:28:31EDT matrix-generation.lisp
-;; Time-stamp: <2009-09-20 23:13:47EDT matrix-generation.lisp>
+;; Time-stamp: <2009-09-26 16:42:11EDT matrix-generation.lisp>
 
 (in-package :gsl)
 
@@ -58,6 +58,9 @@
 
 (defun create-general-matrix (dim0 dim1)
   (create-matrix (lambda (i j) (/ (+ 1 i j))) dim0 dim1))
+
+(defun create-singular-matrix (dim0 dim1)
+  (create-matrix (lambda (i j) (if (zerop i) 0 (/ (+ 1 i j)))) dim0 dim1))
 
 (defun create-hilbert-matrix (dim)
   "Make Hilbert matrix used to test linear algebra functions."
@@ -125,3 +128,5 @@
 
 (defparameter *m35* (create-general-matrix 3 5))
 (defparameter *m53* (create-general-matrix 5 3))
+(defparameter *s35* (create-singular-matrix 3 5))
+(defparameter *s53* (create-singular-matrix 5 3))

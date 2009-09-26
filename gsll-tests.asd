@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-09-26 12:46:47EDT gsll-tests.asd>
+;; Time-stamp: <2009-09-26 16:44:38EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -137,6 +137,7 @@
 	     (:file "power")
 	     (:file "psi")
 	     (:file "qr")
+	     (:file "qrpt")
 	     (:file "quasi-random-number-generators")
 	     (:file "random-number-generators")
 	     (:file "rayleigh")
