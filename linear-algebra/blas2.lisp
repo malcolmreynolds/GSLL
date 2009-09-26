@@ -1,6 +1,6 @@
 ;; BLAS level 2, Matrix-vector operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-05-25 14:23:16EDT blas2.lisp>
+;; Time-stamp: <2009-09-26 12:52:44EDT blas2.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -33,17 +33,20 @@
 (defmfun matrix-product
     ((A matrix) (x vector)
      &optional
-     (y (make-marray
-	 element-type :dimensions (matrix-product-dimensions A x)
-	 :initial-element 0))
-     (alpha 1) (beta 1) (TransA :notrans) TransB)
+     y
+     (alpha 1) (beta 1) (TransA :notrans) TransB
+     &aux
+     (yarr (or y
+	       (make-marray
+		element-type :dimensions (matrix-product-dimensions A x)
+		:initial-element 0))))
   ("gsl_blas_" :type "gemv")
   ((transa cblas-transpose) (alpha :element-c-type) ((mpointer A) :pointer)
-   ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
+   ((mpointer x) :pointer) (beta :element-c-type) ((mpointer yarr) :pointer))
   :definition :generic
   :element-types #+fsbv :float-complex #-fsbv :float
-  :inputs (A x y)
-  :outputs (y)
+  :inputs (A x yarr)
+  :outputs (yarr)
   :documentation			; FDL
   "If the second and third arguments are vectors, compute
    the matrix-vector product and sum
@@ -120,17 +123,20 @@
 
 (defmfun matrix-product-symmetric
     ((A matrix) (x vector)
-     &optional
-     (y (make-marray element-type :dimensions (matrix-product-dimensions A x)
-		     :initial-element 0))
-     (alpha 1) (beta 1) (uplo :upper) (side :left))
+     &optional y
+     (alpha 1) (beta 1) (uplo :upper) (side :left)
+     &aux
+     (yarr
+      (or y
+	  (make-marray element-type :dimensions (matrix-product-dimensions A x)
+		       :initial-element 0))))
   ("gsl_blas_" :type "symv")
   ((uplo cblas-uplo) (alpha :element-c-type) ((mpointer A) :pointer)
-   ((mpointer x) :pointer) (beta :element-c-type) ((mpointer y) :pointer))
+   ((mpointer x) :pointer) (beta :element-c-type) ((mpointer yarr) :pointer))
   :definition :generic
   :element-types :float
-  :inputs (A x y)
-  :outputs (y)
+  :inputs (A x yarr)
+  :outputs (yarr)
   :documentation			; FDL
   "If the second and third arguments are vectors, compute
   the matrix-vector product and sum y = alpha A

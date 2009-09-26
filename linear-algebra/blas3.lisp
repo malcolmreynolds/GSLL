@@ -1,6 +1,6 @@
 ;; BLAS level 3, Matrix-matrix operations
 ;; Liam Healy, Wed Apr 26 2006 - 21:08
-;; Time-stamp: <2009-05-25 14:26:09EDT blas3.lisp>
+;; Time-stamp: <2009-09-26 12:52:25EDT blas3.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -21,33 +21,38 @@
 (defmfun matrix-product
     ((A matrix) (B matrix)
      &optional
-     (C (make-marray
-	 element-type
-	 :dimensions (matrix-product-dimensions A B) :initial-element 0))
-     (alpha 1) (beta 1) (TransA :notrans) (TransB :notrans))
+     C
+     (alpha 1) (beta 1) (TransA :notrans) (TransB :notrans)
+     &aux
+     (Carr
+      (or C
+	  (make-marray element-type :dimensions (matrix-product-dimensions A B)
+		       :initial-element 0))))
   ("gsl_blas_" :type "gemm")
   ((TransA cblas-transpose) (TransB cblas-transpose)
    (alpha :element-c-type) ((mpointer A) :pointer)
-   ((mpointer B) :pointer) (beta :element-c-type) ((mpointer C) :pointer))
+   ((mpointer B) :pointer) (beta :element-c-type) ((mpointer Carr) :pointer))
   :definition :methods
   :element-types #+fsbv :float-complex #-fsbv :float
-  :inputs (A B C)
-  :outputs (C))
+  :inputs (A B Carr)
+  :outputs (Carr))
 
 (defmfun matrix-product-symmetric
     ((A matrix) (B matrix)
-     &optional
-     (C (make-marray element-type :dimensions (matrix-product-dimensions A B)
-		     :initial-element 0))
-     (alpha 1) (beta 1) (uplo :upper) (side :left))
+     &optional C (alpha 1) (beta 1) (uplo :upper) (side :left)
+     &aux
+     (Carr
+      (or C
+	  (make-marray element-type :dimensions (matrix-product-dimensions A B)
+		       :initial-element 0))))
   ("gsl_blas_" :type "symm")
   ((side cblas-side) (uplo cblas-uplo) (alpha :element-c-type)
    ((mpointer A) :pointer) ((mpointer B) :pointer)
-   (beta :element-c-type) ((mpointer C) :pointer)) 
+   (beta :element-c-type) ((mpointer Carr) :pointer)) 
   :definition :methods
   :element-types #+fsbv :float-complex #-fsbv :float
-  :inputs (A B C)
-  :outputs (C))
+  :inputs (A B Carr)
+  :outputs (Carr))
 
 #+fsbv
 (defmfun matrix-product-hermitian

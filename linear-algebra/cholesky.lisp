@@ -1,6 +1,6 @@
 ;; Cholesky Decomposition
 ;; Liam Healy, Wed May  3 2006 - 16:38
-;; Time-stamp: <2009-02-17 21:08:51EST cholesky.lisp>
+;; Time-stamp: <2009-09-26 12:36:23EDT cholesky.lisp>
 ;; $Id$
 
 (in-package :gsl)
@@ -58,3 +58,31 @@
   will replace b.  If x-spec is T, then an array will be created and the
   solution returned in it.  If x-spec is a marray, the solution will
   be returned in it.")
+
+;;; Examples and unit test, from linalg/test.c
+
+(defun test-cholesky-solve-dim (matrix)
+  "Solve the linear equation using Cholesky with the supplied matrix and
+   a right-hand side vector which is the reciprocal of one more than
+   the index."
+  (cholesky-solve
+   (cholesky-decomposition (copy matrix))
+   (create-rhs-vector (dim0 matrix))))
+
+(defun test-cholesky-decomp-dim (matrix)
+  "Decompose using Cholesky and then multiply."
+  (let ((decomp (cholesky-decomposition (copy matrix))))
+    (dotimes (row (dim0 matrix) decomp)
+      (loop for col from (1+ row) below (dim1 matrix) do
+	   (setf (maref decomp row col) 0.0d0)))
+    (matrix-product decomp decomp nil 1.0d0 0.0d0 :notrans :trans)))
+
+(save-test cholesky
+ (test-cholesky-solve-dim *hilb2*)
+ (test-cholesky-solve-dim *hilb3*)
+ (test-cholesky-solve-dim *hilb4*)
+ (test-cholesky-solve-dim *hilb12*)
+ (test-cholesky-decomp-dim *hilb2*)
+ (test-cholesky-decomp-dim *hilb3*)
+ (test-cholesky-decomp-dim *hilb4*)
+ (test-cholesky-decomp-dim *hilb12*))

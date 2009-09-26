@@ -1,6 +1,6 @@
 ;; Definition of GSLL system 
 ;; Liam Healy
-;; Time-stamp: <2009-09-24 22:22:50EDT gsll-tests.asd>
+;; Time-stamp: <2009-09-26 12:46:47EDT gsll-tests.asd>
 
 (asdf:defsystem "gsll-tests"
   :name "gsll-tests"
@@ -30,7 +30,7 @@
 	     (:file "cauchy")
 	     (:file "cdot")
 	     (:file "chebyshev")
-	     (:file "chi-squared")
+	     (:file "cholesky")
 	     (:file "clausen")
 	     (:file "column")
 	     (:file "combination")
