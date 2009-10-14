@@ -63,7 +63,10 @@
 
 (defmacro do-matrix-rows ((matrix r) &body body)
   "Executes ,@body once for each row of the matrix, with r bound
-   the the row index."
+   the the row index.
+
+   Inside the body row is a symbol-macro which can be used to get
+   or set the current row."
   (let ((m (gensym)))
     `(symbol-macrolet ((row (row ,matrix ,r)))
        (let ((,m (dim0 ,matrix)))
@@ -74,7 +77,10 @@
 
 (defmacro do-matrix-cols ((matrix c) &body body)
   "Executes ,@body once for each column of the matrix, with c bound
-   to the column index."
+   to the column index.
+
+   Inside the body col is a symbol-macro which can be used to get
+   or set the current column."
   (let ((m (gensym)))
     `(symbol-macrolet ((col (column ,matrix ,c)))
        (let ((,m (dim1 ,matrix)))
@@ -84,7 +90,10 @@
 	   ,@body)))))
 
 (defmacro do-matrix-diag ((matrix i) &body body)
-  "Executes ,@body once for every diagonal element of the matrix."
+  "Executes ,@body once for every diagonal element of the matrix.
+
+   Inside the body elm is a symbol-macro which can be used to get
+   or set the current-column."
   (let ((m (gensym)))
     `(symbol-macrolet ((elm (maref ,matrix ,i ,i)))
        (let ((,m (min (dim0 ,matrix) (dim1 ,matrix))))
