@@ -9,4 +9,5 @@
     ((:module utils
 	      :components
 	      ((:file "init")
-	       (:file "matrix-loops" :depends-on ("init"))))))
+	       (:file "matrix-loops" :depends-on ("init"))
+	       (:file "concat" :depends-on ("init" "matrix-loops"))))))
