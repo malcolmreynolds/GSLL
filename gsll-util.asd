@@ -9,4 +9,4 @@
     ((:module utils
 	      :components
 	      ((:file "init")
-	       (:file "matrix-macros" :depends-on ("init"))))))
+	       (:file "matrix-loops" :depends-on ("init"))))))

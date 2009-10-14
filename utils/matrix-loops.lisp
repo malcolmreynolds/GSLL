@@ -2,11 +2,13 @@
 
 ;; Macros for looping through matrices and vectors
 
-;; TODO: option to add in assertions that things which are supposed to be a matrix/vector
-;; really are.. #'dimensions is a generic function so that won't fire if it's the wrong thing
-;; but if a user has a do-matrix form and they give it a vector the error will probably
-;; happen when (= ,j ,n) is executed, as n will be nil. Might be good to automatically
-;; chuck in an (typep v 'gsll:mvector) form as appropriate
+;; TODO: option to add in assertions that things which are supposed to
+;; be a matrix/vector really are.. #'dimensions is a generic function
+;; so that won't fire if it's the wrong thing but if a user has a
+;; do-matrix form and they give it a vector the error will probably
+;; happen when (= ,j ,n) is executed, as n will be nil. Might be good
+;; to automatically chuck in an (typep v 'gsll:mvector) form as
+;; appropriate
 
 (defmacro do-vector ((vector i) &body body)
   "Executes ,@body once for each element of vector, with i
