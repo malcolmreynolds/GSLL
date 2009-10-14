@@ -65,21 +65,23 @@
   "Executes ,@body once for each row of the matrix, with r bound
    the the row index."
   (let ((m (gensym)))
-    `(let ((,m (dim0 ,matrix)))
-       (do ((,r 0 (1+ ,r)))
-	   ((= ,r ,m))
-	 (declare (fixnum ,r))
-	 ,@body))))
+    `(symbol-macrolet ((row (row ,matrix ,r)))
+       (let ((,m (dim0 ,matrix)))
+	  (do ((,r 0 (1+ ,r)))
+	      ((= ,r ,m))
+	    (declare (fixnum ,r))
+	    ,@body)))))
 
 (defmacro do-matrix-cols ((matrix c) &body body)
   "Executes ,@body once for each column of the matrix, with c bound
    to the column index."
   (let ((m (gensym)))
-    `(let ((,m (dim1 ,matrix)))
-       (do ((,c 0 (1+ ,c)))
-	   ((= ,c ,m))
-	 (declare (fixnum ,c))
-	 ,@body))))
+    `(symbol-macrolet ((col (column ,matrix ,c)))
+       (let ((,m (dim1 ,matrix)))
+	 (do ((,c 0 (1+ ,c)))
+	     ((= ,c ,m))
+	   (declare (fixnum ,c))
+	   ,@body)))))
 
 (defmacro do-matrix-diag ((matrix i) &body body)
   "Executes ,@body once for every diagonal element of the matrix."
