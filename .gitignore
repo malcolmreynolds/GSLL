@@ -1,2 +1,5 @@
 *~
 *.fasl
+*.grovel-tmp.lisp
+*.swp
+
