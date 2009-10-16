@@ -11,4 +11,5 @@
 	      ((:file "init")
 	       (:file "utils" :depends-on ("init"))
 	       (:file "matrix-loops" :depends-on ("init"))
-	       (:file "concat" :depends-on ("init" "matrix-loops" "utils"))))))
+	       (:file "concat" :depends-on ("init" "matrix-loops" "utils"))
+	       (:file "slice" :depends-on ("init" "matrix-loops"))))))
