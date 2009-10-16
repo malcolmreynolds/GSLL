@@ -4,7 +4,7 @@
     :version "0"
     :author "Malcolm Reynolds"
     :licence "LLGPL v3, FDL"
-    :depends-on (gsll)
+    :depends-on (gsll cl-utilities)
     :components
     ((:module utils
 	      :components
