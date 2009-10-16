@@ -2,41 +2,35 @@
 
 ;; functions to horizontally and vertically concatenate matrices and vectors
 
-(defun vcat (v1 v2)
-  "Concatenates two vectors end to end.
+(defun elm-type-v (v)
+  (type-of (maref v 0)))
 
-   TODO: Currently requires both vectors to be of the same type, this
-   should probably be changed to return the new vector which is the
-   most specific possible thing (so concat a vector of ints with one
-   of single-floats and the result will be a vector of single float.
+(defun elm-type-m (m)
+  (type-of (maref m 0 0)))
 
-   TODO: make this take args (&rest vectors) so that any number can be
-   concatenated at once with only one allocation for the final result."
-  (declare (optimize (speed 3) (safety 3))
-	   (type gsll:mvector v1 v2))
-  (assert (eq (type-of v1) (type-of v2)) (v1 v2)
-	  "Cannot concatenate vectors with different types.")
-  (let ((v1-size (dim0 v1))
-	(v2-size (dim0 v2)))
-    (declare (fixnum v1-size v2-size))
-    (let ((vnew (make-marray (type-of v1) :dimensions (+ v1-size v2-size))))
-      ;; copy elements from first vector..
-      (do-vector (v1 i elm)
-	(setf (maref vnew i) elm))
-      ;; copy from the second vector.
-      (do-vector (v2 i elm)
-	(setf (maref vnew (the fixnum (+ i v1-size))) elm))
+(defun all-of-type (type objects)
+  "Tests whether every obj in objects satisfies (typep obj type)"
+  (and (mapcar #'(lambda (obj) (typep obj type)) objects)))
+
+(defun vcat (&rest vs)
+  "Concatenates any number of vectors end to end.
+
+   TODO: currently requires all vectors to be of the same type."
+  (declare (optimize (speed 3) (safety 3)))
+  (let ((vtype  (type-of (first vs)))
+	(length (reduce #'+ (mapcar #'dim0 vs))))
+    (assert (all-of-type vtype vs) nil
+	    "Cannot concatenate vectors with different types.")
+    (let ((vnew     (make-marray (elm-type-v (first vs)) :dimensions length))
+	  (dest-idx 0))
+      (declare (fixnum dest-idx)
+	       (gsll:mvector vnew))
+      ;; copy each vector in order
+      (dolist (v vs)
+	(do-vector (v i elm)
+	  (setf (maref vnew (the fixnum (+ dest-idx i))) elm))
+	(incf dest-idx (the fixnum (dim0 v))))
       vnew)))
-
-;; (defun all-of-type (type objects)
-;;   "Tests whether every item in objects satisfies (typep ")
-
-;; (defun vcat-many (&rest vectors)
-;;   "Concatenates any number of vectors end to end.
-
-;;    TODO: currently requires all vectors to be of the same type."
-  
-;;   (let ((vec-size))))
 
 (defun mcat-hor (m1 m2)
   "Concatenates two matrices horizontally."
@@ -51,8 +45,8 @@
 	    (dim0 m1) (dim0 m2))
     (assert (eq (type-of m1) (type-of m2)) (m1 m2)
 	    "Cannot concatenate matrices of different types.")
-    (let ((mnew (make-marray (type-of m1) :dimensions (list rows (the fixnum
-								   (+ cols1 cols2))))))
+    (let ((mnew (make-marray (elm-type-m m1) :dimensions (list rows (the fixnum
+								      (+ cols1 cols2))))))
       ;; copy from first matrix
       (do-matrix (m1 i j elm)
 	(setf (maref mnew i j) elm))
@@ -74,7 +68,7 @@
 	    (dim1 m1) (dim1 m2))
     (assert (eq (type-of m1) (type-of m2)) (m1 m2)
 	    "Cannot concatenate matrices of different types.")
-    (let ((mnew (make-marray (type-of m1) :dimensions (list (+ rows1 rows2) cols))))
+    (let ((mnew (make-marray (elm-type-m m1) :dimensions (list (+ rows1 rows2) cols))))
       ;; copy from first matrix
       (do-matrix (m1 i j elm)
 	(setf (maref mnew i j) elm))
