@@ -2,14 +2,6 @@
 
 ;; functions to horizontally and vertically concatenate matrices and vectors
 
-(defun all (pred list)
-  "Tests whether every elemtn of list satisfies pred."
-  (and (mapcar pred list)))
-
-(defun all-of-type (type objects)
-  "Tests whether every obj in objects satisfies (typep obj type)"
-  (all #'(lambda (obj) (typep obj type)) objects))
-
 (defun vcat (&rest vs)
   "Concatenates any number of vectors end to end.
 
