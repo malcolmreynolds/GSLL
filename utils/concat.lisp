@@ -21,12 +21,22 @@
     (declare (fixnum v1-size v2-size))
     (let ((vnew (make-marray (type-of v1) :dimensions (+ v1-size v2-size))))
       ;; copy elements from first vector..
-      (do-vector (v1 i)
+      (do-vector (v1 i elm)
 	(setf (maref vnew i) elm))
       ;; copy from the second vector.
-      (do-vector (v2 i)
+      (do-vector (v2 i elm)
 	(setf (maref vnew (the fixnum (+ i v1-size))) elm))
       vnew)))
+
+;; (defun all-of-type (type objects)
+;;   "Tests whether every item in objects satisfies (typep ")
+
+;; (defun vcat-many (&rest vectors)
+;;   "Concatenates any number of vectors end to end.
+
+;;    TODO: currently requires all vectors to be of the same type."
+  
+;;   (let ((vec-size))))
 
 (defun mcat-hor (m1 m2)
   "Concatenates two matrices horizontally."
@@ -44,10 +54,10 @@
     (let ((mnew (make-marray (type-of m1) :dimensions (list rows (the fixnum
 								   (+ cols1 cols2))))))
       ;; copy from first matrix
-      (do-matrix (m1 i j)
+      (do-matrix (m1 i j elm)
 	(setf (maref mnew i j) elm))
       ;; copy from second matrix
-      (do-matrix (m2 i j)
+      (do-matrix (m2 i j elm) 
 	(setf (maref mnew i (the fixnum (+ j cols1))) elm))
       mnew)))
 
@@ -66,9 +76,9 @@
 	    "Cannot concatenate matrices of different types.")
     (let ((mnew (make-marray (type-of m1) :dimensions (list (+ rows1 rows2) cols))))
       ;; copy from first matrix
-      (do-matrix (m1 i j)
+      (do-matrix (m1 i j elm)
 	(setf (maref mnew i j) elm))
       ;; copy from second matrix
-      (do-matrix (m2 i j)
+      (do-matrix (m2 i j elm)
 	(setf (maref mnew (the fixnum (+ i rows1)) j) elm))
       mnew)))
