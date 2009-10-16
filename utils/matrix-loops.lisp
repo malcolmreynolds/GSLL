@@ -1,5 +1,7 @@
 (in-package :gsll-util)
 
+(use-package :cl-utilities)
+
 ;; Macros for looping through matrices and vectors
 
 ;; TODO: option to add in assertions that things which are supposed to
@@ -16,7 +18,7 @@
 
    If provided, elm becomes a symbol macro to get/setf the
    current element inside the body."
-  (let ((m (gensym)))
+  (with-gensyms (m)
     (let ((inner-code `(let ((,m (dim0 ,vector)))
 			 (declare (fixnum ,m))
 			 (dotimes (,i ,m)
@@ -32,7 +34,7 @@
 
    If provided, elm becomes a symbol macro to get/setf the
    current element inside the body."
-  (let ((m (gensym)) (n (gensym)))
+  (with-gensyms (m n)
     (let ((inner-code `(let ((,m (dim0 ,matrix))
 			     (,n (dim1 ,matrix)))
 			 (declare (fixnum ,m ,n))
@@ -51,7 +53,7 @@
 
    If provided, elm becomes a symbol macro to get/setf the
    current element inside the body."
-  (let ((m (gensym)) (n (gensym)))
+  (with-gensyms (m n)
     (let ((inner-code `(let ((,m (dim0 ,matrix))
 			     (,n (dim1 ,matrix)))
 			 (declare (fixnum ,m ,n))
@@ -71,7 +73,7 @@
 
    If provided, row-name becomes a symbol macro to get/setf the
    current row inside the body."
-  (let ((m (gensym)))
+  (with-gensyms (m)
     (let ((inner-code `(let ((,m (dim0 ,matrix)))
 			 (declare (fixnum ,m))
 			 (dotimes (,r ,m)
@@ -87,7 +89,7 @@
 
    If provided, column-name becomes a symbol-macro to get/setf the
    current column inside the body."
-  (let ((m (gensym)))
+  (with-gensyms (m)
     (let ((inner-code `(let ((,m (dim1 ,matrix)))
 			 (declare (fixnum ,m))
 			 (dotimes (,c ,m)
@@ -102,7 +104,7 @@
 
    If provided, elm becomes a symbol macro to get/setf the current
    element inside the body."
-  (let ((m (gensym)))
+  (with-gensyms (m)
     (let ((inner-code `(let ((,m (min (dim0 ,matrix) (dim1 ,matrix))))
 			 (declare (fixnum ,m))
 			 (dotimes (,i ,m)
