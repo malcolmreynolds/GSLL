@@ -14,7 +14,7 @@
 
 ;; A = B(1:3,[2,4]) takes data from first 3 rows and columns 2 and 4
 
-;;;; VECTOR SLICE READ
+;;;; Vector Slice Read
 
 (defun vslice (vec indices)
   "Returns a new vector containing elements from vec using the indices
@@ -46,10 +46,11 @@
       (setf elm (maref vec (pop list))))
     vnew))
 
-;;;; VECTOR SLICE WRITE
+
+;;;; Vector Slice Read
 
 (defun (setf vslice) (vals vec indices)
-  "Allows slices to be used as the place in a setf expression."
+  "Sets the locations of vec specified by indices to the "
   (cond ((uint-vec? indices) (setf (vslice-uintmvec vec indices) vals))
 	((listp     indices) (setf (vslice-list     vec indices) vals))
 	(t (error "Indices supplied as a ~A which is unsupported."
@@ -68,9 +69,7 @@
   vec)
 
 
-
-
-;; Matrix functions
+;;;; Matrix Slice Read
 
 (defun mslice (mtx ind-1 ind-2)
   "Returns a new matrix consisting of the corresponding elements from the
@@ -171,3 +170,87 @@
 (def-slice-func mslice-all-list        all  list)
 ;; NB we don't define mslice-all-all because that devolves
 ;; to simply calling #'copy.
+
+
+;;;; Matrix Slice Write
+
+(defun (setf mslice) (vals mtx ind-1 ind-2)
+  "Modifies the elements of mtx specified by indices ind-1 and ind-2 to
+   contain values copied from vals."
+  (cond ((uint-vec? ind-1)
+	 (cond ((uint-vec? ind-2) (setf (mslice-uintvec-uintvec mtx ind-1 ind-2) vals))
+	       ((listp ind-2)     (setf (mslice-uintvec-list mtx ind-1 ind-2) vals))
+	       ((eq ind-2 :all)   (setf (mslice-uintvec-all mtx ind-1) vals))
+	       (t (error "ind-2 supplied as a ~A which is unsupported."
+			 (type-of ind-2)))))
+	((listp ind-1)
+	 (cond ((uint-vec? ind-2) (setf (mslice-list-uintvec mtx ind-1 ind-2) vals))
+	       ((listp ind-2)     (setf (mslice-list-list mtx ind-1 ind-2) vals))
+	       ((eq ind-2 :all)   (setf (mslice-list-all mtx ind-1) vals))
+	       (t (error "ind-2 supplied as a ~A which is unsupported."
+			 (type-of ind-2)))))
+	((eq ind-1 :all)
+	 (cond ((uint-vec? ind-2) (setf (mslice-all-uintvec mtx ind-2) vals))
+	       ((listp ind-2)     (setf (mslice-all-list mtx ind-2) vals))
+	       ((eq ind-2 :all)   (setf (mslice-all-all mtx) vals))
+	       (t (error "ind-2 supplied as a ~A which is unsupported."
+			 (type-of ind-2)))))
+	(t
+	 (error "ind-1 supplied as a ~A which is unsupported."
+		(type-of ind-1)))))
+
+(defmacro def-slice-func-setf (name type1 type2)
+  "Builds a matrix (setf slice ... ) function."
+  (let ((arglist (list 'vals 'mtx))
+	dim-form-1 dim-form-2 acc-form-1 acc-form-2 save-head)
+    (ecase type1
+      (mvec (setf dim-form-1 '(dim0 ind-1)
+		  acc-form-1 '(maref ind-1 i)))
+      (list (setf dim-form-1 '(length ind-1)
+		  acc-form-1 '(car ind-1)))
+      (all  (setf dim-form-1 '(dim0 mtx)
+		  acc-form-1 'i)))
+    (unless (eq type1 'all)
+      (setf arglist (nconc arglist (list 'ind-1))))
+
+    (ecase type2
+      (mvec (setf dim-form-2 '(dim0 ind-2)
+		  acc-form-2 '(maref ind-2 j)))
+      (list (setf dim-form-2 '(length ind-2)
+		  acc-form-2 '(pop ind-2)
+		  save-head  t))
+      (all  (setf dim-form-2 '(dim1 mtx)
+		  acc-form-2 'j)))
+    (unless (eq type2 'all)
+      (setf arglist (nconc arglist (list 'ind-2))))
+
+    `(defun (setf ,name) ,arglist
+       (let* ((save-head ,(if save-head 'ind-2))
+	      (rows ,dim-form-1)
+	      (cols ,dim-form-2))
+	 (declare (ignorable save-head))
+	 (dotimes (i rows mtx)
+	   (dotimes (j cols)
+	     ;;here we do the actual copying
+	     (setf (maref mtx ,acc-form-1 ,acc-form-2)
+		   (maref vals i j)))
+	   ;; adjustments which might be needed depending on whether we
+	   ;; have lists for either of the indices.
+	   ,@(let (swizzles)
+		  (if save-head
+		      (push '(setf ind-2 save-head) swizzles))
+		  (if (eq type1 'list)
+		      (push '(pop ind-1) swizzles))
+		  swizzles))))))
+
+(def-slice-func-setf mslice-uintvec-uintvec mvec mvec)
+(def-slice-func-setf mslice-uintvec-list    mvec list)
+(def-slice-func-setf mslice-uintvec-all     mvec all)
+(def-slice-func-setf mslice-list-uintvec    list mvec)
+(def-slice-func-setf mslice-list-list       list list)
+(def-slice-func-setf mslice-list-all        list all)
+(def-slice-func-setf mslice-all-uintvec     all  mvec)
+(def-slice-func-setf mslice-all-list        all  list)
+(def-slice-func-setf mslice-all-all         all  all)
+
+
