@@ -104,7 +104,7 @@
     
     `(defun ,name ,arglist
        (declare (optimize (speed 3) (safety 3)))
-       (let* (;; if ind-2 is a list we need to save the head
+       (let* ( ;; if ind-2 is a list we need to save the head
 	      ;; to restore it after each row is full. If not
 	      ;; the case, well this is one saved reference which
 	      ;; we dont use. probably a cost worth paying..
@@ -122,17 +122,18 @@
 	     ;; we have the correct expressions for indexing into mtx.
 	     (setf (maref mnew i j)
 		   (maref mtx ,acc-form-1 ,acc-form-2)))
-	   ;; if ind-2 is a list, restore the head after each row.
-	   ;; This is because we will be popping it as we go.
-	   
-	   ;; Here I return 'blah because otherwise this and the next
-	   ;; form being true means we get an error about nil appearing
-	   ;; more than once in a tagbody. There may well be a better way
-	   ;; to do this... although maybe it will be optimised away
-	   ,(if save-head '(setf ind-2 save-head) 'blah)
-	   ;; if ind-1 is a list, pop at this point, as we need the next
-	   ;; value for the next row.
-	   ,(if (eq type1 'list) '(pop ind-1)))))))
+	   ;; depending on the type of indices we have, we might need
+	   ;; some adjustments after each row. These are called swizzles.
+	   ,@(let (swizzles)
+		 ;; if ind-2 is a list, restore the head after each row.
+		 ;; This is because we will be popping it as we go.
+		 (if save-head
+		     (push '(setf ind-2 save-head) swizzles))
+		 ;; if ind-1 is a list, pop at this point, as we need
+		 ;; the next value for the next row.
+		 (if (eq type1 'list)
+		     (push '(pop ind-1) swizzles))
+		 swizzles))))))
 
 ;; define the functions using the macro above..
 (def-slice-func mslice-uintvec-uintvec mvec mvec)
