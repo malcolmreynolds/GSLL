@@ -14,6 +14,8 @@
 
 ;; A = B(1:3,[2,4]) takes data from first 3 rows and columns 2 and 4
 
+;;;; VECTOR SLICE READ
+
 (defun vslice (vec indices)
   "Returns a new vector containing elements from vec using the indices
    given in indices. Dispatches to various more specialised functions"
@@ -43,6 +45,29 @@
     (do-vector (vnew i elm)
       (setf elm (maref vec (pop list))))
     vnew))
+
+;;;; VECTOR SLICE WRITE
+
+(defun (setf vslice) (vals vec indices)
+  "Allows slices to be used as the place in a setf expression."
+  (cond ((uint-vec? indices) (setf (vslice-uintmvec vec indices) vals))
+	((listp     indices) (setf (vslice-list     vec indices) vals))
+	(t (error "Indices supplied as a ~A which is unsupported."
+		  (type-of indices)))))
+
+(defun (setf vslice-uintmvec) (vals vec indices)
+  "Sets the locations specified by indices in vec to elements copied from val."
+  (do-vector (vals i elm)
+    (setf (maref vec (maref indices i)) elm))
+  vec)
+
+(defun (setf vslice-list) (vals vec list)
+  "Sets the locations specified by indices in vec to elements copied from val."
+  (do-vector (vals i elm)
+    (setf (maref vec (pop list)) elm))
+  vec)
+
+
 
 
 ;; Matrix functions
