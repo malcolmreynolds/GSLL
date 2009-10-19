@@ -45,19 +45,11 @@
     vnew))
 
 
-;; Matrix functins
+;; Matrix functions
 
 (defun mslice (mtx ind-1 ind-2)
   "Returns a new matrix consisting of the corresponding elements from the
    matrix. Acceptable values for indices 1 or 2 include the keyword :all"
-  ;; This code is a bit of a state but allowing full flexibility in both
-  ;; arguments has a price. Definitely due a second pass.
-
-  ;; Basic idea is, each of the index values can be either a gsll
-  ;; vector (of integers), a basic list, or the :all keyword, so we test for each
-  ;; of the 9 possble combinations.
-
-  ;; probably some badass closure magic can sort this out..
   (cond ((uint-vec? ind-1)
 	 (cond ((uint-vec? ind-2) (mslice-uintvec-uintvec mtx ind-1 ind-2))
 	       ((listp ind-2)     (mslice-uintvec-list    mtx ind-1 ind-2))
@@ -126,15 +118,20 @@
 		  (type gsll:matrix mnew))
 	 (dotimes (i mnew-rows mnew)
 	   (dotimes (j mnew-cols)
+	     ;; this does the actual work - the ecase forms above ensure
+	     ;; we have the correct expressions for indexing into mtx.
 	     (setf (maref mnew i j)
 		   (maref mtx ,acc-form-1 ,acc-form-2)))
 	   ;; if ind-2 is a list, restore the head after each row.
-	   ;; here I return 'blah because otherwise this and the next
+	   ;; This is because we will be popping it as we go.
+	   
+	   ;; Here I return 'blah because otherwise this and the next
 	   ;; form being true means we get an error about nil appearing
 	   ;; more than once in a tagbody. There may well be a better way
 	   ;; to do this... although maybe it will be optimised away
 	   ,(if save-head '(setf ind-2 save-head) 'blah)
-	   ;; if ind-1 is a list, pop at this point
+	   ;; if ind-1 is a list, pop at this point, as we need the next
+	   ;; value for the next row.
 	   ,(if (eq type1 'list) '(pop ind-1)))))))
 
 ;; define the functions using the macro above..
