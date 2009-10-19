@@ -1,6 +1,6 @@
 (defpackage gsll-util
   (:nicknames :gslu)
-  (:use :common-lisp :gsll)
+  (:use :common-lisp :gsll :cl-utilities)
   (:export
    ;; matrix-loops.lisp
    :do-vector
@@ -13,4 +13,8 @@
    ;; concat.lisp
    :vcat
    :mcat-ver
-   :mcat-hor))
+   :mcat-hor
+
+   ;; slice.lisp
+   :mslice
+   :vslice))
